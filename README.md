@@ -48,13 +48,13 @@ vigueur…), ce skill active une procédure en 7 étapes incluant :
 
 ```powershell
 # Cloner dans le dossier skills global Claude Code
-git clone https://github.com/Murukan/droit-francais-skill "$env:USERPROFILE\.claude\skills\recherche-juridique"
+git clone https://github.com/brissonjo-sudo/droit-francais-skill "$env:USERPROFILE\.claude\skills\recherche-juridique"
 ```
 
 ### macOS / Linux
 
 ```bash
-git clone https://github.com/Murukan/droit-francais-skill ~/.claude/skills/recherche-juridique
+git clone https://github.com/brissonjo-sudo/droit-francais-skill ~/.claude/skills/recherche-juridique
 ```
 
 ### Installation manuelle
