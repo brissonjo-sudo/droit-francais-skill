@@ -112,7 +112,7 @@ Procédure détaillée → [`docs/maintenance.md`](docs/maintenance.md).
 
 [Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)](LICENSE)
 
-© 2026 @Murukan
+© 2026 @brissonjo-sudo
 
 ---
 
