@@ -1,26 +1,25 @@
 ---
 nom: recherche-juridique
-version: 2.0.0
-date_derniere_revue_methodologique: 2026-05-19
-date_derniere_verification_sources: 2026-05-19
+version: 3.0.0
+date_derniere_revue_methodologique: 2026-05-30
+date_derniere_verification_sources: 2026-05-30
 langue: français
 ---
 
-# Skill : recherche-juridique (v2.0.0)
+# Skill : recherche-juridique (v3.0.0)
 
 > **Objet** : encoder la méthodologie rigoureuse de recherche en droit
-> français applicable à un usage institutionnel (Police Municipale,
-> administration locale, préparation au concours de Commissaire de
-> Police). Cette v2 est conçue contre **quatorze modes d'erreur**
+> français applicable à un usage juridique professionnel et
+> institutionnel. Cette v3 est conçue contre **quatorze modes d'erreur**
 > identifiés du LLM en droit, autour de **sept principes**, d'une
 > **procédure en sept étapes**, d'un **double mode opératoire A/B**,
-> de **cinq modules activables** et de **quatre techniques** de
+> de **quatre modules activables** et de **quatre techniques** de
 > raisonnement juridique.
 >
-> **Public** : cadre territorial (police municipale, administration
-> locale, juriste praticien). Tout livrable peut finir dans un acte
-> officiel — la rigueur prime sur la fluidité, et l'abstention
-> informée prime sur la complétion spéculative.
+> **Public** : juriste, praticien du droit, rédacteur d'actes ou de
+> notes juridiques. Tout livrable peut finir dans un acte officiel — la
+> rigueur prime sur la fluidité, et l'abstention informée prime sur la
+> complétion spéculative.
 
 ---
 
@@ -31,9 +30,9 @@ Activer ce skill dès que l'utilisateur :
 - demande une qualification juridique (pénale, administrative, civile),
 - demande de vérifier si un texte est en vigueur, abrogé ou modifié,
 - demande une jurisprudence (Cass., CE, CC, CJUE, CEDH),
-- rédige un arrêté municipal, une note au Maire, un mémoire, une réponse
-  à un questionnaire institutionnel,
-- prépare un oral ou écrit de concours impliquant des références juridiques.
+- rédige un acte administratif, une note juridique, un mémoire, une
+  consultation ou une réponse à un questionnaire institutionnel,
+- prépare un argumentaire ou un exposé impliquant des références juridiques.
 
 **Ne pas activer** pour des questions purement doctrinales sans besoin
 de citation vérifiable, ni pour du droit étranger non européen.
@@ -60,9 +59,9 @@ d'une ligne).
 
 Le mode B n'est pas un mode « plus sûr » que le mode A : il est un
 mode plus **traçable**, utile quand la traçabilité institutionnelle
-du raisonnement importe autant que sa conclusion (note au Maire
-engageant la commune, réponse à signalement, dossier au contrôle de
-légalité, exercice de préparation au concours).
+du raisonnement importe autant que sa conclusion (acte engageant une
+personne publique, réponse à signalement, dossier au contrôle de
+légalité, mémoire ou consultation à fort enjeu).
 
 ### Balises de bascule
 
@@ -70,8 +69,8 @@ légalité, exercice de préparation au concours).
 |--------|-------|
 | `[complet]` | Force le mode B (tous modules activés). |
 | `[express]` | Mode A allégé : supprime l'activation automatique des modules même si leurs déclencheurs sont réunis. **Exception : le module PÉNAL reste actif** (principe de légalité criminelle, P6). |
-| `[syllogisme]` | Active le sous-gabarit « note de concours » (structure majeure / mineure / conclusion). Surcouche du gabarit B. |
-| `[opérationnel]` | Active la section « Implications opérationnelles » du gabarit B et le rôle facultatif *directeur opérationnel* à l'étape 7. |
+| `[syllogisme]` | Active le sous-gabarit « raisonnement syllogistique » (structure majeure / mineure / conclusion). Surcouche du gabarit B. |
+| `[opérationnel]` | Active la section « Implications opérationnelles » du gabarit B et le rôle facultatif *responsable de la mise en œuvre* à l'étape 7. |
 
 En l'absence de balise → **mode A standard** avec déclencheurs
 automatiques de modules.
@@ -162,8 +161,6 @@ d'identification, de contextualisation ou de signalement d'une
 controverse doctrinale. Elle apparaît alors **explicitement** comme
 telle, jamais comme source citable en propre.
 
-Détail → [`docs/sources-autorisees.md`](docs/sources-autorisees.md).
-
 → Bloque modes 6, 7, 8.
 
 ### P4 — Citation traçable et fonction juridique
@@ -193,8 +190,6 @@ Pour chaque décision citée, distinguer explicitement :
 compétence, procédure, sanction, définition, exception, renvoi,
 habilitation, contrôle. Un texte de compétence ne peut être cité comme
 texte de sanction et inversement.
-
-Détail → [`docs/format-citation.md`](docs/format-citation.md).
 
 → Bloque modes 1, 4, 6, 7, 14.
 
@@ -286,8 +281,8 @@ Avant toute recherche, répondre par écrit à **six questions** :
    faits** et **date d'action ou d'analyse** (contrôles de délais et
    prescription).
 3. **Domaine(s) et code(s) en jeu**.
-4. **Champ territorial** : national / IDF / petite couronne /
-   commune / Outre-mer / Alsace-Moselle…
+4. **Champ territorial** : national / régional / local / Outre-mer /
+   Alsace-Moselle…
 5. **Niveau d'exigence** : note express / note de fond / citation pour acte.
 6. **Test de régime applicable** : police générale ou spéciale ?
    matière répressive ou non ? acte individuel ou réglementaire ?
@@ -377,7 +372,7 @@ Si la question dépend de l'interprétation d'un texte :
 **Règle de triangulation — règle unifiée**
 
 Obligatoire dans les cas suivants :
-- qualification pénale destinée à motiver un acte ou un PV (cf.
+- qualification pénale destinée à motiver un acte ou une décision (cf.
   module PÉNAL §6 ci-dessous) **lorsqu'une interprétation est en jeu**
   (élément constitutif discutable, qualification concurrente plausible,
   application analogique apparente, jurisprudence connue de divergence
@@ -387,10 +382,8 @@ Obligatoire dans les cas suivants :
 
 **Non requise** pour la simple constatation matérielle d'une infraction
 dont le texte d'incrimination s'applique sans ambiguïté aux faits
-constatés (constatation contraventionnelle de routine, infraction
-flagrante au Code de la route, infraction au stationnement, etc.),
-ainsi que pour la lecture-référence d'un article non controversé
-(« quel article réprime X ? »).
+constatés, ainsi que pour la lecture-référence d'un article non
+controversé (« quel article réprime X ? »).
 
 **Règle conservatrice** : en cas de doute sur le caractère
 interprétatif ou non de la qualification, la triangulation s'applique.
@@ -417,8 +410,8 @@ balisée (P7).
    internationales (CEDH notamment), droit de l'UE.
 3. **Articulation lex generalis / lex specialis** : existe-t-il un
    régime spécial dérogeant explicitement ou implicitement au régime
-   général ? (Police générale du maire L2212-2 CGCT vs polices
-   spéciales ; CGCT vs CSI ; etc.)
+   général ? (régime de police générale vs polices spéciales ; loi
+   générale vs loi spéciale ; etc.)
 4. **Champ territorial et personnel** d'application.
 5. **Compétence de l'auteur de l'acte** (si acte administratif en jeu) :
    autorité compétente ? Délégation régulière ? Compétence territoriale ?
@@ -484,14 +477,14 @@ Mobilisation des arguments classiques :
 (b) **Le juge de cassation ou de contrôle de légalité** — où est la
 faiblesse du raisonnement ? Quel point pourrait être censuré ?
 
-(c) **Le jury de concours** — quelle question d'oral m'enfoncerait
-sur ce point ?
+(c) **Le relecteur exigeant** — quelle objection de fond ou quelle
+question difficile fragiliserait ce point ?
 
 **Rôle facultatif** (activé par balise `[opérationnel]` ou si la
-requête porte sur la mise en œuvre) : (d) **Le directeur opérationnel** —
-cette mesure est-elle effectivement applicable avec les moyens
-disponibles, les contraintes RH et budgétaires, l'articulation avec
-la police nationale ?
+requête porte sur la mise en œuvre) : (d) **Le responsable de la mise
+en œuvre** — cette mesure est-elle effectivement applicable compte tenu
+des moyens disponibles, des contraintes pratiques et budgétaires, et
+des articulations institutionnelles nécessaires ?
 
 Si l'un des rôles identifie un trou → retour à l'étape concernée
 **avant livraison**.
@@ -529,9 +522,9 @@ Pour un précédent ou un texte apparemment applicable, identifier les
 éléments qui distinguent la situation analysée du cas couvert
 (différence factuelle, temporelle, territoriale, de qualité d'acteur,
 de pouvoir invoqué) et qui justifient de ne pas appliquer la solution
-apparente. **Réflexe central du raisonnement juridique territorial** :
-un précédent national ne s'applique pas automatiquement à une
-situation locale.
+apparente. **Réflexe central du raisonnement juridique** : un précédent
+ne s'applique pas automatiquement à une situation présentant des
+différences pertinentes.
 
 ---
 
@@ -544,7 +537,7 @@ module s'active.** Le mode B force l'activation de tous les modules.
 ### Module PÉNAL
 - **Déclencheurs** : toute requête comportant un fait à qualifier
   pénalement, toute mention d'infraction (contravention, délit,
-  crime), toute demande de visa pénal, toute préparation de PV.
+  crime), toute demande de visa pénal.
 - **Statut** : **non désactivable par `[express]`** (P6).
 - **Contenu** : application stricte de P6 ; **règle de triangulation
   unifiée de l'étape 4** (obligatoire dès qu'une interprétation est en
@@ -583,20 +576,9 @@ module s'active.** Le mode B force l'activation de tous les modules.
   - **contrôle des éléments de preuve** justifiant la mesure,
   - **triangulation obligatoire si l'acte fait grief**.
 
-### Module PA-PJ
-- **Déclencheurs** : question portant sur des opérations susceptibles
-  d'appartenir à la police administrative ou à la police judiciaire,
-  mention de constatation, d'interpellation, de contrôle, de mesure
-  préventive.
-- **Contenu** — mini-grille obligatoire :
-  - **finalité** : préventive (PA) ou répressive (PJ) ?
-  - **autorité agissante**,
-  - **temporalité** par rapport au fait,
-  - **régime procédural applicable**.
-
 ### Module FOND
 - **Déclencheurs** : niveau d'exigence = note de fond / citation pour
-  acte / préparation de concours ; ou question d'interprétation
+  acte / analyse approfondie ; ou question d'interprétation
   explicitement controversée.
 - **Contenu** :
   - **archéologie textuelle (T3)** obligatoire,
@@ -632,7 +614,7 @@ Date d'analyse           : JJ/MM/AAAA
 Date(s) de référence     : JJ/MM/AAAA (substantiel) / JJ/MM/AAAA (procédural) / …
 Date des faits           : JJ/MM/AAAA
 Date d'action / analyse  : JJ/MM/AAAA
-Champ territorial        : [national | IDF | petite couronne | commune | …]
+Champ territorial        : [national | régional | local | Outre-mer | …]
 Régime juridique primaire: [police générale | police spéciale | répressif | …]
 Niveau d'exigence        : [note express | note de fond | citation pour acte]
 Mode opératoire          : [A standard | A express | B complet]
@@ -678,7 +660,7 @@ J'en déduis que [...] [confiance modérée — justification une ligne]
 ## Étape 7 — Auto-critique adversariale
 - Contradicteur : [...]
 - Cassation / contrôle de légalité : [...]
-- Jury de concours : [...]
+- Relecteur exigeant : [...]
 
 [Encart final récapitulatif]
 
@@ -688,9 +670,9 @@ Vérification recommandée avant tout usage dans un acte officiel.
 
 ### Gabarit B — Note de fond
 
-Pour : analyse pour mémoire, préparation concours, réponse
-institutionnelle (note au Maire, réponse questionnaire sénatorial),
-dossier au contrôle de légalité.
+Pour : analyse de fond, mémoire, consultation, réponse institutionnelle
+(note interne, réponse à un questionnaire), dossier au contrôle de
+légalité.
 
 ```
 [En-tête standardisé]
@@ -727,7 +709,8 @@ si précédent invoqué.]
 - Sources informelles signalées : […]
 
 ## VII. Implications opérationnelles  [si balise [opérationnel]]
-[Mise en œuvre, moyens, articulation police nationale.]
+[Mise en œuvre, moyens, contraintes pratiques, articulations
+institutionnelles.]
 
 ## Étape 7 — Auto-critique adversariale
 [Trois (ou quatre) rôles explicites]
@@ -758,7 +741,7 @@ Triangulation : [chemin 1 + chemin 2]
 [Encart final récapitulatif]
 ```
 
-### Sous-gabarit « note de concours » (balise `[syllogisme]`)
+### Sous-gabarit « raisonnement syllogistique » (balise `[syllogisme]`)
 
 Surcouche du gabarit B structurant explicitement le raisonnement :
 
@@ -774,8 +757,8 @@ Surcouche du gabarit B structurant explicitement le raisonnement :
 qualifications concurrentes écartées (T1).]
 ```
 
-Utile pour l'oral de Commissaire de Police. Non imposée aux autres
-gabarits.
+Utile pour structurer un raisonnement rigoureux et démonstratif. Non
+imposé aux autres gabarits.
 
 ---
 
@@ -790,10 +773,10 @@ spéculer, dans **neuf cas** :
    transitoire **impossible à confirmer**.
 3. **Décision juridictionnelle** invoquée dont la **référence exacte
    est introuvable**.
-4. **Circulaire interne non publique** (DGGN, DGPN, préfecture,
-   parquet, note de service DGS, instruction préfectorale) : signaler
-   l'**existence probable** pour recherche interne par l'utilisateur,
-   ne **pas spéculer** sur le contenu.
+4. **Circulaire ou instruction interne non publique** (note de
+   service, instruction administrative non publiée au recueil
+   officiel) : signaler l'**existence probable** pour recherche
+   interne par l'utilisateur, ne **pas spéculer** sur le contenu.
 5. **Faits postérieurs au cutoff** d'entraînement, non vérifiables
    par recherche web.
 6. **Matière répressive** : doute sérieux sur un élément constitutif
@@ -826,24 +809,24 @@ balisée (P7).
 
 ---
 
-## 8. Cas particuliers — Police Municipale et Administration locale
+## 8. Cas particuliers — points de vigilance fréquents
 
-### Arrêtés de police administrative (CGCT)
-- Compétence générale : art. **L. 2212-1** et **L. 2212-2 CGCT**.
-- Polices spéciales : art. **L. 2213-1 à L. 2213-32 CGCT** (selon objet).
+### Actes administratifs et mesures de police
+- Compétence : vérifier le fondement législatif exact du pouvoir
+  exercé et l'autorité compétente (auteur, délégation, champ
+  territorial et temporel).
 - Articulation lex generalis / lex specialis (étape 5, contrôle 3) :
-  une police spéciale (environnement, urbanisme, occupation du domaine
-  public, sécurité routière) peut **dessaisir** ou **encadrer** la
-  police générale du maire.
+  un régime spécial (environnement, urbanisme, occupation du domaine
+  public, sécurité routière…) peut **dessaisir** ou **encadrer** le
+  régime général. Vérifier lequel prime sur les faits analysés.
 - Jurisprudence cardinale :
-  - **CE, 19 mai 1933, *Benjamin*, Lebon** — proportionnalité (cf. module ACTE-ADMIN).
+  - **CE, 19 mai 1933, *Benjamin*, Lebon** — proportionnalité de la
+    mesure de police (cf. module ACTE-ADMIN).
   - **CE, 26 oct. 2011, *Commune de Saint-Denis*, n° 326492** —
     exigence de motivation et de circonstances locales.
-- Mode 10 : vérifier le champ territorial (Paris intra-muros pour
-  certaines polices spéciales, IDF pour certaines compétences,
-  en petite couronne parisienne (Hauts-de-Seine, Seine-Saint-Denis,
-  Val-de-Marne) — **partage des compétences avec la préfecture de
-  police** à vérifier pour chaque commune concernée).
+- Mode 10 : vérifier systématiquement le champ territorial
+  d'application (national, régimes locaux particuliers, Outre-mer),
+  qui peut modifier ou répartir les compétences.
 
 ### Qualifications pénales
 - **Date de référence = date des faits** (P2, P6).
@@ -857,12 +840,11 @@ balisée (P7).
 - Vérifier la version en vigueur de la convention **et** de l'accord
   d'entreprise applicable.
 
-### Articulation arrêté municipal / pouvoirs préfectoraux
-- Mode 8 : vérifier le fondement législatif du pouvoir de police
-  exercé. Un arrêté municipal pris hors champ est illégal et
-  attaquable devant le tribunal administratif territorialement
-  compétent.
-- Module CONTENTIEUX à activer si risque de recours évoqué.
+### Articulation entre normes de niveaux ou d'auteurs différents
+- Mode 8 : vérifier le fondement et la hiérarchie des normes. Un acte
+  pris hors champ de compétence est illégal et attaquable devant la
+  juridiction compétente.
+- Module CONTENTIEUX à activer si un risque de recours est évoqué.
 
 ---
 
@@ -894,15 +876,21 @@ Métadonnées YAML obligatoires :
 
 ### Checklist annuelle (1er septembre — rentrée juridique)
 
-Priorisée par fréquence de contentieux dans la pratique du praticien :
+À adapter aux codes et matières effectivement suivis dans votre
+pratique. Priorisation recommandée par fréquence d'usage et de
+contentieux :
 
-- [ ] Évolutions du **CGCT, partie police municipale** (priorité haute).
-- [ ] Évolutions du **CPP, cadres d'enquête** (priorité haute).
-- [ ] Évolutions du **Code de la route, compétence police municipale** (priorité haute).
-- [ ] Évolutions du **CSI** (priorité moyenne).
-- [ ] **Nouvelle loi de programmation** Intérieur / Justice (priorité variable).
-- [ ] **Arrêts de principe** rendus dans l'année par Cass. crim. et CE
-      sur ces matières (priorité haute).
+- [ ] Évolutions des **principaux codes suivis** (priorité haute) —
+      par exemple Code pénal, CPP, et tout code spécialisé pertinent
+      pour votre domaine.
+- [ ] **Réformes procédurales** récentes susceptibles d'application
+      immédiate (priorité haute).
+- [ ] **Nouvelles lois de programmation ou d'orientation** dans les
+      matières suivies (priorité variable).
+- [ ] **Arrêts de principe** rendus dans l'année par la Cour de
+      cassation et le Conseil d'État sur ces matières (priorité haute).
+- [ ] **Décisions QPC** abrogatives ou réservatives sur les
+      dispositions suivies.
 - [ ] Mise à jour de `date_derniere_revue_methodologique`.
 - [ ] Mise à jour de `date_derniere_verification_sources`.
 
@@ -913,6 +901,36 @@ Procédure de revue détaillée → [`docs/maintenance.md`](docs/maintenance.md)
 ## CHANGELOG
 
 Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/).
+
+### [3.0.0] — 2026-05-30
+
+#### Modifié
+- **Généralisation du skill** : la méthodologie n'est plus ciblée sur
+  un métier ou un corps particulier. Public, déclencheurs, exemples et
+  gabarits sont reformulés pour tout usage juridique professionnel ou
+  institutionnel.
+- Rôle d'auto-critique (c) « jury de concours » → « relecteur
+  exigeant » ; rôle facultatif (d) « directeur opérationnel » →
+  « responsable de la mise en œuvre » (sans référence à une institution
+  particulière).
+- Sous-gabarit « note de concours » → « raisonnement syllogistique ».
+- Section 8 recentrée sur des points de vigilance juridiques généraux
+  (actes administratifs, qualifications pénales, conventions
+  collectives, articulation des normes) au lieu d'un domaine métier
+  spécifique.
+- Checklist de maintenance annuelle rendue générique (codes et matières
+  à adapter à la pratique de chacun).
+
+#### Retiré
+- **Module PA-PJ** (police administrative / police judiciaire), trop
+  spécifique à un domaine opérationnel. Le skill compte désormais
+  **quatre modules** : PÉNAL, ACTE-ADMIN, FOND, CONTENTIEUX.
+- Toutes les références à des métiers, corps ou audiences spécifiques.
+
+#### Corrigé
+- Suppression de deux liens internes cassés (`docs/sources-autorisees.md`
+  et `docs/format-citation.md`, fichiers jamais créés) dans le SKILL.md
+  et la procédure de maintenance.
 
 ### [2.0.0] — 2026-05-19
 
@@ -969,9 +987,7 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/).
 
 #### Modifié
 - Refonte complète du SKILL.md autour de l'architecture mode A / mode B.
-- Cas particuliers Police Municipale alignés sur les nouveaux modules
-  (notamment partage de compétences avec la préfecture de police en
-  petite couronne parisienne).
+- Cas particuliers alignés sur les nouveaux modules.
 
 #### Conservé (issu de v1)
 - 4 registres explicites (texte / jurisprudence / déduction /

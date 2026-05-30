@@ -1,6 +1,6 @@
 # droit-francais-skill
 
-**Skill LLM — méthodologie de recherche en droit français (v2.0.0)**
+**Skill LLM — méthodologie de recherche en droit français (v3.0.0)**
 
 Un skill pour Claude Code, fonctionnant avec toutes les IA, qui encode une méthodologie rigoureuse de
 recherche juridique en droit français, conçue pour résister aux
@@ -10,10 +10,8 @@ quatorze modes d'erreur typiques des LLM appliqués au droit.
 
 ## Public visé
 
-- Cadres territoriaux (police municipale, administration locale)
-- Juristes praticiens
-- Candidats aux concours de catégorie A de la sécurité intérieure
-  (Commissaire de Police, etc.)
+- Juristes et praticiens du droit
+- Rédacteurs d'actes administratifs ou de notes juridiques
 - Tout utilisateur ayant besoin de références juridiques fiables dans
   un acte officiel ou un document institutionnel
 
@@ -33,12 +31,12 @@ vigueur…), ce skill active une procédure en 7 étapes incluant :
   → auto-critique)
 - **4 techniques** de raisonnement (qualification adversariale,
   triangulation, archéologie textuelle, distinction)
-- **5 modules activables** selon la requête (PÉNAL, ACTE-ADMIN, PA-PJ,
+- **4 modules activables** selon la requête (PÉNAL, ACTE-ADMIN,
   FOND, CONTENTIEUX)
 - **Double mode opératoire** A (noyau + modules) / B (exhaustif avec
   balise `[complet]`)
 - **Gabarits de sortie** normalisés (express, fond, citation pour acte,
-  note de concours)
+  raisonnement syllogistique)
 
 ---
 
@@ -71,13 +69,13 @@ Le skill s'active automatiquement quand vous :
 - demandez une qualification juridique (pénale, administrative, civile)
 - vérifiez si un texte est en vigueur, abrogé ou modifié
 - demandez une jurisprudence (Cass., CE, CC, CJUE, CEDH)
-- rédigez un arrêté municipal, une note au Maire, un mémoire
-- préparez un oral ou écrit de concours
+- rédigez un acte administratif, une note juridique, un mémoire ou une
+  consultation
 
 **Balises de contrôle :**
 - `[complet]` — mode exhaustif, tous modules activés
 - `[express]` — mode allégé (PÉNAL toujours actif)
-- `[syllogisme]` — structure majeure / mineure / conclusion (concours)
+- `[syllogisme]` — structure majeure / mineure / conclusion
 - `[opérationnel]` — section implications opérationnelles activée
 
 ---
@@ -86,18 +84,12 @@ Le skill s'active automatiquement quand vous :
 
 ```
 droit-francais-skill/
-├── SKILL.md                  # Cœur méthodologique (41 ko)
+├── SKILL.md                  # Cœur méthodologique
 ├── checklist-vigueur.md      # Checklist 14 points vérification Légifrance
 ├── gabarits-requetes.md      # Requêtes web_fetch/web_search optimisées
 └── docs/
-    ├── maintenance.md        # Procédure de revue annuelle (1er septembre)
-    ├── sources-autorisees.md # [optionnel] Sources admises par hiérarchie
-    └── format-citation.md    # [optionnel] Formats de citation normalisés
+    └── maintenance.md        # Procédure de revue annuelle (1er septembre)
 ```
-
-Les fichiers `docs/sources-autorisees.md` et `docs/format-citation.md`
-sont optionnels — le SKILL.md contient l'essentiel en ligne. Créez-les
-pour documenter vos pratiques locales de citation.
 
 ---
 

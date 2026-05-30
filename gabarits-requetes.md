@@ -18,7 +18,7 @@ Produit la fiche complète avec métadonnées (version en vigueur, historique).
 
 ### Via la recherche Légifrance
 ```
-web_search("site:legifrance.gouv.fr codes article_lc \"L. 2212-2\" CGCT")
+web_search("site:legifrance.gouv.fr codes article_lc \"L. 3132-3\" \"code du travail\"")
 ```
 
 Ou accès direct au code :
@@ -57,7 +57,7 @@ web_fetch("https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000049XXXXXX?
 
 Ou via la recherche :
 ```
-web_search("site:legifrance.gouv.fr \"L. 2212-2\" CGCT vigueur 2024")
+web_search("site:legifrance.gouv.fr \"L. 3132-3\" \"code du travail\" vigueur 2024")
 ```
 
 ---
@@ -122,7 +122,7 @@ web_search("site:circulaires.legifrance.gouv.fr NOR INTB2300001C")
 
 ### Recherche thématique
 ```
-web_search("site:circulaires.legifrance.gouv.fr \"police municipale\" armement 2023")
+web_search("site:circulaires.legifrance.gouv.fr \"protection des données\" 2023")
 ```
 
 ---
@@ -130,12 +130,12 @@ web_search("site:circulaires.legifrance.gouv.fr \"police municipale\" armement 2
 ## 8. Recherche thématique dans un code
 
 ```
-web_search("site:legifrance.gouv.fr CGCT \"vidéoprotection\" \"voie publique\"")
+web_search("site:legifrance.gouv.fr \"code de l'environnement\" \"dépôt\" \"déchets\"")
 ```
 
 Ou dans la recherche full-text Légifrance :
 ```
-web_fetch("https://www.legifrance.gouv.fr/search/all?query=vid%C3%A9oprotection+voie+publique&tab_selection=code")
+web_fetch("https://www.legifrance.gouv.fr/search/all?query=d%C3%A9p%C3%B4t+d%C3%A9chets&tab_selection=code")
 ```
 
 ---

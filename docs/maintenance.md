@@ -1,10 +1,9 @@
 # Maintenance du skill `recherche-juridique`
 
 Procédure de revue annuelle obligatoire à exécuter **chaque 1er septembre**
-(rentrée juridique), priorisée par fréquence de contentieux dans la
-pratique du praticien (police municipale, administration locale,
-préparation aux concours de catégorie A de la sécurité intérieure le
-cas échéant).
+(rentrée juridique), priorisée par fréquence d'usage et de contentieux
+dans la pratique du praticien. À adapter aux codes et matières
+effectivement suivis.
 
 ---
 
@@ -21,63 +20,54 @@ cas échéant).
 
 ## 1. Veille législative et réglementaire (priorité haute)
 
-### 1.1 CGCT, partie police municipale
-- Vérifier les modifications du livre II, titre Ier, chapitre II
-  (art. **L. 2212-1 à L. 2212-5** et suivants).
-- Vérifier les polices spéciales (art. **L. 2213-1 à L. 2213-32**).
-- Source : fiche Légifrance du CGCT, onglet « Historique des versions »
+### 1.1 Codes suivis dans votre domaine
+- Vérifier les modifications de l'année sur les codes effectivement
+  mobilisés dans votre pratique (par exemple Code pénal, CPP, et tout
+  code spécialisé pertinent).
+- Source : fiche Légifrance du code, onglet « Historique des versions »
   filtré sur l'année écoulée.
 
-### 1.2 Code de procédure pénale, cadres d'enquête
-- Cadres d'enquête (préliminaire, flagrance, instruction), pouvoirs
-  d'OPJ / APJ / APJA, compétence territoriale, garde à vue, mesures
-  alternatives aux poursuites.
+### 1.2 Code de procédure pénale
+- Évolutions des cadres d'enquête, de la preuve, des garanties
+  procédurales et des mesures alternatives aux poursuites.
 - Source : fiche Légifrance du CPP, onglet historique.
 
-### 1.3 Code de la route, compétence police municipale
-- Articles d'incrimination contraventionnelle relevant de la compétence
-  PM (L. 130-4 et suivants, R. 130-x, R. 411-x, R. 412-x, R. 417-x).
-- Évolutions des forfaits, des classes contraventionnelles, des
-  pouvoirs de constatation.
+### 1.3 Réglementation d'application
+- Décrets et arrêtés d'application parus dans l'année pour les
+  dispositions législatives suivies (test du décret d'application,
+  mode 9).
 
-### 1.4 CSI (Code de la sécurité intérieure) — priorité moyenne
-- Livre V (police municipale), livre VI (activités privées de
-  sécurité), livre VII (gardes champêtres et agents).
-- Évolutions des compétences, des armements (notamment décret 2016-1616
-  modifié), de la vidéoprotection (art. L. 251-1 et suivants).
-
-### 1.5 Loi de programmation Intérieur / Justice (priorité variable)
-- Identifier toute LOPSI / LOPJ / loi d'orientation publiée dans
-  l'année et inventorier ses dispositions impactant la PM ou les
-  cadres procéduraux.
+### 1.4 Lois de programmation ou d'orientation (priorité variable)
+- Identifier toute loi de programmation ou d'orientation publiée dans
+  l'année et inventorier ses dispositions impactant les matières
+  suivies ou les cadres procéduraux.
 
 ---
 
 ## 2. Veille jurisprudentielle (priorité haute)
 
-### 2.1 Cour de cassation, chambre criminelle
-- Recenser les arrêts de l'année publiés au **Bulletin** portant sur :
-  qualifications pénales d'usage courant en PM, procédure pénale
-  (cadres d'enquête, preuve), responsabilité pénale des décideurs
-  publics, nullités.
-- Source : courdecassation.fr (filtre Bulletin + chambre criminelle +
+### 2.1 Cour de cassation
+- Recenser les arrêts de l'année publiés au **Bulletin** portant sur
+  les matières suivies (qualifications pénales d'usage courant,
+  procédure, preuve, nullités, responsabilité).
+- Source : courdecassation.fr (filtre Bulletin + chambre concernée +
   période 12 mois).
 
 ### 2.2 Conseil d'État
 - Recenser les arrêts publiés au **Lebon** ou mentionnés aux **Tables**
-  portant sur : pouvoirs de police du maire, proportionnalité des
-  mesures de police, motivation des actes, responsabilité administrative
-  des communes, contentieux fonctionnaires territoriaux.
+  portant sur les matières suivies (mesures de police,
+  proportionnalité, motivation des actes, responsabilité
+  administrative, contentieux applicable).
 - Source : conseil-etat.fr (filtre formation + période).
 
 ### 2.3 Conseil constitutionnel
 - Recenser les **QPC** abrogatives ou réservatives intervenues dans
-  l'année sur les codes suivis (CGCT, CP, CPP, CSI, CdR).
+  l'année sur les codes et dispositions suivis.
 - Source : conseil-constitutionnel.fr (rubrique QPC + période).
 
 ### 2.4 CJUE et CEDH (si pertinent)
 - Arrêts impactant le droit français en matière de libertés publiques,
-  contrôle d'identité, données personnelles, vidéoprotection.
+  données personnelles et garanties procédurales.
 
 ---
 
@@ -88,10 +78,6 @@ cas échéant).
 - `checklist-vigueur.md` : aligner si des points de vigilance nouveaux
   ont émergé (ex. nouvelle disposition transitoire récurrente, nouveau
   type de renvoi normatif).
-- `docs/sources-autorisees.md` : ajouter toute source institutionnelle
-  nouvelle (ex. autorité de régulation créée dans l'année).
-- `docs/format-citation.md` : ajouter tout format de citation nouveau
-  si nécessaire (ex. nouvelle juridiction spécialisée).
 
 ---
 
@@ -101,7 +87,7 @@ cas échéant).
 - [ ] Numérotation continue des 7 principes (P1 à P7).
 - [ ] Numérotation continue des 7 étapes (0 à 7).
 - [ ] Numérotation continue des 4 techniques (T1 à T4).
-- [ ] Les 5 modules ont chacun leurs déclencheurs et leur contenu.
+- [ ] Les 4 modules ont chacun leurs déclencheurs et leur contenu.
 - [ ] Chaque étape a un critère de sortie explicite.
 - [ ] Chaque étape référence le ou les modes d'erreur qu'elle bloque.
 - [ ] Les balises `[complet]`, `[express]`, `[syllogisme]`,
@@ -144,19 +130,19 @@ Faire tourner le skill, après mise à jour, sur **trois requêtes témoins**
 représentatives :
 
 1. **Mode A standard, aucun module** — requête simple de référence
-   d'article (ex. « quel article du CGCT définit les pouvoirs généraux
-   du maire ? »). Vérifier l'en-tête standardisé, l'absence de
-   modules activés dans l'encart final.
+   d'article (ex. « quel article pose le principe de légalité des
+   délits et des peines ? »). Vérifier l'en-tête standardisé, l'absence
+   de modules activés dans l'encart final.
 
 2. **Mode A + PÉNAL + ACTE-ADMIN** — requête de qualification + acte
-   (ex. « qualification de dépôt sauvage et possibilité d'arrêté de
-   mise en demeure »). Vérifier la décomposition élémentaire de
+   (ex. « qualification d'un dépôt illégal de déchets et possibilité
+   d'une mise en demeure »). Vérifier la décomposition élémentaire de
    l'infraction, le contrôle de proportionnalité Benjamin, la
    triangulation appliquée à juste mesure.
 
 3. **Mode B `[complet]`** — requête institutionnelle exigeante
-   (ex. « `[complet]` note sur l'articulation police générale du maire
-   et police spéciale environnementale »). Vérifier que tous les
+   (ex. « `[complet]` note sur l'articulation entre un régime de police
+   générale et un régime de police spéciale »). Vérifier que tous les
    modules sont activés, certains marqués « sans objet à cette
    espèce » avec justification.
 

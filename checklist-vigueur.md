@@ -135,16 +135,12 @@ sur les lois récentes.
   spécifique sur certaines matières (associations, presse, etc.).
 - Outre-mer — application de plein droit (DROM) ou par mention
   expresse (COM) ; spécificités Mayotte, Saint-Barthélemy, etc.
-- **Île-de-France** : compétences de police municipale partagées avec
-  la préfecture de police (Paris) ou modulées (petite couronne).
-- **Paris intra-muros** : régime spécifique de police (préfet de
-  police, et non maire jusqu'aux récentes réformes — à vérifier sur
-  chaque point).
+- **Régimes territoriaux particuliers** : certaines matières
+  répartissent ou modulent les compétences selon le territoire.
 
-**En petite couronne parisienne (Hauts-de-Seine, Seine-Saint-Denis,
-Val-de-Marne) :** attention au partage des compétences avec la
-préfecture de police sur certaines matières — vérifier le périmètre
-exact pour la commune concernée.
+**Vigilance :** un texte d'apparence nationale peut connaître des
+adaptations ou des répartitions de compétence locales — vérifier le
+périmètre exact applicable à la situation analysée.
 
 ---
 
