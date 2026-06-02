@@ -1,26 +1,27 @@
 ---
 nom: recherche-juridique
-version: 2.0.0
-date_derniere_revue_methodologique: 2026-05-19
+version: 2.1.0
+date_derniere_revue_methodologique: 2026-06-02
 date_derniere_verification_sources: 2026-05-19
 langue: français
 ---
 
-# Skill : recherche-juridique (v2.0.0)
+# Skill : recherche-juridique (v2.1.0)
 
 > **Objet** : encoder la méthodologie rigoureuse de recherche en droit
 > français applicable à un usage institutionnel (Police Municipale,
 > administration locale, préparation au concours de Commissaire de
 > Police). Cette v2 est conçue contre **quatorze modes d'erreur**
 > identifiés du LLM en droit, autour de **sept principes**, d'une
-> **procédure en sept étapes**, d'un **double mode opératoire A/B**,
-> de **cinq modules activables** et de **quatre techniques** de
-> raisonnement juridique.
+> **procédure en sept étapes** (complétée par une **étape 0 bis**
+> d'arbitrage des informations manquantes), d'un **double mode
+> opératoire A/B**, de **cinq modules activables** et de **quatre
+> techniques** de raisonnement juridique.
 >
-> **Public** : cadre territorial (police municipale, administration
-> locale, juriste praticien). Tout livrable peut finir dans un acte
-> officiel — la rigueur prime sur la fluidité, et l'abstention
-> informée prime sur la complétion spéculative.
+> **Public** : Chef de Service PM / DGA Saint-Ouen-sur-Seine. Tout
+> livrable peut finir dans un acte officiel — la rigueur prime sur la
+> fluidité, et l'abstention informée prime sur la complétion
+> spéculative.
 
 ---
 
@@ -76,6 +77,12 @@ légalité, exercice de préparation au concours).
 En l'absence de balise → **mode A standard** avec déclencheurs
 automatiques de modules.
 
+**Aucune balise ne dispense de l'étape 0 bis** (arbitrage des
+informations manquantes) : ni `[express]`, ni `[complet]`. Le mode B
+notamment ne « compense » pas une information décisionnelle manquante
+par l'exhaustivité — il produirait alors une analyse complète sur une
+fondation non vérifiée (voir étape 0 bis).
+
 ### Obligation de traçabilité
 
 Toute sortie du skill se termine par un **encart récapitulatif unique** :
@@ -112,6 +119,12 @@ identifiés. Les nommer permet de les bloquer.
 
 Tout ce qui suit est conçu pour bloquer ces quatorze modes. Chaque
 principe et chaque étape mentionnent les modes qu'ils neutralisent.
+
+**Note de v2.1.0.** L'étape 0 bis ajoutée en v2.1.0 ne crée pas un
+quinzième mode : elle agit en amont, comme **garde procédurale** qui
+empêche de déclencher les modes 10 et 14 (analyse du mauvais régime
+ou du mauvais champ territorial sur une hypothèse décisionnelle non
+levée). Elle prolonge P2 et P7 au stade de l'entrée.
 
 ---
 
@@ -263,6 +276,12 @@ Une **sortie dégradée balisée** (« texte trouvé, version non
 confirmée », « point litigieux à vérifier », « jurisprudence non
 localisée ») est généralement plus utile qu'une abstention totale.
 
+**Corollaire d'entrée (v2.1.0).** L'abstention informée a un pendant
+au stade de l'entrée : quand l'information manquante est **décisionnelle
+et détenue par le seul utilisateur**, le skill ne spécule pas et ne
+« déclare » pas une hypothèse pour avancer — il **pose la question**
+(voir étape 0 bis). P7 régit la sortie ; l'étape 0 bis régit l'entrée.
+
 → Bloque modes 1, 2, 3, 5, 6.
 
 ---
@@ -270,8 +289,8 @@ localisée ») est généralement plus utile qu'une abstention totale.
 ## 3. La procédure en 7 étapes (avec critères de sortie)
 
 Chaque étape a un **critère de sortie**. S'il n'est pas rempli, je
-recule ou je m'abstiens. **Les étapes 0 et 7 sont visibles dans la
-réponse finale** — c'est là que l'utilisateur peut corriger avant
+recule ou je m'abstiens. **Les étapes 0, 0 bis et 7 sont visibles dans
+la réponse finale** — c'est là que l'utilisateur peut corriger avant
 qu'une erreur ne se propage dans un acte officiel.
 
 ### Étape 0 — Qualification de la demande et désambiguïsation factuelle (VISIBLE)
@@ -286,7 +305,7 @@ Avant toute recherche, répondre par écrit à **six questions** :
    faits** et **date d'action ou d'analyse** (contrôles de délais et
    prescription).
 3. **Domaine(s) et code(s) en jeu**.
-4. **Champ territorial** : national / IDF / petite couronne /
+4. **Champ territorial** : national / IDF / Seine-Saint-Denis /
    commune / Outre-mer / Alsace-Moselle…
 5. **Niveau d'exigence** : note express / note de fond / citation pour acte.
 6. **Test de régime applicable** : police générale ou spéciale ?
@@ -302,9 +321,73 @@ faits mal formalisés produit une analyse erronée.
 
 **Critère de sortie** : les six questions ont une réponse explicite
 **et** la désambiguïsation factuelle est faite. Si l'une reste
-ambiguë → demander clarification à l'utilisateur **avant** de chercher.
+ambiguë ou si une information nécessaire manque → **passer à l'étape
+0 bis** (arbitrage) **avant** de chercher.
 
 → Bloque modes 4, 7, 10, 14.
+
+### Étape 0 bis — Arbitrage des informations manquantes (VISIBLE)
+
+Ajoutée en v2.1.0. Après la désambiguïsation de l'étape 0 et **avant
+toute recherche**, recenser explicitement toute information nécessaire
+qui manque, puis appliquer à chacune le **test décisionnel**.
+
+**Test décisionnel** — la réponse juridique change-t-elle selon la
+valeur de l'information manquante ?
+- Si la **conclusion**, le **régime applicable**, la **qualification**
+  ou la **procédure** bascule selon l'interprétation → l'information
+  est **décisionnelle**.
+- Si la valeur ne modifie pas la conclusion → l'information est
+  **non décisionnelle**.
+
+**Conduite à tenir :**
+
+| Type | Conduite |
+|------|----------|
+| Décisionnelle | **Question obligatoire** à l'utilisateur. La recherche de fond est suspendue jusqu'à la réponse. |
+| Non décisionnelle | **Hypothèse déclarée** explicite, puis poursuite. |
+
+**Clause anti-échappatoire (impérative).** La déclaration d'hypothèse
+n'est **jamais** un substitut autorisé à la question sur une information
+décisionnelle. Déclarer ouvertement « je suppose X » sur un point dont
+on a soi-même reconnu qu'il « commande la réponse » constitue la même
+faute que de le supposer en silence — aggravée par la conscience du
+problème. **Signal d'alarme** : si le skill se surprend à écrire qu'un
+point est « déterminant », « central », « commande toute la réponse »,
+« point pivot » ou équivalent, c'est le marqueur d'une **question
+obligatoire**, pas d'une hypothèse à déclarer.
+
+**Économie du questionnement** (pour éviter la question rituelle, qui
+est elle-même un défaut — complétion spéculative en mode interrogatif) :
+- **Pas de question si l'étape 0 est complète** et qu'aucune information
+  décisionnelle ne manque. Procéder directement.
+- **Une seule question par défaut**, portant sur le point **le plus
+  décisionnel**. Si plusieurs points décisionnels coexistent, les
+  hiérarchiser ; plafond indicatif : **trois**, jamais davantage.
+- **Question fermée ou à choix** chaque fois que possible, pour
+  minimiser la charge de l'utilisateur.
+- **Réservée à ce que seul l'utilisateur détient.** Si l'information
+  est vérifiable en source primaire (Légifrance, etc.), la **chercher**
+  au lieu de la demander. La question ne sert pas à se décharger de la
+  recherche autonome.
+
+**Esquisse conditionnelle bornée.** Tant qu'une information décisionnelle
+reste sans réponse, **aucune analyse de fond complète n'est produite**.
+Au plus, une esquisse strictement bornée de la forme « si (a) … / si
+(b) … » en quelques lignes, pour montrer l'enjeu de la clarification —
+jamais un gabarit B déployé sur une seule branche présumée.
+
+**Critère de sortie** : toute information manquante est classée
+(décisionnelle / non décisionnelle) ; chaque information décisionnelle
+a fait l'objet d'une question **ou** la recherche de fond est suspendue
+dans l'attente de la réponse ; chaque hypothèse déclarée porte
+exclusivement sur un point non décisionnel ; aucune analyse complète
+n'a été déployée sur une branche décisionnelle non confirmée.
+
+→ Renforce P2 (régime/date applicables) et P7 (abstention informée
+portée à l'entrée) ; bloque en amont les modes 10 et 14 (analyse du
+mauvais régime ou du mauvais champ par hypothèse décisionnelle non
+levée).
 
 ### Étape 1 — Cartographie des sources nécessaires
 
@@ -632,7 +715,7 @@ Date d'analyse           : JJ/MM/AAAA
 Date(s) de référence     : JJ/MM/AAAA (substantiel) / JJ/MM/AAAA (procédural) / …
 Date des faits           : JJ/MM/AAAA
 Date d'action / analyse  : JJ/MM/AAAA
-Champ territorial        : [national | IDF | petite couronne | commune | …]
+Champ territorial        : [national | IDF | Seine-Saint-Denis | commune | …]
 Régime juridique primaire: [police générale | police spéciale | répressif | …]
 Niveau d'exigence        : [note express | note de fond | citation pour acte]
 Mode opératoire          : [A standard | A express | B complet]
@@ -667,6 +750,11 @@ Pour : qualification rapide, recherche ponctuelle, vérification éclair.
 - Test de régime : […]
 - Désambiguïsation factuelle : […]
 
+## Étape 0 bis — Arbitrage des informations manquantes
+- Informations manquantes : […]
+- Classement décisionnel / non décisionnel : […]
+- Question(s) posée(s) [si décisionnelle] OU hypothèse(s) déclarée(s) [si non décisionnelle] : […]
+
 ## Réponse
 [Prose avec citations en ligne au format normalisé,
 niveaux de confiance par affirmation.]
@@ -697,6 +785,12 @@ dossier au contrôle de légalité.
 
 ## Étape 0 — Qualification de la demande
 [Six questions + désambiguïsation factuelle]
+
+## Étape 0 bis — Arbitrage des informations manquantes
+[Informations manquantes, classement décisionnel/non décisionnel,
+question(s) obligatoire(s) ou hypothèse(s) déclarée(s). Si une
+information décisionnelle manque : esquisse conditionnelle bornée
+seulement, pas d'analyse complète.]
 
 ## I. Problème de droit
 [Reformulation précise.]
@@ -782,7 +876,7 @@ gabarits.
 ## 7. Déclencheurs d'abstention (ou sortie dégradée balisée)
 
 Le skill s'arrête sur le point concerné et le signale, plutôt que de
-spéculer, dans **neuf cas** :
+spéculer, dans **dix cas** :
 
 1. **Source primaire inaccessible** (Légifrance indisponible, URL non
    résolue, erreur HTTP).
@@ -802,6 +896,10 @@ spéculer, dans **neuf cas** :
 8. **Renvoi normatif essentiel** introuvable ou non résolu (mode 12).
 9. **Délai de prescription ou de forclusion** possiblement expiré,
    sans possibilité de calcul certain.
+10. **Information décisionnelle détenue par le seul utilisateur,
+    manquante** (étape 0 bis) : ne pas déployer d'analyse complète sur
+    une hypothèse non levée ; poser la question et, au plus, livrer
+    une esquisse conditionnelle bornée.
 
 **Format d'abstention motivée** :
 
@@ -818,6 +916,24 @@ Démarches alternatives :
 - Source informelle à vérifier en interne : [si applicable]
 
 Je préfère m'abstenir plutôt que spéculer.
+```
+
+**Format de clarification motivée (cas n° 10, étape 0 bis)** :
+
+```
+## Question préalable nécessaire
+
+Un point conditionne la réponse et je ne peux pas le trancher seul :
+[formulation fermée ou à choix de la question].
+
+Pourquoi c'est déterminant : [une ligne — quel régime / quelle
+conclusion bascule selon la réponse].
+
+Esquisse conditionnelle (bornée) :
+- Si [a] → [orientation en une ou deux lignes].
+- Si [b] → [orientation en une ou deux lignes].
+
+Je traite la suite dès que ce point est précisé.
 ```
 
 Dans tous les cas, **l'abstention est ciblée** sur le point précis et
@@ -841,9 +957,8 @@ balisée (P7).
     exigence de motivation et de circonstances locales.
 - Mode 10 : vérifier le champ territorial (Paris intra-muros pour
   certaines polices spéciales, IDF pour certaines compétences,
-  en petite couronne parisienne (Hauts-de-Seine, Seine-Saint-Denis,
-  Val-de-Marne) — **partage des compétences avec la préfecture de
-  police** à vérifier pour chaque commune concernée).
+  Seine-Saint-Denis / petite couronne — **partage des compétences
+  avec la préfecture de police** pour Saint-Ouen).
 
 ### Qualifications pénales
 - **Date de référence = date des faits** (P2, P6).
@@ -860,9 +975,20 @@ balisée (P7).
 ### Articulation arrêté municipal / pouvoirs préfectoraux
 - Mode 8 : vérifier le fondement législatif du pouvoir de police
   exercé. Un arrêté municipal pris hors champ est illégal et
-  attaquable devant le tribunal administratif territorialement
-  compétent.
+  attaquable devant le TA (TA Montreuil pour Saint-Ouen).
 - Module CONTENTIEUX à activer si risque de recours évoqué.
+
+### Répartition des compétences intercommunales (MGP / EPT)
+- Champ très réformé (loi NOTRe 2015, loi Engagement et proximité
+  2019, loi 3DS 2022) → P1 et étape 3 impératifs.
+- **Point d'étape 0 bis typique** : une demande de type « l'EPT veut
+  récupérer une compétence, comment la conserver ? » dépend d'une
+  information **décisionnelle** détenue par le seul utilisateur — la
+  compétence est-elle déjà **statutaire** (le conseil de territoire
+  décide seul) ou **supplémentaire** (procédure L. 5211-17 CGCT, les
+  communes votent) ? Cette question est **obligatoire** avant toute
+  analyse de fond ; la déclarer en hypothèse est interdit (clause
+  anti-échappatoire).
 
 ---
 
@@ -877,10 +1003,9 @@ balisée (P7).
   nécessaire.
 - Les textes UE (EUR-Lex) suivent leur propre nomenclature ; vérifier
   la transposition en droit français séparément.
-- Avec une API de recherche juridique (ex. PISTE/Légifrance API),
-  l'étape 2 (récupération) peut être automatisée et fiabilisée par
-  les métadonnées officielles. Les étapes 0, 4, 5, 6, 7 et les
-  techniques T1/T2/T3/T4 restent essentielles.
+- Au Palier 3 (API PISTE), l'étape 2 (récupération) sera automatisée
+  et fiabilisée par les métadonnées officielles. Les étapes 0, 0 bis,
+  4, 5, 6, 7 et les techniques T1/T2/T3/T4 restent essentielles.
 
 ---
 
@@ -894,7 +1019,8 @@ Métadonnées YAML obligatoires :
 
 ### Checklist annuelle (1er septembre — rentrée juridique)
 
-Priorisée par fréquence de contentieux dans la pratique du praticien :
+Priorisée par fréquence de contentieux dans la pratique de
+l'utilisateur :
 
 - [ ] Évolutions du **CGCT, partie police municipale** (priorité haute).
 - [ ] Évolutions du **CPP, cadres d'enquête** (priorité haute).
@@ -913,6 +1039,65 @@ Procédure de revue détaillée → [`docs/maintenance.md`](docs/maintenance.md)
 ## CHANGELOG
 
 Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/).
+
+### [2.1.0] — 2026-06-02
+
+#### Ajouté
+- **Étape 0 bis — Arbitrage des informations manquantes (VISIBLE)**,
+  insérée entre l'étape 0 et l'étape 1. Recense les informations
+  manquantes et applique à chacune un **test décisionnel**.
+- **Test décisionnel / non décisionnel** : seul aiguillage entre
+  question obligatoire (l'information fait basculer la conclusion, le
+  régime, la qualification ou la procédure) et hypothèse déclarée
+  autorisée (l'information ne change pas la conclusion).
+- **Clause anti-échappatoire (impérative)** : la déclaration
+  d'hypothèse ne peut jamais se substituer à la question sur un point
+  décisionnel. Signal d'alarme explicite sur les formules « déterminant
+  / central / commande la réponse ».
+- **Économie du questionnement** : pas de question rituelle ; une seule
+  question par défaut (plafond trois) ; question fermée ou à choix ;
+  réservée à ce que seul l'utilisateur détient (sinon, chercher).
+- **Esquisse conditionnelle bornée** : tant qu'un point décisionnel
+  n'est pas tranché, pas d'analyse complète, au plus un « si (a) /
+  si (b) » de quelques lignes.
+- **10e déclencheur d'abstention** : information décisionnelle détenue
+  par le seul utilisateur, manquante. Avec **format de clarification
+  motivée** dédié au §7.
+- Cas particulier **Répartition des compétences intercommunales
+  (MGP / EPT)** au §8, avec exemple type d'étape 0 bis (compétence
+  statutaire vs supplémentaire, L. 5211-17 CGCT).
+- Rubrique **Étape 0 bis** ajoutée aux gabarits A et B (§6).
+
+#### Modifié
+- **Étape 0**, critère de sortie : renvoi explicite vers l'étape 0 bis
+  en cas d'ambiguïté ou d'information manquante (au lieu d'un simple
+  « demander clarification »).
+- **P7** : ajout d'un corollaire d'entrée (l'abstention informée a son
+  pendant au stade de l'entrée = poser la question, étape 0 bis).
+- **Architecture §0** : précision qu'aucune balise (`[express]`,
+  `[complet]`) ne dispense de l'étape 0 bis.
+- **§9** : étape 0 bis ajoutée à la liste des étapes restant
+  essentielles au Palier 3 (API PISTE).
+- Métadonnées : `version` 2.0.0 → 2.1.0 ;
+  `date_derniere_revue_methodologique` → 2026-06-02.
+
+#### Motivation
+- Deux cas observés où une ambiguïté **décisionnelle** a été traitée
+  par hypothèse — déclarée ou silencieuse — au lieu d'une question,
+  produisant (mode B) une analyse complète sur une fondation non
+  confirmée. Le second cas est le plus instructif : le skill avait
+  lui-même qualifié le point de « déterminant » et « commande toute la
+  réponse », puis avait écrit « je traite ce scénario comme principal
+  et signale l'alternative ». La clause anti-échappatoire vise
+  précisément ce contournement par transparence.
+
+#### Conservé
+- 14 modes d'erreur (l'étape 0 bis est une garde procédurale, pas un
+  15e mode).
+- 7 principes, procédure en 7 étapes, double mode A/B, 5 modules,
+  4 techniques, 3 gabarits + sous-gabarit concours.
+- Étapes 0 et 7 visibles ; l'étape 0 bis rejoint la liste des étapes
+  visibles.
 
 ### [2.0.0] — 2026-05-19
 
@@ -969,9 +1154,9 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/).
 
 #### Modifié
 - Refonte complète du SKILL.md autour de l'architecture mode A / mode B.
-- Cas particuliers Police Municipale alignés sur les nouveaux modules
-  (notamment partage de compétences avec la préfecture de police en
-  petite couronne parisienne).
+- Cas particuliers Police Municipale Saint-Ouen alignés sur les
+  nouveaux modules (notamment partage de compétences avec PP en
+  petite couronne).
 
 #### Conservé (issu de v1)
 - 4 registres explicites (texte / jurisprudence / déduction /
@@ -981,7 +1166,7 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/).
   T3 (archéologie textuelle).
 - Étapes 0 et 7 **visibles** dans la réponse finale.
 
-### [1.0.0] — 2026-05-19
+### [1.0.0] — 2026-05-19 (commit 2f73937)
 
 #### Ajouté
 - Version initiale avec 10 modes d'erreur, 6 principes, procédure en
