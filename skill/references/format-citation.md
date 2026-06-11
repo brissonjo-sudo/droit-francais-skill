@@ -26,12 +26,13 @@ identifiant Légifrance LEGIARTI[numéro],
 consulté le JJ/MM/AAAA
 ```
 
-**Exemple :**
+**Gabarit à compléter** (l'identifiant et la date de version sont à
+relever sur Légifrance, jamais à mémoriser ni à deviner) :
 ```
 Art. L. 2212-2, Code général des collectivités territoriales (CGCT),
-version en vigueur depuis le 01/01/2020,
-identifiant Légifrance LEGIARTI000038834473,
-consulté le 09/06/2026
+version en vigueur depuis le JJ/MM/AAAA,
+identifiant Légifrance LEGIARTI000000000000,
+consulté le JJ/MM/AAAA
 ```
 
 **Variante courte** (note express, hors acte officiel) :
@@ -50,12 +51,13 @@ JORF du JJ/MM/AAAA, texte n° NN,
 identifiant NOR : [NORXXXXXXXX]
 ```
 
-**Exemple :**
+**Gabarit à compléter** (intitulé exact, NOR et référence JORF à relever
+sur Légifrance ou le Journal officiel — aucun de ces éléments ne se déduit) :
 ```
-Décret n° 2012-492 du 16 avril 2012 relatif aux indemnités des agents
-de la police municipale, art. 3,
-JORF du 18/04/2012, texte n° 25,
-identifiant NOR : COTB1202787D
+[Nature] n° AAAA-NNN du JJ mois AAAA [intitulé exact],
+art. [x],
+JORF n° XXXX du JJ/MM/AAAA, texte n° NN,
+identifiant NOR : XXXXNNNNNNNX
 ```
 
 ---
@@ -68,12 +70,12 @@ Ratio decidendi : [motif décisoire en 1-2 lignes]
 [Obiter dictum : [commentaire accessoire] — indice seulement]
 ```
 
-**Exemple :**
+**Gabarit à compléter** (n° de pourvoi, chambre, mention au Bulletin à
+relever sur Judilibre / courdecassation.fr — jamais reconstitués de mémoire) :
 ```
-Cass. crim., 12 janvier 2021, n° 20-81.529, Bull. crim. n° 5
-Ratio decidendi : la constatation d'une infraction au Code de la route
-par un agent de police municipale assermenté vaut jusqu'à preuve
-contraire.
+Cass. [chambre], JJ mois AAAA, n° XX-XX.XXX, Bull. crim. n° NN (ou : inédit)
+Ratio decidendi : [motif décisoire en 1-2 lignes]
+[Obiter dictum : [commentaire accessoire] — indice seulement]
 ```
 
 **Abréviations de chambres :**
@@ -186,6 +188,6 @@ Quand une information a été identifiée via une source de doctrine privée
 ou un outil non officiel, l'indiquer avant la citation vérifiée :
 
 ```
-[Source d'identification : Dalloz actualité, 15 mars 2024 — vérifié
+[Source d'identification : [publication], [date] — vérifié
 sur Légifrance le JJ/MM/AAAA, identifiant LEGIARTI…]
 ```

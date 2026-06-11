@@ -15,11 +15,13 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/).
 - **skill/references/modules.md** : détail des 5 modules activables (PÉNAL,
   ACTE-ADMIN, PA-PJ, FOND, CONTENTIEUX) — extrait verbatim de l'ancien §5.
 - **skill/references/sources-autorisees.md** : hiérarchie des 4 niveaux de
-  sources, sources non admises, règles d'usage croisé (complément P3) — déplacé
-  depuis docs/.
+  sources, sources non admises, règles d'usage croisé (complément P3) — créé
+  en v2.2.0 à partir du contenu de P3 (liens cassés dans les versions
+  antérieures).
 - **skill/references/format-citation.md** : formats normalisés article / décret /
   Cass. / CE / CC / CJUE / CEDH, grille autorité jurisprudentielle, ratio/obiter
-  (complément P4) — déplacé depuis docs/.
+  (complément P4) — créé en v2.2.0 à partir du contenu de P4 (liens cassés dans
+  les versions antérieures).
 - **skill/references/gabarits-requetes.md** : gabarits de requêtes Légifrance —
   déplacé depuis la racine.
 - **skill/references/checklist-vigueur.md** : checklist 14 points de vigueur —

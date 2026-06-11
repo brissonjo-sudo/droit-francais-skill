@@ -27,7 +27,8 @@ de version en vigueur (voir `format-citation.md`).
 | Cour de cassation | courdecassation.fr | n° de pourvoi, chambre, Bulletin (ou inédit) |
 | Conseil d'État | conseil-etat.fr | n° de recours, formation, Lebon / Tables / inédit |
 | Conseil constitutionnel | conseil-constitutionnel.fr | n° de décision (ex. 2021-xxx QPC) |
-| Cours d'appel / TA / CAA | ArianeWeb (arianeweb.fr) | n° RG / requête, juridiction, date |
+| TA / CAA (juridictions admin.) | ArianeWeb (arianeweb.conseil-etat.fr) | n° requête, juridiction, date |
+| Cours d'appel judiciaires | Judilibre (judilibre.fr via courdecassation.fr) | n° RG, cour, chambre, date |
 | CJUE | curia.europa.eu | Affaire C-xxx/xx, ECLI |
 
 Condition d'usage : distinguer **ratio decidendi** (motif décisoire,
@@ -88,6 +89,6 @@ l'article X via [source] — je le vérifie maintenant sur Légifrance. »
   le niveau supérieur prévaut ; signaler la divergence explicitement.
 - **Source unique de niveau 1 sans jurisprudence** sur un point interprétatif :
   → `[confiance modérée]` minimum ; triangulation obligatoire si l'acte
-  fait grief (voir règle E4 dans `../vault/procedure-compacte.md`).
+  fait grief (voir étape 4 dans `SKILL.md`).
 - **Absence de source officielle** sur un point : abstention informée (P7),
   pas de déduction à partir de sources de niveau 4 seul.

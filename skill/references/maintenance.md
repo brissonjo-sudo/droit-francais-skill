@@ -88,9 +88,9 @@ cas échéant).
 - `checklist-vigueur.md` : aligner si des points de vigilance nouveaux
   ont émergé (ex. nouvelle disposition transitoire récurrente, nouveau
   type de renvoi normatif).
-- `docs/sources-autorisees.md` : ajouter toute source institutionnelle
+- `references/sources-autorisees.md` : ajouter toute source institutionnelle
   nouvelle (ex. autorité de régulation créée dans l'année).
-- `docs/format-citation.md` : ajouter tout format de citation nouveau
+- `references/format-citation.md` : ajouter tout format de citation nouveau
   si nécessaire (ex. nouvelle juridiction spécialisée).
 
 ---
