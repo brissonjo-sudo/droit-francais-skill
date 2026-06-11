@@ -1,6 +1,6 @@
 # droit-francais-skill
 
-**Skill LLM — méthodologie de recherche en droit français (v2.1.0)**
+**Skill LLM — méthodologie de recherche en droit français (v2.2.0)**
 
 Un skill pour Claude Code, fonctionnant avec toutes les IA, qui encode une méthodologie rigoureuse de
 recherche juridique en droit français, conçue pour résister aux
@@ -23,14 +23,15 @@ quatorze modes d'erreur typiques des LLM appliqués au droit.
 
 Quand Claude détecte une requête juridique (article de loi, qualification
 pénale, jurisprudence, rédaction d'acte, vérification d'un texte en
-vigueur…), ce skill active une procédure en 7 étapes incluant :
+vigueur…), ce skill active une procédure en 9 étapes incluant :
 
 - **7 principes** anti-hallucination (primarité des sources, date de
   référence, hiérarchie des normes, citation traçable, séparation des
   registres, légalité criminelle, abstention informée)
-- **7 étapes** avec critères de sortie explicites (qualification →
-  cartographie → récupération → fraîcheur → jurisprudence → rédaction
-  → auto-critique)
+- **9 étapes** avec critères de sortie explicites : qualification (0) →
+  **arbitrage informations manquantes (0 bis, v2.1.0)** → cartographie (1) →
+  récupération (2) → fraîcheur (3) → jurisprudence (4) → articulation (5) →
+  rédaction (6) → auto-critique (7)
 - **4 techniques** de raisonnement (qualification adversariale,
   triangulation, archéologie textuelle, distinction)
 - **5 modules activables** selon la requête (PÉNAL, ACTE-ADMIN, PA-PJ,
@@ -44,23 +45,31 @@ vigueur…), ce skill active une procédure en 7 étapes incluant :
 
 ## Installation
 
+> **v2.2.0 :** empaqueter uniquement le dossier `skill/` — il contient le
+> noyau (`SKILL.md`), l'historique (`CHANGELOG.md`) et les références
+> (`references/`). Le dossier `vault/` est réservé aux notes Obsidian
+> et ne fait pas partie du paquet skill.
+
 ### Windows
 
 ```powershell
-# Cloner dans le dossier skills global Claude Code
-git clone https://github.com/brissonjo-sudo/droit-francais-skill "$env:USERPROFILE\.claude\skills\recherche-juridique"
+# Cloner puis copier uniquement skill/ dans le dossier skills Claude Code
+git clone https://github.com/brissonjo-sudo/droit-francais-skill
+Copy-Item -Recurse droit-francais-skill\skill "$env:USERPROFILE\.claude\skills\recherche-juridique"
 ```
 
 ### macOS / Linux
 
 ```bash
-git clone https://github.com/brissonjo-sudo/droit-francais-skill ~/.claude/skills/recherche-juridique
+git clone https://github.com/brissonjo-sudo/droit-francais-skill
+cp -r droit-francais-skill/skill ~/.claude/skills/recherche-juridique
 ```
 
 ### Installation manuelle
 
-Copier le dossier entier dans `~/.claude/skills/recherche-juridique/`
-(le nom du dossier doit correspondre au champ `nom:` dans le SKILL.md).
+Copier le dossier `skill/` (contenu, pas le dossier lui-même) dans
+`~/.claude/skills/recherche-juridique/`. Le champ `name:` dans
+`skill/SKILL.md` doit correspondre au nom du dossier d'installation.
 
 ---
 
@@ -82,29 +91,37 @@ Le skill s'active automatiquement quand vous :
 
 ---
 
-## Fichiers
+## Arborescence (v2.2.0)
 
 ```
 droit-francais-skill/
-├── SKILL.md                  # Cœur méthodologique (41 ko)
-├── checklist-vigueur.md      # Checklist 14 points vérification Légifrance
-├── gabarits-requetes.md      # Requêtes web_fetch/web_search optimisées
-└── docs/
-    ├── maintenance.md        # Procédure de revue annuelle (1er septembre)
-    ├── sources-autorisees.md # [optionnel] Sources admises par hiérarchie
-    └── format-citation.md    # [optionnel] Formats de citation normalisés
+├── skill/                          ← seul dossier empaqueté pour installation
+│   ├── SKILL.md                    ← noyau méthodologique
+│   ├── CHANGELOG.md                ← historique des versions
+│   └── references/
+│       ├── gabarits-sortie.md      ← gabarits A/B/C + syllogisme (détail §6)
+│       ├── modules.md              ← 5 modules activables (détail §5)
+│       ├── gabarits-requetes.md    ← requêtes Légifrance optimisées
+│       ├── checklist-vigueur.md    ← checklist 14 points vérification
+│       ├── maintenance.md          ← procédure de revue annuelle
+│       ├── sources-autorisees.md   ← hiérarchie des sources (complément P3)
+│       └── format-citation.md      ← formats de citation normalisés (complément P4)
+├── vault/                          ← notes Obsidian (hors paquet)
+├── tests/                          ← jeux de tests Copilot Studio
+├── README.md
+└── LICENSE
 ```
-
-Les fichiers `docs/sources-autorisees.md` et `docs/format-citation.md`
-sont optionnels — le SKILL.md contient l'essentiel en ligne. Créez-les
-pour documenter vos pratiques locales de citation.
 
 ---
 
 ## Maintenance
 
 Revue annuelle recommandée le **1er septembre** (rentrée juridique).
-Procédure détaillée → [`docs/maintenance.md`](docs/maintenance.md).
+Procédure détaillée → [`skill/references/maintenance.md`](skill/references/maintenance.md).
+
+> **Note de synchronisation :** à chaque release, mettre à jour `README.md`
+> (version, arborescence) et `skill/CHANGELOG.md` (entrée Ajouté/Modifié/Conservé)
+> avant de pousser le tag.
 
 ---
 
