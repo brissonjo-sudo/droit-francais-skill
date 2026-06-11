@@ -1,49 +1,27 @@
 ---
 tags: [skill/recherche-juridique, index]
+version: 2.1.0
 ---
 
 # Index — skill recherche-juridique
 
-Skill de méthodologie de recherche en droit français. Voir `SKILL.md` à la racine du dépôt.
+## Navigation rapide (1 lecture = 1 besoin)
 
-## Version courante : [[recherche-juridique v2.1.0]]
+| Besoin | Fichier |
+|--------|---------|
+| Quel principe/étape bloque quel mode ? | `matrice-modes.md` |
+| Critère de sortie / action d'une étape | `procedure-compacte.md` |
+| Balises [complet][express][syllogisme][opérationnel] | `procedure-compacte.md` |
+| Règle triangulation (quand obligatoire) | `procedure-compacte.md` |
+| Déclencheurs d'un module | `modules-declencheurs.md` |
+| 10 déclencheurs d'abstention + format | `modules-declencheurs.md` |
+| Techniques T1–T4 | `modules-declencheurs.md` |
+| Détail étape 0 bis (clause anti-échappatoire, économie questionnement) | `étape 0 bis.md` |
+| Changelog v2.1.0 | `recherche-juridique v2.1.0.md` |
+| Contenu complet (gabarits, cas particuliers, limites) | `../SKILL.md` |
 
-## Procédure (7 étapes + 0 bis)
+## Fichiers supprimés (remplacés par agrégats)
 
-- [[étape 0]] — Qualification de la demande et désambiguïsation factuelle (VISIBLE)
-- [[étape 0 bis]] — Arbitrage des informations manquantes (VISIBLE) ← *ajouté en v2.1.0*
-- [[étape 1]] — Cartographie des sources nécessaires
-- [[étape 2]] — Récupération en source primaire avec suivi des renvois
-- [[étape 3]] — Vérification de fraîcheur et de droit transitoire
-- [[étape 4]] — Croisement jurisprudentiel et triangulation
-- [[étape 5]] — Articulation, compétence, opposabilité, délais
-- [[étape 6]] — Rédaction avec citations granulaires
-- [[étape 7]] — Auto-critique adversariale (VISIBLE)
-
-## Principes (noyau invariant)
-
-- [[P1]] — Primarité
-- [[P2]] — Date de référence
-- [[P3]] — Hiérarchie des sources
-- [[P4]] — Citation traçable et fonction juridique
-- [[P5]] — Séparation des registres
-- [[P6]] — Légalité criminelle
-- [[P7]] — Abstention informée
-
-## Modes d'erreur
-
-[[mode 1]] · [[mode 2]] · [[mode 3]] · [[mode 4]] · [[mode 5]] · [[mode 6]] · [[mode 7]] · [[mode 8]] · [[mode 9]] · [[mode 10]] · [[mode 11]] · [[mode 12]] · [[mode 13]] · [[mode 14]]
-
-## Modules activables
-
-[[module PÉNAL]] · [[module ACTE-ADMIN]] · [[module PA-PJ]] · [[module FOND]] · [[module CONTENTIEUX]]
-
-## Déclencheurs d'abstention
-
-[[déclencheurs d'abstention]] — 10 cas dont le 10e (info décisionnelle manquante) fondé sur [[étape 0 bis]].
-
-## Changelog
-
-- [[recherche-juridique v2.1.0]] — 2026-06-02
-- v2.0.0 — 2026-05-19
-- v1.0.0 — 2026-05-19
+Les notes individuelles [[étape 0]]–[[étape 7]], [[P1]]–[[P7]], [[mode 1]]–[[mode 14]],
+[[module PÉNAL]]–[[module CONTENTIEUX]], [[déclencheurs d'abstention]] n'existent pas
+en fichiers séparés. Leur contenu est dans les 3 agrégats ci-dessus.
