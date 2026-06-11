@@ -9,10 +9,11 @@ description: Méthodologie rigoureuse de recherche en droit français (sources
   une note au Maire, un mémoire ou une réponse institutionnelle ; prépare un
   écrit ou oral de concours avec références juridiques. Ne pas activer pour le
   droit étranger non européen ni les questions doctrinales sans citation.
-version: 2.2.0
-date_derniere_revue_methodologique: 2026-06-11
-date_derniere_verification_sources: 2026-05-19
-langue: français
+metadata:
+  version: 2.2.0
+  date_derniere_revue_methodologique: 2026-06-11
+  date_derniere_verification_sources: 2026-05-19
+  langue: français
 ---
 # Skill : recherche-juridique (v2.2.0)
 

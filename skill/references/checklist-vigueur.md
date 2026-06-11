@@ -1,6 +1,6 @@
 # Checklist — Vérification d'entrée en vigueur
 
-Annexe à [`SKILL.md`](SKILL.md). Détaille les étapes **2, 3 et 5** de
+Annexe à [`SKILL.md`](../SKILL.md). Détaille les étapes **2, 3 et 5** de
 la procédure (récupération, fraîcheur, articulation).
 
 À appliquer **systématiquement** après avoir accédé à la fiche
