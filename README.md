@@ -1,6 +1,6 @@
 # droit-francais-skill
 
-**Skill LLM — méthodologie de recherche en droit français (v2.0.0)**
+**Skill LLM — méthodologie de recherche en droit français (v2.1.0)**
 
 Un skill pour Claude Code, fonctionnant avec toutes les IA, qui encode une méthodologie rigoureuse de
 recherche juridique en droit français, conçue pour résister aux
