@@ -22,6 +22,12 @@ Obtention des identifiants : créer un compte sur https://piste.gouv.fr,
 y déclarer une application abonnée à l'API « Légifrance », récupérer le
 *client id* et le *client secret*. Voir scripts/README.md.
 
+Plus simple que `export` : copier ``.env.example`` en ``.env`` (déjà
+gitignoré), y coller les deux identifiants — le script charge
+automatiquement un ``.env`` présent dans le dossier courant ou à côté du
+script (variable ``LEGIFRANCE_DOTENV`` pour pointer un autre fichier).
+Les variables déjà définies dans l'environnement ont la priorité.
+
 Dépendances
 -----------
 Aucune : bibliothèque standard Python 3.8+ uniquement (urllib, json, argparse).
@@ -54,6 +60,7 @@ import sys
 import urllib.error
 import urllib.parse
 import urllib.request
+from pathlib import Path
 
 # --------------------------------------------------------------------------- #
 # Endpoints PISTE / Légifrance
@@ -94,6 +101,46 @@ class LegifranceError(Exception):
     def __init__(self, message: str, exit_code: int):
         super().__init__(message)
         self.exit_code = exit_code
+
+
+def load_dotenv() -> None:
+    """Charge un fichier .env (KEY=VALUE) sans dépendance externe.
+
+    Ordre de recherche : $LEGIFRANCE_DOTENV, puis ./.env (dossier courant),
+    puis le .env voisin du script. Les variables déjà présentes dans
+    l'environnement ne sont jamais écrasées (l'export explicite gagne).
+    """
+    candidates = []
+    explicit = os.environ.get("LEGIFRANCE_DOTENV")
+    if explicit:
+        candidates.append(Path(explicit))
+    candidates.append(Path.cwd() / ".env")
+    candidates.append(Path(__file__).resolve().parent / ".env")
+
+    seen = set()
+    for path in candidates:
+        try:
+            if not path.is_file():
+                continue
+            real = path.resolve()
+        except OSError:
+            continue
+        if real in seen:
+            continue
+        seen.add(real)
+        try:
+            lines = path.read_text(encoding="utf-8").splitlines()
+        except OSError:
+            continue
+        for line in lines:
+            line = line.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            key, _, value = line.partition("=")
+            key = key.strip()
+            value = value.strip().strip('"').strip("'")
+            if key and key not in os.environ:
+                os.environ[key] = value
 
 
 # --------------------------------------------------------------------------- #
@@ -137,8 +184,14 @@ def get_token() -> str:
     client_secret = os.environ.get("LEGIFRANCE_CLIENT_SECRET")
     if not client_id or not client_secret:
         raise LegifranceError(
-            "Identifiants manquants : définir LEGIFRANCE_CLIENT_ID et "
-            "LEGIFRANCE_CLIENT_SECRET (voir scripts/README.md).",
+            "Identifiants PISTE manquants. Configuration en 2 minutes (gratuit) :\n"
+            "  1. Compte + application abonnée à l'API « Légifrance » sur "
+            "https://piste.gouv.fr\n"
+            "  2. Copier .env.example en .env et y coller les deux identifiants\n"
+            "       cp skill/scripts/.env.example skill/scripts/.env\n"
+            "     (ou : export LEGIFRANCE_CLIENT_ID=… LEGIFRANCE_CLIENT_SECRET=…)\n"
+            "  3. Relancer la commande.\n"
+            "Détail pas-à-pas : skill/scripts/README.md",
             exit_code=2,
         )
     payload = urllib.parse.urlencode(
@@ -428,6 +481,7 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main(argv=None) -> int:
     args = build_parser().parse_args(argv)
+    load_dotenv()
     try:
         return args.func(args)
     except LegifranceError as exc:

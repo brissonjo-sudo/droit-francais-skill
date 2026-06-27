@@ -18,8 +18,16 @@ cohérence interne, non-régression.
   « Palier 3 » du §9 : l'identifiant, la date de version en vigueur et
   le statut proviennent d'une réponse officielle, non de la mémoire.
   Dégradation propre et codes de sortie contractuels (4/5 = abstention).
-- **`skill/scripts/README.md`** : obtention des identifiants PISTE,
-  configuration par variables d'environnement, usage, limites connues.
+- **`skill/scripts/README.md`** : onboarding BYOK « apporte ta clé » —
+  démarrage en 2 minutes, obtention des identifiants PISTE pas-à-pas,
+  configuration `.env` ou variables d'environnement, dépannage, limites,
+  note de sécurité (pourquoi pas de clé embarquée dans un paquet public).
+- **`skill/scripts/.env.example`** : gabarit de configuration (sans
+  valeurs) à copier en `.env` (gitignoré).
+- **Chargement `.env` automatique** dans `legifrance.py` (sans dépendance) :
+  `$LEGIFRANCE_DOTENV`, puis `./.env`, puis `.env` voisin du script ; une
+  variable déjà exportée prime. Message d'aide actionnable quand la clé
+  manque (étapes de configuration inline).
 - **Règle de provenance (P1)** : tout identifiant officiel (`LEGIARTI`,
   `JORFTEXT`, `NOR`, n° de pourvoi / requête / décision) doit provenir
   d'un appel d'outil de la session ; à défaut, omis ou marqué
