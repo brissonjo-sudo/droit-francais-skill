@@ -85,6 +85,9 @@ cas échéant).
 
 - `gabarits-requetes.md` : vérifier que les identifiants `LEGITEXT`
   des codes suivis n'ont pas changé.
+- `scripts/legifrance.py` : exécuter `python scripts/legifrance.py ping`
+  pour vérifier que l'authentification PISTE et les endpoints répondent
+  toujours ; aligner la table `CODE_IDS` sur `gabarits-requetes.md`.
 - `checklist-vigueur.md` : aligner si des points de vigilance nouveaux
   ont émergé (ex. nouvelle disposition transitoire récurrente, nouveau
   type de renvoi normatif).
@@ -99,19 +102,23 @@ cas échéant).
 
 - [ ] Numérotation continue des 14 modes d'erreur.
 - [ ] Numérotation continue des 7 principes (P1 à P7).
-- [ ] Numérotation continue des 7 étapes (0 à 7).
+- [ ] Numérotation continue des 9 étapes (0, 0 bis, puis 1 à 7).
 - [ ] Numérotation continue des 4 techniques (T1 à T4).
 - [ ] Les 5 modules ont chacun leurs déclencheurs et leur contenu.
 - [ ] Chaque étape a un critère de sortie explicite.
 - [ ] Chaque étape référence le ou les modes d'erreur qu'elle bloque.
 - [ ] Les balises `[complet]`, `[express]`, `[syllogisme]`,
-      `[opérationnel]` sont mentionnées de manière cohérente partout.
+      `[opérationnel]`, `[lookup]` sont mentionnées de manière
+      cohérente partout.
 - [ ] La règle de triangulation pénale unifiée apparaît **au seul
       endroit prévu** (étape 4) et est référencée depuis le module
       PÉNAL.
+- [ ] La **règle de provenance** (P1) est référencée à l'étape 6
+      (contrôle de provenance) et dans `format-citation.md`.
 - [ ] Les gabarits A, B, C et le sous-gabarit syllogisme intègrent
-      tous l'en-tête standardisé et l'encart final récapitulatif.
-- [ ] Les 9 déclencheurs d'abstention sont listés et un format de
+      tous l'en-tête standardisé et l'encart final récapitulatif
+      (sauf voie rapide `[lookup]`, exempte par construction).
+- [ ] Les 10 déclencheurs d'abstention sont listés et un format de
       réponse en cas d'abstention est fourni.
 
 ---

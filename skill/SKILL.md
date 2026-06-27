@@ -10,22 +10,22 @@ description: Méthodologie rigoureuse de recherche en droit français (sources
   écrit ou oral de concours avec références juridiques. Ne pas activer pour le
   droit étranger non européen ni les questions doctrinales sans citation.
 metadata:
-  version: 2.2.0
-  date_derniere_revue_methodologique: 2026-06-11
+  version: 2.3.0
+  date_derniere_revue_methodologique: 2026-06-27
   date_derniere_verification_sources: 2026-05-19
   langue: français
 ---
-# Skill : recherche-juridique (v2.2.0)
+# Skill : recherche-juridique (v2.3.0)
 
 > **Objet** : encoder la méthodologie rigoureuse de recherche en droit
 > français applicable à un usage institutionnel (Police Municipale,
 > administration locale, préparation au concours de Commissaire de
 > Police). Cette v2 est conçue contre **quatorze modes d'erreur**
 > identifiés du LLM en droit, autour de **sept principes**, d'une
-> **procédure en sept étapes** (complétée par une **étape 0 bis**
-> d'arbitrage des informations manquantes), d'un **double mode
-> opératoire A/B**, de **cinq modules activables** et de **quatre
-> techniques** de raisonnement juridique.
+> **procédure en neuf étapes** (étapes **0** et **0 bis** de cadrage,
+> étapes **1 à 7** opératoires), d'un **double mode opératoire A/B**,
+> de **cinq modules activables** et de **quatre techniques** de
+> raisonnement juridique.
 >
 > **Public** : Chef de Service PM / DGA Saint-Ouen-sur-Seine. Tout
 > livrable peut finir dans un acte officiel — la rigueur prime sur la
@@ -82,9 +82,29 @@ légalité, exercice de préparation au concours).
 | `[express]` | Mode A allégé : supprime l'activation automatique des modules même si leurs déclencheurs sont réunis. **Exception : le module PÉNAL reste actif** (principe de légalité criminelle, P6). |
 | `[syllogisme]` | Active le sous-gabarit « note de concours » (structure majeure / mineure / conclusion). Surcouche du gabarit B. |
 | `[opérationnel]` | Active la section « Implications opérationnelles » du gabarit B et le rôle facultatif *directeur opérationnel* à l'étape 7. |
+| `[lookup]` | **Voie rapide** : référence ponctuelle non controversée. Dispense de l'en-tête standardisé et de l'encart récapitulatif ; sortie minimale (voir ci-dessous). **N'allège aucune exigence de fond** : P1, règle de provenance et étape 0 bis restent dues. Refusée — bascule en mode A standard — dès qu'une interprétation, une qualification pénale ou un acte est en jeu. |
 
 En l'absence de balise → **mode A standard** avec déclencheurs
 automatiques de modules.
+
+### Voie rapide `[lookup]` — sortie minimale
+
+Pour la simple lecture-référence d'un texte non controversé (« quel
+article réprime X ? », « L. 2212-2 CGCT est-il en vigueur ? »),
+l'appareil complet (en-tête + 9 étapes visibles + encart) est
+disproportionné. La balise `[lookup]` produit alors :
+
+```
+[Citation normalisée avec identifiant récupéré] — fonction juridique : […]
+[Réponse en 1–3 phrases] [confiance : élevée | modérée | faible — 1 ligne]
+```
+
+**Garde-fous (non négociables)** : la citation suppose une
+récupération réelle en source primaire (P1) et un identifiant de
+provenance vérifiée (règle de provenance) ; si la récupération échoue,
+la voie rapide bascule en **abstention motivée** (§7). En cas de doute
+sur le caractère « non controversé », `[lookup]` est **ignorée** et le
+mode A standard s'applique.
 
 **Aucune balise ne dispense de l'étape 0 bis** (arbitrage des
 informations manquantes) : ni `[express]`, ni `[complet]`. Le mode B
@@ -97,7 +117,9 @@ fondation non vérifiée (voir étape 0 bis).
 Toute sortie du skill se termine par un **encart récapitulatif unique** :
 mode utilisé, modules activés, modules non activés, niveau de
 confiance global, sources informelles signalées, limites de la
-recherche (voir §7).
+recherche (voir §7). **Seule exception : la voie rapide `[lookup]`**,
+dont la sortie minimale ne porte ni en-tête ni encart (la provenance
+de l'identifiant y reste néanmoins obligatoire).
 
 ---
 
@@ -150,6 +172,20 @@ La consultation effective n'est pas le survol d'un résultat de
 recherche : c'est la **lecture documentée** de la source officielle
 (Légifrance, courdecassation.fr, conseil-etat.fr,
 conseil-constitutionnel.fr, circulaires.legifrance.gouv.fr, JORF).
+
+**Règle de provenance (impérative, v2.3.0).** Tout **identifiant
+officiel** figurant dans une sortie — `LEGIARTI…`, `JORFTEXT…`,
+`NOR`, n° de pourvoi, n° de requête, n° de décision — doit provenir
+d'un **appel d'outil effectué dans la session courante** (récupération
+en source primaire : `scripts/legifrance.py`, `web_fetch`/`web_search`
+sur un domaine officiel). Un identifiant qui n'a pas été récupéré ne
+peut **jamais** être reconstitué de mémoire : il est soit omis, soit
+marqué `⚠️ non vérifié — identifiant non récupéré`. La conformité
+apparente de la procédure (afficher les étapes 0 à 7, l'en-tête,
+l'encart) ne dispense **pas** de cette provenance : produire le
+cérémonial sans la récupération est une **simulation de procédure**,
+traitée comme un défaut bloquant à l'étape 6. Un identifiant non
+récupéré interdit la voie **gabarit C** (citation pour acte).
 
 → Bloque modes 1, 2, 3.
 
@@ -295,7 +331,7 @@ et détenue par le seul utilisateur**, le skill ne spécule pas et ne
 
 ---
 
-## 3. La procédure en 7 étapes (avec critères de sortie)
+## 3. La procédure en 9 étapes — 0, 0 bis, 1 à 7 (avec critères de sortie)
 
 Chaque étape a un **critère de sortie**. S'il n'est pas rempli, je
 recule ou je m'abstiens. **Les étapes 0, 0 bis et 7 sont visibles dans
@@ -554,8 +590,16 @@ article sur la compétence n'est pas un article sur la procédure ; un
 arrêt sur le contentieux contractuel n'est pas un arrêt sur le
 contentieux indemnitaire.
 
+**Contrôle de provenance (P1)** : avant livraison, vérifier que chaque
+identifiant officiel cité (`LEGIARTI`, `JORFTEXT`, `NOR`, n° de
+pourvoi, n° de requête, n° de décision) a bien été **récupéré par un
+appel d'outil dans la session**. Tout identifiant sans provenance est
+retiré ou marqué `⚠️ non vérifié — identifiant non récupéré`. Aucun
+gabarit C n'est produit sur un identifiant non récupéré.
+
 **Critère de sortie** : chaque affirmation porte sa citation et son
-niveau de confiance ; contrôle texte-cible exécuté.
+niveau de confiance ; contrôle texte-cible exécuté ; contrôle de
+provenance exécuté.
 
 → Bloque modes 1, 4, 5, 14.
 
@@ -781,9 +825,16 @@ balisée (P7).
   nécessaire.
 - Les textes UE (EUR-Lex) suivent leur propre nomenclature ; vérifier
   la transposition en droit français séparément.
-- Au Palier 3 (API PISTE), l'étape 2 (récupération) sera automatisée
-  et fiabilisée par les métadonnées officielles. Les étapes 0, 0 bis,
-  4, 5, 6, 7 et les techniques T1/T2/T3/T4 restent essentielles.
+- **Palier 3 (API PISTE) — outillé depuis la v2.3.0.** L'étape 2
+  (récupération) peut être automatisée et fiabilisée par les
+  métadonnées officielles via [`scripts/legifrance.py`](scripts/legifrance.py)
+  (API Légifrance/PISTE). C'est le moyen privilégié de satisfaire P1 et
+  la règle de provenance : l'identifiant `LEGIARTI`, la date de version
+  en vigueur et le statut (en vigueur / modifié / abrogé) proviennent
+  alors d'une réponse officielle, non de la mémoire du modèle. À défaut
+  d'accès API, `web_fetch`/`web_search` sur domaine officiel reste la
+  voie de repli (avec son risque de rendu incomplet). Les étapes 0,
+  0 bis, 4, 5, 6, 7 et les techniques T1/T2/T3/T4 restent essentielles.
 
 ---
 

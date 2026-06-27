@@ -4,6 +4,67 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/).
 
 ---
 
+### [2.3.0] — 2026-06-27
+
+Issue d'un audit du skill. Cinq axes : fiabilité réelle de la
+récupération, anti-simulation de procédure, économie de longueur,
+cohérence interne, non-régression.
+
+#### Ajouté
+- **`skill/scripts/legifrance.py`** : CLI Python (bibliothèque standard
+  uniquement) interrogeant l'**API Légifrance via PISTE** (OAuth2
+  client_credentials). Commandes `ping`, `article` (par `LEGIARTI`,
+  option `--date`), `search` (par numéro, filtre code). Matérialise le
+  « Palier 3 » du §9 : l'identifiant, la date de version en vigueur et
+  le statut proviennent d'une réponse officielle, non de la mémoire.
+  Dégradation propre et codes de sortie contractuels (4/5 = abstention).
+- **`skill/scripts/README.md`** : obtention des identifiants PISTE,
+  configuration par variables d'environnement, usage, limites connues.
+- **Règle de provenance (P1)** : tout identifiant officiel (`LEGIARTI`,
+  `JORFTEXT`, `NOR`, n° de pourvoi / requête / décision) doit provenir
+  d'un appel d'outil de la session ; à défaut, omis ou marqué
+  `⚠️ non vérifié — identifiant non récupéré`, et interdiction du
+  gabarit C. Vise la **simulation de procédure** (cérémonial des étapes
+  sans récupération réelle). Référencée à l'étape 6 (contrôle de
+  provenance), dans `format-citation.md` et `checklist-vigueur.md`.
+- **Balise `[lookup]` — voie rapide** : sortie minimale (sans en-tête ni
+  encart) pour une référence ponctuelle non controversée. N'allège aucune
+  exigence de fond (P1, provenance, étape 0 bis dues) ; refusée dès qu'une
+  interprétation, une qualification pénale ou un acte est en jeu.
+- **`tests/eval-modes-erreur.csv`** : jeu d'évaluation mappé 1-pour-1 sur
+  les 14 modes d'erreur + 2 contrôles transverses (provenance `P`,
+  lookup `L`), avec motifs regex attendus/interdits.
+- **`tests/run_eval.py`** : harnais d'évaluation sans dépendance externe
+  (hors-ligne par défaut ; `--live` via l'API Anthropic en urllib).
+- **`tests/README.md`** : mode d'emploi des deux jeux d'éval.
+
+#### Modifié
+- **SKILL.md** : version 2.2.0 → 2.3.0 ; numérotation harmonisée
+  « procédure en 9 étapes (0, 0 bis, 1 à 7) » au lieu de « 7 étapes »
+  (le titre comptait 0 à 7) ; §9 (Palier 3) pointant le script comme
+  voie privilégiée de P1 ; intro et §0 mis à jour pour `[lookup]` et la
+  règle de provenance.
+- **README.md** : version, arborescence (ajout `scripts/`), balise
+  `[lookup]`, mentions provenance et récupération outillée.
+- **references/maintenance.md** : checklist cohérence corrigée
+  (« 9 étapes » ; « 10 déclencheurs d'abstention » au lieu de 9 ; balise
+  `[lookup]` ; contrôle de provenance) ; §3 ajoute `legifrance.py ping`.
+- **references/gabarits-requetes.md**, **format-citation.md**,
+  **checklist-vigueur.md** : intègrent le script et la règle de provenance.
+
+#### Corrigé
+- **Suppression du `SKILL.md` racine obsolète** (pointeur v2.1.0) :
+  évite la coexistence de deux `SKILL.md`.
+- **maintenance.md** : « 9 déclencheurs d'abstention » → 10 (le 10e date
+  de la v2.1.0).
+
+#### Conservé (iso-fond)
+- 14 modes d'erreur, 7 principes P1–P7, étapes 0 / 0 bis / 1–7,
+  4 techniques T1–T4, 5 modules, 10 déclencheurs d'abstention, gabarits
+  A/B/C + syllogisme, cas particuliers PM/Saint-Ouen — inchangés au fond.
+
+---
+
 ### [2.2.0] — 2026-06-11
 
 #### Ajouté

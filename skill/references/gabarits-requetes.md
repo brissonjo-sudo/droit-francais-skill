@@ -2,6 +2,21 @@
 
 Requêtes optimisées pour `web_search` et `web_fetch`. À adapter selon le texte.
 
+> **Voie privilégiée (Palier 3, v2.3.0) — API PISTE.** Quand des
+> identifiants PISTE sont configurés, préférer
+> [`scripts/legifrance.py`](../scripts/legifrance.py) aux requêtes
+> `web_fetch` ci-dessous : la récupération y est déterministe et les
+> métadonnées (identifiant `LEGIARTI`, date de version en vigueur,
+> statut abrogé/modifié) sont officielles — ce qui satisfait P1 et la
+> **règle de provenance**. Exemples :
+> ```
+> python scripts/legifrance.py article LEGIARTI000006419288
+> python scripts/legifrance.py article --date 2024-01-01 LEGIARTI000006419288
+> python scripts/legifrance.py search "2212-2" --code CGCT
+> ```
+> Les requêtes `web_fetch`/`web_search` ci-dessous restent la **voie de
+> repli** lorsque l'API n'est pas accessible.
+
 ---
 
 ## 1. Article de code — accès direct par identifiant

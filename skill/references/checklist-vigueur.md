@@ -14,7 +14,7 @@ l'abstention (P6).
 
 ```
 [ ] 1.  Fiche Légifrance consultée directement (pas un résumé)        → P1, mode 6
-[ ] 2.  Identifiant LEGIARTI (ou JORFTEXT) relevé                     → P4, modes 1, 4
+[ ] 2.  Identifiant LEGIARTI (ou JORFTEXT) relevé par appel d'outil   → P4, P1 (provenance), modes 1, 4
 [ ] 3.  Champ "Version en vigueur depuis le" renseigné                → P2, mode 2
 [ ] 4.  Aucune mention "Abrogé" visible                               → mode 2
 [ ] 5.  Aucune modification postérieure à la date de référence        → mode 3
@@ -52,9 +52,14 @@ citation** (déclencheur d'abstention n° 1).
 
 Format : `LEGIARTI` + 12 à 18 chiffres (ex. `LEGIARTI000049123456`).
 
-**Si absent :** chercher l'article via la recherche plein texte
-Légifrance. **Ne pas citer sans cet identifiant** (mode 1 :
-hallucination de référence).
+**Si absent :** chercher l'article via `scripts/legifrance.py` (API
+PISTE) ou la recherche plein texte Légifrance. **Ne pas citer sans cet
+identifiant** (mode 1 : hallucination de référence).
+
+**Règle de provenance (P1).** L'identifiant doit avoir été **récupéré
+dans la session** (appel d'outil), jamais reconstitué de mémoire. À
+défaut : le marquer `⚠️ non vérifié — identifiant non récupéré` et
+interdire le gabarit C.
 
 **Cas critique — articles voisins (mode 4) :** vérifier que
 l'identifiant correspond bien à l'article cherché. Exemple R317-8 vs
