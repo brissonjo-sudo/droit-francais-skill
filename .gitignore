@@ -5,3 +5,8 @@ Thumbs.db
 *.tmp
 .vscode/
 .idea/
+
+# Python (outillage scripts/ et tests/)
+__pycache__/
+*.pyc
+.env

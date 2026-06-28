@@ -1,6 +1,6 @@
 ---
 tags: [skill/recherche-juridique, index]
-version: 2.2.0
+version: 2.3.0
 ---
 
 # Index — skill recherche-juridique
@@ -11,14 +11,16 @@ version: 2.2.0
 |--------|--------------|
 | Quel principe/étape bloque quel mode ? | `matrice-modes.md` |
 | Critère de sortie / action d'une étape | `procedure-compacte.md` |
-| Balises [complet][express][syllogisme][opérationnel] | `procedure-compacte.md` |
+| Balises [complet][express][syllogisme][opérationnel][lookup] | `procedure-compacte.md` |
 | Règle triangulation (quand obligatoire) | `procedure-compacte.md` |
+| Règle de provenance (identifiants) + voie rapide [lookup] | `structure-v2.3.0.md` |
 | Déclencheurs d'un module | `modules-declencheurs.md` |
 | 10 déclencheurs d'abstention + format | `modules-declencheurs.md` |
 | Techniques T1–T4 | `modules-declencheurs.md` |
 | Détail étape 0 bis (clause anti-échappatoire, économie questionnement) | `étape 0 bis.md` |
-| Changelog v2.2.0 | `recherche-juridique v2.2.0.md` |
-| Découpage modulaire v2.2.0 (noyau ↔ références) | `structure-v2.2.0.md` |
+| Récupération en source primaire (API PISTE) | `../skill/scripts/README.md` |
+| Changelog v2.3.0 (dernier) | `recherche-juridique v2.3.0.md` |
+| Découpage modulaire + outillage v2.3.0 (noyau ↔ références ↔ scripts) | `structure-v2.3.0.md` |
 | Noyau complet | `../skill/SKILL.md` |
 | Gabarits de sortie détaillés | `../skill/references/gabarits-sortie.md` |
 | Modules activables détaillés | `../skill/references/modules.md` |

@@ -1,6 +1,6 @@
 # droit-francais-skill
 
-**Skill LLM — méthodologie de recherche en droit français (v2.2.0)**
+**Skill LLM — méthodologie de recherche en droit français (v2.3.0)**
 
 Un skill pour Claude Code, fonctionnant avec toutes les IA, qui encode une méthodologie rigoureuse de
 recherche juridique en droit français, conçue pour résister aux
@@ -40,15 +40,22 @@ vigueur…), ce skill active une procédure en 9 étapes incluant :
   balise `[complet]`)
 - **Gabarits de sortie** normalisés (express, fond, citation pour acte,
   note de concours)
+- **Règle de provenance** (v2.3.0) : tout identifiant officiel
+  (`LEGIARTI`, `NOR`, n° de pourvoi…) doit provenir d'un appel d'outil
+  de la session, jamais de la mémoire — sinon marqué « non vérifié »
+- **Voie rapide `[lookup]`** (v2.3.0) : sortie minimale pour une
+  référence ponctuelle non controversée, sans dégrader le fond
+- **Récupération outillée** (v2.3.0) : `skill/scripts/legifrance.py`
+  interroge l'API Légifrance/PISTE pour fiabiliser l'étape 2
 
 ---
 
 ## Installation
 
-> **v2.2.0 :** empaqueter uniquement le dossier `skill/` — il contient le
-> noyau (`SKILL.md`), l'historique (`CHANGELOG.md`) et les références
-> (`references/`). Le dossier `vault/` est réservé aux notes Obsidian
-> et ne fait pas partie du paquet skill.
+> **v2.3.0 :** empaqueter uniquement le dossier `skill/` — il contient le
+> noyau (`SKILL.md`), l'historique (`CHANGELOG.md`), les références
+> (`references/`) et l'outillage (`scripts/`). Le dossier `vault/` est
+> réservé aux notes Obsidian et ne fait pas partie du paquet skill.
 
 ### Windows
 
@@ -88,26 +95,30 @@ Le skill s'active automatiquement quand vous :
 - `[express]` — mode allégé (PÉNAL toujours actif)
 - `[syllogisme]` — structure majeure / mineure / conclusion (concours)
 - `[opérationnel]` — section implications opérationnelles activée
+- `[lookup]` — voie rapide : référence ponctuelle, sortie minimale
 
 ---
 
-## Arborescence (v2.2.0)
+## Arborescence (v2.3.0)
 
 ```
 droit-francais-skill/
 ├── skill/                          ← seul dossier empaqueté pour installation
 │   ├── SKILL.md                    ← noyau méthodologique
 │   ├── CHANGELOG.md                ← historique des versions
-│   └── references/
-│       ├── gabarits-sortie.md      ← gabarits A/B/C + syllogisme (détail §6)
-│       ├── modules.md              ← 5 modules activables (détail §5)
-│       ├── gabarits-requetes.md    ← requêtes Légifrance optimisées
-│       ├── checklist-vigueur.md    ← checklist 14 points vérification
-│       ├── maintenance.md          ← procédure de revue annuelle
-│       ├── sources-autorisees.md   ← hiérarchie des sources (complément P3)
-│       └── format-citation.md      ← formats de citation normalisés (complément P4)
+│   ├── references/
+│   │   ├── gabarits-sortie.md      ← gabarits A/B/C + syllogisme (détail §6)
+│   │   ├── modules.md              ← 5 modules activables (détail §5)
+│   │   ├── gabarits-requetes.md    ← requêtes Légifrance optimisées
+│   │   ├── checklist-vigueur.md    ← checklist 14 points vérification
+│   │   ├── maintenance.md          ← procédure de revue annuelle
+│   │   ├── sources-autorisees.md   ← hiérarchie des sources (complément P3)
+│   │   └── format-citation.md      ← formats de citation normalisés (complément P4)
+│   └── scripts/                    ← outillage Palier 3 (v2.3.0)
+│       ├── legifrance.py           ← récupération via API Légifrance/PISTE
+│       └── README.md               ← configuration PISTE + usage
 ├── vault/                          ← notes Obsidian (hors paquet)
-├── tests/                          ← jeux de tests Copilot Studio
+├── tests/                          ← évals (14 modes + Copilot Studio) + runner
 ├── README.md
 └── LICENSE
 ```

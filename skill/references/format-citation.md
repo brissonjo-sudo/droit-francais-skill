@@ -15,6 +15,19 @@ Chaque texte ou décision cité doit comporter :
 
 Un texte de compétence ne peut être cité comme texte de sanction, et inversement.
 
+## Règle de provenance (P1, impérative)
+
+Tout **identifiant officiel** d'une citation — `LEGIARTI`, `JORFTEXT`,
+`NOR`, n° de pourvoi, n° de requête, n° de décision — doit provenir
+d'un **appel d'outil effectué dans la session** (`scripts/legifrance.py`
+ou `web_fetch`/`web_search` sur domaine officiel). Un identifiant jamais
+récupéré **ne se reconstitue pas de mémoire** : il est omis ou marqué
+`⚠️ non vérifié — identifiant non récupéré`, et il **interdit le
+gabarit C** (citation pour acte). Les gabarits ci-dessous montrent un
+identifiant en clair *uniquement* lorsqu'il a été relevé sur la source ;
+sinon, ils conservent le marqueur `LEGIARTI…` à compléter, jamais une
+valeur inventée.
+
 ---
 
 ## Format article de code ou de loi
