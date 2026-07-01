@@ -15,6 +15,12 @@ Chaque texte ou décision cité doit comporter :
 
 Un texte de compétence ne peut être cité comme texte de sanction, et inversement.
 
+> ⚠️ **Les exemples de ce fichier sont illustratifs du _format_, pas des
+> sources vérifiées.** Numéros, formations, mentions au Bulletin/Lebon et
+> paraphrases de _ratio_ y figurent à titre de gabarit. Ne jamais les
+> recopier dans un livrable sans récupération en source primaire
+> (`scripts/legifrance.py` ou source officielle) — règle de provenance.
+
 ## Règle de provenance (P1, impérative)
 
 Tout **identifiant officiel** d'une citation — `LEGIARTI`, `JORFTEXT`,
@@ -112,9 +118,9 @@ Ratio decidendi : [motif décisoire en 1-2 lignes]
 [Obiter dictum : [commentaire accessoire] — indice seulement]
 ```
 
-**Exemple :**
+**Exemple de _format_ (⚠️ illustratif — formation et mentions à vérifier) :**
 ```
-CE, Sect., 19 mai 1933, n° [non numéroté à l'époque], Benjamin, Lebon p. 541
+CE, [formation à vérifier], 19 mai 1933, n° [à relever], Benjamin, Lebon p. 541
 Ratio decidendi : toute mesure de police administrative doit être
 proportionnée à la menace pour l'ordre public ; l'autorité de police
 doit choisir la mesure la moins attentatoire aux libertés permettant
@@ -140,12 +146,11 @@ CC, décision n° AAAA-NNN [QPC ou DC ou L], JJ mois AAAA,
 Dispositif : [conformité / non-conformité / réserve d'interprétation]
 ```
 
-**Exemple :**
+**Exemple de _format_ (⚠️ illustratif — n°, date et dispositif à vérifier) :**
 ```
-CC, décision n° 2010-14/22 QPC, 30 juillet 2010,
-M. Daniel W. et autres, JORF du 31/07/2010
-Dispositif : non-conformité partielle des articles 62, 63, 63-1, 77
-du Code de procédure pénale (régime de la garde à vue).
+CC, décision n° AAAA-NNN QPC, JJ mois AAAA,
+[intitulé], JORF du JJ/MM/AAAA
+Dispositif : [conformité / non-conformité (partielle) / réserve d'interprétation]
 ```
 
 ---

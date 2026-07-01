@@ -1,0 +1,29 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Compiler les scripts Python (py_compile)
+        run: |
+          python -m py_compile skill/scripts/legifrance.py
+          python -m py_compile tests/run_eval.py
+          python -m py_compile tests/check_links.py
+
+      - name: Vérifier les liens Markdown
+        run: python tests/check_links.py
+
+      - name: Éval hors-ligne (check-list 14 modes)
+        run: python tests/run_eval.py

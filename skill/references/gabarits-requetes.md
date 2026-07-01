@@ -1,6 +1,11 @@
 # Gabarits de requêtes Légifrance
 
-Requêtes optimisées pour `web_search` et `web_fetch`. À adapter selon le texte.
+Requêtes optimisées pour la recherche et la récupération web. À adapter selon
+le texte.
+
+> **Noms d'outils.** Ce fichier écrit `web_fetch` / `web_search` de façon
+> générique. Selon l'assistant, l'outil réel diffère : en **Claude Code** ce
+> sont `WebFetch` / `WebSearch`. Utiliser le nom exposé par l'environnement.
 
 > **Voie privilégiée (Palier 3, v2.3.0) — API PISTE.** Quand des
 > identifiants PISTE sont configurés, préférer
@@ -13,9 +18,14 @@ Requêtes optimisées pour `web_search` et `web_fetch`. À adapter selon le text
 > python scripts/legifrance.py article LEGIARTI000006419288
 > python scripts/legifrance.py article --date 2024-01-01 LEGIARTI000006419288
 > python scripts/legifrance.py search "2212-2" --code CGCT
+> python scripts/legifrance.py juri "23-81.234"   # Cass. (fond JURI)
+> python scripts/legifrance.py ceta "440258"      # CE (fond CETAT)
+> python scripts/legifrance.py constit "2021-940 QPC"  # CC (fond CONSTIT)
 > ```
-> Les requêtes `web_fetch`/`web_search` ci-dessous restent la **voie de
-> repli** lorsque l'API n'est pas accessible.
+> Les commandes `juri`/`ceta`/`constit` sont *best-effort* mais permettent de
+> **récupérer l'identifiant officiel** d'une décision (provenance) plutôt que
+> de le citer de mémoire. Les requêtes `web_fetch`/`web_search` ci-dessous
+> restent la **voie de repli** lorsque l'API n'est pas accessible.
 
 ---
 

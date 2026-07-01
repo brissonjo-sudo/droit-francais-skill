@@ -10,12 +10,12 @@ description: Méthodologie rigoureuse de recherche en droit français (sources
   écrit ou oral de concours avec références juridiques. Ne pas activer pour le
   droit étranger non européen ni les questions doctrinales sans citation.
 metadata:
-  version: 2.3.0
+  version: 2.4.0
   date_derniere_revue_methodologique: 2026-06-27
   date_derniere_verification_sources: 2026-05-19
   langue: français
 ---
-# Skill : recherche-juridique (v2.3.0)
+# Skill : recherche-juridique (v2.4.0)
 
 > **Objet** : encoder la méthodologie rigoureuse de recherche en droit
 > français applicable à un usage institutionnel (Police Municipale,
@@ -125,37 +125,26 @@ de l'identifiant y reste néanmoins obligatoire).
 
 ## 1. Diagnostic préalable — les 14 modes d'erreur à empêcher
 
-Cette méthodologie est construite contre quatorze modes d'erreur
-identifiés. Les nommer permet de les bloquer.
+Cette méthodologie est construite contre **quatorze modes d'erreur** du
+LLM en droit. Les nommer permet de les bloquer ; chaque principe et
+chaque étape indiquent les modes qu'ils neutralisent (« → Bloque modes… »).
 
-1. **Hallucination de référence** — article inexistant ou contenu inexact.
-2. **Effet de cutoff** — modification postérieure à la date d'entraînement
-   ignorée.
-3. **Confusion de versions** — rédactions ancienne et actuelle mélangées.
-4. **Confusion d'articles voisins** — ex. R317-8 vs L317-4 C. route.
-5. **Raisonnement par analogie non vérifié**.
-6. **Confusion doctrine / texte** — blog d'avocat pris pour position
-   juridictionnelle.
-7. **Confusion de juridictions** — Cass., CE, CC, CJUE, CEDH mélangées.
-8. **Oubli de la hiérarchie des normes**.
-9. **Oubli du décret d'application**.
-10. **Oubli du champ d'application territorial**.
-11. **Oubli des dispositions transitoires** d'une réforme.
-12. **Oubli des renvois normatifs** — article → décret → définition
-    renvoyée non suivie jusqu'à sa source ultime.
-13. **Inversion logique cumulatif / alternatif** — « et » devenu « ou ».
-14. **Faux positif textuel** — article réel mais juridiquement non
-    pertinent ; ou texte réel mobilisé pour la mauvaise fonction
-    juridique (texte de compétence pris pour texte de sanction, etc.).
+| # | Mode | # | Mode |
+|---|------|---|------|
+| 1 | Hallucination de référence | 8 | Oubli de la hiérarchie des normes |
+| 2 | Effet de cutoff | 9 | Oubli du décret d'application |
+| 3 | Confusion de versions | 10 | Oubli du champ territorial |
+| 4 | Confusion d'articles voisins | 11 | Oubli des dispositions transitoires |
+| 5 | Analogie non vérifiée | 12 | Oubli des renvois normatifs |
+| 6 | Confusion doctrine / texte | 13 | Inversion cumulatif / alternatif |
+| 7 | Confusion de juridictions | 14 | Faux positif textuel |
 
-Tout ce qui suit est conçu pour bloquer ces quatorze modes. Chaque
-principe et chaque étape mentionnent les modes qu'ils neutralisent.
+**Détail et exemples de chaque mode → [`references/modes-erreur.md`](references/modes-erreur.md).**
 
-**Note de v2.1.0.** L'étape 0 bis ajoutée en v2.1.0 ne crée pas un
-quinzième mode : elle agit en amont, comme **garde procédurale** qui
-empêche de déclencher les modes 10 et 14 (analyse du mauvais régime
-ou du mauvais champ territorial sur une hypothèse décisionnelle non
-levée). Elle prolonge P2 et P7 au stade de l'entrée.
+**Note.** L'étape 0 bis (v2.1.0) n'est pas un 15e mode : garde procédurale
+en amont, elle empêche de déclencher les modes 10 et 14 (mauvais régime /
+mauvais champ sur une hypothèse décisionnelle non levée). Elle prolonge P2
+et P7 au stade de l'entrée.
 
 ---
 
