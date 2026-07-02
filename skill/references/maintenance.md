@@ -87,7 +87,13 @@ cas échéant).
   des codes suivis n'ont pas changé.
 - `scripts/legifrance.py` : exécuter `python scripts/legifrance.py ping`
   pour vérifier que l'authentification PISTE et les endpoints répondent
-  toujours ; aligner la table `CODE_IDS` sur `gabarits-requetes.md`.
+  toujours ; aligner la table `CODE_IDS` sur `gabarits-requetes.md` ;
+  vérifier que les fonds jurisprudence (`juri`/`ceta`/`constit`) répondent
+  encore (schémas de recherche susceptibles d'évoluer).
+- `references/modes-erreur.md` : garder synchronisé avec la table du §1
+  (mêmes 14 intitulés, même numérotation).
+- **CI** : vérifier que `.github/workflows/ci.yml` passe au vert
+  (`py_compile`, `check_links.py`, `run_eval.py` hors-ligne).
 - `checklist-vigueur.md` : aligner si des points de vigilance nouveaux
   ont émergé (ex. nouvelle disposition transitoire récurrente, nouveau
   type de renvoi normatif).

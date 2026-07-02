@@ -13,9 +13,19 @@ Deux modes
 2. En direct (`--live`) — envoie chaque sonde à l'API Anthropic en utilisant
    `skill/SKILL.md` comme prompt système, puis applique les heuristiques
    regex. Variables d'environnement :
-       ANTHROPIC_API_KEY   (obligatoire en --live)
-       ANTHROPIC_MODEL     (optionnel ; défaut : claude-opus-4-8)
+       ANTHROPIC_API_KEY     (obligatoire en --live)
+       ANTHROPIC_MODEL       (optionnel ; défaut : claude-opus-4-8)
+       ANTHROPIC_JUDGE_MODEL (optionnel ; défaut : le modèle évalué)
    Aucune dépendance externe : appel HTTP via urllib.
+
+   Option `--judge` : le verdict est rendu par un second modèle (LLM-juge)
+   qui note la réponse contre le « Comportement attendu », au lieu des regex
+   de mots-clés (plus robuste aux faux positifs).
+
+LIMITE IMPORTANTE — le modèle est appelé SANS outils. Il ne peut donc pas
+exécuter `legifrance.py` ni `web_fetch` : les sondes de provenance et
+d'hallucination testent l'instinct de refus du modèle, pas la boucle outillée
+réelle de production (Claude Code, lui, dispose des outils). Voir README.md.
 
 Heuristique de réussite (par sonde)
 -----------------------------------
@@ -81,6 +91,31 @@ def check(text: str, attendus: str, interdits: str) -> tuple[bool, str]:
     return ok, " ; ".join(reasons)
 
 
+JUDGE_SYSTEM = (
+    "Tu es un évaluateur juridique rigoureux. On te donne le COMPORTEMENT "
+    "ATTENDU d'une réponse et la RÉPONSE produite par un assistant. Réponds "
+    "STRICTEMENT en JSON, sans texte autour : "
+    '{"verdict": "PASS" | "FAIL", "raison": "une phrase"}. '
+    "PASS uniquement si la réponse satisfait réellement le comportement "
+    "attendu (le fond, pas seulement des mots-clés présents)."
+)
+
+
+def judge(attendu: str, answer: str, model: str, api_key: str) -> tuple[bool, str]:
+    """Fait noter une réponse par un second modèle (LLM-juge)."""
+    prompt = f"COMPORTEMENT ATTENDU :\n{attendu}\n\nRÉPONSE :\n{answer}"
+    raw = call_model(JUDGE_SYSTEM, prompt, model, api_key)
+    m = re.search(r"\{.*\}", raw, re.DOTALL)
+    if not m:
+        return False, f"juge illisible : {raw[:120]}"
+    try:
+        data = json.loads(m.group(0))
+    except json.JSONDecodeError:
+        return False, f"juge non-JSON : {raw[:120]}"
+    verdict = str(data.get("verdict", "")).upper() == "PASS"
+    return verdict, str(data.get("raison", ""))
+
+
 def call_model(system: str, prompt: str, model: str, api_key: str) -> str:
     body = json.dumps(
         {
@@ -120,7 +155,7 @@ def run_offline(cases: list[dict]) -> int:
     return 0
 
 
-def run_live(cases: list[dict], model: str) -> int:
+def run_live(cases: list[dict], model: str, use_judge: bool, judge_model: str) -> int:
     api_key = os.environ.get("ANTHROPIC_API_KEY")
     if not api_key:
         print("❌ ANTHROPIC_API_KEY manquant pour le mode --live.", file=sys.stderr)
@@ -129,7 +164,13 @@ def run_live(cases: list[dict], model: str) -> int:
         print(f"❌ SKILL.md introuvable : {SKILL_PATH}", file=sys.stderr)
         return 2
     system = SKILL_PATH.read_text(encoding="utf-8")
-    print(f"Éval en direct — modèle {model} — {len(cases)} sonde(s)\n" + "=" * 60)
+    gate = f"LLM-juge ({judge_model})" if use_judge else "regex"
+    print(
+        f"Éval en direct — modèle {model} — verdict : {gate} — "
+        f"{len(cases)} sonde(s)\n"
+        "(Rappel : le modèle est appelé SANS outils — voir tests/README.md §Limites)\n"
+        + "=" * 60
+    )
     failures = 0
     for c in cases:
         try:
@@ -142,7 +183,14 @@ def run_live(cases: list[dict], model: str) -> int:
             print(f"[Mode {c['Mode']}] ❌ réseau: {exc.reason}")
             failures += 1
             continue
-        ok, why = check(answer, c["Motifs attendus"], c["Motifs interdits"])
+        if use_judge:
+            try:
+                ok, why = judge(c["Comportement attendu"], answer, judge_model, api_key)
+                why = f"juge: {why}"
+            except (urllib.error.HTTPError, urllib.error.URLError) as exc:
+                ok, why = False, f"juge indisponible: {exc}"
+        else:
+            ok, why = check(answer, c["Motifs attendus"], c["Motifs interdits"])
         status = "✅ PASS" if ok else "❌ FAIL"
         if not ok:
             failures += 1
@@ -162,7 +210,17 @@ def main(argv=None) -> int:
     p.add_argument(
         "--model",
         default=os.environ.get("ANTHROPIC_MODEL", "claude-opus-4-8"),
-        help="Modèle (défaut : claude-opus-4-8 ou $ANTHROPIC_MODEL).",
+        help="Modèle évalué (défaut : claude-opus-4-8 ou $ANTHROPIC_MODEL).",
+    )
+    p.add_argument(
+        "--judge",
+        action="store_true",
+        help="Verdict par LLM-juge (2e appel) au lieu des regex. Implique --live.",
+    )
+    p.add_argument(
+        "--judge-model",
+        default=os.environ.get("ANTHROPIC_JUDGE_MODEL"),
+        help="Modèle juge (défaut : $ANTHROPIC_JUDGE_MODEL ou le modèle évalué).",
     )
     p.add_argument("--only", help="Sous-ensemble de modes, ex. '1,5,P'.")
     args = p.parse_args(argv)
@@ -171,7 +229,9 @@ def main(argv=None) -> int:
     if not cases:
         print("Aucune sonde sélectionnée.", file=sys.stderr)
         return 2
-    return run_live(cases, args.model) if args.live else run_offline(cases)
+    if not args.live:
+        return run_offline(cases)
+    return run_live(cases, args.model, args.judge, args.judge_model or args.model)
 
 
 if __name__ == "__main__":

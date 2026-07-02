@@ -40,6 +40,11 @@ Usage
     python legifrance.py search "2212-2" --code CGCT
     python legifrance.py article --json LEGIARTI000006419288   # sortie brute JSON
 
+    # Jurisprudence (best-effort — renvoie l'identifiant officiel à confirmer) :
+    python legifrance.py juri "23-81.234"       # Cour de cassation (fond JURI)
+    python legifrance.py ceta "440258"          # Conseil d'État (fond CETAT)
+    python legifrance.py constit "2021-940 QPC" # Conseil constitutionnel (CONSTIT)
+
 Codes de sortie
 ---------------
     0  succès
@@ -90,6 +95,14 @@ CODE_IDS = {
     "CENV": "LEGITEXT000006074220",
     "CSP": "LEGITEXT000006072665",
     "CURBA": "LEGITEXT000006074075",
+}
+
+# Fonds de jurisprudence Légifrance (résout l'asymétrie de provenance v2.3.0 :
+# la règle de provenance vise aussi les n° de pourvoi / requête / décision).
+FONDS_JURIS = {
+    "juri": {"fond": "JURI", "prefix": "JURITEXT", "label": "Cour de cassation / judiciaire"},
+    "ceta": {"fond": "CETAT", "prefix": "CETATEXT", "label": "Conseil d'État"},
+    "constit": {"fond": "CONSTIT", "prefix": "CONSTEXT", "label": "Conseil constitutionnel"},
 }
 
 TIMEOUT = 30
@@ -389,24 +402,85 @@ def cmd_search(args) -> int:
     return 0
 
 
+def cmd_jurisprudence(args) -> int:
+    """Recherche une décision par numéro dans un fond de jurisprudence.
+
+    Alias : `juri` (Cass. / judiciaire), `ceta` (CE), `constit` (CC).
+    Best-effort (comme `search`) : renvoie l'identifiant officiel de la
+    décision (JURITEXT / CETATEXT / CONSTEXT), à confirmer avant citation.
+    """
+    cfg = FONDS_JURIS[args.command]
+    token = get_token()
+    champ = {
+        "typeChamp": "ALL",
+        "criteres": [
+            {"typeRecherche": "EXACTE", "valeur": args.numero, "operateur": "ET"}
+        ],
+        "operateur": "ET",
+    }
+    recherche = {
+        "champs": [champ],
+        "pageNumber": 1,
+        "pageSize": args.limit,
+        "operateur": "ET",
+        "sort": "PERTINENCE",
+        "typePagination": "DEFAUT",
+    }
+    body = {"recherche": recherche, "fond": cfg["fond"]}
+    data = api_call("/search", body, token)
+    if args.json:
+        print(json.dumps(data, ensure_ascii=False, indent=2))
+        return 0
+
+    results = data.get("results") or []
+    if not results:
+        print(
+            f"Aucune décision pour « {args.numero} » dans le fond {cfg['fond']} "
+            f"({cfg['label']}). Affiner le numéro ou vérifier via la source "
+            "officielle.",
+            file=sys.stderr,
+        )
+        return 5
+    print(f"{len(results)} résultat(s) — {cfg['label']} — fond {cfg['fond']} :")
+    for r in results[: args.limit]:
+        dec_id = _first_id_with_prefix(r, (cfg["prefix"],)) or r.get("id") or "?"
+        titles = r.get("titles") or []
+        title = (titles[0].get("title") if titles else None) or r.get("title") or ""
+        print(f"  • {dec_id}  {title}".rstrip())
+    print(
+        "\nNote (best-effort) : la recherche jurisprudence dépend du fond et du "
+        "format du numéro. L'identifiant ci-dessus est une source de "
+        "provenance ; confirmer la décision (chambre/formation, date, "
+        "Bulletin/Lebon) sur la source officielle avant citation "
+        "(règle de provenance)."
+    )
+    return 0
+
+
 # --------------------------------------------------------------------------- #
 # Utilitaires
 # --------------------------------------------------------------------------- #
-def _first_legiarti(obj) -> str | None:
-    """Cherche récursivement un identifiant LEGIARTI dans une structure JSON."""
+def _first_id_with_prefix(obj, prefixes) -> str | None:
+    """Cherche récursivement un identifiant commençant par l'un des préfixes."""
+    prefixes = tuple(prefixes)
     if isinstance(obj, str):
-        return obj if obj.startswith("LEGIARTI") else None
+        return obj if obj.startswith(prefixes) else None
     if isinstance(obj, dict):
         for v in obj.values():
-            found = _first_legiarti(v)
+            found = _first_id_with_prefix(v, prefixes)
             if found:
                 return found
     if isinstance(obj, list):
         for v in obj:
-            found = _first_legiarti(v)
+            found = _first_id_with_prefix(v, prefixes)
             if found:
                 return found
     return None
+
+
+def _first_legiarti(obj) -> str | None:
+    """Cherche récursivement un identifiant LEGIARTI dans une structure JSON."""
+    return _first_id_with_prefix(obj, ("LEGIARTI",))
 
 
 def _fmt_date(value) -> str:
@@ -475,6 +549,13 @@ def build_parser() -> argparse.ArgumentParser:
     sp_search.add_argument("--limit", type=int, default=10, help="Nb de résultats (défaut 10).")
     sp_search.add_argument("--json", action="store_true", help="Sortie JSON brute.")
     sp_search.set_defaults(func=cmd_search)
+
+    for name, cfg in FONDS_JURIS.items():
+        sp = sub.add_parser(name, help=f"Rechercher une décision — {cfg['label']}.")
+        sp.add_argument("numero", help="N° de pourvoi / requête / décision.")
+        sp.add_argument("--limit", type=int, default=10, help="Nb de résultats (défaut 10).")
+        sp.add_argument("--json", action="store_true", help="Sortie JSON brute.")
+        sp.set_defaults(func=cmd_jurisprudence)
 
     return p
 

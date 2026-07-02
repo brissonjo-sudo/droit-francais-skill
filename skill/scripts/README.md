@@ -88,9 +88,21 @@ python legifrance.py article --date 2024-01-01 LEGIARTI000006419288
 # Rechercher un article par numéro, filtré sur un code
 python legifrance.py search "2212-2" --code CGCT
 
+# Jurisprudence — renvoie l'identifiant officiel de la décision (best-effort)
+python legifrance.py juri "23-81.234"        # Cour de cassation (fond JURI)
+python legifrance.py ceta "440258"           # Conseil d'État (fond CETAT)
+python legifrance.py constit "2021-940 QPC"  # Conseil constitutionnel (CONSTIT)
+
 # Sortie JSON brute (chaînage / archivage)
 python legifrance.py article --json LEGIARTI000006419288
 ```
+
+> **Provenance de la jurisprudence.** La règle de provenance (v2.3.0) vise
+> aussi les n° de pourvoi / requête / décision. Les commandes `juri` / `ceta`
+> / `constit` permettent de **récupérer l'identifiant officiel** (JURITEXT /
+> CETATEXT / CONSTEXT) par appel d'outil, au lieu de le citer de mémoire.
+> Elles restent *best-effort* (voir limites) : confirmer chambre/formation,
+> date et publication (Bulletin/Lebon) sur la source officielle avant citation.
 
 ### Ce que la commande `article` restitue
 
@@ -131,8 +143,13 @@ réussi ne doit jamais figurer dans une sortie sans le marqueur
   (endpoint `/search`, fond `CODE_DATE`) est **best-effort** et peut demander
   un ajustement du *payload* selon le fond interrogé — d'où l'invite à
   **confirmer** tout identifiant via `article <LEGIARTI>`.
-- Le script ne couvre pas (encore) la jurisprudence (fonds `JURI`, `CETAT`,
-  `CONSTIT`) ni les circulaires : pour ces sources, utiliser les gabarits
+- La **jurisprudence** (`juri`/`ceta`/`constit`, fonds `JURI`/`CETAT`/`CONSTIT`)
+  est prise en charge en **recherche best-effort** : le payload et le format du
+  numéro varient selon le fond, d'où l'invite à confirmer la décision sur la
+  source officielle. La récupération du **texte intégral** d'une décision par
+  identifiant n'est pas encore exposée (utiliser la source officielle ou
+  `web_fetch`).
+- Les **circulaires** ne sont pas couvertes : utiliser les gabarits
   `web_fetch`/`web_search` de `references/gabarits-requetes.md`.
 - Vérifier annuellement les endpoints lors de la revue (`maintenance.md` §3).
 

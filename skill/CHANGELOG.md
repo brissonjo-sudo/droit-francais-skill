@@ -4,6 +4,53 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/).
 
 ---
 
+### [2.4.0] — 2026-06-27
+
+Issue d'un **second audit** (post-v2.3.0). Traite les tensions introduites par
+la v2.3.0 et les points restés ouverts, sans toucher au fond juridique.
+
+#### Ajouté
+- **Jurisprudence dans `scripts/legifrance.py`** : commandes `juri` (fond
+  JURI, Cass.), `ceta` (CETAT, CE), `constit` (CONSTIT, CC), recherche
+  best-effort par numéro renvoyant l'identifiant officiel (JURITEXT /
+  CETATEXT / CONSTEXT). **Résout l'asymétrie de provenance** : la règle vise
+  les n° de pourvoi / requête / décision, désormais récupérables par outil.
+- **CI GitHub Actions** (`.github/workflows/ci.yml`) : `py_compile` des
+  scripts, vérification des liens Markdown, éval hors-ligne — à chaque push
+  sur `main` et à chaque PR.
+- **`tests/check_links.py`** : vérificateur de liens Markdown relatifs (stdlib,
+  hors `vault/`).
+- **`tests/run_eval.py --judge`** : verdict par **LLM-juge** (2e appel notant
+  le fond) en alternative aux regex, pour réduire les faux positifs.
+- **Sondes de balises** dans `tests/eval-modes-erreur.csv` : `[complet]`,
+  `[express]`, `[syllogisme]`, `[opérationnel]` (Bc/Be/Bs/Bo).
+- **`skill/references/modes-erreur.md`** : détail des 14 modes (extrait du §1).
+
+#### Modifié
+- **SKILL.md** : version 2.3.0 → 2.4.0. **§1 dégraissé** : les 14 modes en
+  table compacte + pointeur vers `references/modes-erreur.md` (détail déplacé).
+- **`tests/README.md`** : section **Limites** (le harnais appelle le modèle
+  **sans outils** ; regex indicatives), usage `--judge`, sondes de balises.
+- **`skill/references/format-citation.md`** : les citations d'exemple (Benjamin,
+  QPC) sont explicitement marquées **illustratives** (format, non vérifiées) —
+  cohérence avec la règle de provenance.
+- **`skill/references/gabarits-requetes.md`** : commandes jurisprudence du
+  script ; note sur les noms d'outils (`WebFetch`/`WebSearch` en Claude Code).
+- **`skill/scripts/README.md`** : usage jurisprudence, limite révisée.
+- **README.md** : portée « Claude Code + portable » (au lieu de « toutes les
+  IA »), arborescence (CI, `modes-erreur.md`, `check_links.py`), version.
+
+#### Corrigé
+- **Asymétrie provenance ↔ outillage** (introduite en v2.3.0) : la règle de
+  provenance exigeait des identifiants de jurisprudence par outil, mais le
+  script ne couvrait que les articles de code — désormais résolu.
+
+#### Conservé (iso-fond)
+- 14 modes, 7 principes, étapes 0 / 0 bis / 1–7, 4 techniques, 5 modules,
+  10 déclencheurs d'abstention, gabarits — inchangés au fond.
+
+---
+
 ### [2.3.0] — 2026-06-27
 
 Issue d'un audit du skill. Cinq axes : fiabilité réelle de la
