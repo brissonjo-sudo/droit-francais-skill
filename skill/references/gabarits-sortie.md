@@ -68,7 +68,7 @@ J'en déduis que [...] [confiance modérée — justification une ligne]
 ## Étape 7 — Auto-critique adversariale
 - Contradicteur : [...]
 - Cassation / contrôle de légalité : [...]
-- Jury de concours : [...]
+- 3ᵉ regard du profil actif (section 4 de `profil.md`) : [...]
 
 [Encart final récapitulatif]
 
@@ -170,7 +170,7 @@ Surcouche du gabarit B structurant explicitement le raisonnement :
 qualifications concurrentes écartées (T1).]
 ```
 
-Utile pour l'oral de Commissaire de Police. Non imposée aux autres
-gabarits.
+Utile pour les épreuves de concours (profil étudiant-concours) et tout
+raisonnement à structure imposée. Non imposée aux autres gabarits.
 
 ---

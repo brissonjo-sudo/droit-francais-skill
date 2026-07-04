@@ -1,10 +1,14 @@
 # Maintenance du skill `recherche-juridique`
 
 Procédure de revue annuelle obligatoire à exécuter **chaque 1er septembre**
-(rentrée juridique), priorisée par fréquence de contentieux dans la
-pratique du praticien (police municipale, administration locale,
-préparation aux concours de catégorie A de la sécurité intérieure le
-cas échéant).
+(rentrée juridique), priorisée par les **domaines prioritaires du profil
+actif** (section 3 de `profil.md`).
+
+> Les sections 1 et 2 ci-dessous détaillent la veille pour le profil
+> **police-gendarmerie**, à titre d'exemple concret. Pour un autre profil,
+> remplacer les codes et matières suivis par ceux de sa section 3
+> (ex. avocat → procédure + spécialité ; collectivités → CGCT + commande
+> publique + FPT ; juriste-entreprise → C. com. + C. travail + conformité).
 
 ---
 
@@ -19,7 +23,7 @@ cas échéant).
 
 ---
 
-## 1. Veille législative et réglementaire (priorité haute)
+## 1. Veille législative et réglementaire (priorité haute) — exemple profil police-gendarmerie
 
 ### 1.1 CGCT, partie police municipale
 - Vérifier les modifications du livre II, titre Ier, chapitre II
@@ -106,6 +110,9 @@ cas échéant).
 
 ## 4. Contrôle de cohérence interne du SKILL.md
 
+- [ ] Les fichiers `profils/*.md` respectent le format en 5 sections du
+      `profils/_modele.md` (identité, territorial, domaines, rôle (c),
+      cas particuliers) ; aucun contexte personnel codé en dur dans le noyau.
 - [ ] Numérotation continue des 14 modes d'erreur.
 - [ ] Numérotation continue des 7 principes (P1 à P7).
 - [ ] Numérotation continue des 9 étapes (0, 0 bis, puis 1 à 7).

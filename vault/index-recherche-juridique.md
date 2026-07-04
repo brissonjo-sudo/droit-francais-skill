@@ -1,6 +1,6 @@
 ---
 tags: [skill/recherche-juridique, index]
-version: 2.4.0
+version: 3.0.0
 ---
 
 # Index — skill recherche-juridique
@@ -18,6 +18,7 @@ version: 2.4.0
 | 10 déclencheurs d'abstention + format | `modules-declencheurs.md` |
 | Techniques T1–T4 | `modules-declencheurs.md` |
 | Détail étape 0 bis (clause anti-échappatoire, économie questionnement) | `étape 0 bis.md` |
+| Profils configurables (métier de l'utilisateur) | `../skill/profils/` |
 | Récupération en source primaire (API PISTE, articles + jurisprudence) | `../skill/scripts/README.md` |
 | Détail des 14 modes d'erreur | `../skill/references/modes-erreur.md` |
 | Changelog v2.4.0 (dernier) | `recherche-juridique v2.4.0.md` |

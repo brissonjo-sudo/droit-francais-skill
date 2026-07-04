@@ -10,3 +10,7 @@ Thumbs.db
 __pycache__/
 *.pyc
 .env
+
+# Profil actif choisi par l'utilisateur (local — voir skill/profils/)
+profil.md
+skill/profil.md

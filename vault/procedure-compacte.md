@@ -4,6 +4,12 @@ tags: [skill/recherche-juridique, reference]
 
 # Procédure 9 étapes — table compacte
 
+> **Chargement du profil (v3.0.0).** Avant l'étape 0, lire `profil.md` s'il
+> existe : il fixe des **défauts** (territorial → Q4 de E0, domaines → veille,
+> rôle (c) → E7). Défauts seulement, jamais des certitudes ; surchargés par la
+> requête, rouverts par E0bis si décisionnel. Sans profil → profil neutre
+> (aucune hypothèse métier/territoriale).
+
 ## Étapes × actions × critères de sortie
 
 | Étape | Visible | Action clé | Critère de sortie | Modes bloqués |

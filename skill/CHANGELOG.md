@@ -4,6 +4,57 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/).
 
 ---
 
+### [3.0.0] — 2026-07-02
+
+Refonte **structurelle** (MAJEUR) : le noyau méthodologique devient
+**universel**, le métier de l'utilisateur devient un **paramètre** (profil).
+Objectif d'adoption : rendre le skill utile à tout praticien du droit
+français, pas seulement à son auteur. Aucun contenu méthodologique retiré.
+
+#### Ajouté
+- **`skill/profils/`** — système de profils configurables. Un `profil.md`
+  (copié depuis un modèle) fixe les **défauts** : contexte territorial
+  (question 4 de l'étape 0), domaines prioritaires (veille §10), et 3ᵉ regard
+  d'auto-critique (rôle (c) de l'étape 7). Profils fournis : `_modele`,
+  `police-gendarmerie` (police nationale / gendarmerie / police municipale,
+  avec distinction OPJ/APJ/APJA), `avocat`, `juriste-entreprise`,
+  `collectivites`, `etudiant-concours`.
+- **Règle de chargement (§0)** : lecture de `profil.md` au déclenchement ;
+  valeurs = **défauts jamais des certitudes** (surchargées par la requête,
+  rouvertes par l'étape 0 bis si décisionnelles). Sans profil → **profil
+  neutre** (aucune hypothèse métier/territoriale).
+- **Sonde d'éval `N`** (profil neutre) : garde-fou anti-régression — sans
+  profil, le skill pose la question territoriale (étape 0 bis) au lieu de
+  présumer un contexte.
+- **README** : TL;DR anglais, démo avant/après (hallucination vs abstention),
+  badges (CI / release / licence), encadré « fonctionne sans clé API »,
+  section « Choisir son profil ».
+
+#### Modifié
+- **SKILL.md** : version 2.4.0 → 3.0.0. Objet/Public généralisés (praticiens
+  du droit français). **§8** « Cas particuliers PM/Saint-Ouen » → renvoi à la
+  section 5 du profil actif. Étape 7 rôle (c) et §10 (veille) pilotés par le
+  profil. Balise `[opérationnel]` : « directeur » → « responsable » opérationnel.
+- **references/maintenance.md**, **gabarits-sortie.md** : veille et rôle (c)
+  pilotés par le profil (contenu PM conservé comme exemple police-gendarmerie).
+- **README.md**, **vault/** (index, procedure-compacte) : système de profils.
+
+#### Retiré
+- Du **noyau** : le contexte personnel codé en dur (Saint-Ouen, TA Montreuil,
+  DGA, Commissaire de Police). Le contenu métier PM est **conservé**, déplacé
+  dans `profils/police-gendarmerie.md` avec les valeurs locales en
+  `[à compléter]`.
+
+#### Corrigé
+- **LICENSE** : texte canonique complet CC BY-SA 4.0 (legalcode SPDX) au lieu
+  du résumé — pour la détection automatique par GitHub (affichait « Other »).
+
+#### Conservé (iso-fond)
+- 14 modes, 7 principes, étapes 0 / 0 bis / 1–7, 4 techniques, 5 modules,
+  10 déclencheurs d'abstention, gabarits, outillage PISTE — inchangés au fond.
+
+---
+
 ### [2.4.0] — 2026-06-27
 
 Issue d'un **second audit** (post-v2.3.0). Traite les tensions introduites par

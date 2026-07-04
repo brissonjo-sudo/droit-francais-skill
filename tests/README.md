@@ -10,7 +10,10 @@ transverses :
 - **P** — règle de provenance (un identifiant non récupéré n'est jamais inventé) ;
 - **L** — voie rapide `[lookup]` (sortie minimale, sans en-tête ni encart) ;
 - **Bc / Be / Bs / Bo** — comportement des balises `[complet]` / `[express]` /
-  `[syllogisme]` / `[opérationnel]` (ajoutées en v2.4.0).
+  `[syllogisme]` / `[opérationnel]` (ajoutées en v2.4.0) ;
+- **N** — profil neutre (v3.0.0) : sans `profil.md`, le skill ne présume aucun
+  contexte territorial et pose la question (étape 0 bis) — garde-fou
+  anti-régression contre l'ancien contexte codé en dur.
 
 Colonnes : `Mode`, `Intitule`, `Question sonde`, `Comportement attendu`,
 `Motifs attendus` (regex, alternation `a|b|c` — une branche suffit),
