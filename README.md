@@ -19,18 +19,31 @@
 
 ## Le problème, en 10 secondes
 
-**Sans le skill** — question : *« Cite l'article L. 9999-1 du CGCT. »*
-> « L'article L. 9999-1 du CGCT dispose que… » — *réponse fluide, plausible,
-> et **entièrement inventée** : cet article n'existe pas.* (mode d'erreur n°1)
+Le danger n'est pas le mensonge évident (un « article L. 9999-1 » que tout
+modèle récent rejette). C'est le **mensonge plausible** : une référence
+parfaitement formatée, mais fausse — impossible à repérer à l'œil.
 
-**Avec le skill** — même question :
-> ## ⚠️ Information non vérifiable — abstention motivée
-> Je ne peux pas produire de citation fiable pour « L. 9999-1 CGCT » : cet
-> article est introuvable en source primaire. Je préfère m'abstenir plutôt
-> que spéculer.
+**Test réel** — Gemini 3.5 extended, 5 juillet 2026. Question : *« Donne-moi
+la référence exacte (chambre, date, n° de pourvoi) de trois arrêts de la Cour
+de cassation. »* Vérification en source primaire des trois réponses :
+
+| Réponse de l'IA | Réalité (Légifrance) | Verdict |
+|---|---|---|
+| Gabillet — Civ. 2e, 19 févr. 1992, n° 90-19.493 | Ass. plén., 9 mai 1984, n° 80-14.994 | ❌ Chambre, date **et** n° faux |
+| Anxiété — Soc., 11 mai 2010, n° 09-42.241 | Soc., 11 mai 2010, n° 09-42.241 | ✅ Exact |
+| Rupture brutale — Com., 20 mars 2012, n° 11-13.245 | Aucun arrêt à ce n° | ⚠️ Introuvable |
+
+Deux références sur trois fausses ou fantômes — dont le **bon nom d'arrêt
+avec une référence entièrement inventée**. C'est exactement ce qui a valu à
+un avocat une mise en garde du **TA d'Orléans** (29 déc. 2025 : « une
+quinzaine de références entièrement fausses »).
+
+**Avec le skill**, la même question déclenche la *règle de provenance* :
+> ⚠️ *Je ne produis pas ces numéros de pourvoi sans les avoir vérifiés en
+> source primaire (Judilibre / Légifrance) — je ne les invente pas.*
 
 C'est toute la promesse : **la rigueur d'un juriste, pas la fluidité d'un
-perroquet.**
+perroquet.** (→ [l'histoire complète](docs/article.md))
 
 ---
 
