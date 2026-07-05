@@ -3,34 +3,35 @@ name: recherche-juridique
 description: Méthodologie rigoureuse de recherche en droit français (sources
   primaires Légifrance, vérification de vigueur, citation traçable). Active ce
   skill dès que l'utilisateur cite ou demande un article de loi, code, décret,
-  arrêté ou circulaire ; demande une qualification pénale ou administrative ;
-  demande une jurisprudence (Cass., CE, CC, CJUE, CEDH) ; demande de vérifier
-  si un texte est en vigueur, abrogé ou modifié ; rédige un arrêté municipal,
-  une note au Maire, un mémoire ou une réponse institutionnelle ; prépare un
-  écrit ou oral de concours avec références juridiques. Ne pas activer pour le
-  droit étranger non européen ni les questions doctrinales sans citation.
+  arrêté ou circulaire ; demande une qualification pénale, administrative ou
+  civile ; demande une jurisprudence (Cass., CE, CC, CJUE, CEDH) ; demande de
+  vérifier si un texte est en vigueur, abrogé ou modifié ; rédige un acte, une
+  note, un mémoire, des conclusions ou une réponse institutionnelle ; prépare
+  un écrit ou oral de concours avec références juridiques. Ne pas activer pour
+  le droit étranger non européen ni les questions doctrinales sans citation.
 metadata:
-  version: 2.4.0
-  date_derniere_revue_methodologique: 2026-06-27
+  version: 3.0.0
+  date_derniere_revue_methodologique: 2026-07-02
   date_derniere_verification_sources: 2026-05-19
   langue: français
 ---
-# Skill : recherche-juridique (v2.4.0)
+# Skill : recherche-juridique (v3.0.0)
 
 > **Objet** : encoder la méthodologie rigoureuse de recherche en droit
-> français applicable à un usage institutionnel (Police Municipale,
-> administration locale, préparation au concours de Commissaire de
-> Police). Cette v2 est conçue contre **quatorze modes d'erreur**
-> identifiés du LLM en droit, autour de **sept principes**, d'une
-> **procédure en neuf étapes** (étapes **0** et **0 bis** de cadrage,
-> étapes **1 à 7** opératoires), d'un **double mode opératoire A/B**,
-> de **cinq modules activables** et de **quatre techniques** de
-> raisonnement juridique.
+> français applicable à tout usage professionnel — avocat, juriste,
+> agent des forces de l'ordre, cadre territorial, candidat aux concours.
+> Conçu contre **quatorze modes d'erreur** identifiés du LLM en droit,
+> autour de **sept principes**, d'une **procédure en neuf étapes**
+> (étapes **0** et **0 bis** de cadrage, étapes **1 à 7** opératoires),
+> d'un **double mode opératoire A/B**, de **cinq modules activables** et
+> de **quatre techniques** de raisonnement juridique.
 >
-> **Public** : Chef de Service PM / DGA Saint-Ouen-sur-Seine. Tout
-> livrable peut finir dans un acte officiel — la rigueur prime sur la
-> fluidité, et l'abstention informée prime sur la complétion
-> spéculative.
+> **Public** : praticiens du droit français. Le métier de l'utilisateur
+> (contexte territorial, domaines prioritaires, 3ᵉ regard d'auto-critique)
+> se configure via un **profil** — voir `profil.md` et le dossier
+> [`profils/`](profils/) (§0.5). Tout livrable peut finir dans un acte
+> officiel — la rigueur prime sur la fluidité, et l'abstention informée
+> prime sur la complétion spéculative.
 
 ---
 
@@ -41,8 +42,8 @@ Activer ce skill dès que l'utilisateur :
 - demande une qualification juridique (pénale, administrative, civile),
 - demande de vérifier si un texte est en vigueur, abrogé ou modifié,
 - demande une jurisprudence (Cass., CE, CC, CJUE, CEDH),
-- rédige un arrêté municipal, une note au Maire, un mémoire, une réponse
-  à un questionnaire institutionnel,
+- rédige un acte, une note, un mémoire, des conclusions ou une réponse
+  institutionnelle,
 - prépare un oral ou écrit de concours impliquant des références juridiques.
 
 **Ne pas activer** pour des questions purement doctrinales sans besoin
@@ -51,6 +52,29 @@ de citation vérifiable, ni pour du droit étranger non européen.
 ---
 
 ## 0. Architecture générale : double mode opératoire
+
+### Chargement du profil (`profil.md`) — avant toute analyse
+
+Le **noyau méthodologique est universel** ; le **métier de l'utilisateur
+est un paramètre**. Au déclenchement, si un fichier **`profil.md`** existe
+à la racine du skill, le lire : il fixe des **défauts** — contexte
+territorial (question 4 de l'étape 0), domaines prioritaires (veille §10),
+et **3ᵉ regard d'auto-critique** (rôle (c) de l'étape 7). Profils fournis
+dans [`profils/`](profils/) (police-gendarmerie, avocat, juriste-entreprise,
+collectivités, étudiant-concours) ; gabarit vierge `profils/_modele.md`.
+
+**Deux règles impératives :**
+1. **Un profil ne fournit que des défauts, jamais des certitudes.** Toute
+   valeur (ressort, TA compétent, domaine) est **surchargée sans friction**
+   par une requête qui vise autre chose, et **rouverte par l'étape 0 bis**
+   dès qu'elle devient décisionnelle. Le profil ne dispense d'aucune
+   vérification (P1) ni d'aucune question obligatoire (étape 0 bis).
+2. **Sans `profil.md` → profil neutre.** Aucune hypothèse territoriale ou
+   métier n'est présumée. Si une information de ce type est décisionnelle,
+   l'étape 0 bis la **pose en question** (filet de sécurité), au lieu de
+   deviner un contexte.
+
+### Double mode opératoire
 
 Le skill fonctionne selon deux modes **mutuellement exclusifs**.
 
@@ -81,7 +105,7 @@ légalité, exercice de préparation au concours).
 | `[complet]` | Force le mode B (tous modules activés). |
 | `[express]` | Mode A allégé : supprime l'activation automatique des modules même si leurs déclencheurs sont réunis. **Exception : le module PÉNAL reste actif** (principe de légalité criminelle, P6). |
 | `[syllogisme]` | Active le sous-gabarit « note de concours » (structure majeure / mineure / conclusion). Surcouche du gabarit B. |
-| `[opérationnel]` | Active la section « Implications opérationnelles » du gabarit B et le rôle facultatif *directeur opérationnel* à l'étape 7. |
+| `[opérationnel]` | Active la section « Implications opérationnelles » du gabarit B et le rôle facultatif *responsable opérationnel* à l'étape 7. |
 | `[lookup]` | **Voie rapide** : référence ponctuelle non controversée. Dispense de l'en-tête standardisé et de l'encart récapitulatif ; sortie minimale (voir ci-dessous). **N'allège aucune exigence de fond** : P1, règle de provenance et étape 0 bis restent dues. Refusée — bascule en mode A standard — dès qu'une interprétation, une qualification pénale ou un acte est en jeu. |
 
 En l'absence de balise → **mode A standard** avec déclencheurs
@@ -609,14 +633,18 @@ Mobilisation des arguments classiques :
 (b) **Le juge de cassation ou de contrôle de légalité** — où est la
 faiblesse du raisonnement ? Quel point pourrait être censuré ?
 
-(c) **Le jury de concours** — quelle question d'oral m'enfoncerait
-sur ce point ?
+(c) **Le 3ᵉ regard défini par le profil actif** (section 4 de `profil.md`) —
+p. ex. l'avocat de la défense (police-gendarmerie), le confrère adverse
+(avocat), le contrôle de légalité (collectivités), le régulateur
+(juriste-entreprise), le jury (étudiant-concours). **Sans profil** : le
+contradicteur qualifié secondaire — « quelle autre lecture, quelle
+objection un praticien adverse opposerait-il ? »
 
 **Rôle facultatif** (activé par balise `[opérationnel]` ou si la
-requête porte sur la mise en œuvre) : (d) **Le directeur opérationnel** —
+requête porte sur la mise en œuvre) : (d) **Le responsable opérationnel** —
 cette mesure est-elle effectivement applicable avec les moyens
 disponibles, les contraintes RH et budgétaires, l'articulation avec
-la police nationale ?
+les autres services ?
 
 Si l'un des rôles identifie un trou → retour à l'étape concernée
 **avant livraison**.
@@ -753,53 +781,24 @@ balisée (P7).
 
 ---
 
-## 8. Cas particuliers — Police Municipale et Administration locale
+## 8. Cas particuliers métier — définis par le profil
 
-### Arrêtés de police administrative (CGCT)
-- Compétence générale : art. **L. 2212-1** et **L. 2212-2 CGCT**.
-- Polices spéciales : art. **L. 2213-1 à L. 2213-32 CGCT** (selon objet).
-- Articulation lex generalis / lex specialis (étape 5, contrôle 3) :
-  une police spéciale (environnement, urbanisme, occupation du domaine
-  public, sécurité routière) peut **dessaisir** ou **encadrer** la
-  police générale du maire.
-- Jurisprudence cardinale :
-  - **CE, 19 mai 1933, *Benjamin*, Lebon** — proportionnalité (cf. module ACTE-ADMIN).
-  - **CE, 26 oct. 2011, *Commune de Saint-Denis*, n° 326492** —
-    exigence de motivation et de circonstances locales.
-- Mode 10 : vérifier le champ territorial (Paris intra-muros pour
-  certaines polices spéciales, IDF pour certaines compétences,
-  Seine-Saint-Denis / petite couronne — **partage des compétences
-  avec la préfecture de police** pour Saint-Ouen).
+Les cas particuliers propres à un métier (textes de référence,
+jurisprudences cardinales, pièges récurrents) **ne sont pas codés dans le
+noyau** : ils vivent dans la **section 5 du profil actif** (`profil.md`).
 
-### Qualifications pénales
-- **Date de référence = date des faits** (P2, P6).
-- Vérifier la version du Code pénal et du CPP **à cette date**.
-- Signaler explicitement toute modification postérieure aux faits et
-  comparer pour rétroactivité in mitius (P6).
-- Module PÉNAL automatiquement actif.
+- **Profil chargé** → appliquer sa section 5 (ex. pour police-gendarmerie :
+  pouvoirs OPJ/APJ, arrêtés de police du maire, MGP/EPT ; pour avocat :
+  délais et voies de droit ; etc.). Voir [`profils/`](profils/).
+- **Profil neutre** (pas de `profil.md`) → **aucun cas particulier métier
+  n'est présumé**. Les particularités **universelles** du droit français
+  (Alsace-Moselle, outre-mer, IDF / petite couronne, champ territorial,
+  dispositions transitoires) restent traitées par l'étape 5 et
+  [`references/checklist-vigueur.md`](references/checklist-vigueur.md),
+  indépendamment de tout profil.
 
-### Conventions collectives (KALI)
-- Identifier le numéro **IDCC**.
-- Vérifier la version en vigueur de la convention **et** de l'accord
-  d'entreprise applicable.
-
-### Articulation arrêté municipal / pouvoirs préfectoraux
-- Mode 8 : vérifier le fondement législatif du pouvoir de police
-  exercé. Un arrêté municipal pris hors champ est illégal et
-  attaquable devant le TA (TA Montreuil pour Saint-Ouen).
-- Module CONTENTIEUX à activer si risque de recours évoqué.
-
-### Répartition des compétences intercommunales (MGP / EPT)
-- Champ très réformé (loi NOTRe 2015, loi Engagement et proximité
-  2019, loi 3DS 2022) → P1 et étape 3 impératifs.
-- **Point d'étape 0 bis typique** : une demande de type « l'EPT veut
-  récupérer une compétence, comment la conserver ? » dépend d'une
-  information **décisionnelle** détenue par le seul utilisateur — la
-  compétence est-elle déjà **statutaire** (le conseil de territoire
-  décide seul) ou **supplémentaire** (procédure L. 5211-17 CGCT, les
-  communes votent) ? Cette question est **obligatoire** avant toute
-  analyse de fond ; la déclarer en hypothèse est interdit (clause
-  anti-échappatoire).
+En cas de contexte décisionnel non couvert par le profil → étape 0 bis
+(question obligatoire), jamais d'hypothèse.
 
 ---
 
@@ -837,16 +836,15 @@ Métadonnées YAML obligatoires :
 
 ### Checklist annuelle (1er septembre — rentrée juridique)
 
-Priorisée par fréquence de contentieux dans la pratique de
-l'utilisateur :
+Priorisée par les **domaines prioritaires du profil actif** (section 3 de
+`profil.md`). Les entrées ci-dessous sont l'exemple du profil
+police-gendarmerie ; les remplacer par les domaines du profil utilisé.
 
-- [ ] Évolutions du **CGCT, partie police municipale** (priorité haute).
-- [ ] Évolutions du **CPP, cadres d'enquête** (priorité haute).
-- [ ] Évolutions du **Code de la route, compétence police municipale** (priorité haute).
-- [ ] Évolutions du **CSI** (priorité moyenne).
-- [ ] **Nouvelle loi de programmation** Intérieur / Justice (priorité variable).
-- [ ] **Arrêts de principe** rendus dans l'année par Cass. crim. et CE
-      sur ces matières (priorité haute).
+- [ ] Évolutions des **codes de la section 3 du profil** (priorité haute).
+- [ ] **Arrêts de principe** rendus dans l'année par les juridictions
+      suprêmes sur ces matières (priorité haute).
+- [ ] **Nouvelle loi de programmation / réforme** du champ suivi (priorité variable).
+- [ ] Cohérence des fichiers `profils/` avec le format en 5 sections.
 - [ ] Mise à jour de `date_derniere_revue_methodologique`.
 - [ ] Mise à jour de `date_derniere_verification_sources`.
 

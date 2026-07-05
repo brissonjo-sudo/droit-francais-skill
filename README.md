@@ -1,23 +1,51 @@
 # droit-francais-skill
 
-**Skill LLM — méthodologie de recherche en droit français (v2.4.0)**
+**Skill LLM — méthodologie de recherche en droit français (v3.0.0)**
 
-Un skill pensé pour **Claude Code** (le format `SKILL.md` et les outils
-`WebFetch`/`WebSearch`/`scripts/legifrance.py` en relèvent), et **portable**
-à d'autres assistants moyennant l'adaptation des noms d'outils. Il encode une
-méthodologie rigoureuse de recherche juridique en droit français, conçue pour
-résister aux quatorze modes d'erreur typiques des LLM appliqués au droit.
+[![CI](https://github.com/brissonjo-sudo/droit-francais-skill/actions/workflows/ci.yml/badge.svg)](https://github.com/brissonjo-sudo/droit-francais-skill/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/brissonjo-sudo/droit-francais-skill)](https://github.com/brissonjo-sudo/droit-francais-skill/releases)
+[![License: CC BY-SA 4.0](https://img.shields.io/badge/license-CC%20BY--SA%204.0-blue)](LICENSE)
+
+> **TL;DR (EN).** A Claude Code skill that stops the model from *making up
+> French law.* It forces every statute, case, or citation through a 9-step
+> verification procedure built against **14 known LLM failure modes** in legal
+> reasoning — primary sources only (Légifrance/PISTE), currency checks, and
+> *traceable* citations. When it can't verify, it says so instead of inventing.
+> Configurable per practitioner via a **profile**. Works without any API key;
+> a free PISTE key unlocks deterministic retrieval. Install: copy `skill/`
+> into `~/.claude/skills/recherche-juridique/`.
+
+---
+
+## Le problème, en 10 secondes
+
+**Sans le skill** — question : *« Cite l'article L. 9999-1 du CGCT. »*
+> « L'article L. 9999-1 du CGCT dispose que… » — *réponse fluide, plausible,
+> et **entièrement inventée** : cet article n'existe pas.* (mode d'erreur n°1)
+
+**Avec le skill** — même question :
+> ## ⚠️ Information non vérifiable — abstention motivée
+> Je ne peux pas produire de citation fiable pour « L. 9999-1 CGCT » : cet
+> article est introuvable en source primaire. Je préfère m'abstenir plutôt
+> que spéculer.
+
+C'est toute la promesse : **la rigueur d'un juriste, pas la fluidité d'un
+perroquet.**
 
 ---
 
 ## Public visé
 
-- Cadres territoriaux (police municipale, administration locale)
-- Juristes praticiens
-- Candidats aux concours de catégorie A de la sécurité intérieure
-  (Commissaire de Police, etc.)
-- Tout utilisateur ayant besoin de références juridiques fiables dans
-  un acte officiel ou un document institutionnel
+Tout praticien du droit français — **le métier se configure via un profil**
+(voir [« Choisir son profil »](#choisir-son-profil)) :
+
+- **Forces de l'ordre** (police nationale, gendarmerie, police municipale)
+- **Avocats** (conseil et contentieux)
+- **Juristes d'entreprise** (droit des affaires, conformité)
+- **Cadres et juristes territoriaux** (collectivités)
+- **Étudiants et candidats aux concours** juridiques
+- Toute personne ayant besoin de références juridiques fiables dans un acte
+  ou un document officiel
 
 ---
 
@@ -50,6 +78,47 @@ vigueur…), ce skill active une procédure en 9 étapes incluant :
 - **Récupération outillée** (v2.3.0, jurisprudence en v2.4.0) :
   `skill/scripts/legifrance.py` interroge l'API Légifrance/PISTE (articles de
   code + décisions Cass./CE/CC) pour fiabiliser l'étape 2
+- **Profils configurables** (v3.0.0) : le métier de l'utilisateur (contexte
+  territorial, domaines, 3ᵉ regard d'auto-critique) se règle via un `profil.md`
+  — le noyau méthodologique reste universel
+
+---
+
+## Fonctionne sans clé API
+
+> 🔑 **Aucune configuration obligatoire.** Le skill fonctionne immédiatement :
+> à défaut d'API, la récupération passe par la recherche web sur les domaines
+> officiels (Légifrance, Cour de cassation, Conseil d'État…). Une **clé PISTE
+> gratuite** (API Légifrance) est *optionnelle* : elle rend la récupération
+> déterministe et fiabilise la règle de provenance. Voir
+> [`skill/scripts/README.md`](skill/scripts/README.md).
+
+---
+
+<a id="choisir-son-profil"></a>
+## Choisir son profil
+
+Le skill s'adapte à votre métier via un fichier `profil.md` (défauts de
+contexte, jamais des certitudes — voir [`skill/profils/`](skill/profils/)) :
+
+| Profil | Pour qui | 3ᵉ regard d'auto-critique |
+|--------|----------|---------------------------|
+| `police-gendarmerie` | Police nationale / gendarmerie / police municipale | L'avocat de la défense (nullité de procédure) |
+| `avocat` | Avocat (conseil, contentieux) | Le confrère adverse |
+| `juriste-entreprise` | Direction juridique, conformité | Le régulateur / l'auditeur |
+| `collectivites` | DGS, secrétaire de mairie, juriste territorial | Le contrôle de légalité préfectoral |
+| `etudiant-concours` | Étudiant / candidat concours | Le jury / le correcteur |
+
+**Activation** (après installation) :
+
+```bash
+cd ~/.claude/skills/recherche-juridique
+cp profils/avocat.md profil.md      # remplacer par votre profil
+# puis compléter les champs [à compléter] du profil.md
+```
+
+Sans `profil.md`, le skill tourne en **profil neutre** : il ne présume aucun
+contexte et pose la question quand elle devient décisionnelle.
 
 ---
 
@@ -102,13 +171,20 @@ Le skill s'active automatiquement quand vous :
 
 ---
 
-## Arborescence (v2.4.0)
+## Arborescence (v3.0.0)
 
 ```
 droit-francais-skill/
 ├── skill/                          ← seul dossier empaqueté pour installation
-│   ├── SKILL.md                    ← noyau méthodologique
+│   ├── SKILL.md                    ← noyau méthodologique (universel)
 │   ├── CHANGELOG.md                ← historique des versions
+│   ├── profils/                    ← profils métier (v3.0.0)
+│   │   ├── _modele.md              ← gabarit vierge
+│   │   ├── police-gendarmerie.md   ← PN / gendarmerie / police municipale
+│   │   ├── avocat.md
+│   │   ├── juriste-entreprise.md
+│   │   ├── collectivites.md
+│   │   └── etudiant-concours.md
 │   ├── references/
 │   │   ├── gabarits-sortie.md      ← gabarits A/B/C + syllogisme (détail §6)
 │   │   ├── modules.md              ← 5 modules activables (détail §5)
@@ -124,10 +200,13 @@ droit-francais-skill/
 │       └── README.md               ← configuration PISTE + usage
 ├── .github/workflows/ci.yml        ← CI (py_compile + liens + éval hors-ligne)
 ├── vault/                          ← notes Obsidian (hors paquet)
-├── tests/                          ← évals (14 modes + balises + Copilot) + runners
+├── tests/                          ← évals (14 modes + balises + profil neutre) + runners
 ├── README.md
 └── LICENSE
 ```
+
+> Le fichier `profil.md` (choix de l'utilisateur, copié depuis `profils/`)
+> est local et gitignoré — il n'est pas versionné.
 
 ---
 
