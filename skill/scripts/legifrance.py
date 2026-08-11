@@ -587,7 +587,9 @@ def _num_variantes(numero: str) -> list[str]:
     import re
 
     compact = "".join(numero.split())
-    m = re.match(r"^([LRDA])\.?(\S+)$", compact, flags=re.IGNORECASE)
+    # Le chiffre exigé après la lettre évite de prendre pour une partie
+    # l'initiale d'un mot (« Annexe 1 » n'est pas l'article A-nnexe 1).
+    m = re.match(r"^([LRDA])\.?(\d\S*)$", compact, flags=re.IGNORECASE)
     if m:
         return [f"{m.group(1).upper()}{m.group(2)}"]
     return [compact] + [f"{p}{compact}" for p in PARTIES_CODE]
@@ -662,6 +664,10 @@ def cmd_search(args) -> int:
 
     date_version = args.date or _aujourdhui()
     variantes = _num_variantes(args.numero)
+    # Borne unique, appliquée à la fois à la requête et à l'affichage : un
+    # --limit nul ou négatif tronquerait sinon la liste affichée à vide tout
+    # en annonçant des résultats. 100 est le plafond de pageSize.
+    limite = max(1, min(args.limit, 100))
     # Un critère isolé se combine en ET ; plusieurs formes concurrentes du
     # même numéro s'excluent mutuellement, donc OU.
     operateur = "OU" if len(variantes) > 1 else "ET"
@@ -693,7 +699,7 @@ def cmd_search(args) -> int:
             "pageNumber": 1,
             # La pagination porte sur les codes, pas sur les articles : un
             # même code peut rendre plusieurs articles (L… et R… homonymes).
-            "pageSize": max(1, min(args.limit, 100)),
+            "pageSize": limite,
             "operateur": "ET",
             "sort": "PERTINENCE",
             "typePagination": "ARTICLE",
@@ -720,7 +726,7 @@ def cmd_search(args) -> int:
         )
         return 5
 
-    affiches = articles[: args.limit]
+    affiches = articles[:limite]
     print(
         f"{len(articles)} article(s) trouvé(s) au {_fr_date(date_version)} "
         f"— confirmer avec « article <LEGIARTI> » :"
