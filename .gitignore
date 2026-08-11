@@ -6,6 +6,9 @@ Thumbs.db
 .vscode/
 .idea/
 
+# Worktrees et état local des agents Claude Code (copies complètes du dépôt).
+.claude/
+
 # Python (outillage scripts/ et tests/)
 __pycache__/
 *.pyc
