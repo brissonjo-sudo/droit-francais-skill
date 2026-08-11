@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""legifrance.py — récupération fiable en source primaire via l'API Légifrance (PISTE).
+"""legifrance.py — récupération fiable en source primaire via les API PISTE.
 
 Objet
 -----
@@ -9,6 +9,16 @@ en appel d'outil déterministe : tout identifiant ``LEGIARTI``, toute date de
 version en vigueur et tout statut (en vigueur / modifié / abrogé) provient
 d'une réponse officielle de l'API Légifrance, et non de la mémoire du modèle.
 
+Deux fonds sont couverts :
+
+* **Légifrance** (DILA) — textes : codes, lois, décrets, arrêtés ;
+* **Judilibre** (Cour de cassation) — jurisprudence : Cour de cassation,
+  cours d'appel, tribunaux judiciaires et de commerce.
+
+La même exigence de provenance s'applique aux deux : une décision ne se cite
+qu'après récupération réussie par ``decision <id>``, jamais sur la seule foi
+d'un résultat de recherche.
+
 Authentification
 ----------------
 OAuth2 *client_credentials* sur PISTE. Le script lit ses identifiants dans
@@ -17,6 +27,15 @@ l'environnement (jamais en clair dans le dépôt) :
     LEGIFRANCE_CLIENT_ID         (obligatoire)
     LEGIFRANCE_CLIENT_SECRET     (obligatoire)
     LEGIFRANCE_ENV               "prod" (défaut) | "sandbox"   (optionnel)
+    JUDILIBRE_KEY_ID             (optionnel — voir ci-dessous)
+
+Judilibre accepte deux modes d'authentification selon la façon dont
+l'application PISTE a été déclarée : l'en-tête ``KeyId`` documenté par la
+Cour de cassation, ou le jeton OAuth2 ``Authorization: Bearer`` commun aux
+API PISTE. Le script essaie ``KeyId`` en premier si ``JUDILIBRE_KEY_ID`` est
+défini, puis bascule automatiquement sur le jeton OAuth. Aucune
+configuration supplémentaire n'est nécessaire si l'application est abonnée
+à l'API « Judilibre » avec les mêmes identifiants que Légifrance.
 
 Obtention des identifiants : créer un compte sur https://piste.gouv.fr,
 y déclarer une application abonnée à l'API « Légifrance », récupérer le
@@ -40,10 +59,12 @@ Usage
     python legifrance.py search "2212-2" --code CGCT
     python legifrance.py article --json LEGIARTI000006419288   # sortie brute JSON
 
-    # Jurisprudence (best-effort — renvoie l'identifiant officiel à confirmer) :
-    python legifrance.py juri "23-81.234"       # Cour de cassation (fond JURI)
-    python legifrance.py ceta "440258"          # Conseil d'État (fond CETAT)
-    python legifrance.py constit "2021-940 QPC" # Conseil constitutionnel (CONSTIT)
+    # Jurisprudence (Judilibre)
+    python legifrance.py juri "soins psychiatriques sans consentement"
+    python legifrance.py juri "police municipale" --jurisdiction cc --date-start 2020-01-01
+    python legifrance.py juri "mainlevée" --publication b --sort date --order desc
+    python legifrance.py decision 5fca...            # texte intégral d'une décision
+    python legifrance.py taxonomy chamber --jurisdiction cc
 
 Codes de sortie
 ---------------
@@ -51,7 +72,7 @@ Codes de sortie
     2  identifiants d'environnement manquants / mauvais usage
     3  échec d'authentification PISTE
     4  échec de la requête API (HTTP non-2xx, contenu illisible)
-    5  ressource introuvable (article inexistant)
+    5  ressource introuvable (article ou décision inexistants)
 
 Le code 4/5 est, côté skill, un **déclencheur d'abstention** (§7) : pas de
 citation sans récupération réussie.
@@ -74,12 +95,39 @@ ENVS = {
     "prod": {
         "token": "https://oauth.piste.gouv.fr/api/oauth/token",
         "api": "https://api.piste.gouv.fr/dila/legifrance/lf-engine-app",
+        "judilibre": "https://api.piste.gouv.fr/cassation/judilibre/v1.0",
     },
     "sandbox": {
         "token": "https://sandbox-oauth.piste.gouv.fr/api/oauth/token",
         "api": "https://sandbox-api.piste.gouv.fr/dila/legifrance/lf-engine-app",
+        "judilibre": "https://sandbox-api.piste.gouv.fr/cassation/judilibre/v1.0",
     },
 }
+
+# Judilibre — valeurs de référence (spécification OpenAPI JUDILIBRE-public.json).
+# Les listes dépendantes de la juridiction (chamber, formation, theme) se
+# récupèrent à la demande via la commande `taxonomy`.
+JURIDICTIONS = {
+    "cc": "Cour de cassation",
+    "ca": "Cour d'appel",
+    "tj": "Tribunal judiciaire",
+    "tcom": "Tribunal de commerce",
+}
+PUBLICATIONS = {
+    "b": "Bulletin",
+    "r": "Rapport annuel",
+    "l": "Lettre de chambre",
+    "c": "Communiqué",
+}
+SOLUTIONS = (
+    "annulation", "avis", "cassation", "decheance", "designation",
+    "irrecevabilite", "nonlieu", "qpc", "rabat",
+)
+DECISION_TYPES = ("arret", "qpc", "ordonnance", "saisie")
+SEARCH_FIELDS = (
+    "expose", "moyens", "motivations", "dispositif",
+    "annexes", "sommaire", "titrage",
+)
 
 # Identifiants LEGITEXT des codes fréquents (miroir de gabarits-requetes.md).
 CODE_IDS = {
@@ -97,23 +145,21 @@ CODE_IDS = {
     "CURBA": "LEGITEXT000006074075",
 }
 
-# Fonds de jurisprudence Légifrance (résout l'asymétrie de provenance v2.3.0 :
-# la règle de provenance vise aussi les n° de pourvoi / requête / décision).
-FONDS_JURIS = {
-    "juri": {"fond": "JURI", "prefix": "JURITEXT", "label": "Cour de cassation / judiciaire"},
-    "ceta": {"fond": "CETAT", "prefix": "CETATEXT", "label": "Conseil d'État"},
-    "constit": {"fond": "CONSTIT", "prefix": "CONSTEXT", "label": "Conseil constitutionnel"},
-}
-
 TIMEOUT = 30
 
 
 class LegifranceError(Exception):
-    """Erreur métier avec code de sortie associé."""
+    """Erreur métier avec code de sortie associé.
 
-    def __init__(self, message: str, exit_code: int):
+    ``http_status`` est renseigné quand l'erreur provient d'une réponse HTTP :
+    il permet aux appelants de distinguer un refus d'authentification (401,
+    403), qui justifie une bascule de mode, d'une panne réelle.
+    """
+
+    def __init__(self, message: str, exit_code: int, http_status: int | None = None):
         super().__init__(message)
         self.exit_code = exit_code
+        self.http_status = http_status
 
 
 def load_dotenv() -> None:
@@ -167,7 +213,31 @@ def _http_post(url: str, data: bytes, headers: dict) -> dict:
     except urllib.error.HTTPError as exc:  # 4xx / 5xx
         body = exc.read().decode("utf-8", "replace")[:500]
         raise LegifranceError(
-            f"HTTP {exc.code} sur {url}\n{body}", exit_code=4
+            f"HTTP {exc.code} sur {url}\n{body}", exit_code=4, http_status=exc.code
+        ) from exc
+    except urllib.error.URLError as exc:
+        raise LegifranceError(
+            f"Échec réseau vers {url} : {exc.reason}", exit_code=4
+        ) from exc
+    try:
+        return json.loads(raw)
+    except json.JSONDecodeError as exc:
+        raise LegifranceError(
+            f"Réponse non-JSON de {url} : {raw[:300]}", exit_code=4
+        ) from exc
+
+
+def _http_get(url: str, headers: dict) -> dict:
+    """GET JSON — utilisé par Judilibre, dont l'API est en lecture seule."""
+    req = urllib.request.Request(url, headers=headers, method="GET")
+    try:
+        with urllib.request.urlopen(req, timeout=TIMEOUT) as resp:
+            raw = resp.read().decode("utf-8")
+    except urllib.error.HTTPError as exc:
+        body = exc.read().decode("utf-8", "replace")[:500]
+        code = 5 if exc.code == 404 else 4
+        raise LegifranceError(
+            f"HTTP {exc.code} sur {url}\n{body}", exit_code=code, http_status=exc.code
         ) from exc
     except urllib.error.URLError as exc:
         raise LegifranceError(
@@ -244,6 +314,75 @@ def api_call(path: str, body: dict, token: str) -> dict:
 
 
 # --------------------------------------------------------------------------- #
+# Couche Judilibre (Cour de cassation) — GET + double mode d'authentification
+# --------------------------------------------------------------------------- #
+_TOKEN_CACHE: dict = {}
+
+
+def get_token_cached() -> str:
+    """Évite de redemander un jeton à chaque appel dans une même exécution."""
+    if "token" not in _TOKEN_CACHE:
+        _TOKEN_CACHE["token"] = get_token()
+    return _TOKEN_CACHE["token"]
+
+
+def _judilibre_auth_modes() -> list:
+    """Modes d'authentification à essayer, dans l'ordre.
+
+    L'en-tête ``KeyId`` est celui documenté par la Cour de cassation ; le
+    jeton OAuth2 PISTE fonctionne quand l'application est déclarée en client
+    confidentiel. Selon l'abonnement, l'un ou l'autre répond : on essaie donc
+    successivement plutôt que d'imposer un choix à l'utilisateur.
+    """
+    modes = []
+    key_id = os.environ.get("JUDILIBRE_KEY_ID") or os.environ.get("PISTE_KEY_ID")
+    if key_id:
+        modes.append(("KeyId", {"KeyId": key_id, "Accept": "application/json"}))
+    modes.append(("OAuth", None))  # jeton résolu paresseusement
+    return modes
+
+
+def judilibre_get(path: str, params: dict) -> dict:
+    """Appelle un endpoint Judilibre et renvoie le JSON.
+
+    ``params`` accepte des listes : chaque valeur est répétée dans la
+    *query string*, conformément à la spécification (paramètres multivalués).
+    """
+    base = _env().get("judilibre")
+    query = urllib.parse.urlencode(
+        {k: v for k, v in params.items() if v not in (None, "", [], ())},
+        doseq=True,
+    )
+    url = f"{base}{path}" + (f"?{query}" if query else "")
+
+    last: LegifranceError | None = None
+    for label, headers in _judilibre_auth_modes():
+        if headers is None:
+            headers = {
+                "Authorization": f"Bearer {get_token_cached()}",
+                "Accept": "application/json",
+            }
+        try:
+            return _http_get(url, headers)
+        except LegifranceError as exc:
+            # 401/403 : mode d'authentification refusé, on tente le suivant.
+            if exc.http_status in (401, 403):
+                last = LegifranceError(
+                    f"Authentification Judilibre refusée en mode {label} : {exc}",
+                    exit_code=3,
+                    http_status=exc.http_status,
+                )
+                continue
+            raise
+    raise last or LegifranceError(
+        "Aucun mode d'authentification Judilibre accepté. Vérifier que "
+        "l'application PISTE est bien abonnée à l'API « Judilibre », ou "
+        "renseigner JUDILIBRE_KEY_ID.",
+        exit_code=3,
+    )
+
+
+# --------------------------------------------------------------------------- #
 # Commandes
 # --------------------------------------------------------------------------- #
 def cmd_ping(args) -> int:
@@ -259,6 +398,23 @@ def cmd_ping(args) -> int:
     except LegifranceError as exc:
         print(f"⚠️  Jeton OK mais endpoint en erreur : {exc}", file=sys.stderr)
         return 4
+
+    # Sonde Judilibre — non bloquante : l'application PISTE peut n'être
+    # abonnée qu'à Légifrance. Le fond jurisprudence est alors indisponible,
+    # ce qui doit être visible sans faire échouer le ping.
+    _TOKEN_CACHE["token"] = token
+    print(f"   Judilibre : {_env().get('judilibre')}")
+    try:
+        judilibre_get("/taxonomy", {"id": "jurisdiction"})
+        print("✅ Endpoint Judilibre /taxonomy joignable.")
+    except LegifranceError as exc:
+        print(
+            f"⚠️  Judilibre indisponible ({exc}).\n"
+            "   Vérifier l'abonnement à l'API « Judilibre » sur piste.gouv.fr, "
+            "ou renseigner JUDILIBRE_KEY_ID.\n"
+            "   Légifrance reste utilisable ; la jurisprudence non.",
+            file=sys.stderr,
+        )
     return 0
 
 
@@ -402,85 +558,205 @@ def cmd_search(args) -> int:
     return 0
 
 
-def cmd_jurisprudence(args) -> int:
-    """Recherche une décision par numéro dans un fond de jurisprudence.
+# --------------------------------------------------------------------------- #
+# Commandes Judilibre
+# --------------------------------------------------------------------------- #
+def cmd_juri(args) -> int:
+    """Recherche de jurisprudence sur Judilibre (Cour de cassation et fonds CA/TJ)."""
+    params = {
+        "query": args.query,
+        "operator": args.operator,
+        "field": args.field,
+        "type": args.type,
+        "jurisdiction": args.jurisdiction,
+        "chamber": args.chamber,
+        "formation": args.formation,
+        "theme": args.theme,
+        "publication": args.publication,
+        "solution": args.solution,
+        "date_start": args.date_start,
+        "date_end": args.date_end,
+        "sort": args.sort,
+        "order": args.order,
+        "page": args.page,
+        "page_size": min(args.limit, 50),  # plafond imposé par l'API
+        "resolve_references": "true" if args.resolve_references else None,
+    }
+    data = judilibre_get("/search", params)
 
-    Alias : `juri` (Cass. / judiciaire), `ceta` (CE), `constit` (CC).
-    Best-effort (comme `search`) : renvoie l'identifiant officiel de la
-    décision (JURITEXT / CETATEXT / CONSTEXT), à confirmer avant citation.
-    """
-    cfg = FONDS_JURIS[args.command]
-    token = get_token()
-    champ = {
-        "typeChamp": "ALL",
-        "criteres": [
-            {"typeRecherche": "EXACTE", "valeur": args.numero, "operateur": "ET"}
-        ],
-        "operateur": "ET",
-    }
-    recherche = {
-        "champs": [champ],
-        "pageNumber": 1,
-        "pageSize": args.limit,
-        "operateur": "ET",
-        "sort": "PERTINENCE",
-        "typePagination": "DEFAUT",
-    }
-    body = {"recherche": recherche, "fond": cfg["fond"]}
-    data = api_call("/search", body, token)
     if args.json:
         print(json.dumps(data, ensure_ascii=False, indent=2))
         return 0
 
     results = data.get("results") or []
+    total = data.get("total", len(results))
     if not results:
         print(
-            f"Aucune décision pour « {args.numero} » dans le fond {cfg['fond']} "
-            f"({cfg['label']}). Affiner le numéro ou vérifier via la source "
-            "officielle.",
+            f"Aucune décision pour « {args.query} ». Élargir la requête, "
+            "vérifier les filtres, ou utiliser --operator or.",
             file=sys.stderr,
         )
         return 5
-    print(f"{len(results)} résultat(s) — {cfg['label']} — fond {cfg['fond']} :")
-    for r in results[: args.limit]:
-        dec_id = _first_id_with_prefix(r, (cfg["prefix"],)) or r.get("id") or "?"
-        titles = r.get("titles") or []
-        title = (titles[0].get("title") if titles else None) or r.get("title") or ""
-        print(f"  • {dec_id}  {title}".rstrip())
+
+    print(f"{total} décision(s) trouvée(s), {len(results)} affichée(s) :")
+    print("─" * 72)
+    for r in results:
+        jur = JURIDICTIONS.get(r.get("jurisdiction"), r.get("jurisdiction") or "?")
+        chambre = r.get("chamber") or ""
+        date = _fmt_date(r.get("decision_date"))
+        num = r.get("number") or "?"
+        ecli = r.get("ecli") or ""
+        sol = r.get("solution") or ""
+        pub = r.get("publication") or []
+        pub_lbl = ", ".join(PUBLICATIONS.get(p, p) for p in pub) if pub else ""
+        print(f"• {jur} {chambre}, {date}, n° {num}".rstrip())
+        if ecli:
+            print(f"  ECLI      : {ecli}")
+        if sol:
+            print(f"  Solution  : {sol}")
+        if pub_lbl:
+            print(f"  Publication: {pub_lbl}")
+        print(f"  Identifiant: {r.get('id', '?')}")
+        summary = (r.get("summary") or "").strip()
+        if summary:
+            print(f"  Sommaire  : {_truncate(_strip_html(summary), 300)}")
+        highlights = r.get("highlights") or {}
+        for zone, extracts in list(highlights.items())[:2]:
+            if extracts:
+                print(f"  [{zone}] {_truncate(_strip_html(str(extracts[0])), 220)}")
+        print("─" * 72)
+
     print(
-        "\nNote (best-effort) : la recherche jurisprudence dépend du fond et du "
-        "format du numéro. L'identifiant ci-dessus est une source de "
-        "provenance ; confirmer la décision (chambre/formation, date, "
-        "Bulletin/Lebon) sur la source officielle avant citation "
-        "(règle de provenance)."
+        "\nRègle de provenance : ne citer une décision qu'après récupération "
+        "de son texte via « decision <identifiant> ». Un résultat de "
+        "recherche ne vaut pas lecture."
     )
+    return 0
+
+
+def cmd_decision(args) -> int:
+    """Récupère le texte intégral et les métadonnées d'une décision Judilibre."""
+    params = {
+        "id": args.id.strip(),
+        "resolve_references": "true",
+        "query": args.query,
+        "operator": args.operator if args.query else None,
+    }
+    data = judilibre_get("/decision", params)
+
+    if args.json:
+        print(json.dumps(data, ensure_ascii=False, indent=2))
+        return 0
+
+    if not data or not data.get("id"):
+        raise LegifranceError(
+            f"Décision {args.id} introuvable (réponse vide).", exit_code=5
+        )
+
+    jur = JURIDICTIONS.get(data.get("jurisdiction"), data.get("jurisdiction") or "?")
+    chambre = data.get("chamber") or ""
+    date = _fmt_date(data.get("decision_date"))
+    num = data.get("number") or "?"
+    pub = data.get("publication") or []
+    pub_lbl = ", ".join(PUBLICATIONS.get(p, p) for p in pub) if pub else "non publiée"
+
+    print("─" * 72)
+    print(f"Juridiction        : {jur} {chambre}".rstrip())
+    print(f"Date               : {date}")
+    print(f"Numéro             : {num}")
+    print(f"ECLI               : {data.get('ecli') or '?'}")
+    print(f"Formation          : {data.get('formation') or '?'}")
+    print(f"Solution           : {data.get('solution') or '?'}")
+    print(f"Publication        : {pub_lbl}")
+    print(f"Identifiant        : {data.get('id')}   (← provenance vérifiée)")
+    print("─" * 72)
+
+    summary = _strip_html(data.get("summary") or "")
+    if summary:
+        print("SOMMAIRE")
+        print(summary)
+        print("─" * 72)
+
+    if args.zones:
+        zones = data.get("zones") or {}
+        text = data.get("text") or ""
+        if zones and text:
+            for name, spans in zones.items():
+                if not isinstance(spans, list):
+                    continue
+                chunk = " ".join(
+                    text[s.get("start", 0): s.get("end", 0)]
+                    for s in spans
+                    if isinstance(s, dict)
+                ).strip()
+                if chunk:
+                    print(f"[{name.upper()}]")
+                    print(_strip_html(chunk))
+                    print()
+        else:
+            print("(zonage non disponible pour cette décision)")
+    else:
+        text = _strip_html(data.get("text") or "")
+        print(text if text else "(texte non renvoyé par l'API)")
+    print("─" * 72)
+
+    if not pub:
+        print(
+            "⚠️  Décision non publiée au Bulletin : portée doctrinale limitée, "
+            "à ne pas présenter comme un arrêt de principe.",
+            file=sys.stderr,
+        )
+
+    print()
+    print("Citation normalisée (à compléter avec la date de consultation) :")
+    print(
+        f"  {jur} {chambre}, {_fr_date(date)}, n° {num}"
+        f"{', ' + data.get('ecli') if data.get('ecli') else ''}"
+        f", {pub_lbl}, identifiant Judilibre {data.get('id')}, "
+        "consulté le JJ/MM/AAAA".replace(" ,", ",")
+    )
+    return 0
+
+
+def cmd_taxonomy(args) -> int:
+    """Liste les valeurs acceptées par un filtre Judilibre (chambre, formation, thème…)."""
+    params = {"id": args.key, "context_value": args.jurisdiction}
+    data = judilibre_get("/taxonomy", params)
+    if args.json:
+        print(json.dumps(data, ensure_ascii=False, indent=2))
+        return 0
+    result = data.get("result", data)
+    if isinstance(result, dict):
+        for key, label in result.items():
+            print(f"  {key:<24} {label}")
+    else:
+        print(json.dumps(result, ensure_ascii=False, indent=2))
     return 0
 
 
 # --------------------------------------------------------------------------- #
 # Utilitaires
 # --------------------------------------------------------------------------- #
-def _first_id_with_prefix(obj, prefixes) -> str | None:
-    """Cherche récursivement un identifiant commençant par l'un des préfixes."""
-    prefixes = tuple(prefixes)
-    if isinstance(obj, str):
-        return obj if obj.startswith(prefixes) else None
-    if isinstance(obj, dict):
-        for v in obj.values():
-            found = _first_id_with_prefix(v, prefixes)
-            if found:
-                return found
-    if isinstance(obj, list):
-        for v in obj:
-            found = _first_id_with_prefix(v, prefixes)
-            if found:
-                return found
-    return None
+def _truncate(text: str, limit: int) -> str:
+    text = " ".join(text.split())
+    return text if len(text) <= limit else text[: limit - 1] + "…"
 
 
 def _first_legiarti(obj) -> str | None:
     """Cherche récursivement un identifiant LEGIARTI dans une structure JSON."""
-    return _first_id_with_prefix(obj, ("LEGIARTI",))
+    if isinstance(obj, str):
+        return obj if obj.startswith("LEGIARTI") else None
+    if isinstance(obj, dict):
+        for v in obj.values():
+            found = _first_legiarti(v)
+            if found:
+                return found
+    if isinstance(obj, list):
+        for v in obj:
+            found = _first_legiarti(v)
+            if found:
+                return found
+    return None
 
 
 def _fmt_date(value) -> str:
@@ -530,7 +806,14 @@ def _unescape(text: str) -> str:
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
         prog="legifrance.py",
-        description="Récupération fiable en source primaire via l'API Légifrance (PISTE).",
+        description=(
+            "Récupération fiable en source primaire via les API PISTE : "
+            "Légifrance (textes) et Judilibre (jurisprudence)."
+        ),
+        epilog=(
+            "Règle de provenance : ne jamais citer un article ou une décision "
+            "sans récupération réussie (commandes 'article' et 'decision')."
+        ),
     )
     sub = p.add_subparsers(dest="command", required=True)
 
@@ -550,12 +833,95 @@ def build_parser() -> argparse.ArgumentParser:
     sp_search.add_argument("--json", action="store_true", help="Sortie JSON brute.")
     sp_search.set_defaults(func=cmd_search)
 
-    for name, cfg in FONDS_JURIS.items():
-        sp = sub.add_parser(name, help=f"Rechercher une décision — {cfg['label']}.")
-        sp.add_argument("numero", help="N° de pourvoi / requête / décision.")
-        sp.add_argument("--limit", type=int, default=10, help="Nb de résultats (défaut 10).")
-        sp.add_argument("--json", action="store_true", help="Sortie JSON brute.")
-        sp.set_defaults(func=cmd_jurisprudence)
+    # ----- Judilibre : jurisprudence ------------------------------------- #
+    sp_juri = sub.add_parser(
+        "juri",
+        help="Rechercher de la jurisprudence (Judilibre).",
+        description="Recherche plein texte dans les décisions de la Cour de "
+                    "cassation, des cours d'appel et des tribunaux.",
+    )
+    sp_juri.add_argument("query", help="Termes de recherche.")
+    sp_juri.add_argument(
+        "--operator", choices=("and", "or", "exact"), default="and",
+        help="Combinaison des termes (défaut : and).",
+    )
+    sp_juri.add_argument(
+        "--field", action="append", choices=SEARCH_FIELDS,
+        help="Restreindre la recherche à une zone du texte (répétable).",
+    )
+    sp_juri.add_argument(
+        "--type", action="append", choices=DECISION_TYPES,
+        help="Type de décision (répétable).",
+    )
+    sp_juri.add_argument(
+        "--jurisdiction", action="append", choices=tuple(JURIDICTIONS),
+        help="Juridiction : cc, ca, tj, tcom (répétable).",
+    )
+    sp_juri.add_argument("--chamber", action="append", help="Chambre (voir 'taxonomy chamber').")
+    sp_juri.add_argument("--formation", action="append", help="Formation de jugement.")
+    sp_juri.add_argument("--theme", action="append", help="Thème (matière).")
+    sp_juri.add_argument(
+        "--publication", action="append", choices=tuple(PUBLICATIONS),
+        help="Niveau de publication : b (Bulletin), r, l, c.",
+    )
+    sp_juri.add_argument(
+        "--solution", action="append", choices=SOLUTIONS,
+        help="Sens de la décision (répétable).",
+    )
+    sp_juri.add_argument("--date-start", dest="date_start", help="Date minimale (AAAA-MM-JJ).")
+    sp_juri.add_argument("--date-end", dest="date_end", help="Date maximale (AAAA-MM-JJ).")
+    sp_juri.add_argument(
+        "--sort", choices=("score", "scorepub", "date"), default="score",
+        help="Tri des résultats (défaut : score).",
+    )
+    sp_juri.add_argument(
+        "--order", choices=("asc", "desc"), default="desc",
+        help="Sens du tri (défaut : desc).",
+    )
+    sp_juri.add_argument("--page", type=int, default=0, help="Page de résultats (défaut 0).")
+    sp_juri.add_argument(
+        "--limit", type=int, default=10,
+        help="Nb de résultats par page, plafonné à 50 par l'API (défaut 10).",
+    )
+    sp_juri.add_argument(
+        "--resolve-references", dest="resolve_references", action="store_true",
+        help="Remplacer les codes internes par leurs libellés.",
+    )
+    sp_juri.add_argument("--json", action="store_true", help="Sortie JSON brute.")
+    sp_juri.set_defaults(func=cmd_juri)
+
+    sp_dec = sub.add_parser(
+        "decision",
+        help="Récupérer le texte intégral d'une décision (Judilibre).",
+    )
+    sp_dec.add_argument("id", help="Identifiant de décision renvoyé par 'juri'.")
+    sp_dec.add_argument("--query", help="Termes à mettre en évidence dans le texte.")
+    sp_dec.add_argument(
+        "--operator", choices=("and", "or", "exact"), default="and",
+        help="Combinaison des termes de --query.",
+    )
+    sp_dec.add_argument(
+        "--zones", action="store_true",
+        help="Afficher le texte découpé par zones (moyens, motivations, dispositif…).",
+    )
+    sp_dec.add_argument("--json", action="store_true", help="Sortie JSON brute.")
+    sp_dec.set_defaults(func=cmd_decision)
+
+    sp_tax = sub.add_parser(
+        "taxonomy",
+        help="Lister les valeurs acceptées par un filtre Judilibre.",
+    )
+    sp_tax.add_argument(
+        "key",
+        help="Clé de taxonomie : chamber, formation, theme, jurisdiction, "
+             "publication, solution, type…",
+    )
+    sp_tax.add_argument(
+        "--jurisdiction", choices=tuple(JURIDICTIONS),
+        help="Contexte de juridiction pour les clés qui en dépendent.",
+    )
+    sp_tax.add_argument("--json", action="store_true", help="Sortie JSON brute.")
+    sp_tax.set_defaults(func=cmd_taxonomy)
 
     return p
 
