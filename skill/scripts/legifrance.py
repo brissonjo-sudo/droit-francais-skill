@@ -9,15 +9,26 @@ en appel d'outil déterministe : tout identifiant ``LEGIARTI``, toute date de
 version en vigueur et tout statut (en vigueur / modifié / abrogé) provient
 d'une réponse officielle de l'API Légifrance, et non de la mémoire du modèle.
 
-Deux fonds sont couverts :
+Trois couvertures, sur deux API :
 
-* **Légifrance** (DILA) — textes : codes, lois, décrets, arrêtés ;
-* **Judilibre** (Cour de cassation) — jurisprudence : Cour de cassation,
-  cours d'appel, tribunaux judiciaires et de commerce.
+* **Légifrance** (DILA) — textes : codes, lois, décrets, arrêtés
+  → ``article``, ``search`` ;
+* **Légifrance** — jurisprudence administrative et constitutionnelle :
+  Conseil d'État (fond ``CETAT``) et Conseil constitutionnel (fond
+  ``CONSTIT``) → ``ceta``, ``constit`` ;
+* **Judilibre** (Cour de cassation) — jurisprudence judiciaire : Cour de
+  cassation, cours d'appel, tribunaux judiciaires et de commerce
+  → ``juri``, ``decision``, ``taxonomy``.
 
-La même exigence de provenance s'applique aux deux : une décision ne se cite
-qu'après récupération réussie par ``decision <id>``, jamais sur la seule foi
-d'un résultat de recherche.
+**Judilibre ne couvre ni le Conseil d'État ni le Conseil constitutionnel** :
+ces deux juridictions passent par les fonds Légifrance ``CETAT`` et
+``CONSTIT``. Supprimer ``ceta``/``constit`` en croyant Judilibre exhaustif
+retire au skill toute voie outillée vers la jurisprudence administrative et
+constitutionnelle — c'est exactement ce qui s'est produit en v3.0.0→#6.
+
+La même exigence de provenance s'applique aux trois : une décision ne se cite
+qu'après récupération réussie, jamais sur la seule foi d'un résultat de
+recherche.
 
 Authentification
 ----------------
@@ -28,6 +39,8 @@ l'environnement (jamais en clair dans le dépôt) :
     LEGIFRANCE_CLIENT_SECRET     (obligatoire)
     LEGIFRANCE_ENV               "prod" (défaut) | "sandbox"   (optionnel)
     JUDILIBRE_KEY_ID             (optionnel — voir ci-dessous)
+    JUDILIBRE_ENV                "prod" | "sandbox"            (optionnel :
+                                 à défaut, reprend LEGIFRANCE_ENV)
 
 Judilibre accepte deux modes d'authentification selon la façon dont
 l'application PISTE a été déclarée : l'en-tête ``KeyId`` documenté par la
@@ -59,7 +72,11 @@ Usage
     python legifrance.py search "2212-2" --code CGCT
     python legifrance.py article --json LEGIARTI000006419288   # sortie brute JSON
 
-    # Jurisprudence (Judilibre)
+    # Jurisprudence administrative / constitutionnelle (Légifrance)
+    python legifrance.py ceta "440258"           # Conseil d'État (fond CETAT)
+    python legifrance.py constit "2021-940 QPC"  # Conseil constitutionnel (CONSTIT)
+
+    # Jurisprudence judiciaire (Judilibre)
     python legifrance.py juri "soins psychiatriques sans consentement"
     python legifrance.py juri "police municipale" --jurisdiction cc --date-start 2020-01-01
     python legifrance.py juri "mainlevée" --publication b --sort date --order desc
@@ -72,7 +89,7 @@ Codes de sortie
     2  identifiants d'environnement manquants / mauvais usage
     3  échec d'authentification PISTE
     4  échec de la requête API (HTTP non-2xx, contenu illisible)
-    5  ressource introuvable (article ou décision inexistants)
+    5  ressource introuvable (article, décision ou recherche sans résultat)
 
 Le code 4/5 est, côté skill, un **déclencheur d'abstention** (§7) : pas de
 citation sans récupération réussie.
@@ -143,6 +160,18 @@ CODE_IDS = {
     "CENV": "LEGITEXT000006074220",
     "CSP": "LEGITEXT000006072665",
     "CURBA": "LEGITEXT000006074075",
+}
+
+# Fonds de jurisprudence Légifrance — juridictions NON couvertes par Judilibre.
+# Judilibre (constantes plus haut) couvre le judiciaire : Cass., CA, TJ, tcom.
+# Le Conseil d'État et le Conseil constitutionnel n'y figurent pas et restent
+# accessibles par le moteur /search de Légifrance. Ne pas fusionner ces deux
+# ensembles : c'est leur confusion qui a fait disparaître `ceta` et `constit`.
+# Les clés sont les noms de sous-commandes (cf. build_parser / args.command).
+FONDS_JURIS = {
+    "ceta": {"fond": "CETAT", "prefix": "CETATEXT", "label": "Conseil d'État"},
+    "constit": {"fond": "CONSTIT", "prefix": "CONSTEXT",
+                "label": "Conseil constitutionnel"},
 }
 
 TIMEOUT = 30
@@ -261,13 +290,45 @@ def _env() -> dict:
     return ENVS[name]
 
 
+def _judilibre_base() -> str:
+    """URL de base Judilibre, pilotée par JUDILIBRE_ENV (repli LEGIFRANCE_ENV).
+
+    Les deux API peuvent viser des environnements différents : une application
+    PISTE peut être en production sur Légifrance et en bac à sable sur
+    Judilibre. Sans cette lecture, ``JUDILIBRE_ENV`` serait documentée dans
+    ``.env.example`` mais silencieusement ignorée — et l'utilisateur croirait
+    interroger un environnement tout en atteignant l'autre.
+    """
+    name = (os.environ.get("JUDILIBRE_ENV") or "").strip().lower()
+    if not name:
+        return _env()["judilibre"]
+    if name not in ENVS:
+        raise LegifranceError(
+            f"JUDILIBRE_ENV invalide : {name!r} (attendu 'prod' ou 'sandbox')",
+            exit_code=2,
+        )
+    return ENVS[name]["judilibre"]
+
+
 def get_token() -> str:
     """Récupère un jeton OAuth2 client_credentials (scope openid)."""
     client_id = os.environ.get("LEGIFRANCE_CLIENT_ID")
     client_secret = os.environ.get("LEGIFRANCE_CLIENT_SECRET")
     if not client_id or not client_secret:
         raise LegifranceError(
-            "Identifiants PISTE manquants. Configuration en 2 minutes (gratuit) :\n"
+            "Identifiants PISTE absents : voie outillée indisponible.\n"
+            "→ Bascule attendue : voie de repli web (gabarits web_search / "
+            "web_fetch sur domaine officiel — references/gabarits-requetes.md, "
+            "échelle de récupération à l'étape 2 du SKILL.md).\n"
+            "La clé PISTE est OPTIONNELLE : le skill reste pleinement "
+            "opérationnel sans elle, et la règle de provenance s'applique à "
+            "l'identique sur la voie web. Ne pas demander de clé à "
+            "l'utilisateur : basculer.\n"
+            "Ce que la clé apporte, et qui se relève sinon à la main sur la "
+            "fiche officielle : identifiant, date de version en vigueur et "
+            "statut (en vigueur / modifié / abrogé) lus dans une réponse API "
+            "déterministe.\n"
+            "L'activer (gratuit, 2 minutes) :\n"
             "  1. Compte + application abonnée à l'API « Légifrance » sur "
             "https://piste.gouv.fr\n"
             "  2. Copier .env.example en .env et y coller les deux identifiants\n"
@@ -348,7 +409,7 @@ def judilibre_get(path: str, params: dict) -> dict:
     ``params`` accepte des listes : chaque valeur est répétée dans la
     *query string*, conformément à la spécification (paramètres multivalués).
     """
-    base = _env().get("judilibre")
+    base = _judilibre_base()
     query = urllib.parse.urlencode(
         {k: v for k, v in params.items() if v not in (None, "", [], ())},
         doseq=True,
@@ -403,7 +464,7 @@ def cmd_ping(args) -> int:
     # abonnée qu'à Légifrance. Le fond jurisprudence est alors indisponible,
     # ce qui doit être visible sans faire échouer le ping.
     _TOKEN_CACHE["token"] = token
-    print(f"   Judilibre : {_env().get('judilibre')}")
+    print(f"   Judilibre : {_judilibre_base()}")
     try:
         judilibre_get("/taxonomy", {"id": "jurisdiction"})
         print("✅ Endpoint Judilibre /taxonomy joignable.")
@@ -554,6 +615,68 @@ def cmd_search(args) -> int:
         "\nNote : selon le fond interrogé, l'identifiant LEGIARTI exact peut "
         "devoir être confirmé via 'article <LEGIARTI>'. Ne jamais citer un "
         "identifiant non confirmé (règle de provenance)."
+    )
+    return 0
+
+
+def cmd_jurisprudence(args) -> int:
+    """Recherche une décision par numéro dans un fond de jurisprudence Légifrance.
+
+    Alias : `ceta` (Conseil d'État, fond CETAT), `constit` (Conseil
+    constitutionnel, fond CONSTIT). Pour la jurisprudence judiciaire
+    (Cass., CA, TJ), utiliser `juri` puis `decision` — Judilibre.
+
+    Best-effort (comme `search`) : renvoie l'identifiant officiel de la
+    décision (CETATEXT / CONSTEXT), à confirmer avant citation.
+    """
+    cfg = FONDS_JURIS[args.command]
+    token = get_token_cached()
+    champ = {
+        "typeChamp": "ALL",
+        "criteres": [
+            {"typeRecherche": "EXACTE", "valeur": args.numero, "operateur": "ET"}
+        ],
+        "operateur": "ET",
+    }
+    recherche = {
+        "champs": [champ],
+        "pageNumber": 1,
+        "pageSize": args.limit,
+        "operateur": "ET",
+        "sort": "PERTINENCE",
+        "typePagination": "DEFAUT",
+    }
+    body = {"recherche": recherche, "fond": cfg["fond"]}
+    data = api_call("/search", body, token)
+    if args.json:
+        print(json.dumps(data, ensure_ascii=False, indent=2))
+        return 0
+
+    results = data.get("results") or []
+    if not results:
+        print(
+            f"Aucune décision pour « {args.numero} » dans le fond {cfg['fond']} "
+            f"({cfg['label']}). Affiner le numéro ou vérifier via la source "
+            "officielle.",
+            file=sys.stderr,
+        )
+        return 5
+    print(f"{len(results)} résultat(s) — {cfg['label']} — fond {cfg['fond']} :")
+    for r in results[: args.limit]:
+        dec_id = _first_id_with_prefix(r, (cfg["prefix"],)) or r.get("id") or "?"
+        titles = r.get("titles") or []
+        # Les titres renvoyés par /search contiennent le balisage <mark> de
+        # surlignage des termes recherchés : le retirer avant affichage.
+        title = _strip_html(
+            (titles[0].get("title") if titles else None) or r.get("title") or ""
+        )
+        print(f"  • {dec_id}  {title}".rstrip())
+    print(
+        "\nNote (best-effort) : la recherche jurisprudence dépend du fond et du "
+        "format du numéro. L'identifiant ci-dessus est une source de "
+        "provenance ; confirmer la décision (formation, date, publication au "
+        "Lebon / au recueil) sur la source officielle avant citation "
+        "(règle de provenance)."
     )
     return 0
 
@@ -742,21 +865,32 @@ def _truncate(text: str, limit: int) -> str:
     return text if len(text) <= limit else text[: limit - 1] + "…"
 
 
-def _first_legiarti(obj) -> str | None:
-    """Cherche récursivement un identifiant LEGIARTI dans une structure JSON."""
+def _first_id_with_prefix(obj, prefixes) -> str | None:
+    """Cherche récursivement un identifiant commençant par l'un des préfixes.
+
+    Nécessaire côté jurisprudence Légifrance : dans les réponses de /search,
+    ``results[i]["id"]`` vaut ``None`` et l'identifiant officiel n'existe que
+    sous ``results[i]["titles"][0]["id"]``.
+    """
+    prefixes = tuple(prefixes)
     if isinstance(obj, str):
-        return obj if obj.startswith("LEGIARTI") else None
+        return obj if obj.startswith(prefixes) else None
     if isinstance(obj, dict):
         for v in obj.values():
-            found = _first_legiarti(v)
+            found = _first_id_with_prefix(v, prefixes)
             if found:
                 return found
     if isinstance(obj, list):
         for v in obj:
-            found = _first_legiarti(v)
+            found = _first_id_with_prefix(v, prefixes)
             if found:
                 return found
     return None
+
+
+def _first_legiarti(obj) -> str | None:
+    """Cherche récursivement un identifiant LEGIARTI dans une structure JSON."""
+    return _first_id_with_prefix(obj, ("LEGIARTI",))
 
 
 def _fmt_date(value) -> str:
@@ -833,7 +967,15 @@ def build_parser() -> argparse.ArgumentParser:
     sp_search.add_argument("--json", action="store_true", help="Sortie JSON brute.")
     sp_search.set_defaults(func=cmd_search)
 
-    # ----- Judilibre : jurisprudence ------------------------------------- #
+    # ----- Légifrance : jurisprudence administrative / constitutionnelle -- #
+    for name, cfg in FONDS_JURIS.items():
+        sp = sub.add_parser(name, help=f"Rechercher une décision — {cfg['label']}.")
+        sp.add_argument("numero", help="N° de requête / décision.")
+        sp.add_argument("--limit", type=int, default=10, help="Nb de résultats (défaut 10).")
+        sp.add_argument("--json", action="store_true", help="Sortie JSON brute.")
+        sp.set_defaults(func=cmd_jurisprudence)
+
+    # ----- Judilibre : jurisprudence judiciaire --------------------------- #
     sp_juri = sub.add_parser(
         "juri",
         help="Rechercher de la jurisprudence (Judilibre).",
@@ -932,7 +1074,11 @@ def main(argv=None) -> int:
     try:
         return args.func(args)
     except LegifranceError as exc:
-        print(f"❌ {exc}", file=sys.stderr)
+        # Le code 2 (identifiants absents) n'est pas une panne : c'est la
+        # bascule normale vers la voie de repli web. Le signaler comme telle,
+        # sans le registre d'erreur qui pousserait à interrompre l'analyse.
+        prefix = "⚠️" if exc.exit_code == 2 else "❌"
+        print(f"{prefix} {exc}", file=sys.stderr)
         return exc.exit_code
     except KeyboardInterrupt:
         return 130

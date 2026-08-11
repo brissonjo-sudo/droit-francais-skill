@@ -88,9 +88,12 @@ vigueur…), ce skill active une procédure en 9 étapes incluant :
   de la session, jamais de la mémoire — sinon marqué « non vérifié »
 - **Voie rapide `[lookup]`** (v2.3.0) : sortie minimale pour une
   référence ponctuelle non controversée, sans dégrader le fond
-- **Récupération outillée** (v2.3.0, jurisprudence en v2.4.0) :
-  `skill/scripts/legifrance.py` interroge l'API Légifrance/PISTE (articles de
-  code + décisions Cass./CE/CC) pour fiabiliser l'étape 2
+- **Récupération outillée** (v2.3.0, jurisprudence en v2.4.0, Judilibre en
+  v3.1.0) : `skill/scripts/legifrance.py` interroge deux API officielles via
+  PISTE — **Légifrance** (articles de code, textes, décisions CE et CC) et
+  **Judilibre** (Cour de cassation, cours d'appel, tribunaux, avec texte
+  intégral) — pour fiabiliser l'étape 2. Sans clé, l'étape 2 bascule sur la
+  voie web sans rien perdre en exigence de provenance
 - **Profils configurables** (v3.0.0) : le métier de l'utilisateur (contexte
   territorial, domaines, 3ᵉ regard d'auto-critique) se règle via un `profil.md`
   — le noyau méthodologique reste universel
@@ -208,10 +211,10 @@ droit-francais-skill/
 │   │   ├── sources-autorisees.md   ← hiérarchie des sources (complément P3)
 │   │   └── format-citation.md      ← formats de citation normalisés (complément P4)
 │   └── scripts/                    ← outillage Palier 3
-│       ├── legifrance.py           ← API Légifrance/PISTE (articles + jurisprudence)
+│       ├── legifrance.py           ← API Légifrance + Judilibre (via PISTE)
 │       ├── .env.example            ← gabarit de configuration (BYOK)
 │       └── README.md               ← configuration PISTE + usage
-├── .github/workflows/ci.yml        ← CI (py_compile + liens + éval hors-ligne)
+├── .github/workflows/ci.yml        ← CI (py_compile + liens + doc↔CLI + éval)
 ├── vault/                          ← notes Obsidian (hors paquet)
 ├── tests/                          ← évals (14 modes + balises + profil neutre) + runners
 ├── README.md

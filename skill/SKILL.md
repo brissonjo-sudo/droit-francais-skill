@@ -10,12 +10,12 @@ description: Méthodologie rigoureuse de recherche en droit français (sources
   un écrit ou oral de concours avec références juridiques. Ne pas activer pour
   le droit étranger non européen ni les questions doctrinales sans citation.
 metadata:
-  version: 3.0.0
+  version: 3.1.0
   date_derniere_revue_methodologique: 2026-07-02
   date_derniere_verification_sources: 2026-05-19
   langue: français
 ---
-# Skill : recherche-juridique (v3.0.0)
+# Skill : recherche-juridique (v3.1.0)
 
 > **Objet** : encoder la méthodologie rigoureuse de recherche en droit
 > français applicable à tout usage professionnel — avocat, juriste,
@@ -190,15 +190,22 @@ conseil-constitutionnel.fr, circulaires.legifrance.gouv.fr, JORF).
 officiel** figurant dans une sortie — `LEGIARTI…`, `JORFTEXT…`,
 `NOR`, n° de pourvoi, n° de requête, n° de décision — doit provenir
 d'un **appel d'outil effectué dans la session courante** (récupération
-en source primaire : `scripts/legifrance.py`, `web_fetch`/`web_search`
-sur un domaine officiel). Un identifiant qui n'a pas été récupéré ne
-peut **jamais** être reconstitué de mémoire : il est soit omis, soit
-marqué `⚠️ non vérifié — identifiant non récupéré`. La conformité
-apparente de la procédure (afficher les étapes 0 à 7, l'en-tête,
-l'encart) ne dispense **pas** de cette provenance : produire le
-cérémonial sans la récupération est une **simulation de procédure**,
+en source primaire : `scripts/legifrance.py` **en premier**, à défaut
+`web_fetch`/`web_search` sur un domaine officiel — ordre normé à
+l'**étape 2**, *échelle de récupération*). Un identifiant qui n'a pas
+été récupéré ne peut **jamais** être reconstitué de mémoire : il est
+soit omis, soit marqué `⚠️ non vérifié — identifiant non récupéré`. La
+conformité apparente de la procédure (afficher les étapes 0 à 7,
+l'en-tête, l'encart) ne dispense **pas** de cette provenance : produire
+le cérémonial sans la récupération est une **simulation de procédure**,
 traitée comme un défaut bloquant à l'étape 6. Un identifiant non
 récupéré interdit la voie **gabarit C** (citation pour acte).
+
+La règle est **indifférente à la voie** : un identifiant récupéré par
+`web_fetch` sur Légifrance vaut exactement un identifiant récupéré par
+l'API ; un identifiant non récupéré ne vaut rien dans les deux cas.
+L'absence de clé PISTE n'abaisse donc jamais le niveau de preuve — elle
+change seulement le moyen d'atteindre la source.
 
 → Bloque modes 1, 2, 3.
 
@@ -473,6 +480,34 @@ Pour chaque source listée :
 sont-elles liées par « et » (cumulatives) ou par « ou » (alternatives) ?
 Existe-t-il des exceptions, des exemptions, des seuils ? Identification
 **explicite** dans la réponse.
+
+#### Échelle de récupération (v3.1.0) — ordre imposé, détection silencieuse
+
+La voie de récupération n'est pas un choix soumis à l'utilisateur : elle se
+**constate**, par le code de sortie de l'outil.
+
+1. **Voie outillée (privilégiée)** —
+   [`scripts/legifrance.py`](scripts/legifrance.py) : `article` / `search`
+   (textes), `ceta` / `constit` (Conseil d'État, Conseil constitutionnel —
+   fonds Légifrance), `juri` puis `decision` (Cour de cassation, cours
+   d'appel, tribunaux — Judilibre). **Sortie 0** → provenance acquise,
+   poursuivre.
+2. **Voie de repli web** — **sortie 2** (identifiants PISTE absents) :
+   basculer sur les gabarits `web_search` / `web_fetch`, domaines officiels
+   exclusivement, **sans l'annoncer et sans poser de question**. Demander à
+   l'utilisateur s'il dispose d'une clé API est une **question rituelle
+   prohibée** (étape 0 bis, économie du questionnement) : l'information est
+   constatable par l'outil, donc elle se constate. La clé est un confort,
+   jamais une condition d'exercice.
+3. **Abstention** — les deux voies échouent (sortie **3**, **4** ou **5**
+   côté outil *et* source inaccessible ou illisible côté web) : aucune
+   citation, déclencheur d'abstention §7.
+
+**Invariant de provenance.** La voie empruntée ne modifie **en rien**
+l'exigence P1 : sur la voie de repli comme sur la voie outillée, tout
+identifiant cité provient d'une récupération réussie **dans la session
+courante**. Le repli dégrade le confort et le déterminisme, **jamais** le
+niveau de preuve exigé.
 
 Gabarits de requêtes → [`references/gabarits-requetes.md`](references/gabarits-requetes.md).
 
@@ -816,13 +851,15 @@ En cas de contexte décisionnel non couvert par le profil → étape 0 bis
 - **Palier 3 (API PISTE) — outillé depuis la v2.3.0.** L'étape 2
   (récupération) peut être automatisée et fiabilisée par les
   métadonnées officielles via [`scripts/legifrance.py`](scripts/legifrance.py)
-  (API Légifrance/PISTE). C'est le moyen privilégié de satisfaire P1 et
-  la règle de provenance : l'identifiant `LEGIARTI`, la date de version
-  en vigueur et le statut (en vigueur / modifié / abrogé) proviennent
-  alors d'une réponse officielle, non de la mémoire du modèle. À défaut
-  d'accès API, `web_fetch`/`web_search` sur domaine officiel reste la
-  voie de repli (avec son risque de rendu incomplet). Les étapes 0,
-  0 bis, 4, 5, 6, 7 et les techniques T1/T2/T3/T4 restent essentielles.
+  (API Légifrance **et** Judilibre, toutes deux via PISTE). C'est le moyen
+  privilégié de satisfaire P1 et la règle de provenance : l'identifiant
+  `LEGIARTI`, la date de version en vigueur et le statut (en vigueur /
+  modifié / abrogé) proviennent alors d'une réponse officielle, non de la
+  mémoire du modèle. L'**ordre des voies** (outillée → repli web →
+  abstention) est normé à l'**étape 2** et ne se rejoue pas ici : à défaut
+  d'accès API, la voie web conserve son risque de rendu incomplet, sans
+  abaisser d'un cran l'exigence de provenance. Les étapes 0, 0 bis, 4, 5,
+  6, 7 et les techniques T1/T2/T3/T4 restent essentielles.
 
 ---
 
