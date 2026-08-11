@@ -91,13 +91,24 @@ actif** (section 3 de `profil.md`).
   des codes suivis n'ont pas changé.
 - `scripts/legifrance.py` : exécuter `python scripts/legifrance.py ping`
   pour vérifier que l'authentification PISTE et les endpoints répondent
-  toujours ; aligner la table `CODE_IDS` sur `gabarits-requetes.md` ;
-  vérifier que les fonds jurisprudence (`juri`/`ceta`/`constit`) répondent
-  encore (schémas de recherche susceptibles d'évoluer).
+  toujours ; aligner la table `CODE_IDS` sur `gabarits-requetes.md`. Les
+  **deux API se vérifient séparément** — les abonnements PISTE sont distincts
+  et les régressions indépendantes :
+  - **Légifrance**, fonds jurisprudence : `ceta "440258"` doit renvoyer
+    `CETATEXT000042687547`, `constit "2021-940 QPC"` doit renvoyer
+    `CONSTEXT000044239159` (schémas de recherche susceptibles d'évoluer) ;
+  - **Judilibre** : `juri` sur une requête plein texte, puis `decision` sur un
+    identifiant renvoyé.
+- **Arbitrage des voies** : vérifier qu'un **seul** endroit décide de l'ordre
+  des voies de récupération — l'**étape 2** du SKILL.md (*échelle de
+  récupération*). P1, le §9 et `gabarits-requetes.md` doivent y **renvoyer**,
+  jamais rejouer l'arbitrage. C'est cette contradiction, apparue en v3.0.0,
+  qu'a corrigée la v3.1.0 ; aucun test ne peut la détecter.
 - `references/modes-erreur.md` : garder synchronisé avec la table du §1
   (mêmes 14 intitulés, même numérotation).
 - **CI** : vérifier que `.github/workflows/ci.yml` passe au vert
-  (`py_compile`, `check_links.py`, `run_eval.py` hors-ligne).
+  (`py_compile`, `check_links.py`, `check_commands.py`, `run_eval.py`
+  hors-ligne).
 - `checklist-vigueur.md` : aligner si des points de vigilance nouveaux
   ont émergé (ex. nouvelle disposition transitoire récurrente, nouveau
   type de renvoi normatif).

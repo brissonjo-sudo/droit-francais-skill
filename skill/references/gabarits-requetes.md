@@ -18,14 +18,26 @@ le texte.
 > python scripts/legifrance.py article LEGIARTI000006419288
 > python scripts/legifrance.py article --date 2024-01-01 LEGIARTI000006419288
 > python scripts/legifrance.py search "2212-2" --code CGCT
-> python scripts/legifrance.py juri "23-81.234"   # Cass. (fond JURI)
-> python scripts/legifrance.py ceta "440258"      # CE (fond CETAT)
-> python scripts/legifrance.py constit "2021-940 QPC"  # CC (fond CONSTIT)
+> python scripts/legifrance.py ceta "440258"             # CE — fond CETAT
+> python scripts/legifrance.py constit "2021-940 QPC"    # CC — fond CONSTIT
+> python scripts/legifrance.py juri "sans consentement" --jurisdiction cc
+> python scripts/legifrance.py decision <identifiant>    # texte intégral
+> python scripts/legifrance.py taxonomy chamber --jurisdiction cc
 > ```
-> Les commandes `juri`/`ceta`/`constit` sont *best-effort* mais permettent de
-> **récupérer l'identifiant officiel** d'une décision (provenance) plutôt que
-> de le citer de mémoire. Les requêtes `web_fetch`/`web_search` ci-dessous
-> restent la **voie de repli** lorsque l'API n'est pas accessible.
+> **Deux routes distinctes, à ne pas confondre.** `juri` / `decision` /
+> `taxonomy` interrogent **Judilibre** (Cour de cassation, cours d'appel,
+> tribunaux) : recherche **plein texte** — et non par numéro — avec
+> récupération du **texte intégral** par `decision`. `ceta` / `constit`
+> interrogent les fonds **Légifrance** `CETAT` / `CONSTIT` : recherche
+> *best-effort* **par numéro**, renvoyant l'**identifiant officiel**
+> (`CETATEXT` / `CONSTEXT`) à confirmer avant citation.
+> **Judilibre ne couvre ni le Conseil d'État ni le Conseil
+> constitutionnel** : pour ces deux juridictions, `ceta` / `constit` sont
+> la seule voie outillée.
+> Les requêtes `web_fetch`/`web_search` ci-dessous restent la **voie de
+> repli** lorsque l'API n'est pas accessible — ordre normé à l'**étape 2**
+> du SKILL.md (*échelle de récupération*), qui est le seul lieu
+> d'arbitrage des voies.
 
 ---
 
@@ -138,7 +150,26 @@ web_fetch("https://www.conseil-etat.fr/fr/arianeweb/CE/decision/[date]/[numero]"
 
 ---
 
-## 7. Circulaires et instructions ministérielles
+## 7. Jurisprudence Conseil constitutionnel
+
+### Par numéro de décision
+```
+web_search("site:legifrance.gouv.fr CONSTIT \"n° 2021-940 QPC\"")
+```
+
+### Via Légifrance CONSTIT
+```
+web_fetch("https://www.legifrance.gouv.fr/constit/id/CONSTEXT000XXXXXXXXX")
+```
+
+### Via le site du Conseil constitutionnel
+```
+web_fetch("https://www.conseil-constitutionnel.fr/decision/[année]/[numéro compacté].htm")
+```
+
+---
+
+## 8. Circulaires et instructions ministérielles
 
 ### Par NOR (identifiant normalisation)
 ```
@@ -152,7 +183,7 @@ web_search("site:circulaires.legifrance.gouv.fr \"police municipale\" armement 2
 
 ---
 
-## 8. Recherche thématique dans un code
+## 9. Recherche thématique dans un code
 
 ```
 web_search("site:legifrance.gouv.fr CGCT \"vidéoprotection\" \"voie publique\"")
@@ -165,7 +196,7 @@ web_fetch("https://www.legifrance.gouv.fr/search/all?query=vid%C3%A9oprotection+
 
 ---
 
-## 9. Vérification de l'abrogation d'un texte
+## 10. Vérification de l'abrogation d'un texte
 
 ```
 web_fetch("https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000049XXXXXX")
@@ -179,7 +210,7 @@ web_search("site:legifrance.gouv.fr LEGIARTI000049XXXXXX abrogé")
 
 ---
 
-## 10. Historique des versions d'un article
+## 11. Historique des versions d'un article
 
 Depuis la fiche article Légifrance, cliquer "Versions" ou :
 ```
@@ -188,7 +219,7 @@ web_fetch("https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000049XXXXXX#
 
 ---
 
-## 11. Conventions collectives (KALI)
+## 12. Conventions collectives (KALI)
 
 ```
 web_search("site:legifrance.gouv.fr KALI IDCC [numéro] \"accord\" vigueur")

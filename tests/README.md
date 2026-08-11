@@ -1,6 +1,7 @@
 # `tests/` — évaluation du skill
 
-Deux jeux complémentaires.
+Deux jeux d'éval complémentaires, plus deux **contrôles statiques** exécutés
+en CI.
 
 ## 1. `eval-modes-erreur.csv` — éval mappée sur les 14 modes d'erreur
 
@@ -71,6 +72,40 @@ Questions de bout en bout (fond + forme) pour une évaluation qualitative
 manuelle dans Copilot Studio (correspondance de mots-clés, comparaison de
 signification, qualité générale). Inclut une sonde d'hallucination
 (article `L. 9999-1` inexistant).
+
+## 3. Contrôles statiques (CI)
+
+Deux vérificateurs sans dépendance externe, exécutés à chaque push et chaque
+PR par `.github/workflows/ci.yml`. Ils ne jugent pas le skill : ils empêchent
+le dépôt de se contredire lui-même.
+
+```bash
+python tests/check_links.py      # liens Markdown relatifs
+python tests/check_commands.py   # sous-commandes doc ↔ CLI
+```
+
+**`check_links.py`** — vérifie que chaque lien relatif Markdown (`[libellé]`
+suivi de `(chemin)`) des `.md` pointe vers un fichier existant. Hors
+`vault/`, qui utilise des wikilinks Obsidian non résolus en chemins.
+
+**`check_commands.py`** — compare les sous-commandes citées dans la
+documentation à celles réellement exposées par `build_parser()` de
+`legifrance.py`, dans les deux sens : commande **citée mais inexistante**, et
+commande **exposée mais jamais documentée**. La liste de référence est
+extraite du parser par introspection argparse, jamais par regex sur le source
+— sans quoi elle divergerait à son tour. Le balayage ne lit que le contexte
+de code (blocs clôturés et spans `` `…` ``), la prose étant hors champ.
+
+Exclusions : `vault/` (notes historiques) et `skill/CHANGELOG.md` (journal
+immuable, qui cite légitimement des commandes retirées depuis).
+
+> **Pourquoi ce contrôle existe.** La v3.1.0 a dû réparer la suppression
+> accidentelle de `ceta` et `constit` par une PR qui n'avait touché **aucun**
+> `.md` : pendant ce temps, quatre fichiers prescrivaient au modèle des
+> commandes inexistantes, et deux commandes ajoutées (`decision`, `taxonomy`)
+> n'étaient documentées nulle part, donc inutilisables. Aucun contrôle
+> existant ne pouvait le voir. Un garde-fou dont on a oublié le motif finit
+> désactivé : voilà le motif.
 
 ---
 

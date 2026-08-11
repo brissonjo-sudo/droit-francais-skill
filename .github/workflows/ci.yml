@@ -21,9 +21,13 @@ jobs:
           python -m py_compile skill/scripts/legifrance.py
           python -m py_compile tests/run_eval.py
           python -m py_compile tests/check_links.py
+          python -m py_compile tests/check_commands.py
 
       - name: Vérifier les liens Markdown
         run: python tests/check_links.py
+
+      - name: Vérifier la cohérence doc ↔ CLI (sous-commandes)
+        run: python tests/check_commands.py
 
       - name: Éval hors-ligne (check-list 14 modes)
         run: python tests/run_eval.py

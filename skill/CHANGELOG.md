@@ -4,6 +4,89 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/).
 
 ---
 
+### [3.1.0] — 2026-08-12
+
+Release **corrective et additive**, consécutive à l'intégration de JUDILIBRE
+(PR #6), qui avait retiré par inadvertance les sous-commandes `ceta` et
+`constit`. JUDILIBRE couvre la jurisprudence **judiciaire** (Cass., CA, TJ,
+tribunaux de commerce) et **ni le Conseil d'État ni le Conseil
+constitutionnel** : la perte n'était compensée par rien, tandis que quatre
+fichiers de documentation continuaient de prescrire ces commandes au modèle.
+Aucune méthodologie modifiée.
+
+#### Ajouté
+- **`ceta` / `constit` restaurées** dans `scripts/legifrance.py` (fonds
+  Légifrance `CETAT` / `CONSTIT`), aux côtés du `juri` JUDILIBRE : chaque
+  juridiction est routée vers l'API qui la couvre réellement. Helper
+  `_first_id_with_prefix` réintroduit — dans les réponses `/search`,
+  `results[i]["id"]` vaut `None` et l'identifiant officiel n'existe que sous
+  `titles[0].id`.
+- **Échelle de récupération (SKILL.md, étape 2)** — ordre imposé et
+  **détection silencieuse** : voie outillée (sortie 0) → voie de repli web
+  (sortie 2) → abstention §7. La voie se **constate** par le code de sortie ;
+  demander à l'utilisateur s'il possède une clé PISTE est une **question
+  rituelle prohibée** (étape 0 bis). L'étape 2 devient le **seul** lieu
+  d'arbitrage des voies.
+- **Section 7 « Jurisprudence Conseil constitutionnel »** dans
+  `gabarits-requetes.md` : la voie web n'avait aucun gabarit CC, alors que
+  `sources-autorisees.md` liste conseil-constitutionnel.fr comme source
+  autorisée. Sections 7-11 renumérotées 8-12.
+- **`tests/check_commands.py`** + étape CI dédiée : contrôle bidirectionnel
+  entre les sous-commandes exposées par `build_parser()` (par introspection
+  argparse, jamais par regex) et celles citées dans la documentation.
+  Attrape les deux fautes de la PR #6 — commande supprimée encore prescrite,
+  commande ajoutée jamais documentée.
+- **`JUDILIBRE_ENV`** enfin lue par le script (`_judilibre_base()`) : les deux
+  API peuvent viser des environnements distincts.
+- **`scripts/README.md`** : documentation JUDILIBRE (CGU, souscription, clé
+  `KeyId` distincte du `client_secret`, repli `KeyId` → `Bearer`, dépannage).
+
+#### Modifié
+- **SKILL.md** : version 3.0.0 → 3.1.0.
+- **P1 (règle de provenance)** : les deux voies étaient juxtaposées par une
+  virgule plate, ce qui contredisait la hiérarchie affirmée au §9. L'ordre
+  renvoie désormais à l'étape 2, et la règle est déclarée **indifférente à la
+  voie** — un identifiant récupéré par `web_fetch` vaut celui récupéré par
+  l'API ; l'absence de clé n'abaisse jamais le niveau de preuve.
+- **§9** : cesse d'arbitrer l'ordre des voies et renvoie à l'étape 2 ;
+  mentionne les deux API et non « l'API Légifrance/PISTE » au singulier.
+- **Message d'absence d'identifiants PISTE** : de « il manque une clé, va la
+  chercher » à « la clé est OPTIONNELLE, bascule sur la voie web ». Les deux
+  premières lignes portent les mots-clés de routage, le message étant lu par
+  un modèle qui doit décider, non par un humain qui doit s'inscrire. Le code
+  de sortie 2 s'affiche en `⚠️` et non `❌` : ce n'est pas une panne.
+- **`references/maintenance.md`** : les deux API se vérifient séparément
+  (abonnements PISTE distincts, régressions indépendantes), avec valeurs
+  témoins ; nouveau point de revue sur l'unicité du lieu d'arbitrage.
+- **`README.md`**, **`tests/README.md`** : deux API, contrôles statiques.
+
+#### Corrigé
+- **Sémantique de `juri` dans la documentation** : présentée comme une
+  recherche par n° de pourvoi (fond `JURI`) depuis la PR #6, alors qu'elle est
+  devenue une recherche **plein texte** JUDILIBRE.
+- **« Texte intégral non exposé »** dans les limites de `scripts/README.md` :
+  caduc depuis l'ajout de `decision`.
+- **Titres Légifrance** débarrassés du balisage `<mark>` de surlignage, qui
+  serait sorti tel quel dans les résultats de `ceta` / `constit`.
+- **`_first_legiarti`** redélégué à `_first_id_with_prefix` : la PR #6 en
+  avait dupliqué la récursion sans raison.
+- **`JUDILIBRE_ENV`** était documentée dans `.env.example` mais jamais lue :
+  l'utilisateur croyait viser un environnement et atteignait l'autre — sur un
+  skill qui interdit de conclure sur la vigueur depuis le bac à sable.
+
+#### Connu, non traité
+- **`search` est défaillant** (défaut antérieur, constaté ici) : `HTTP 500`
+  avec `--code`, aucun résultat sans. Le *payload* est à reprendre ; documenté
+  dans les limites de `scripts/README.md`.
+
+#### Conservé (iso-fond)
+- 14 modes, 7 principes, étapes 0 / 0 bis / 1-7, 4 techniques, 5 modules,
+  10 déclencheurs d'abstention, gabarits de sortie, règle de provenance —
+  inchangés au fond. **Aucune balise nouvelle** ; l'économie du questionnement
+  (étape 0 bis) n'est pas touchée.
+
+---
+
 ### [3.0.0] — 2026-07-02
 
 Refonte **structurelle** (MAJEUR) : le noyau méthodologique devient

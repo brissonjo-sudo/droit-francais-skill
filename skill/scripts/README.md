@@ -1,15 +1,36 @@
 # `scripts/` — outillage de récupération en source primaire
 
 Ce dossier matérialise le **Palier 3** du skill `recherche-juridique` :
-remplacer le scraping fragile de Légifrance par un accès **API officiel**,
-de sorte que P1 (primarité) et la **règle de provenance** (v2.3.0) soient
-satisfaits par un appel d'outil déterministe plutôt que par la mémoire du
-modèle.
+remplacer le scraping fragile de Légifrance par un accès **aux API
+officielles**, de sorte que P1 (primarité) et la **règle de provenance**
+(v2.3.0) soient satisfaits par un appel d'outil déterministe plutôt que par
+la mémoire du modèle.
+
+Deux API, souscrites sur la même plateforme PISTE, se partagent la matière :
+
+| API | Couvre | Commandes |
+|-----|--------|-----------|
+| **Légifrance** (DILA) | codes, lois, décrets, arrêtés, JORF | `article`, `search` |
+| **Légifrance** (fonds `CETAT` / `CONSTIT`) | Conseil d'État, Conseil constitutionnel | `ceta`, `constit` |
+| **Judilibre** (Cour de cassation) | Cass., cours d'appel, tribunaux judiciaires et de commerce | `juri`, `decision`, `taxonomy` |
+
+**Judilibre ne couvre ni le Conseil d'État ni le Conseil constitutionnel** :
+ces deux juridictions passent par les fonds Légifrance. Confondre les deux
+périmètres, c'est retirer au skill toute voie outillée vers la jurisprudence
+administrative et constitutionnelle.
 
 > **Modèle « apporte ta clé » (BYOK).** Le skill est distribué publiquement :
 > il n'embarque **aucune** clé. Chaque utilisateur configure **sa propre**
 > clé PISTE (gratuite). Une clé partagée dans un paquet public ne serait plus
 > un secret — voir la note de sécurité en bas de page.
+
+> **La clé est optionnelle.** Sans identifiants PISTE, le skill reste
+> pleinement opérationnel : il bascule sur la **voie de repli web**
+> (`web_search` / `web_fetch` sur domaines officiels,
+> [`references/gabarits-requetes.md`](../references/gabarits-requetes.md)),
+> et la **règle de provenance s'y applique à l'identique**. La clé apporte le
+> déterminisme et les métadonnées officielles, jamais un droit de citer plus
+> librement. Ordre des voies : SKILL.md, étape 2, *échelle de récupération*.
 
 ---
 
@@ -31,8 +52,8 @@ Si `ping` affiche « ✅ Authentification PISTE réussie », c'est prêt.
 
 ## `legifrance.py`
 
-CLI Python (bibliothèque standard uniquement, Python 3.8+) interrogeant l'API
-Légifrance exposée via la plateforme **PISTE** de la DILA.
+CLI Python (bibliothèque standard uniquement, Python 3.8+) interrogeant les API
+Légifrance et Judilibre exposées via la plateforme **PISTE** de la DILA.
 
 ### Étape 1 — Obtenir des identifiants PISTE (gratuit)
 
@@ -42,9 +63,19 @@ Légifrance exposée via la plateforme **PISTE** de la DILA.
    souscrire). L'abonnement peut demander une courte validation.
 4. Dans la fiche de l'application, relever le **`client_id`** et le
    **`client_secret`**.
+5. *Pour la jurisprudence judiciaire* — accepter les **CGU JUDILIBRE**, puis
+   cocher l'API JUDILIBRE (**Applications → Modifier l'application →
+   Sélectionner les API**). Relever ensuite la **clé d'API « `KeyId` »** sur
+   la fiche de l'application : ce n'est **pas** le `client_secret`.
+   L'abonnement Judilibre est **distinct** de l'abonnement Légifrance ; une
+   application peut souscrire aux deux.
 
 Un environnement **bac à sable** (`sandbox`) est disponible pour tester sans
-toucher la production : mettre `LEGIFRANCE_ENV=sandbox`.
+toucher la production : mettre `LEGIFRANCE_ENV=sandbox`. Attention, les
+identifiants sandbox et production sont **distincts** (des identifiants
+sandbox contre l'endpoint prod renvoient `invalid_client`), et les données du
+bac à sable **ne reflètent pas le droit en vigueur** : ne jamais conclure sur
+la vigueur d'un texte depuis la sandbox.
 
 ### Étape 2 — Configurer les identifiants
 
@@ -68,10 +99,25 @@ Le script charge automatiquement un `.env` trouvé (dans l'ordre) via
 export LEGIFRANCE_CLIENT_ID="votre_client_id"
 export LEGIFRANCE_CLIENT_SECRET="votre_client_secret"
 export LEGIFRANCE_ENV="prod"        # ou "sandbox" (défaut : prod)
+export JUDILIBRE_KEY_ID="votre_cle_api"   # optionnel — jurisprudence judiciaire
+export JUDILIBRE_ENV="prod"               # optionnel — défaut : LEGIFRANCE_ENV
 ```
 
 > Une variable déjà exportée **prime** sur la valeur du `.env` : pratique pour
 > surcharger ponctuellement sans éditer le fichier.
+
+**Authentification Judilibre — deux modes, essayés dans l'ordre.** Selon la
+façon dont l'application PISTE a été déclarée, Judilibre accepte soit
+l'en-tête `KeyId` documenté par la Cour de cassation, soit le jeton OAuth 2.0
+`Authorization: Bearer` commun aux API PISTE. Le script tente `KeyId` en
+premier si `JUDILIBRE_KEY_ID` est défini, puis **bascule automatiquement** sur
+le jeton OAuth en cas de 401/403. Aucune configuration supplémentaire n'est
+nécessaire si l'application est abonnée à Judilibre avec les mêmes
+identifiants que Légifrance.
+
+`JUDILIBRE_ENV` permet de viser un environnement différent pour chaque API —
+par exemple Légifrance en production et Judilibre en bac à sable. Laissée
+vide, elle reprend `LEGIFRANCE_ENV`.
 
 ### Étape 3 — Utiliser
 
@@ -88,21 +134,39 @@ python legifrance.py article --date 2024-01-01 LEGIARTI000006419288
 # Rechercher un article par numéro, filtré sur un code
 python legifrance.py search "2212-2" --code CGCT
 
-# Jurisprudence — renvoie l'identifiant officiel de la décision (best-effort)
-python legifrance.py juri "23-81.234"        # Cour de cassation (fond JURI)
+# Jurisprudence administrative / constitutionnelle — recherche PAR NUMÉRO,
+# renvoie l'identifiant officiel de la décision (best-effort)
 python legifrance.py ceta "440258"           # Conseil d'État (fond CETAT)
 python legifrance.py constit "2021-940 QPC"  # Conseil constitutionnel (CONSTIT)
+
+# Jurisprudence judiciaire (Judilibre) — recherche PLEIN TEXTE, pas par numéro
+python legifrance.py juri "soins sans consentement" --jurisdiction cc
+python legifrance.py juri "police municipale" --date-start 2020-01-01 --publication b
+
+# Texte intégral d'une décision, par l'identifiant renvoyé par `juri`
+python legifrance.py decision 5fca...
+
+# Valeurs acceptées par un filtre Judilibre (chambre, formation, thème…)
+python legifrance.py taxonomy chamber --jurisdiction cc
 
 # Sortie JSON brute (chaînage / archivage)
 python legifrance.py article --json LEGIARTI000006419288
 ```
 
 > **Provenance de la jurisprudence.** La règle de provenance (v2.3.0) vise
-> aussi les n° de pourvoi / requête / décision. Les commandes `juri` / `ceta`
-> / `constit` permettent de **récupérer l'identifiant officiel** (JURITEXT /
-> CETATEXT / CONSTEXT) par appel d'outil, au lieu de le citer de mémoire.
-> Elles restent *best-effort* (voir limites) : confirmer chambre/formation,
-> date et publication (Bulletin/Lebon) sur la source officielle avant citation.
+> aussi les n° de pourvoi / requête / décision. Les deux routes n'offrent pas
+> le même niveau :
+>
+> - **Judilibre** (`juri` → `decision`) — provenance **forte** : `decision`
+>   restitue le **texte intégral** de la décision par son identifiant. Une
+>   décision citée après `decision` est vérifiée, pas devinée.
+> - **Légifrance** (`ceta`, `constit`) — provenance **best-effort** :
+>   recherche par numéro renvoyant le seul **identifiant officiel**
+>   (`CETATEXT` / `CONSTEXT`). Confirmer formation, date et publication
+>   (Lebon / recueil) sur la source officielle **avant** citation.
+>
+> Dans les deux cas, un identifiant non récupéré ne se reconstitue jamais de
+> mémoire : il est omis ou marqué `⚠️ non vérifié — identifiant non récupéré`.
 
 ### Ce que la commande `article` restitue
 
@@ -117,10 +181,15 @@ python legifrance.py article --json LEGIARTI000006419288
 | Code | Sens | Conduite côté skill |
 |------|------|---------------------|
 | 0 | succès | citation autorisée (provenance acquise) |
-| 2 | identifiants manquants / mauvais usage | configurer la clé (voir étape 2) |
+| 2 | identifiants absents / mauvais usage | **basculer sur la voie de repli web** — sans le dire, sans demander de clé |
 | 3 | échec d'authentification PISTE | vérifier les identifiants / l'abonnement |
 | 4 | échec API (HTTP, réseau, contenu illisible) | **déclencheur d'abstention §7** |
-| 5 | ressource introuvable (article inexistant) | **abstention** — ne pas inventer (mode 1) |
+| 5 | ressource introuvable (article, décision ou recherche sans résultat) | **abstention** — ne pas inventer (mode 1) |
+
+Le code **2 n'est pas une panne** : c'est la bascule normale vers la voie de
+repli web (d'où le préfixe `⚠️` et non `❌`). Le skill poursuit son analyse
+avec `web_search`/`web_fetch` sur domaines officiels et **ne demande jamais de
+clé à l'utilisateur** — voir SKILL.md, étape 2, *échelle de récupération*.
 
 Les codes 4 et 5 valent **abstention motivée** : pas de citation sans
 récupération réussie. Un identifiant `LEGIARTI` qui ne ressort d'aucun appel
@@ -135,6 +204,9 @@ réussi ne doit jamais figurer dans une sortie sans le marqueur
 | `code 3` à `ping` | secret erroné, ou application non abonnée à Légifrance | revérifier `client_secret` ; confirmer l'abonnement sur piste.gouv.fr |
 | `code 4` répété | endpoint indisponible / quota | réessayer ; en cas de persistance, le skill bascule en abstention |
 | `search` sans résultat | payload spécifique au fond | confirmer via `article <LEGIARTI>` (voir limites) |
+| `⚠️ Judilibre indisponible` au `ping` | application non abonnée à Judilibre, ou CGU non acceptées | souscrire l'API JUDILIBRE sur piste.gouv.fr (étape 1.5), ou renseigner `JUDILIBRE_KEY_ID` |
+| `code 3` sur `juri`/`decision` alors qu'`article` fonctionne | les **deux** modes d'authentification Judilibre ont été refusés | vérifier la clé `KeyId` (≠ `client_secret`) et l'abonnement Judilibre, distinct de Légifrance |
+| Judilibre répond des données inattendues | `JUDILIBRE_ENV` vise un autre environnement que `LEGIFRANCE_ENV` | comparer les deux URL affichées par `ping` |
 
 ### Limites connues
 
@@ -143,12 +215,21 @@ réussi ne doit jamais figurer dans une sortie sans le marqueur
   (endpoint `/search`, fond `CODE_DATE`) est **best-effort** et peut demander
   un ajustement du *payload* selon le fond interrogé — d'où l'invite à
   **confirmer** tout identifiant via `article <LEGIARTI>`.
-- La **jurisprudence** (`juri`/`ceta`/`constit`, fonds `JURI`/`CETAT`/`CONSTIT`)
-  est prise en charge en **recherche best-effort** : le payload et le format du
-  numéro varient selon le fond, d'où l'invite à confirmer la décision sur la
-  source officielle. La récupération du **texte intégral** d'une décision par
-  identifiant n'est pas encore exposée (utiliser la source officielle ou
-  `web_fetch`).
+- ⚠️ **`search` est actuellement défaillant** (constaté en v3.1.0, défaut
+  antérieur) : avec `--code`, l'API renvoie un **HTTP 500** ; sans `--code`,
+  la recherche ne remonte aucun résultat. Le *payload* est à reprendre. En
+  attendant, passer par `article <LEGIARTI>` quand l'identifiant est connu,
+  ou par les gabarits web (§2 de `gabarits-requetes.md`) pour le retrouver.
+- La **jurisprudence administrative et constitutionnelle** (`ceta`/`constit`,
+  fonds `CETAT`/`CONSTIT`) est prise en charge en **recherche best-effort par
+  numéro** : le format du numéro est sensible, d'où l'invite à confirmer la
+  décision sur la source officielle. Seul l'**identifiant** est restitué, pas
+  le texte intégral.
+- La **jurisprudence judiciaire** passe par **Judilibre** (`juri`, `decision`,
+  `taxonomy`) : la recherche y est **plein texte** — lui passer un n° de
+  pourvoi comme requête n'est pas une recherche par numéro — et le **texte
+  intégral** d'une décision est restitué par `decision <identifiant>`. Le fond
+  `JURI` de Légifrance n'est plus interrogé : Judilibre le remplace.
 - Les **circulaires** ne sont pas couvertes : utiliser les gabarits
   `web_fetch`/`web_search` de `references/gabarits-requetes.md`.
 - Vérifier annuellement les endpoints lors de la revue (`maintenance.md` §3).
