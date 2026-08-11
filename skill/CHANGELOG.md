@@ -4,6 +4,85 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/).
 
 ---
 
+### [3.1.1] — 2026-08-12
+
+Release **corrective**, ciblée sur la seule commande `search`, laissée
+défaillante par la v3.1.0 (« Connu, non traité »). Aucune méthodologie
+modifiée, aucune autre commande touchée.
+
+Le défaut était double, et chaque moitié masquait l'autre : le chemin
+`--code` échouait en `HTTP 500` avant d'avoir rien cherché, et le chemin sans
+`--code` posait une question à laquelle l'API ne pouvait que répondre « rien ».
+Les deux causes ont été établies **contre l'environnement de production**,
+variante de *payload* par variante, et non déduites de la documentation.
+
+#### Corrigé
+- **`search --code` : `HTTP 500`.** Le bloc `filtres` portait la facette
+  `TEXT_LEGAL_STATUS`, que le fond `CODE_DATE` ne connaît pas — pas plus que
+  `ARTICLE_LEGAL_STATUS` ou `CODE` : les trois y renvoient une exception non
+  gérée. La restriction à ce qui est en vigueur passe par `DATE_VERSION`.
+- **`search` sans `--code` : aucun résultat.** Le moteur n'indexe qu'une
+  écriture du numéro d'article — la lettre de partie collée, sans point ni
+  espace (`L2212-2`). Ni `2212-2`, ni `L. 2212-2`, ni `L 2212-2` n'y renvoient
+  quoi que ce soit. Les écritures usuelles sont désormais normalisées, et un
+  numéro donné sans lettre est cherché tel quel **puis** préfixé de `L`, `R`,
+  `D` et `A`, en un seul appel (critères combinés par `OU`).
+- **Le filtre `--code` ne filtrait rien.** `code_id` était résolu depuis la
+  table des codes, puis jamais transmis : la ligne qui suivait la construction
+  du corps de requête réassignait `args.numero` à sa propre valeur. Le filtre
+  passe maintenant par la facette `NOM_CODE`, qui attend le **libellé** du
+  code et **non** son identifiant `LEGITEXT` — un `LEGITEXT` y renvoie zéro
+  résultat *sans erreur*, panne silencieuse indiscernable d'une absence réelle
+  de résultat. C'est ce piège qui rendait l'anomalie invisible.
+- **Doublons de versions.** Sans `DATE_VERSION`, le moteur rend une entrée par
+  version historique du code — près de 900 pour un seul article. La recherche
+  est désormais ancrée à une date : celle du jour par défaut, ou `--date`.
+- **`LEGITEXT` du CRPA erroné** dans le script et dans `gabarits-requetes.md` :
+  `LEGITEXT000031367321` (rejeté en `HTTP 400` par `consult/legiPart`) →
+  `LEGITEXT000031366350`. L'URL de la voie web ne pointait sur rien.
+- **Identifiants approximatifs en sortie.** `_first_legiarti` rendait le
+  *premier* `LEGIARTI` rencontré dans la réponse, sans vérifier qu'il
+  correspondait au numéro demandé. Les résultats sont désormais lus à leur
+  emplacement réel — `results[].sections[].extracts[]`, `results[].id` valant
+  `None` sur ce fond — et filtrés sur le numéro cherché.
+
+#### Ajouté
+- **`search --date AAAA-MM-JJ`** : version du code interrogée, par symétrie
+  avec `article --date`. Défaut : la date civile **locale** — en UTC, un poste
+  français interrogé en soirée obtiendrait la version de la veille, soit, le
+  jour d'une entrée en vigueur, le texte que le skill a pour objet de ne plus
+  citer.
+- **Sortie de `search` détaillée** : numéro, `LEGIARTI`, code, emplacement dans
+  le plan, statut et date de début de version — avec avertissement sur
+  `stderr` dès qu'un article rendu n'est pas en vigueur, comme le fait déjà
+  `article`.
+
+#### Modifié
+- **`CODE_IDS` → `CODES`** : la table porte désormais `(LEGITEXT, libellé)`.
+  Les deux colonnes servent à deux voies distinctes — le `LEGITEXT` adresse la
+  fiche par URL (voie web), le libellé alimente la facette `NOM_CODE` (voie
+  outillée) — et les tenir dans une seule table empêche qu'elles divergent.
+  Libellés issus de `consult/legiPart`, vérifiés par aller-retour sur la
+  facette pour les 12 clés.
+- **`references/maintenance.md`** : valeur témoin pour `search`, et contrôle
+  des libellés ajouté à la revue annuelle.
+- **`scripts/README.md`** : limite « `search` est défaillant » levée ;
+  remplacée par les limites réelles de la commande (codes seulement, une
+  version à la fois) et par la liste des facettes à ne pas réintroduire.
+
+#### Retiré
+- **`_first_legiarti`** : sans appelant après la reprise de `cmd_search`.
+  `_first_id_with_prefix`, qu'il enveloppait, reste utilisé par `ceta` et
+  `constit`.
+
+#### Conservé (iso-fond)
+- 14 modes, 7 principes, étapes 0 / 0 bis / 1-7, 4 techniques, 5 modules,
+  10 déclencheurs d'abstention, gabarits de sortie, règle de provenance —
+  inchangés. Aucune balise nouvelle. `search` reste une **recherche** : la
+  citation exige toujours `article <LEGIARTI>`.
+
+---
+
 ### [3.1.0] — 2026-08-12
 
 Release **corrective et additive**, consécutive à l'intégration de JUDILIBRE
@@ -78,6 +157,8 @@ Aucune méthodologie modifiée.
 - **`search` est défaillant** (défaut antérieur, constaté ici) : `HTTP 500`
   avec `--code`, aucun résultat sans. Le *payload* est à reprendre ; documenté
   dans les limites de `scripts/README.md`.
+  → **Corrigé en [3.1.1]** : les deux pannes tenaient au bloc `filtres` et au
+  format du numéro d'article, pas au fond interrogé.
 
 #### Conservé (iso-fond)
 - 14 modes, 7 principes, étapes 0 / 0 bis / 1-7, 4 techniques, 5 modules,

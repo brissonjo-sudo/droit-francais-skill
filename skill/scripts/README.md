@@ -132,7 +132,11 @@ python legifrance.py article LEGIARTI000006419288
 python legifrance.py article --date 2024-01-01 LEGIARTI000006419288
 
 # Rechercher un article par numéro, filtré sur un code
+# La lettre de partie est facultative : « 2212-2 » teste aussi L/R/D/A.
 python legifrance.py search "2212-2" --code CGCT
+
+# Même recherche dans la version du code en vigueur à une date passée
+python legifrance.py search "2212-2" --code CGCT --date 2010-01-01
 
 # Jurisprudence administrative / constitutionnelle — recherche PAR NUMÉRO,
 # renvoie l'identifiant officiel de la décision (best-effort)
@@ -203,7 +207,8 @@ réussi ne doit jamais figurer dans une sortie sans le marqueur
 | `code 2` malgré un `.env` | `.env` hors des chemins cherchés | `export LEGIFRANCE_DOTENV=/chemin/.env` ou lancer depuis la racine du repo |
 | `code 3` à `ping` | secret erroné, ou application non abonnée à Légifrance | revérifier `client_secret` ; confirmer l'abonnement sur piste.gouv.fr |
 | `code 4` répété | endpoint indisponible / quota | réessayer ; en cas de persistance, le skill bascule en abstention |
-| `search` sans résultat | payload spécifique au fond | confirmer via `article <LEGIARTI>` (voir limites) |
+| `search` sans résultat | numéro absent du code, ou absent de la version interrogée | vérifier le numéro ; élargir en retirant `--code` ; essayer une autre `--date` |
+| `search` trouve l'article dans un autre code | homonymie de numérotation entre codes | ajouter `--code` pour restreindre |
 | `⚠️ Judilibre indisponible` au `ping` | application non abonnée à Judilibre, ou CGU non acceptées | souscrire l'API JUDILIBRE sur piste.gouv.fr (étape 1.5), ou renseigner `JUDILIBRE_KEY_ID` |
 | `code 3` sur `juri`/`decision` alors qu'`article` fonctionne | les **deux** modes d'authentification Judilibre ont été refusés | vérifier la clé `KeyId` (≠ `client_secret`) et l'abonnement Judilibre, distinct de Légifrance |
 | Judilibre répond des données inattendues | `JUDILIBRE_ENV` vise un autre environnement que `LEGIFRANCE_ENV` | comparer les deux URL affichées par `ping` |
@@ -212,14 +217,21 @@ réussi ne doit jamais figurer dans une sortie sans le marqueur
 
 - Les schémas de réponse de l'API Légifrance évoluent : la commande `article`
   (endpoint `consult/getArticle`) est stable et prioritaire ; `search`
-  (endpoint `/search`, fond `CODE_DATE`) est **best-effort** et peut demander
-  un ajustement du *payload* selon le fond interrogé — d'où l'invite à
-  **confirmer** tout identifiant via `article <LEGIARTI>`.
-- ⚠️ **`search` est actuellement défaillant** (constaté en v3.1.0, défaut
-  antérieur) : avec `--code`, l'API renvoie un **HTTP 500** ; sans `--code`,
-  la recherche ne remonte aucun résultat. Le *payload* est à reprendre. En
-  attendant, passer par `article <LEGIARTI>` quand l'identifiant est connu,
-  ou par les gabarits web (§2 de `gabarits-requetes.md`) pour le retrouver.
+  (endpoint `/search`, fond `CODE_DATE`) reste un point d'entrée de
+  **recherche** — d'où l'invite à **confirmer** tout identifiant via
+  `article <LEGIARTI>` avant citation.
+- `search` ne couvre que les **codes**. Lois, décrets et arrêtés non codifiés
+  (fond `LODA`) n'y sont pas cherchés : passer par les gabarits web (§2 de
+  `gabarits-requetes.md`), puis confirmer par `article <LEGIARTI>`.
+- `search` interroge **une seule version** du code, celle en vigueur à la date
+  demandée (`--date`, défaut : aujourd'hui). Un article abrogé avant cette
+  date n'y figure pas : l'interroger à une date où il était applicable.
+- Le *payload* de `search` dépend de facettes non interchangeables du fond
+  `CODE_DATE` : `NOM_CODE` attend le **libellé** du code (un identifiant
+  `LEGITEXT` y renvoie zéro résultat *sans erreur*), et `TEXT_LEGAL_STATUS`
+  comme `ARTICLE_LEGAL_STATUS` y déclenchent un **HTTP 500**. Ne pas les
+  réintroduire pour filtrer sur la vigueur : c'est `DATE_VERSION` qui la
+  porte. Détail dans la *docstring* de `cmd_search`.
 - La **jurisprudence administrative et constitutionnelle** (`ceta`/`constit`,
   fonds `CETAT`/`CONSTIT`) est prise en charge en **recherche best-effort par
   numéro** : le format du numéro est sensible, d'où l'invite à confirmer la
