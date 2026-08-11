@@ -70,6 +70,7 @@ Usage
     python legifrance.py article LEGIARTI000006419288
     python legifrance.py article --date 2024-01-01 LEGIARTI000006419288
     python legifrance.py search "2212-2" --code CGCT
+    python legifrance.py search "2212-2" --code CGCT --date 2010-01-01
     python legifrance.py article --json LEGIARTI000006419288   # sortie brute JSON
 
     # Jurisprudence administrative / constitutionnelle (Légifrance)
@@ -146,21 +147,38 @@ SEARCH_FIELDS = (
     "annexes", "sommaire", "titrage",
 )
 
-# Identifiants LEGITEXT des codes fréquents (miroir de gabarits-requetes.md).
-CODE_IDS = {
-    "CGCT": "LEGITEXT000006070633",
-    "CP": "LEGITEXT000006070719",
-    "CODE_PENAL": "LEGITEXT000006070719",
-    "CPP": "LEGITEXT000006071154",
-    "CSI": "LEGITEXT000025503132",
-    "CDR": "LEGITEXT000006074228",
-    "CODE_ROUTE": "LEGITEXT000006074228",
-    "CRPA": "LEGITEXT000031367321",
-    "GFP": "LEGITEXT000044416551",
-    "CENV": "LEGITEXT000006074220",
-    "CSP": "LEGITEXT000006072665",
-    "CURBA": "LEGITEXT000006074075",
+# Codes fréquents : clé CLI -> (identifiant LEGITEXT, libellé officiel).
+#
+# Les deux colonnes servent à deux choses distinctes, à ne pas intervertir :
+# le **LEGITEXT** adresse la fiche du code par URL (voie web, miroir de
+# gabarits-requetes.md) ; le **libellé** est ce qu'attend la facette
+# `NOM_CODE` du moteur `/search`, qui ignore silencieusement un LEGITEXT
+# (zéro résultat, sans erreur — voir `cmd_search`). Les libellés sont ceux
+# renvoyés par `/consult/legiPart`, vérifiés par aller-retour sur la facette.
+CODES = {
+    "CGCT": ("LEGITEXT000006070633", "Code général des collectivités territoriales"),
+    "CP": ("LEGITEXT000006070719", "Code pénal"),
+    "CODE_PENAL": ("LEGITEXT000006070719", "Code pénal"),
+    "CPP": ("LEGITEXT000006071154", "Code de procédure pénale"),
+    "CSI": ("LEGITEXT000025503132", "Code de la sécurité intérieure"),
+    "CDR": ("LEGITEXT000006074228", "Code de la route"),
+    "CODE_ROUTE": ("LEGITEXT000006074228", "Code de la route"),
+    "CRPA": (
+        "LEGITEXT000031366350",
+        "Code des relations entre le public et l'administration",
+    ),
+    "GFP": ("LEGITEXT000044416551", "Code général de la fonction publique"),
+    "CENV": ("LEGITEXT000006074220", "Code de l'environnement"),
+    "CSP": ("LEGITEXT000006072665", "Code de la santé publique"),
+    "CURBA": ("LEGITEXT000006074075", "Code de l'urbanisme"),
 }
+
+# Parties d'un code : lettre précédant le numéro d'article (L législative,
+# R réglementaire en Conseil d'État, D décret simple, A arrêté). Le moteur
+# n'accepte que la forme collée « L2212-2 » ; quand l'utilisateur ne donne
+# pas la lettre, elles sont toutes proposées en alternative (voir
+# `_num_variantes`).
+PARTIES_CODE = ("L", "R", "D", "A")
 
 # Fonds de jurisprudence Légifrance — juridictions NON couvertes par Judilibre.
 # Judilibre (constantes plus haut) couvre le judiciaire : Cass., CA, TJ, tcom.
@@ -552,69 +570,194 @@ def cmd_article(args) -> int:
     return 0
 
 
+def _num_variantes(numero: str) -> list[str]:
+    """Formes canoniques du numéro à soumettre à `NUM_ARTICLE`, en une requête.
+
+    Le moteur n'indexe qu'une seule écriture : la lettre de partie collée au
+    numéro, sans point ni espace (« L2212-2 »). Les écritures usuelles à
+    l'écrit juridique — « L. 2212-2 », « L 2212-2 » — n'y renvoient rien, pas
+    plus que le numéro nu « 2212-2 » d'un code divisé en parties.
+
+    Quand l'utilisateur donne la lettre, une seule forme suffit. Quand il ne
+    la donne pas, le numéro nu est tenté tel quel — c'est l'écriture des
+    codes non divisés, tel le code civil — puis préfixé de chaque partie
+    usuelle ; les critères sont ensuite combinés par OU dans le même champ,
+    ce qui coûte un seul appel.
+    """
+    import re
+
+    compact = "".join(numero.split())
+    # Le chiffre exigé après la lettre évite de prendre pour une partie
+    # l'initiale d'un mot (« Annexe 1 » n'est pas l'article A-nnexe 1).
+    m = re.match(r"^([LRDA])\.?(\d\S*)$", compact, flags=re.IGNORECASE)
+    if m:
+        return [f"{m.group(1).upper()}{m.group(2)}"]
+    return [compact] + [f"{p}{compact}" for p in PARTIES_CODE]
+
+
+def _articles_trouves(data: dict, variantes: list[str]) -> list[dict]:
+    """Aplatit une réponse `/search` du fond CODE_DATE en liste d'articles.
+
+    Sur ce fond, `results[i]["id"]` vaut `None` : les identifiants d'articles
+    ne vivent que dans `results[].sections[].extracts[]`. Un extrait dont le
+    numéro ne correspond à aucune variante demandée est écarté — une section
+    pertinente en rapporte d'autres au passage, qu'il serait faux de
+    présenter comme le résultat de la recherche.
+    """
+    attendus = {v.upper() for v in variantes}
+    trouves: list[dict] = []
+    vus: set[str] = set()
+    for resultat in data.get("results") or []:
+        titres = resultat.get("titles") or []
+        code_titre = (titres[0].get("title") if titres else None) or "?"
+        for section in resultat.get("sections") or []:
+            for extrait in section.get("extracts") or []:
+                art_id = extrait.get("id") or ""
+                num = (extrait.get("num") or extrait.get("title") or "").strip()
+                if not art_id.startswith("LEGIARTI") or art_id in vus:
+                    continue
+                if num.upper() not in attendus:
+                    continue
+                vus.add(art_id)
+                trouves.append(
+                    {
+                        "num": num,
+                        "id": art_id,
+                        "code": code_titre,
+                        "section": (section.get("title") or "").strip(),
+                        "etat": extrait.get("legalStatus") or "?",
+                        "date_debut": _fmt_date(extrait.get("dateDebut")),
+                    }
+                )
+    return trouves
+
+
 def cmd_search(args) -> int:
-    """Recherche un article par numéro, optionnellement filtré sur un code."""
-    token = get_token()
-    code_id = None
+    """Recherche un article par numéro, optionnellement filtré sur un code.
+
+    Payload du fond CODE_DATE. Trois contraintes de l'API, établies contre
+    l'environnement de production et non déduites de la documentation :
+
+    * la facette ``NOM_CODE`` attend le **libellé** du code, jamais son
+      identifiant LEGITEXT — un LEGITEXT y renvoie zéro résultat *sans
+      erreur*, panne silencieuse dont on ne peut pas distinguer l'absence
+      réelle de résultat ;
+    * les facettes ``TEXT_LEGAL_STATUS``, ``ARTICLE_LEGAL_STATUS`` et
+      ``CODE`` déclenchent un **HTTP 500** sur ce fond : ne pas les y
+      remettre pour restreindre à ce qui est en vigueur ;
+    * ``DATE_VERSION`` n'est pas facultative en pratique : sans elle, le
+      moteur rend une entrée par version historique du code — près de 900
+      doublons pour un seul article — et la restriction à la version
+      applicable est justement ce que le skill exige (§ vigueur).
+    """
+    nom_code = None
     if args.code:
         key = args.code.upper().replace(" ", "_")
-        code_id = CODE_IDS.get(key)
-        if not code_id:
+        entree = CODES.get(key)
+        if not entree:
             raise LegifranceError(
                 f"Code inconnu : {args.code!r}. Codes connus : "
-                f"{', '.join(sorted(CODE_IDS))}.",
+                f"{', '.join(sorted(CODES))}.",
                 exit_code=2,
             )
+        nom_code = entree[1]
 
-    # Payload de recherche Légifrance (fond CODE_DATE, critère NUM_ARTICLE).
-    champ = {
-        "typeChamp": "NUM_ARTICLE",
-        "criteres": [
-            {"typeRecherche": "EXACTE", "valeur": args.numero, "operateur": "ET"}
-        ],
-        "operateur": "ET",
-    }
-    recherche: dict = {
-        "champs": [champ],
-        "pageNumber": 1,
-        "pageSize": args.limit,
-        "operateur": "ET",
-        "sort": "PERTINENCE",
-        "typePagination": "ARTICLE",
-    }
-    if code_id:
-        recherche["filtres"] = [{"facette": "TEXT_LEGAL_STATUS", "valeurs": ["VIGUEUR"]}]
-    body = {"recherche": recherche, "fond": "CODE_DATE"}
-    if code_id:
-        body["recherche"]["champs"][0]["criteres"][0]["valeur"] = args.numero
+    date_version = args.date or _aujourdhui()
+    variantes = _num_variantes(args.numero)
+    # Borne unique, appliquée à la fois à la requête et à l'affichage : un
+    # --limit nul ou négatif tronquerait sinon la liste affichée à vide tout
+    # en annonçant des résultats. 100 est le plafond de pageSize.
+    limite = max(1, min(args.limit, 100))
+    # Un critère isolé se combine en ET ; plusieurs formes concurrentes du
+    # même numéro s'excluent mutuellement, donc OU.
+    operateur = "OU" if len(variantes) > 1 else "ET"
 
+    filtres: list[dict] = [
+        {"facette": "DATE_VERSION", "singleDate": _epoch_ms(date_version)}
+    ]
+    if nom_code:
+        filtres.append({"facette": "NOM_CODE", "valeurs": [nom_code]})
+
+    body = {
+        "fond": "CODE_DATE",
+        "recherche": {
+            "champs": [
+                {
+                    "typeChamp": "NUM_ARTICLE",
+                    "criteres": [
+                        {
+                            "typeRecherche": "EXACTE",
+                            "valeur": valeur,
+                            "operateur": operateur,
+                        }
+                        for valeur in variantes
+                    ],
+                    "operateur": operateur,
+                }
+            ],
+            "filtres": filtres,
+            "pageNumber": 1,
+            # La pagination porte sur les codes, pas sur les articles : un
+            # même code peut rendre plusieurs articles (L… et R… homonymes).
+            "pageSize": limite,
+            "operateur": "ET",
+            "sort": "PERTINENCE",
+            "typePagination": "ARTICLE",
+        },
+    }
+
+    token = get_token()
     data = api_call("/search", body, token)
     if args.json:
         print(json.dumps(data, ensure_ascii=False, indent=2))
         return 0
 
-    results = data.get("results") or []
-    if not results:
+    articles = _articles_trouves(data, variantes)
+    if not articles:
         print(
-            f"Aucun résultat pour « {args.numero} »"
+            f"Aucun article « {args.numero} »"
             + (f" dans {args.code}" if args.code else "")
-            + ". Affiner la requête ou utiliser l'accès direct par LEGIARTI.",
+            + f" dans la version en vigueur au {_fr_date(date_version)}.\n"
+            "Vérifier le numéro (forme attendue : « 2212-2 » ou « L2212-2 »), "
+            "élargir en retirant --code, ou interroger une autre date avec "
+            "--date. Si l'identifiant est déjà connu, passer par "
+            "« article <LEGIARTI> ».",
             file=sys.stderr,
         )
         return 5
-    print(f"{len(results)} résultat(s) — utiliser l'identifiant avec la commande 'article' :")
-    for r in results[: args.limit]:
-        sections = r.get("sections") or []
-        titles = r.get("titles") or []
-        ref = (titles[0].get("id") if titles else None) or r.get("id") or "?"
-        title = (titles[0].get("title") if titles else None) or r.get("title") or ""
-        # Les ids d'articles sont souvent dans extracts/sections selon le fond.
-        art_id = _first_legiarti(r)
-        print(f"  • {art_id or ref}  {title}".rstrip())
+
+    affiches = articles[:limite]
     print(
-        "\nNote : selon le fond interrogé, l'identifiant LEGIARTI exact peut "
-        "devoir être confirmé via 'article <LEGIARTI>'. Ne jamais citer un "
-        "identifiant non confirmé (règle de provenance)."
+        f"{len(articles)} article(s) trouvé(s) au {_fr_date(date_version)} "
+        f"— confirmer avec « article <LEGIARTI> » :"
+    )
+    for art in affiches:
+        print("─" * 60)
+        print(f"  Article     : {art['num']}")
+        print(f"  Identifiant : {art['id']}")
+        print(f"  Code        : {art['code']}")
+        if art["section"]:
+            print(f"  Emplacement : {art['section']}")
+        print(f"  Statut      : {art['etat']}   (depuis le {art['date_debut']})")
+    print("─" * 60)
+    if len(articles) > len(affiches):
+        print(f"({len(articles) - len(affiches)} autre(s) non affiché(s) — "
+              "augmenter --limit.)")
+
+    hors_vigueur = [a for a in affiches if str(a["etat"]).upper() != "VIGUEUR"]
+    if hors_vigueur:
+        print(
+            "⚠️  "
+            + ", ".join(f"{a['num']} ({a['etat']})" for a in hors_vigueur)
+            + " : ne pas citer comme droit positif sans vérification "
+            "(voir checklist-vigueur.md).",
+            file=sys.stderr,
+        )
+
+    print(
+        "\nNote : un résultat de recherche ne vaut pas lecture. Récupérer "
+        "l'article par « article <LEGIARTI> » avant toute citation "
+        "(règle de provenance)."
     )
     return 0
 
@@ -888,9 +1031,36 @@ def _first_id_with_prefix(obj, prefixes) -> str | None:
     return None
 
 
-def _first_legiarti(obj) -> str | None:
-    """Cherche récursivement un identifiant LEGIARTI dans une structure JSON."""
-    return _first_id_with_prefix(obj, ("LEGIARTI",))
+def _aujourdhui() -> str:
+    """Date civile locale (AAAA-MM-JJ), défaut des recherches par version.
+
+    Date **locale** et non UTC : une réforme entre en vigueur à une date du
+    calendrier français, et un poste à Paris interrogé en soirée obtiendrait
+    en UTC la version de la veille — soit, le jour même d'une entrée en
+    vigueur, le texte que le skill a précisément pour objet de ne plus citer.
+    """
+    import datetime
+
+    return datetime.date.today().strftime("%Y-%m-%d")
+
+
+def _epoch_ms(iso_date: str) -> int:
+    """AAAA-MM-JJ -> millisecondes epoch UTC, format attendu par `singleDate`.
+
+    La conversion est ancrée à minuit UTC, comme les dates de version
+    renvoyées par l'API (``dateDebut`` : ``…T00:00:00.000+0000``) : une même
+    date rend ainsi la même version quel que soit le fuseau de la machine.
+    """
+    import datetime
+
+    try:
+        jour = datetime.datetime.strptime(iso_date, "%Y-%m-%d")
+    except (ValueError, TypeError) as exc:
+        raise LegifranceError(
+            f"Date invalide : {iso_date!r} (format attendu AAAA-MM-JJ).",
+            exit_code=2,
+        ) from exc
+    return int(jour.replace(tzinfo=datetime.timezone.utc).timestamp() * 1000)
 
 
 def _fmt_date(value) -> str:
@@ -960,9 +1130,23 @@ def build_parser() -> argparse.ArgumentParser:
     sp_art.add_argument("--json", action="store_true", help="Sortie JSON brute.")
     sp_art.set_defaults(func=cmd_article)
 
-    sp_search = sub.add_parser("search", help="Rechercher un article par numéro.")
-    sp_search.add_argument("numero", help="Numéro d'article, ex. '2212-2'.")
-    sp_search.add_argument("--code", help="Filtrer sur un code (CGCT, CP, CPP, CSI, CDR…).")
+    sp_search = sub.add_parser(
+        "search",
+        help="Rechercher un article par numéro.",
+        description="Recherche par numéro d'article dans les codes (fond "
+                    "CODE_DATE), à la version en vigueur à une date donnée. "
+                    "La lettre de partie est facultative : « 2212-2 » teste "
+                    "aussi L/R/D/A.",
+    )
+    sp_search.add_argument("numero", help="Numéro d'article, ex. '2212-2' ou 'L2212-2'.")
+    sp_search.add_argument(
+        "--code",
+        help="Restreindre à un code : " + ", ".join(sorted(CODES)) + ".",
+    )
+    sp_search.add_argument(
+        "--date",
+        help="Version en vigueur à cette date (AAAA-MM-JJ ; défaut : aujourd'hui).",
+    )
     sp_search.add_argument("--limit", type=int, default=10, help="Nb de résultats (défaut 10).")
     sp_search.add_argument("--json", action="store_true", help="Sortie JSON brute.")
     sp_search.set_defaults(func=cmd_search)

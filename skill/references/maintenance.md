@@ -91,9 +91,14 @@ actif** (section 3 de `profil.md`).
   des codes suivis n'ont pas changé.
 - `scripts/legifrance.py` : exécuter `python scripts/legifrance.py ping`
   pour vérifier que l'authentification PISTE et les endpoints répondent
-  toujours ; aligner la table `CODE_IDS` sur `gabarits-requetes.md`. Les
-  **deux API se vérifient séparément** — les abonnements PISTE sont distincts
-  et les régressions indépendantes :
+  toujours ; aligner la colonne `LEGITEXT` de la table `CODES` sur
+  `gabarits-requetes.md`. Vérifier **aussi la colonne libellé** : c'est elle,
+  et non le `LEGITEXT`, qu'attend la facette `NOM_CODE` de `/search`, et un
+  libellé périmé n'y produit **aucune erreur** — seulement zéro résultat.
+  Contrôle : `search "2212-2" --code CGCT` doit renvoyer
+  `LEGIARTI000029946370` (art. L. 2212-2 CGCT), confirmable par
+  `article LEGIARTI000029946370`. Les **deux API se vérifient séparément** —
+  les abonnements PISTE sont distincts et les régressions indépendantes :
   - **Légifrance**, fonds jurisprudence : `ceta "440258"` doit renvoyer
     `CETATEXT000042687547`, `constit "2021-940 QPC"` doit renvoyer
     `CONSTEXT000044239159` (schémas de recherche susceptibles d'évoluer) ;
