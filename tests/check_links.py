@@ -19,7 +19,10 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 # Dossiers exclus du contrôle (wikilinks Obsidian, artefacts).
-EXCLUDE_DIRS = {".git", "vault", "__pycache__", ".github"}
+# `.claude` : worktrees d'agents, copies complètes du dépôt — les vérifier
+# revient à contrôler deux fois le même contenu, et à faire échouer le dépôt
+# sur l'état transitoire d'une copie de travail voisine.
+EXCLUDE_DIRS = {".git", ".claude", "vault", "__pycache__", ".github"}
 LINK_RE = re.compile(r"(?<!!)\[[^\]]*\]\(([^)]+)\)")
 
 
