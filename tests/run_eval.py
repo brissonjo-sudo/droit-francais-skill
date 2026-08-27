@@ -66,6 +66,10 @@ API_URL = "https://api.anthropic.com/v1/messages"
 def load_cases(only: set[str] | None) -> list[dict]:
     with CSV_PATH.open(encoding="utf-8") as fh:
         rows = list(csv.DictReader(fh))
+    malformed = [index for index, row in enumerate(rows, start=2) if None in row]
+    if malformed:
+        joined = ", ".join(map(str, malformed))
+        raise SystemExit(f"CSV mal formé — colonnes excédentaires aux lignes : {joined}")
     if only:
         rows = [r for r in rows if r["Mode"] in only]
     return rows

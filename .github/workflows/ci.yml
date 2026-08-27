@@ -29,5 +29,5 @@ jobs:
       - name: Vérifier la cohérence doc ↔ CLI (sous-commandes)
         run: python tests/check_commands.py
 
-      - name: Éval hors-ligne (check-list 14 modes)
+      - name: Éval hors-ligne (check-list 18 modes)
         run: python tests/run_eval.py

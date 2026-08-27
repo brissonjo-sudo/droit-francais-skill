@@ -4,6 +4,52 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/).
 
 ---
 
+### [3.2.0] — 2026-08-27
+
+Issue d'un retour d'expérience sur l'audit d'un corpus opérationnel. La
+méthode vérifiait les sources mais ne garantissait ni l'exhaustivité du
+contrôle documentaire, ni la validité de la conséquence tirée d'une citation
+exacte, ni la cohérence entre fichiers.
+
+#### Ajouté
+- **Module DOC-AUDIT**, non désactivable par `[express]`, pour tout audit,
+  toute relecture juridique ou correction d'un document existant.
+- **`references/audit-documentaire.md`** : protocole bloquant — qualification
+  du livrable et date de droit, inventaire du corpus, registre des
+  affirmations, contrôle de 100 % du risque élevé, matrice
+  acteur–lieu–propriétaire–pouvoir, double test source/conséquence, cohérence
+  interdocuments et contrôle post-correction.
+- **Gabarit D — Audit documentaire** : synthèse des corrections, couverture
+  du risque élevé, divergences et limites restantes.
+- Quatre modes d'erreur : validation héritée (15), citation exacte mais
+  conséquence fausse (16), mauvais acteur–lieu–propriétaire–pouvoir (17),
+  incohérence de corpus (18).
+- Quatre sondes d'évaluation correspondant aux nouveaux modes.
+
+#### Modifié
+- **SKILL.md** : version 3.1.1 → 3.2.0 ; déclenchement de DOC-AUDIT ; contrôle
+  source/conséquence à l'étape 6.
+- **README, références et maintenance** : 18 modes, 6 modules, gabarit D et
+  quatrième test fonctionnel de revue.
+
+#### Corrigé
+- **`tests/eval-modes-erreur.csv`** : guillemets manquants autour de deux
+  regex contenant une virgule ; le lecteur CSV tronquait silencieusement les
+  motifs interdits des modes 5 et 7. `run_eval.py` rejette désormais toute
+  ligne comportant des colonnes excédentaires au lieu de les ignorer.
+
+#### Sécurité
+- Un audit antérieur, même annoncé comme réalisé avec ce skill, ne réduit
+  pas la revérification des affirmations à risque élevé.
+- Interdiction de déclarer l'audit achevé tant qu'un point à risque élevé
+  n'est pas vérifié/corrigé ou placé en abstention ciblée.
+
+#### Conservé
+- Profils v3, récupération Légifrance/Judilibre, correctifs `search` v3.1.1,
+  7 principes, 9 étapes, 4 techniques et 10 déclencheurs d'abstention.
+- `date_derniere_verification_sources` reste au 19 mai 2026 : cette évolution
+  est méthodologique et ne vaut pas revue générale de toutes les sources.
+
 ### [3.1.1] — 2026-08-12
 
 Release **corrective**, ciblée sur la seule commande `search`, laissée
