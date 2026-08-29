@@ -1,0 +1,2 @@
+# Serveur MCP local et HTTP. Compatible avec le SDK v1 actuel et la v2.
+mcp>=1.27,<3

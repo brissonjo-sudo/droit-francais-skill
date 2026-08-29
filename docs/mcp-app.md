@@ -1,0 +1,103 @@
+# Serveur MCP — Droit français
+
+Cette première intégration est un plugin **tool-only** : elle n'affiche pas de
+widget et ne modifie aucune donnée. Elle donne au modèle des opérations de
+lecture structurées sur Légifrance et Judilibre, tout en conservant le skill
+historique comme couche de méthode juridique.
+
+Le paquet distribue le serveur local dans `.mcp.json` et fournit maintenant une
+image Docker portable pour son futur endpoint public. La connexion ChatGPT
+distante reste une étape explicite : choisir un hébergeur et une origine stable,
+déployer `/mcp` en HTTPS, enregistrer cette connexion dans ChatGPT, puis ajouter
+le fichier `.app.json` qui référence son identifiant technique. Aucun identifiant
+distant fictif n'est placé dans le dépôt.
+
+## Contrat des outils
+
+| Outil | Source | Usage |
+|---|---|---|
+| `search(query)` | Légifrance ou Judilibre | Recherche standard ; renvoie `id`, `title`, `url` |
+| `fetch(id)` | Légifrance ou Judilibre | Lit un résultat renvoyé par `search` |
+| `search_articles(number, code?, date?, limit?)` | Légifrance | Recherche ciblée d'un article applicable à une date |
+| `get_article(id, date?)` | Légifrance | Lit une version `LEGIARTI` et son statut |
+| `search_case_law(query, jurisdiction?, date_start?, date_end?, limit?)` | Judilibre | Recherche la jurisprudence judiciaire |
+| `get_decision(id)` | Judilibre | Lit le texte intégral et les métadonnées d'une décision |
+
+Tous les outils sont annotés en lecture seule. Les outils de lecture indiquent
+`metadata.verified: true` uniquement après une réponse de la source officielle.
+Une erreur d'authentification, de réseau ou de schéma devient une erreur MCP
+« source officielle non vérifiée » ; elle ne produit pas de résultat de
+substitution présenté comme officiel.
+
+## Installation locale
+
+Prérequis : Python 3.10+ pour le serveur MCP. Le CLI historique reste compatible
+avec Python 3.8+ et ne dépend pas du SDK MCP.
+
+```bash
+python -m pip install -r requirements-mcp.txt
+```
+
+La commande installe le SDK dans l'interpréteur `python` que `.mcp.json`
+lancera. Si un environnement virtuel est préféré, il faut l'activer avant
+l'installation et avant le démarrage de l'hôte du plugin.
+
+Configurer ensuite les variables décrites dans
+[`skill/scripts/.env.example`](../skill/scripts/.env.example). Le serveur
+charge, sans écrasement, le premier fichier disponible parmi le chemin
+`LEGIFRANCE_DOTENV`, `./.env` et `skill/scripts/.env`.
+
+```text
+LEGIFRANCE_CLIENT_ID=…
+LEGIFRANCE_CLIENT_SECRET=…
+JUDILIBRE_KEY_ID=…
+LEGIFRANCE_ENV=prod
+JUDILIBRE_ENV=prod
+```
+
+Les valeurs restent locales. `.env` est ignoré par Git et `.mcp.json` ne
+contient aucun secret.
+
+## Lancement
+
+Le plugin local utilise le transport stdio déclaré dans `.mcp.json` :
+
+```bash
+python mcp_server/server.py
+```
+
+Pour tester le transport attendu par une connexion ChatGPT distante :
+
+```bash
+python mcp_server/server.py --transport streamable-http
+```
+
+Le point d'entrée est alors `http://127.0.0.1:8000/mcp`. Le [guide de
+déploiement](deployment.md) décrit l'image non-root, les contrôles de
+configuration, la limitation de charge, la sonde de santé, la vérification de
+domaine et le parcours ChatGPT. Pour un hébergeur, le serveur accepte
+`MCP_HOST` (par exemple `0.0.0.0`) et `PORT` ou `MCP_PORT`.
+
+Références OpenAI actuelles : [architecture des plugins][plugin-architecture],
+[empaquetage du plugin][plugin-package] et [construction du serveur MCP][mcp-build].
+
+[plugin-architecture]: https://developers.openai.com/plugins/concepts/plugins
+[plugin-package]: https://developers.openai.com/plugins/build/plugins
+[mcp-build]: https://developers.openai.com/plugins/build/mcp-server
+
+## Vérification
+
+```bash
+python -m unittest discover -s tests -v
+python tests/check_plugin.py
+python tests/check_links.py
+python tests/check_commands.py
+python tests/run_eval.py
+```
+
+Les tests MCP utilisent des réponses API simulées : ils ne consomment aucune
+clé et ne dépendent pas de la disponibilité de PISTE.
+
+La validation de niveau 2 a également été réalisée le 29 août 2026 : le
+transport HTTP a accepté une initialisation MCP réelle sur `/mcp` et a exposé
+les six outils attendus.

@@ -1,19 +1,22 @@
 # droit-francais-skill
 
-**Skill LLM — méthodologie de recherche en droit français (v3.0.0)**
+**Skill LLM — méthodologie de recherche en droit français (v3.1.1)**
+
+**Distribution autonome + plugin OpenAI avec outils MCP (plugin v0.5.0)**
 
 [![CI](https://github.com/brissonjo-sudo/droit-francais-skill/actions/workflows/ci.yml/badge.svg)](https://github.com/brissonjo-sudo/droit-francais-skill/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/brissonjo-sudo/droit-francais-skill)](https://github.com/brissonjo-sudo/droit-francais-skill/releases)
 [![License: CC BY-SA 4.0](https://img.shields.io/badge/license-CC%20BY--SA%204.0-blue)](LICENSE)
 
-> **TL;DR (EN).** A Claude Code skill that stops the model from *making up
+> **TL;DR (EN).** An LLM skill that stops the model from *making up
 > French law.* It forces every statute, case, or citation through a 9-step
 > verification procedure built against **14 known LLM failure modes** in legal
 > reasoning — primary sources only (Légifrance/PISTE), currency checks, and
 > *traceable* citations. When it can't verify, it says so instead of inventing.
 > Configurable per practitioner via a **profile**. Works without any API key;
-> a free PISTE key unlocks deterministic retrieval. Install: copy `skill/`
-> into `~/.claude/skills/recherche-juridique/`.
+> a free PISTE key unlocks deterministic retrieval. It remains installable as
+> a standalone Claude Code skill and is now packaged as an OpenAI plugin
+> foundation without duplicating the legal methodology.
 
 ---
 
@@ -140,7 +143,40 @@ contexte et pose la question quand elle devient décisionnelle.
 
 ## Installation
 
-> **Installation :** empaqueter uniquement le dossier `skill/` — il contient le
+### Comme plugin OpenAI — outils MCP locaux v0.5.0
+
+Le dépôt contient désormais un manifeste `.codex-plugin/plugin.json` et un
+point d'entrée natif `skills/recherche-juridique/`. L'adaptateur charge le
+noyau historique depuis `skill/` : il n'existe donc qu'une seule source de
+vérité méthodologique.
+
+Le plugin déclare maintenant un serveur MCP local, sans interface graphique.
+Il expose les outils standard `search` et `fetch`, ainsi que quatre opérations
+juridiques spécialisées pour rechercher et lire articles et décisions. Le
+serveur appelle la même bibliothèque que le CLI historique ; la méthode et les
+règles de provenance restent dans l'unique noyau `skill/SKILL.md`.
+
+```bash
+python -m pip install -r requirements-mcp.txt
+python mcp_server/server.py
+python mcp_server/server.py --transport streamable-http
+docker build -t droit-francais-mcp .
+```
+
+Les identifiants PISTE restent fournis par variables d'environnement ou `.env`,
+jamais dans le manifeste. Voir le [guide MCP](docs/mcp-app.md) et
+l'[architecture progressive](docs/architecture-plugin.md).
+
+Cette version est directement testable comme plugin local dans Codex. Une image
+Docker non-root prépare aussi le futur endpoint public, avec contrôle de
+configuration, limitation de charge et journaux sans arguments ni secrets.
+Voir le [guide de déploiement](docs/deployment.md). La publication effective
+reste séparée : choix d'une origine HTTPS stable, enregistrement en mode
+développeur, tests de revue, puis ajout du mapping `.app.json` réel.
+
+### Comme skill Claude Code — inchangé
+
+> **Installation autonome :** empaqueter uniquement le dossier `skill/` — il contient le
 > noyau (`SKILL.md`), l'historique (`CHANGELOG.md`), les références
 > (`references/`) et l'outillage (`scripts/`). Le dossier `vault/` est
 > réservé aux notes Obsidian et ne fait pas partie du paquet skill.
@@ -187,11 +223,19 @@ Le skill s'active automatiquement quand vous :
 
 ---
 
-## Arborescence (v3.0.0)
+## Arborescence (skill v3.1.1 / plugin v0.5.0)
 
 ```
 droit-francais-skill/
-├── skill/                          ← seul dossier empaqueté pour installation
+├── .codex-plugin/
+│   └── plugin.json                ← manifeste du plugin
+├── .mcp.json                       ← lancement local du serveur MCP
+├── mcp_server/
+│   └── server.py                   ← outils MCP stdio ou HTTP /mcp
+├── skills/
+│   └── recherche-juridique/
+│       └── SKILL.md               ← adaptateur plugin vers le noyau
+├── skill/                          ← paquet autonome et source de vérité
 │   ├── SKILL.md                    ← noyau méthodologique (universel)
 │   ├── CHANGELOG.md                ← historique des versions
 │   ├── profils/                    ← profils métier (v3.0.0)
@@ -212,17 +256,32 @@ droit-francais-skill/
 │   │   └── format-citation.md      ← formats de citation normalisés (complément P4)
 │   └── scripts/                    ← outillage Palier 3
 │       ├── legifrance.py           ← API Légifrance + Judilibre (via PISTE)
+│       ├── droit_francais/         ← bibliothèque réutilisable embarquée
+│       │   ├── errors.py           ← erreurs et codes de sortie communs
+│       │   ├── config.py           ← environnements et chargement .env
+│       │   ├── transport.py        ← transport HTTP JSON
+│       │   ├── legifrance.py       ← client OAuth/API Légifrance
+│       │   ├── judilibre.py        ← client KeyId/OAuth Judilibre
+│       │   └── tools.py            ← opérations structurées partagées
 │       ├── .env.example            ← gabarit de configuration (BYOK)
 │       └── README.md               ← configuration PISTE + usage
 ├── .github/workflows/ci.yml        ← CI (py_compile + liens + doc↔CLI + éval)
+├── docs/
+│   ├── architecture-plugin.md      ← audit, cible et étapes de migration
+│   └── mcp-app.md                  ← configuration et contrat des outils
 ├── vault/                          ← notes Obsidian (hors paquet)
-├── tests/                          ← évals (14 modes + balises + profil neutre) + runners
+├── tests/                          ← invariants, outils MCP + évals historiques
+├── requirements-mcp.txt            ← dépendance du serveur uniquement
 ├── README.md
 └── LICENSE
 ```
 
 > Le fichier `profil.md` (choix de l'utilisateur, copié depuis `profils/`)
 > est local et gitignoré — il n'est pas versionné.
+
+Le détail de l'architecture cible `skill + bibliothèque + app/plugin` et de ses
+invariants de non-régression est documenté dans
+[`docs/architecture-plugin.md`](docs/architecture-plugin.md).
 
 ---
 

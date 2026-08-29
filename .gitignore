@@ -12,7 +12,11 @@ Thumbs.db
 # Python (outillage scripts/ et tests/)
 __pycache__/
 *.pyc
+.venv/
 .env
+.env.*
+!.env.example
+!**/.env.example
 
 # Profil actif choisi par l'utilisateur (local — voir skill/profils/)
 profil.md

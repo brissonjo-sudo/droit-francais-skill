@@ -1,0 +1,15 @@
+.git
+.github
+.claude
+.venv
+__pycache__
+*.pyc
+.env
+**/.env
+.env.*
+**/.env.*
+profil.md
+skill/profil.md
+tests
+vault
+docs

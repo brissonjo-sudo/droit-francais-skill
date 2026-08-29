@@ -17,12 +17,15 @@ import re
 import sys
 from pathlib import Path
 
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
+
 ROOT = Path(__file__).resolve().parent.parent
 # Dossiers exclus du contrôle (wikilinks Obsidian, artefacts).
 # `.claude` : worktrees d'agents, copies complètes du dépôt — les vérifier
 # revient à contrôler deux fois le même contenu, et à faire échouer le dépôt
 # sur l'état transitoire d'une copie de travail voisine.
-EXCLUDE_DIRS = {".git", ".claude", "vault", "__pycache__", ".github"}
+EXCLUDE_DIRS = {".git", ".claude", ".venv", "vault", "__pycache__", ".github"}
 LINK_RE = re.compile(r"(?<!!)\[[^\]]*\]\(([^)]+)\)")
 
 

@@ -36,6 +36,9 @@ import re
 import sys
 from pathlib import Path
 
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
+
 ROOT = Path(__file__).resolve().parent.parent
 SCRIPT = ROOT / "skill" / "scripts" / "legifrance.py"
 
@@ -43,7 +46,7 @@ SCRIPT = ROOT / "skill" / "scripts" / "legifrance.py"
 # `.claude` : worktrees d'agents, qui contiennent une copie complète du dépôt.
 # Sans cette exclusion, le contrôle compare le parser de CETTE copie aux `.md`
 # d'une autre — divergence normale entre copies, signalée comme une faute.
-EXCLUDE_DIRS = {".git", ".claude", "vault", "__pycache__", ".github"}
+EXCLUDE_DIRS = {".git", ".claude", ".venv", "vault", "__pycache__", ".github"}
 # Journal historique : cite légitimement des commandes retirées depuis.
 EXCLUDE_FILES = {"skill/CHANGELOG.md"}
 

@@ -55,6 +55,31 @@ Si `ping` affiche « ✅ Authentification PISTE réussie », c'est prêt.
 CLI Python (bibliothèque standard uniquement, Python 3.8+) interrogeant les API
 Légifrance et Judilibre exposées via la plateforme **PISTE** de la DILA.
 
+### Architecture interne
+
+`legifrance.py` reste le point d'entrée public et conserve ses commandes et
+codes de sortie. Les fondations partagées sont progressivement extraites dans
+le paquet voisin `droit_francais/`, inclus dans toute copie autonome de
+`skill/` :
+
+- `errors.py` — exception commune et codes de sortie ;
+- `config.py` — endpoints, sélection prod/sandbox et chargement `.env` ;
+- `transport.py` — requêtes HTTP et décodage JSON ;
+- `legifrance.py` — OAuth2 et appels POST Légifrance ;
+- `judilibre.py` — appels GET, cache et bascule `KeyId` vers OAuth2 ;
+- `tools.py` — opérations structurées réutilisées par le serveur MCP.
+
+Les tests historiques hors réseau se lancent depuis la racine du dépôt avec :
+
+```bash
+python tests/test_tools.py
+```
+
+Le CLI actuel reste la façade de compatibilité : ses huit commandes, ses codes
+de sortie et ses variables d'environnement sont inchangés. Le serveur MCP à la
+racine consomme `tools.py` ; il ne déplace donc aucun fichier nécessaire à une
+installation autonome du dossier `skill/`.
+
 ### Étape 1 — Obtenir des identifiants PISTE (gratuit)
 
 1. Créer un compte sur <https://piste.gouv.fr>.
