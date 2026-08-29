@@ -16,6 +16,9 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Installer le SDK MCP
+        run: python -m pip install -r requirements-mcp.txt
+
       - name: Compiler les scripts Python (py_compile)
         run: |
           python -m py_compile skill/scripts/legifrance.py
@@ -25,14 +28,17 @@ jobs:
           python -m py_compile skill/scripts/droit_francais/transport.py
           python -m py_compile skill/scripts/droit_francais/legifrance.py
           python -m py_compile skill/scripts/droit_francais/judilibre.py
+          python -m py_compile skill/scripts/droit_francais/tools.py
+          python -m py_compile mcp_server/server.py
           python -m py_compile tests/run_eval.py
           python -m py_compile tests/check_links.py
           python -m py_compile tests/check_commands.py
           python -m py_compile tests/check_plugin.py
           python -m py_compile tests/test_tools.py
+          python -m py_compile tests/test_mcp_app.py
 
-      - name: Tester la bibliothèque d'outils hors réseau
-        run: python tests/test_tools.py
+      - name: Tester la bibliothèque et le serveur MCP hors réseau
+        run: python -m unittest discover -s tests -v
 
       - name: Vérifier le socle du plugin
         run: python tests/check_plugin.py

@@ -2,7 +2,7 @@
 
 **Skill LLM — méthodologie de recherche en droit français (v3.1.1)**
 
-**Distribution autonome + socle plugin OpenAI (plugin v0.3.0)**
+**Distribution autonome + plugin OpenAI avec outils MCP (plugin v0.4.0)**
 
 [![CI](https://github.com/brissonjo-sudo/droit-francais-skill/actions/workflows/ci.yml/badge.svg)](https://github.com/brissonjo-sudo/droit-francais-skill/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/brissonjo-sudo/droit-francais-skill)](https://github.com/brissonjo-sudo/droit-francais-skill/releases)
@@ -143,18 +143,28 @@ contexte et pose la question quand elle devient décisionnelle.
 
 ## Installation
 
-### Comme plugin OpenAI — socle v0.3.0
+### Comme plugin OpenAI — outils MCP v0.4.0
 
 Le dépôt contient désormais un manifeste `.codex-plugin/plugin.json` et un
 point d'entrée natif `skills/recherche-juridique/`. L'adaptateur charge le
 noyau historique depuis `skill/` : il n'existe donc qu'une seule source de
 vérité méthodologique.
 
-Cette version prépare l'installation comme plugin, mais **ne déclare pas encore
-d'app ni de serveur MCP**. L'accès Légifrance/Judilibre reste assuré par le CLI
-existant ; ses clients et fondations réutilisables sont désormais isolés dans
-`skill/scripts/droit_francais/`, prêts à être appelés par une future app.
-Voir l'[audit et la trajectoire d'architecture](docs/architecture-plugin.md).
+Le plugin déclare maintenant un serveur MCP local, sans interface graphique.
+Il expose les outils standard `search` et `fetch`, ainsi que quatre opérations
+juridiques spécialisées pour rechercher et lire articles et décisions. Le
+serveur appelle la même bibliothèque que le CLI historique ; la méthode et les
+règles de provenance restent dans l'unique noyau `skill/SKILL.md`.
+
+```bash
+python -m pip install -r requirements-mcp.txt
+python mcp_server/server.py
+python mcp_server/server.py --transport streamable-http
+```
+
+Les identifiants PISTE restent fournis par variables d'environnement ou `.env`,
+jamais dans le manifeste. Voir le [guide MCP](docs/mcp-app.md) et
+l'[architecture progressive](docs/architecture-plugin.md).
 
 ### Comme skill Claude Code — inchangé
 
@@ -205,12 +215,15 @@ Le skill s'active automatiquement quand vous :
 
 ---
 
-## Arborescence (skill v3.1.1 / plugin v0.3.0)
+## Arborescence (skill v3.1.1 / plugin v0.4.0)
 
 ```
 droit-francais-skill/
 ├── .codex-plugin/
 │   └── plugin.json                ← manifeste du plugin
+├── .mcp.json                       ← lancement local du serveur MCP
+├── mcp_server/
+│   └── server.py                   ← outils MCP stdio ou HTTP /mcp
 ├── skills/
 │   └── recherche-juridique/
 │       └── SKILL.md               ← adaptateur plugin vers le noyau
@@ -240,14 +253,17 @@ droit-francais-skill/
 │       │   ├── config.py           ← environnements et chargement .env
 │       │   ├── transport.py        ← transport HTTP JSON
 │       │   ├── legifrance.py       ← client OAuth/API Légifrance
-│       │   └── judilibre.py        ← client KeyId/OAuth Judilibre
+│       │   ├── judilibre.py        ← client KeyId/OAuth Judilibre
+│       │   └── tools.py            ← opérations structurées partagées
 │       ├── .env.example            ← gabarit de configuration (BYOK)
 │       └── README.md               ← configuration PISTE + usage
 ├── .github/workflows/ci.yml        ← CI (py_compile + liens + doc↔CLI + éval)
 ├── docs/
-│   └── architecture-plugin.md      ← audit, cible et étapes de migration
+│   ├── architecture-plugin.md      ← audit, cible et étapes de migration
+│   └── mcp-app.md                  ← configuration et contrat des outils
 ├── vault/                          ← notes Obsidian (hors paquet)
-├── tests/                          ← invariants plugin + évals historiques
+├── tests/                          ← invariants, outils MCP + évals historiques
+├── requirements-mcp.txt            ← dépendance du serveur uniquement
 ├── README.md
 └── LICENSE
 ```

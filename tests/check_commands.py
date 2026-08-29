@@ -43,7 +43,7 @@ SCRIPT = ROOT / "skill" / "scripts" / "legifrance.py"
 # `.claude` : worktrees d'agents, qui contiennent une copie complète du dépôt.
 # Sans cette exclusion, le contrôle compare le parser de CETTE copie aux `.md`
 # d'une autre — divergence normale entre copies, signalée comme une faute.
-EXCLUDE_DIRS = {".git", ".claude", "vault", "__pycache__", ".github"}
+EXCLUDE_DIRS = {".git", ".claude", ".venv", "vault", "__pycache__", ".github"}
 # Journal historique : cite légitimement des commandes retirées depuis.
 EXCLUDE_FILES = {"skill/CHANGELOG.md"}
 

@@ -1,6 +1,6 @@
 {
   "name": "droit-francais-skill",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Méthodologie rigoureuse de recherche en droit français, distribuée comme plugin OpenAI.",
   "author": {
     "name": "brissonjo-sudo",
@@ -16,6 +16,7 @@
     "jurisprudence"
   ],
   "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
   "interface": {
     "displayName": "Droit français",
     "shortDescription": "Recherche juridique française traçable et sourcée.",
@@ -23,8 +24,13 @@
     "developerName": "brissonjo-sudo",
     "category": "Productivity",
     "capabilities": [
-      "Interactive"
+      "Interactive",
+      "MCP"
     ],
-    "defaultPrompt": "Effectue une recherche juridique française avec des sources primaires vérifiées."
+    "defaultPrompt": [
+      "Recherche cet article dans Légifrance.",
+      "Trouve et lis cette décision judiciaire.",
+      "Vérifie la vigueur de cette règle de droit."
+    ]
   }
 }

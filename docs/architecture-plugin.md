@@ -6,7 +6,8 @@ Branches d'implémentation :
 
 - étape 1 : **`feat/plugin-foundation`** ;
 - étape 2a : **`feat/tooling-foundation`** ;
-- étape 2b : **`feat/api-clients`**.
+- étape 2b : **`feat/api-clients`** ;
+- étape 3 : **`feat/chatgpt-mcp-app`**.
 
 ## Décision
 
@@ -63,11 +64,12 @@ droit-francais-skill/
 │           ├── config.py           # environnement et secrets
 │           ├── transport.py        # HTTP, délais, erreurs réseau
 │           ├── legifrance.py       # client OAuth/API Légifrance
-│           └── judilibre.py        # client KeyId/OAuth Judilibre
-├── app/                            # étape 3
-│   └── server.*                    # pont d'outils/app vers la bibliothèque
-├── .mcp.json                       # seulement quand le serveur existe
-├── .app.json                       # seulement quand l'app existe
+│           ├── judilibre.py        # client KeyId/OAuth Judilibre
+│           └── tools.py            # opérations juridiques structurées
+├── mcp_server/
+│   └── server.py                   # pont MCP vers la bibliothèque
+├── .mcp.json                       # lancement local stdio
+├── requirements-mcp.txt            # dépendance isolée du serveur
 └── tests/
     ├── check_plugin.py
     ├── check_commands.py
@@ -118,14 +120,20 @@ Critère de sortie atteint : les huit commandes, codes de sortie et variables
 d'environnement restent compatibles ; les clients renvoient des structures
 JSON indépendantes du rendu terminal et sont testés sans réseau.
 
-### Étape 3 — app / MCP
+### Étape 3 — serveur MCP tool-only (implémentée)
 
-- Exposer des outils bornés : recherche d'article, lecture par identifiant, recherche et lecture de décision, taxonomie et diagnostic de connexion.
+- Exposer les outils standard `search` et `fetch`, plus les opérations bornées
+  `search_articles`, `get_article`, `search_case_law` et `get_decision`.
 - Définir des schémas d'entrée/sortie stricts et préserver l'abstention en cas d'échec de récupération.
-- Ajouter `.mcp.json` et/ou `.app.json` uniquement lorsque le serveur correspondant est exécutable et testé.
+- Ajouter `.mcp.json` seulement lorsque le serveur correspondant est exécutable et testé ; ne pas ajouter `.app.json` car cette version n'a pas de widget.
 - Laisser les secrets dans l'environnement ou le mécanisme d'authentification de l'hôte ; ne jamais les placer dans le manifeste ou les réponses d'outil.
 
-Critère de sortie : un test de bout en bout démontre qu'un identifiant cité provient de la réponse officielle renvoyée par l'outil.
+Critère de sortie atteint hors réseau : les résultats simulés conservent
+l'identifiant et l'URL officiels, et un client MCP réel découvre les six outils
+sur stdio. Le transport Streamable HTTP sert le même serveur sur `/mcp`.
+
+Le déploiement HTTPS et la connexion à un compte ChatGPT restent des opérations
+de distribution de l'étape 4 : aucune URL distante n'est inventée dans le dépôt.
 
 ### Étape 4 — distribution
 
@@ -148,6 +156,7 @@ Critère de sortie : un test de bout en bout démontre qu'un identifiant cité p
 - validation du frontmatter de `skills/recherche-juridique/SKILL.md` ;
 - contrôle local `tests/check_plugin.py` ;
 - tests unitaires hors réseau `tests/test_tools.py` ;
+- tests du service et du protocole MCP `tests/test_mcp_app.py` ;
 - compilation Python ;
 - contrôle des liens et des commandes documentées ;
 - évaluation hors ligne des 21 sondes existantes.

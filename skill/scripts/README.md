@@ -66,18 +66,19 @@ le paquet voisin `droit_francais/`, inclus dans toute copie autonome de
 - `config.py` — endpoints, sélection prod/sandbox et chargement `.env` ;
 - `transport.py` — requêtes HTTP et décodage JSON ;
 - `legifrance.py` — OAuth2 et appels POST Légifrance ;
-- `judilibre.py` — appels GET, cache et bascule `KeyId` vers OAuth2.
+- `judilibre.py` — appels GET, cache et bascule `KeyId` vers OAuth2 ;
+- `tools.py` — opérations structurées réutilisées par le serveur MCP.
 
-Les tests hors réseau se lancent depuis la racine du dépôt avec :
+Les tests historiques hors réseau se lancent depuis la racine du dépôt avec :
 
 ```bash
 python tests/test_tools.py
 ```
 
 Le CLI actuel reste la façade de compatibilité : ses huit commandes, ses codes
-de sortie et ses variables d'environnement sont inchangés. Les clients
-renvoient des dictionnaires structurés, directement réutilisables par la
-future couche app/MCP.
+de sortie et ses variables d'environnement sont inchangés. Le serveur MCP à la
+racine consomme `tools.py` ; il ne déplace donc aucun fichier nécessaire à une
+installation autonome du dossier `skill/`.
 
 ### Étape 1 — Obtenir des identifiants PISTE (gratuit)
 
