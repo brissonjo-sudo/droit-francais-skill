@@ -4,13 +4,17 @@
 from __future__ import annotations
 
 import argparse
+import logging
 import os
 import sys
+import time
 from pathlib import Path
 from typing import Any, Callable
 
 ROOT = Path(__file__).resolve().parent.parent
 SCRIPTS = ROOT / "skill" / "scripts"
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 if str(SCRIPTS) not in sys.path:
     sys.path.insert(0, str(SCRIPTS))
 
@@ -27,14 +31,25 @@ from mcp.types import ToolAnnotations
 from droit_francais.config import load_dotenv
 from droit_francais.errors import LegifranceError
 from droit_francais import tools as legal_tools
+from mcp_server.runtime import (
+    RequestGovernor,
+    RuntimeCapacityError,
+    RuntimeConfigurationError,
+    RuntimeSettings,
+)
 
 load_dotenv(script_dir=SCRIPTS)
-
-HTTP_HOST = os.environ.get("MCP_HOST", "127.0.0.1")
-try:
-    HTTP_PORT = int(os.environ.get("PORT") or os.environ.get("MCP_PORT", "8000"))
-except ValueError as exc:
-    raise RuntimeError("PORT/MCP_PORT doit être un entier.") from exc
+SETTINGS = RuntimeSettings.from_env()
+logging.basicConfig(
+    level=getattr(logging, SETTINGS.log_level),
+    format="%(asctime)s %(levelname)s %(name)s %(message)s",
+)
+LOGGER = logging.getLogger("droit_francais.mcp")
+GOVERNOR = RequestGovernor(
+    SETTINGS.max_concurrent_requests,
+    SETTINGS.tool_calls_per_minute,
+    SETTINGS.queue_timeout_seconds,
+)
 
 server_options: dict[str, Any] = {
     "instructions": (
@@ -44,24 +59,41 @@ server_options: dict[str, Any] = {
     )
 }
 if MCP_V2:
-    server_options["version"] = "0.4.0"
+    server_options["version"] = "0.5.0"
 else:
-    server_options.update(host=HTTP_HOST, port=HTTP_PORT)
+    server_options.update(host=SETTINGS.host, port=SETTINGS.port)
 server = MCPServer("Droit français", **server_options)
 
 READ_ONLY = ToolAnnotations(
     readOnlyHint=True,
     destructiveHint=False,
     idempotentHint=True,
-    openWorldHint=True,
+    openWorldHint=False,
 )
 
 
 def _safe_call(operation: Callable[..., dict[str, Any]], *args: Any, **kwargs: Any) -> dict[str, Any]:
     """Transforme une erreur métier en erreur MCP sans exposer de secret."""
+    started = time.monotonic()
+    operation_name = getattr(operation, "__name__", "legal_operation")
     try:
-        return operation(*args, **kwargs)
+        with GOVERNOR.slot():
+            result = operation(*args, **kwargs)
+        LOGGER.info(
+            "tool_call tool=%s outcome=success duration_ms=%d",
+            operation_name,
+            int((time.monotonic() - started) * 1000),
+        )
+        return result
+    except RuntimeCapacityError as exc:
+        LOGGER.warning("tool_call tool=%s outcome=throttled", operation_name)
+        raise ToolError(str(exc)) from exc
     except LegifranceError as exc:
+        LOGGER.warning(
+            "tool_call tool=%s outcome=upstream_error duration_ms=%d",
+            operation_name,
+            int((time.monotonic() - started) * 1000),
+        )
         message = str(exc)
         for key in (
             "LEGIFRANCE_CLIENT_ID",
@@ -75,6 +107,28 @@ def _safe_call(operation: Callable[..., dict[str, Any]], *args: Any, **kwargs: A
         raise ToolError(
             f"Source officielle non vérifiée (code {exc.exit_code}) : {message}"
         ) from exc
+
+
+if hasattr(server, "custom_route"):
+    from starlette.requests import Request
+    from starlette.responses import JSONResponse, PlainTextResponse, Response
+
+    @server.custom_route("/health", methods=["GET"], include_in_schema=False)
+    async def health(_request: Request) -> Response:
+        """Sonde publique sans donnée interne ni vérification consommatrice d'API."""
+        return JSONResponse({"status": "ok", "version": "0.5.0"})
+
+    @server.custom_route(
+        "/.well-known/openai-apps-challenge",
+        methods=["GET"],
+        include_in_schema=False,
+    )
+    async def openai_apps_challenge(_request: Request) -> Response:
+        """Répond exactement au jeton temporaire fourni lors de la soumission."""
+        token = os.environ.get("OPENAI_APPS_CHALLENGE", "")
+        if not token:
+            return PlainTextResponse("Not configured", status_code=404)
+        return PlainTextResponse(token)
 
 
 @server.tool(
@@ -189,9 +243,26 @@ def main() -> None:
         default="stdio",
         help="stdio pour le plugin local ; streamable-http pour /mcp.",
     )
+    parser.add_argument(
+        "--check-config",
+        action="store_true",
+        help="Valide la configuration de production puis quitte.",
+    )
     args = parser.parse_args()
+    try:
+        SETTINGS.validate_public()
+    except RuntimeConfigurationError as exc:
+        parser.error(str(exc))
+    if args.check_config:
+        print("Configuration MCP valide.")
+        return
     if args.transport == "streamable-http" and MCP_V2:
-        server.run(transport=args.transport, host=HTTP_HOST, port=HTTP_PORT)
+        server.run(
+            transport=args.transport,
+            host=SETTINGS.host,
+            port=SETTINGS.port,
+            max_request_body_size=SETTINGS.max_request_body_bytes,
+        )
     else:
         server.run(transport=args.transport)
 

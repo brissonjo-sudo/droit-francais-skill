@@ -5,11 +5,12 @@ widget et ne modifie aucune donnée. Elle donne au modèle des opérations de
 lecture structurées sur Légifrance et Judilibre, tout en conservant le skill
 historique comme couche de méthode juridique.
 
-Le paquet actuel distribue le serveur local dans `.mcp.json`. Il est donc
-testable localement dans Codex. La connexion ChatGPT distante constitue
-l'étape suivante : déployer `/mcp` en HTTPS, enregistrer cette connexion dans
-ChatGPT, puis ajouter le fichier `.app.json` qui référence son identifiant
-technique. Aucun identifiant distant fictif n'est placé dans le dépôt.
+Le paquet distribue le serveur local dans `.mcp.json` et fournit maintenant une
+image Docker portable pour son futur endpoint public. La connexion ChatGPT
+distante reste une étape explicite : choisir un hébergeur et une origine stable,
+déployer `/mcp` en HTTPS, enregistrer cette connexion dans ChatGPT, puis ajouter
+le fichier `.app.json` qui référence son identifiant technique. Aucun identifiant
+distant fictif n'est placé dans le dépôt.
 
 ## Contrat des outils
 
@@ -71,11 +72,10 @@ Pour tester le transport attendu par une connexion ChatGPT distante :
 python mcp_server/server.py --transport streamable-http
 ```
 
-Le point d'entrée est alors `http://127.0.0.1:8000/mcp`. Un raccordement réel
-à ChatGPT nécessite ensuite un déploiement HTTPS public de ce même endpoint,
-son enregistrement en mode développeur et la configuration de
-l'authentification adaptée au canal retenu. Cette étape de distribution n'est
-pas incluse dans la phase actuelle. Pour un hébergeur, le serveur accepte
+Le point d'entrée est alors `http://127.0.0.1:8000/mcp`. Le [guide de
+déploiement](deployment.md) décrit l'image non-root, les contrôles de
+configuration, la limitation de charge, la sonde de santé, la vérification de
+domaine et le parcours ChatGPT. Pour un hébergeur, le serveur accepte
 `MCP_HOST` (par exemple `0.0.0.0`) et `PORT` ou `MCP_PORT`.
 
 Références OpenAI actuelles : [architecture des plugins][plugin-architecture],

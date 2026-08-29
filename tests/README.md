@@ -1,7 +1,7 @@
 # `tests/` — évaluation du skill
 
-Deux jeux d'éval complémentaires, des tests unitaires hors réseau et trois
-**contrôles statiques** exécutés en CI.
+Deux jeux d'éval complémentaires, des tests unitaires hors réseau, trois
+**contrôles statiques** et des vérifications de déploiement exécutés en CI.
 
 ## 1. `eval-modes-erreur.csv` — éval mappée sur les 14 modes d'erreur
 
@@ -86,6 +86,19 @@ signification, qualité générale). Inclut une sonde d'hallucination
 
 ```bash
 python tests/test_tools.py
+```
+
+`test_mcp_app.py` couvre le contrat des six outils, le masquage des secrets,
+les limites de capacité, la configuration de production, les annotations et
+une session MCP `stdio` réelle. `test_deployment.py` contrôle le paquet Docker
+sans lancer de conteneur.
+
+Le CI démarre en plus le serveur Streamable HTTP, vérifie `/health`, initialise
+une vraie session sur `/mcp`, découvre les six outils, puis construit l'image
+Docker. La même sonde HTTP peut viser un déploiement de test :
+
+```bash
+python tests/check_mcp_http.py https://domaine.example/mcp
 ```
 
 ## 4. Contrôles statiques (CI)

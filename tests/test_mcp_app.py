@@ -20,6 +20,12 @@ from droit_francais import tools as legal_tools  # noqa: E402
 from mcp import ClientSession, StdioServerParameters  # noqa: E402
 from mcp.client.stdio import stdio_client  # noqa: E402
 from mcp_server import server as mcp_app  # noqa: E402
+from mcp_server.runtime import (  # noqa: E402
+    RequestGovernor,
+    RuntimeCapacityError,
+    RuntimeConfigurationError,
+    RuntimeSettings,
+)
 
 
 class LegalToolsTests(unittest.TestCase):
@@ -159,6 +165,54 @@ class LegalToolsTests(unittest.TestCase):
         self.assertIn("secret masqué", str(caught.exception))
 
 
+class RuntimeSafetyTests(unittest.TestCase):
+    def test_production_requires_server_side_credentials(self):
+        settings = RuntimeSettings.from_env({"MCP_ENV": "production"})
+        with self.assertRaises(RuntimeConfigurationError) as caught:
+            settings.validate_public({"MCP_ENV": "production"})
+        message = str(caught.exception)
+        self.assertIn("LEGIFRANCE_CLIENT_ID", message)
+        self.assertIn("JUDILIBRE_KEY_ID", message)
+
+    def test_production_accepts_judilibre_alias_without_exposing_values(self):
+        env = {
+            "MCP_ENV": "production",
+            "LEGIFRANCE_CLIENT_ID": "client-secret-value",
+            "LEGIFRANCE_CLIENT_SECRET": "oauth-secret-value",
+            "PISTE_KEY_ID": "key-secret-value",
+        }
+        settings = RuntimeSettings.from_env(env)
+        settings.validate_public(env)
+
+    def test_invalid_port_is_explicit(self):
+        with self.assertRaises(RuntimeConfigurationError) as caught:
+            RuntimeSettings.from_env({"MCP_PORT": "not-a-port"})
+        self.assertIn("MCP_PORT", str(caught.exception))
+
+    def test_governor_rejects_calls_over_the_instance_budget(self):
+        governor = RequestGovernor(
+            max_concurrent=1,
+            requests_per_minute=1,
+            queue_timeout_seconds=0.01,
+        )
+        with governor.slot():
+            pass
+        with self.assertRaises(RuntimeCapacityError):
+            with governor.slot():
+                pass
+
+    def test_health_and_domain_challenge_expose_no_configuration(self):
+        health = asyncio.run(mcp_app.health(mock.Mock()))
+        self.assertEqual(200, health.status_code)
+        self.assertEqual(b'{"status":"ok","version":"0.5.0"}', health.body)
+
+        with mock.patch.dict(
+            os.environ, {"OPENAI_APPS_CHALLENGE": "challenge-token"}, clear=False
+        ):
+            challenge = asyncio.run(mcp_app.openai_apps_challenge(mock.Mock()))
+        self.assertEqual(b"challenge-token", challenge.body)
+
+
 class McpProtocolTests(unittest.TestCase):
     def test_stdio_protocol_lists_tools_and_returns_explicit_error(self):
         async def exercise() -> None:
@@ -190,6 +244,16 @@ class McpProtocolTests(unittest.TestCase):
                                 tool.annotations,
                                 "readOnlyHint",
                                 getattr(tool.annotations, "read_only_hint", False),
+                            )
+                            for tool in listed.tools
+                        )
+                    )
+                    self.assertTrue(
+                        all(
+                            not getattr(
+                                tool.annotations,
+                                "openWorldHint",
+                                getattr(tool.annotations, "open_world_hint", True),
                             )
                             for tool in listed.tools
                         )

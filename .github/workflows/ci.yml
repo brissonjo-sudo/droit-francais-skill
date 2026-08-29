@@ -29,16 +29,40 @@ jobs:
           python -m py_compile skill/scripts/droit_francais/legifrance.py
           python -m py_compile skill/scripts/droit_francais/judilibre.py
           python -m py_compile skill/scripts/droit_francais/tools.py
+          python -m py_compile mcp_server/runtime.py
           python -m py_compile mcp_server/server.py
           python -m py_compile tests/run_eval.py
           python -m py_compile tests/check_links.py
           python -m py_compile tests/check_commands.py
           python -m py_compile tests/check_plugin.py
+          python -m py_compile tests/check_mcp_http.py
+          python -m py_compile tests/test_deployment.py
           python -m py_compile tests/test_tools.py
           python -m py_compile tests/test_mcp_app.py
 
       - name: Tester la bibliothèque et le serveur MCP hors réseau
         run: python -m unittest discover -s tests -v
+
+      - name: Tester le transport MCP HTTP réel
+        env:
+          MCP_ENV: test
+          MCP_HOST: 127.0.0.1
+          PORT: "8000"
+        run: |
+          python mcp_server/server.py --transport streamable-http &
+          server_pid=$!
+          trap 'kill "$server_pid"' EXIT
+          for attempt in 1 2 3 4 5 6 7 8 9 10; do
+            if curl --fail --silent http://127.0.0.1:8000/health >/dev/null; then
+              break
+            fi
+            sleep 1
+          done
+          curl --fail --silent http://127.0.0.1:8000/health
+          python tests/check_mcp_http.py
+
+      - name: Construire l'image de déploiement
+        run: docker build --tag droit-francais-mcp:test .
 
       - name: Vérifier le socle du plugin
         run: python tests/check_plugin.py

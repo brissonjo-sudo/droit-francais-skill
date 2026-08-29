@@ -2,7 +2,7 @@
 
 **Skill LLM — méthodologie de recherche en droit français (v3.1.1)**
 
-**Distribution autonome + plugin OpenAI avec outils MCP (plugin v0.4.0)**
+**Distribution autonome + plugin OpenAI avec outils MCP (plugin v0.5.0)**
 
 [![CI](https://github.com/brissonjo-sudo/droit-francais-skill/actions/workflows/ci.yml/badge.svg)](https://github.com/brissonjo-sudo/droit-francais-skill/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/brissonjo-sudo/droit-francais-skill)](https://github.com/brissonjo-sudo/droit-francais-skill/releases)
@@ -143,7 +143,7 @@ contexte et pose la question quand elle devient décisionnelle.
 
 ## Installation
 
-### Comme plugin OpenAI — outils MCP locaux v0.4.0
+### Comme plugin OpenAI — outils MCP locaux v0.5.0
 
 Le dépôt contient désormais un manifeste `.codex-plugin/plugin.json` et un
 point d'entrée natif `skills/recherche-juridique/`. L'adaptateur charge le
@@ -160,15 +160,19 @@ règles de provenance restent dans l'unique noyau `skill/SKILL.md`.
 python -m pip install -r requirements-mcp.txt
 python mcp_server/server.py
 python mcp_server/server.py --transport streamable-http
+docker build -t droit-francais-mcp .
 ```
 
 Les identifiants PISTE restent fournis par variables d'environnement ou `.env`,
 jamais dans le manifeste. Voir le [guide MCP](docs/mcp-app.md) et
 l'[architecture progressive](docs/architecture-plugin.md).
 
-Cette version est directement testable comme plugin local dans Codex. Pour
-ChatGPT, l'étape suivante consiste à déployer le même endpoint `/mcp` en HTTPS,
-à l'enregistrer en mode développeur, puis à ajouter son mapping `.app.json`.
+Cette version est directement testable comme plugin local dans Codex. Une image
+Docker non-root prépare aussi le futur endpoint public, avec contrôle de
+configuration, limitation de charge et journaux sans arguments ni secrets.
+Voir le [guide de déploiement](docs/deployment.md). La publication effective
+reste séparée : choix d'une origine HTTPS stable, enregistrement en mode
+développeur, tests de revue, puis ajout du mapping `.app.json` réel.
 
 ### Comme skill Claude Code — inchangé
 
@@ -219,7 +223,7 @@ Le skill s'active automatiquement quand vous :
 
 ---
 
-## Arborescence (skill v3.1.1 / plugin v0.4.0)
+## Arborescence (skill v3.1.1 / plugin v0.5.0)
 
 ```
 droit-francais-skill/
