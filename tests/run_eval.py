@@ -57,6 +57,9 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
+
 ROOT = Path(__file__).resolve().parent.parent
 CSV_PATH = Path(__file__).resolve().parent / "eval-modes-erreur.csv"
 SKILL_PATH = ROOT / "skill" / "SKILL.md"

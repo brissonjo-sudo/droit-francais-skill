@@ -1,9 +1,15 @@
 # Serveur MCP — Droit français
 
-Cette première intégration ChatGPT est une app **tool-only** : elle n'affiche
-pas de widget et ne modifie aucune donnée. Elle donne au modèle des opérations
-de lecture structurées sur Légifrance et Judilibre, tout en conservant le skill
+Cette première intégration est un plugin **tool-only** : elle n'affiche pas de
+widget et ne modifie aucune donnée. Elle donne au modèle des opérations de
+lecture structurées sur Légifrance et Judilibre, tout en conservant le skill
 historique comme couche de méthode juridique.
+
+Le paquet actuel distribue le serveur local dans `.mcp.json`. Il est donc
+testable localement dans Codex. La connexion ChatGPT distante constitue
+l'étape suivante : déployer `/mcp` en HTTPS, enregistrer cette connexion dans
+ChatGPT, puis ajouter le fichier `.app.json` qui référence son identifiant
+technique. Aucun identifiant distant fictif n'est placé dans le dépôt.
 
 ## Contrat des outils
 
@@ -66,10 +72,18 @@ python mcp_server/server.py --transport streamable-http
 ```
 
 Le point d'entrée est alors `http://127.0.0.1:8000/mcp`. Un raccordement réel
-à ChatGPT nécessite ensuite un déploiement HTTPS public de ce même endpoint et
-la configuration de l'authentification adaptée au canal retenu. Cette étape de
-distribution n'est pas incluse dans la phase actuelle. Pour un hébergeur, le
-serveur accepte `MCP_HOST` (par exemple `0.0.0.0`) et `PORT` ou `MCP_PORT`.
+à ChatGPT nécessite ensuite un déploiement HTTPS public de ce même endpoint,
+son enregistrement en mode développeur et la configuration de
+l'authentification adaptée au canal retenu. Cette étape de distribution n'est
+pas incluse dans la phase actuelle. Pour un hébergeur, le serveur accepte
+`MCP_HOST` (par exemple `0.0.0.0`) et `PORT` ou `MCP_PORT`.
+
+Références OpenAI actuelles : [architecture des plugins][plugin-architecture],
+[empaquetage du plugin][plugin-package] et [construction du serveur MCP][mcp-build].
+
+[plugin-architecture]: https://developers.openai.com/plugins/concepts/plugins
+[plugin-package]: https://developers.openai.com/plugins/build/plugins
+[mcp-build]: https://developers.openai.com/plugins/build/mcp-server
 
 ## Vérification
 
@@ -83,3 +97,7 @@ python tests/run_eval.py
 
 Les tests MCP utilisent des réponses API simulées : ils ne consomment aucune
 clé et ne dépendent pas de la disponibilité de PISTE.
+
+La validation de niveau 2 a également été réalisée le 29 août 2026 : le
+transport HTTP a accepté une initialisation MCP réelle sur `/mcp` et a exposé
+les six outils attendus.

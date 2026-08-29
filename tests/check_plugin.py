@@ -13,6 +13,9 @@ import re
 import sys
 from pathlib import Path
 
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
+
 ROOT = Path(__file__).resolve().parent.parent
 MANIFEST = ROOT / ".codex-plugin" / "plugin.json"
 SEMVER = re.compile(r"^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$")
@@ -99,6 +102,47 @@ def main() -> int:
     for field, filename in companions:
         if field in manifest and not (ROOT / filename).is_file():
             fail(f"{field} est déclaré sans fichier compagnon {filename}", problems)
+
+    mcp_manifest = ROOT / ".mcp.json"
+    if manifest.get("mcpServers") == "./.mcp.json" and mcp_manifest.is_file():
+        try:
+            mcp_payload = json.loads(mcp_manifest.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as exc:
+            fail(f".mcp.json est illisible : {exc}", problems)
+        else:
+            servers = mcp_payload.get("mcpServers")
+            if not isinstance(servers, dict) or not servers:
+                fail(".mcp.json.mcpServers doit être un objet non vide", problems)
+            else:
+                legal_server = servers.get("droit-francais")
+                if not isinstance(legal_server, dict):
+                    fail("serveur MCP droit-francais absent", problems)
+                else:
+                    command = legal_server.get("command")
+                    args = legal_server.get("args")
+                    if not isinstance(command, str) or not command.strip():
+                        fail("commande du serveur MCP absente", problems)
+                    if not isinstance(args, list) or not all(
+                        isinstance(item, str) and item.strip() for item in args
+                    ):
+                        fail("arguments du serveur MCP invalides", problems)
+                    elif "./mcp_server/server.py" not in args:
+                        fail("le serveur MCP ne lance pas mcp_server/server.py", problems)
+                    elif not (ROOT / "mcp_server" / "server.py").is_file():
+                        fail("point d'entrée mcp_server/server.py absent", problems)
+
+            serialized_mcp = json.dumps(mcp_payload, ensure_ascii=False)
+            for secret_name in (
+                "LEGIFRANCE_CLIENT_ID",
+                "LEGIFRANCE_CLIENT_SECRET",
+                "JUDILIBRE_KEY_ID",
+                "PISTE_KEY_ID",
+            ):
+                if secret_name in serialized_mcp:
+                    fail(
+                        f"secret ou variable sensible interdit dans .mcp.json : {secret_name}",
+                        problems,
+                    )
 
     if problems:
         print(f"❌ {len(problems)} problème(s) dans le socle plugin :")

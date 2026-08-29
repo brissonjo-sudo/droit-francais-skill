@@ -143,7 +143,7 @@ contexte et pose la question quand elle devient décisionnelle.
 
 ## Installation
 
-### Comme plugin OpenAI — outils MCP v0.4.0
+### Comme plugin OpenAI — outils MCP locaux v0.4.0
 
 Le dépôt contient désormais un manifeste `.codex-plugin/plugin.json` et un
 point d'entrée natif `skills/recherche-juridique/`. L'adaptateur charge le
@@ -165,6 +165,10 @@ python mcp_server/server.py --transport streamable-http
 Les identifiants PISTE restent fournis par variables d'environnement ou `.env`,
 jamais dans le manifeste. Voir le [guide MCP](docs/mcp-app.md) et
 l'[architecture progressive](docs/architecture-plugin.md).
+
+Cette version est directement testable comme plugin local dans Codex. Pour
+ChatGPT, l'étape suivante consiste à déployer le même endpoint `/mcp` en HTTPS,
+à l'enregistrer en mode développeur, puis à ajouter son mapping `.app.json`.
 
 ### Comme skill Claude Code — inchangé
 
