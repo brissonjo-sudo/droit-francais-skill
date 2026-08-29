@@ -1,19 +1,22 @@
 # droit-francais-skill
 
-**Skill LLM — méthodologie de recherche en droit français (v3.0.0)**
+**Skill LLM — méthodologie de recherche en droit français (v3.1.1)**
+
+**Distribution autonome + socle plugin OpenAI (plugin v0.1.0)**
 
 [![CI](https://github.com/brissonjo-sudo/droit-francais-skill/actions/workflows/ci.yml/badge.svg)](https://github.com/brissonjo-sudo/droit-francais-skill/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/brissonjo-sudo/droit-francais-skill)](https://github.com/brissonjo-sudo/droit-francais-skill/releases)
 [![License: CC BY-SA 4.0](https://img.shields.io/badge/license-CC%20BY--SA%204.0-blue)](LICENSE)
 
-> **TL;DR (EN).** A Claude Code skill that stops the model from *making up
+> **TL;DR (EN).** An LLM skill that stops the model from *making up
 > French law.* It forces every statute, case, or citation through a 9-step
 > verification procedure built against **14 known LLM failure modes** in legal
 > reasoning — primary sources only (Légifrance/PISTE), currency checks, and
 > *traceable* citations. When it can't verify, it says so instead of inventing.
 > Configurable per practitioner via a **profile**. Works without any API key;
-> a free PISTE key unlocks deterministic retrieval. Install: copy `skill/`
-> into `~/.claude/skills/recherche-juridique/`.
+> a free PISTE key unlocks deterministic retrieval. It remains installable as
+> a standalone Claude Code skill and is now packaged as an OpenAI plugin
+> foundation without duplicating the legal methodology.
 
 ---
 
@@ -140,7 +143,21 @@ contexte et pose la question quand elle devient décisionnelle.
 
 ## Installation
 
-> **Installation :** empaqueter uniquement le dossier `skill/` — il contient le
+### Comme plugin OpenAI — socle v0.1.0
+
+Le dépôt contient désormais un manifeste `.codex-plugin/plugin.json` et un
+point d'entrée natif `skills/recherche-juridique/`. L'adaptateur charge le
+noyau historique depuis `skill/` : il n'existe donc qu'une seule source de
+vérité méthodologique.
+
+Cette première version prépare l'installation comme plugin, mais **ne déclare
+pas encore d'app ni de serveur MCP**. L'accès Légifrance/Judilibre reste assuré
+par le CLI existant jusqu'à l'extraction de la bibliothèque d'outils (étape 2).
+Voir l'[audit et la trajectoire d'architecture](docs/architecture-plugin.md).
+
+### Comme skill Claude Code — inchangé
+
+> **Installation autonome :** empaqueter uniquement le dossier `skill/` — il contient le
 > noyau (`SKILL.md`), l'historique (`CHANGELOG.md`), les références
 > (`references/`) et l'outillage (`scripts/`). Le dossier `vault/` est
 > réservé aux notes Obsidian et ne fait pas partie du paquet skill.
@@ -187,11 +204,16 @@ Le skill s'active automatiquement quand vous :
 
 ---
 
-## Arborescence (v3.0.0)
+## Arborescence (skill v3.1.1 / plugin v0.1.0)
 
 ```
 droit-francais-skill/
-├── skill/                          ← seul dossier empaqueté pour installation
+├── .codex-plugin/
+│   └── plugin.json                ← manifeste du plugin
+├── skills/
+│   └── recherche-juridique/
+│       └── SKILL.md               ← adaptateur plugin vers le noyau
+├── skill/                          ← paquet autonome et source de vérité
 │   ├── SKILL.md                    ← noyau méthodologique (universel)
 │   ├── CHANGELOG.md                ← historique des versions
 │   ├── profils/                    ← profils métier (v3.0.0)
@@ -215,14 +237,20 @@ droit-francais-skill/
 │       ├── .env.example            ← gabarit de configuration (BYOK)
 │       └── README.md               ← configuration PISTE + usage
 ├── .github/workflows/ci.yml        ← CI (py_compile + liens + doc↔CLI + éval)
+├── docs/
+│   └── architecture-plugin.md      ← audit, cible et étapes de migration
 ├── vault/                          ← notes Obsidian (hors paquet)
-├── tests/                          ← évals (14 modes + balises + profil neutre) + runners
+├── tests/                          ← invariants plugin + évals historiques
 ├── README.md
 └── LICENSE
 ```
 
 > Le fichier `profil.md` (choix de l'utilisateur, copié depuis `profils/`)
 > est local et gitignoré — il n'est pas versionné.
+
+Le détail de l'architecture cible `skill + tools/app + plugin` et de ses
+invariants de non-régression est documenté dans
+[`docs/architecture-plugin.md`](docs/architecture-plugin.md).
 
 ---
 

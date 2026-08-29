@@ -22,6 +22,10 @@ jobs:
           python -m py_compile tests/run_eval.py
           python -m py_compile tests/check_links.py
           python -m py_compile tests/check_commands.py
+          python -m py_compile tests/check_plugin.py
+
+      - name: Vérifier le socle du plugin
+        run: python tests/check_plugin.py
 
       - name: Vérifier les liens Markdown
         run: python tests/check_links.py
