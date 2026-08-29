@@ -78,7 +78,7 @@ python mcp_server/server.py --check-config
 | `MCP_TOOL_CALLS_PER_MINUTE` | `120` | Budget glissant d'appels d'outils par instance |
 | `MCP_QUEUE_TIMEOUT_SECONDS` | `2` | Attente maximale avant une erreur de surcharge explicite |
 | `MCP_MAX_REQUEST_BODY_BYTES` | `1048576` | Taille maximale d'une requête HTTP MCP |
-| `MCP_LOG_LEVEL` | `INFO` | Niveau des journaux applicatifs |
+| `MCP_LOG_LEVEL` | `INFO` local, `WARNING` dans l'image | Niveau des journaux applicatifs et du SDK MCP |
 | `OPENAI_APPS_CHALLENGE` | absent | Jeton temporaire de vérification du domaine |
 
 La limite est locale à chaque instance. Avec plusieurs réplicas, ajouter une
@@ -89,12 +89,15 @@ façon conservatrice selon les quotas réellement accordés à l'application PIS
 
 ## Confidentialité et exploitation
 
-Le journal applicatif enregistre uniquement le nom technique de l'opération,
-son résultat (`success`, `upstream_error` ou `throttled`) et sa durée. Il ne
-journalise ni les arguments, ni les textes juridiques, ni les résultats, ni les
-clés. Les journaux d'accès de l'hébergeur peuvent néanmoins contenir adresse IP,
-horodatage et métadonnées HTTP : leur durée de conservation doit être réglée et
-décrite dans la politique de confidentialité publique.
+Le journal métier ajouté par l'application ne contient que le nom technique de
+l'opération, son résultat (`success`, `upstream_error` ou `throttled`) et sa
+durée. Il ne journalise ni les arguments, ni les textes juridiques, ni les
+résultats, ni les clés. L'image utilise `WARNING` par défaut afin de supprimer
+les journaux informatifs du SDK MCP et du serveur HTTP. Si `INFO` est réactivé
+pour diagnostiquer un incident, ces composants peuvent journaliser une adresse
+réseau, un chemin HTTP et un identifiant de session MCP éphémère. Les journaux
+d'accès de l'hébergeur peuvent contenir les mêmes métadonnées : leur durée de
+conservation doit être réglée et décrite dans la politique de confidentialité.
 
 Les réponses Judilibre peuvent contenir des données personnelles présentes
 dans des décisions publiques. Le service doit conserver les mécanismes de

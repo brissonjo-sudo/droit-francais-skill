@@ -13,6 +13,7 @@ class DeploymentPackageTests(unittest.TestCase):
     def test_container_runs_as_non_root_and_serves_http(self):
         dockerfile = (ROOT / "Dockerfile").read_text(encoding="utf-8")
         self.assertIn("USER app", dockerfile)
+        self.assertIn("MCP_LOG_LEVEL=WARNING", dockerfile)
         self.assertIn('"--transport", "streamable-http"', dockerfile)
         self.assertIn("HEALTHCHECK", dockerfile)
         self.assertNotIn("LEGIFRANCE_CLIENT_SECRET=", dockerfile)

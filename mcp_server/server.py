@@ -52,6 +52,7 @@ GOVERNOR = RequestGovernor(
 )
 
 server_options: dict[str, Any] = {
+    "log_level": SETTINGS.log_level,
     "instructions": (
         "Recherche juridique française en lecture seule. Utiliser search puis "
         "fetch pour lire une source avant de la citer. Une erreur d'accès ne "

@@ -10,7 +10,9 @@ de conservation doivent être connus avant de rédiger la version opposable.
 - textes et métadonnées publics renvoyés par Légifrance et Judilibre ;
 - données personnelles éventuellement présentes dans la jurisprudence publique ;
 - journaux d'accès de l'hébergeur (IP, date, chemin, agent utilisateur) ;
-- journaux applicatifs limités au nom d'opération, état et durée ;
+- journaux métier limités au nom d'opération, état et durée ;
+- si le niveau `INFO` est activé, identifiants de session MCP éphémères et
+  métadonnées réseau émis par le SDK et le serveur HTTP ;
 - aucune clé PISTE, aucun jeton OAuth et aucun secret dans les réponses ou logs.
 
 ## Acteurs à déclarer
