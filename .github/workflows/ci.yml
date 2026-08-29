@@ -19,10 +19,18 @@ jobs:
       - name: Compiler les scripts Python (py_compile)
         run: |
           python -m py_compile skill/scripts/legifrance.py
+          python -m py_compile skill/scripts/droit_francais/__init__.py
+          python -m py_compile skill/scripts/droit_francais/errors.py
+          python -m py_compile skill/scripts/droit_francais/config.py
+          python -m py_compile skill/scripts/droit_francais/transport.py
           python -m py_compile tests/run_eval.py
           python -m py_compile tests/check_links.py
           python -m py_compile tests/check_commands.py
           python -m py_compile tests/check_plugin.py
+          python -m py_compile tests/test_tools.py
+
+      - name: Tester la bibliothèque d'outils hors réseau
+        run: python tests/test_tools.py
 
       - name: Vérifier le socle du plugin
         run: python tests/check_plugin.py

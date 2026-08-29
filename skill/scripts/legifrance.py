@@ -101,26 +101,25 @@ import argparse
 import json
 import os
 import sys
-import urllib.error
 import urllib.parse
-import urllib.request
 from pathlib import Path
 
-# --------------------------------------------------------------------------- #
-# Endpoints PISTE / Légifrance
-# --------------------------------------------------------------------------- #
-ENVS = {
-    "prod": {
-        "token": "https://oauth.piste.gouv.fr/api/oauth/token",
-        "api": "https://api.piste.gouv.fr/dila/legifrance/lf-engine-app",
-        "judilibre": "https://api.piste.gouv.fr/cassation/judilibre/v1.0",
-    },
-    "sandbox": {
-        "token": "https://sandbox-oauth.piste.gouv.fr/api/oauth/token",
-        "api": "https://sandbox-api.piste.gouv.fr/dila/legifrance/lf-engine-app",
-        "judilibre": "https://sandbox-api.piste.gouv.fr/cassation/judilibre/v1.0",
-    },
-}
+# Le CLI est aussi importé directement par les contrôles statiques. Dans ce
+# cas, importlib ne place pas automatiquement son dossier dans ``sys.path``.
+SCRIPT_DIR = Path(__file__).resolve().parent
+if str(SCRIPT_DIR) not in sys.path:
+    sys.path.insert(0, str(SCRIPT_DIR))
+
+from droit_francais.config import (
+    judilibre_base as _judilibre_base,
+    legifrance_environment as _env,
+    load_dotenv,
+)
+from droit_francais.errors import LegifranceError
+from droit_francais.transport import (
+    http_get_json as _http_get,
+    http_post_json as _http_post,
+)
 
 # Judilibre — valeurs de référence (spécification OpenAPI JUDILIBRE-public.json).
 # Les listes dépendantes de la juridiction (chamber, formation, theme) se
@@ -191,142 +190,6 @@ FONDS_JURIS = {
     "constit": {"fond": "CONSTIT", "prefix": "CONSTEXT",
                 "label": "Conseil constitutionnel"},
 }
-
-TIMEOUT = 30
-
-
-class LegifranceError(Exception):
-    """Erreur métier avec code de sortie associé.
-
-    ``http_status`` est renseigné quand l'erreur provient d'une réponse HTTP :
-    il permet aux appelants de distinguer un refus d'authentification (401,
-    403), qui justifie une bascule de mode, d'une panne réelle.
-    """
-
-    def __init__(self, message: str, exit_code: int, http_status: int | None = None):
-        super().__init__(message)
-        self.exit_code = exit_code
-        self.http_status = http_status
-
-
-def load_dotenv() -> None:
-    """Charge un fichier .env (KEY=VALUE) sans dépendance externe.
-
-    Ordre de recherche : $LEGIFRANCE_DOTENV, puis ./.env (dossier courant),
-    puis le .env voisin du script. Les variables déjà présentes dans
-    l'environnement ne sont jamais écrasées (l'export explicite gagne).
-    """
-    candidates = []
-    explicit = os.environ.get("LEGIFRANCE_DOTENV")
-    if explicit:
-        candidates.append(Path(explicit))
-    candidates.append(Path.cwd() / ".env")
-    candidates.append(Path(__file__).resolve().parent / ".env")
-
-    seen = set()
-    for path in candidates:
-        try:
-            if not path.is_file():
-                continue
-            real = path.resolve()
-        except OSError:
-            continue
-        if real in seen:
-            continue
-        seen.add(real)
-        try:
-            lines = path.read_text(encoding="utf-8").splitlines()
-        except OSError:
-            continue
-        for line in lines:
-            line = line.strip()
-            if not line or line.startswith("#") or "=" not in line:
-                continue
-            key, _, value = line.partition("=")
-            key = key.strip()
-            value = value.strip().strip('"').strip("'")
-            if key and key not in os.environ:
-                os.environ[key] = value
-
-
-# --------------------------------------------------------------------------- #
-# Couche HTTP (stdlib)
-# --------------------------------------------------------------------------- #
-def _http_post(url: str, data: bytes, headers: dict) -> dict:
-    req = urllib.request.Request(url, data=data, headers=headers, method="POST")
-    try:
-        with urllib.request.urlopen(req, timeout=TIMEOUT) as resp:
-            raw = resp.read().decode("utf-8")
-    except urllib.error.HTTPError as exc:  # 4xx / 5xx
-        body = exc.read().decode("utf-8", "replace")[:500]
-        raise LegifranceError(
-            f"HTTP {exc.code} sur {url}\n{body}", exit_code=4, http_status=exc.code
-        ) from exc
-    except urllib.error.URLError as exc:
-        raise LegifranceError(
-            f"Échec réseau vers {url} : {exc.reason}", exit_code=4
-        ) from exc
-    try:
-        return json.loads(raw)
-    except json.JSONDecodeError as exc:
-        raise LegifranceError(
-            f"Réponse non-JSON de {url} : {raw[:300]}", exit_code=4
-        ) from exc
-
-
-def _http_get(url: str, headers: dict) -> dict:
-    """GET JSON — utilisé par Judilibre, dont l'API est en lecture seule."""
-    req = urllib.request.Request(url, headers=headers, method="GET")
-    try:
-        with urllib.request.urlopen(req, timeout=TIMEOUT) as resp:
-            raw = resp.read().decode("utf-8")
-    except urllib.error.HTTPError as exc:
-        body = exc.read().decode("utf-8", "replace")[:500]
-        code = 5 if exc.code == 404 else 4
-        raise LegifranceError(
-            f"HTTP {exc.code} sur {url}\n{body}", exit_code=code, http_status=exc.code
-        ) from exc
-    except urllib.error.URLError as exc:
-        raise LegifranceError(
-            f"Échec réseau vers {url} : {exc.reason}", exit_code=4
-        ) from exc
-    try:
-        return json.loads(raw)
-    except json.JSONDecodeError as exc:
-        raise LegifranceError(
-            f"Réponse non-JSON de {url} : {raw[:300]}", exit_code=4
-        ) from exc
-
-
-def _env() -> dict:
-    name = os.environ.get("LEGIFRANCE_ENV", "prod").lower()
-    if name not in ENVS:
-        raise LegifranceError(
-            f"LEGIFRANCE_ENV invalide : {name!r} (attendu 'prod' ou 'sandbox')",
-            exit_code=2,
-        )
-    return ENVS[name]
-
-
-def _judilibre_base() -> str:
-    """URL de base Judilibre, pilotée par JUDILIBRE_ENV (repli LEGIFRANCE_ENV).
-
-    Les deux API peuvent viser des environnements différents : une application
-    PISTE peut être en production sur Légifrance et en bac à sable sur
-    Judilibre. Sans cette lecture, ``JUDILIBRE_ENV`` serait documentée dans
-    ``.env.example`` mais silencieusement ignorée — et l'utilisateur croirait
-    interroger un environnement tout en atteignant l'autre.
-    """
-    name = (os.environ.get("JUDILIBRE_ENV") or "").strip().lower()
-    if not name:
-        return _env()["judilibre"]
-    if name not in ENVS:
-        raise LegifranceError(
-            f"JUDILIBRE_ENV invalide : {name!r} (attendu 'prod' ou 'sandbox')",
-            exit_code=2,
-        )
-    return ENVS[name]["judilibre"]
-
 
 def get_token() -> str:
     """Récupère un jeton OAuth2 client_credentials (scope openid)."""

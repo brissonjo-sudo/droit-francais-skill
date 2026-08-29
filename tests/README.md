@@ -1,7 +1,7 @@
 # `tests/` — évaluation du skill
 
-Deux jeux d'éval complémentaires, plus deux **contrôles statiques** exécutés
-en CI.
+Deux jeux d'éval complémentaires, des tests unitaires hors réseau et trois
+**contrôles statiques** exécutés en CI.
 
 ## 1. `eval-modes-erreur.csv` — éval mappée sur les 14 modes d'erreur
 
@@ -73,15 +73,29 @@ manuelle dans Copilot Studio (correspondance de mots-clés, comparaison de
 signification, qualité générale). Inclut une sonde d'hallucination
 (article `L. 9999-1` inexistant).
 
-## 3. Contrôles statiques (CI)
+## 3. Tests unitaires de l'outillage
 
-Deux vérificateurs sans dépendance externe, exécutés à chaque push et chaque
+`test_tools.py` vérifie sans réseau et sans clé PISTE :
+
+- la sélection des environnements Légifrance et Judilibre ;
+- la priorité des variables exportées sur le fichier `.env` ;
+- le transport JSON et la traduction des erreurs HTTP ;
+- la conservation des huit sous-commandes publiques du CLI.
+
+```bash
+python tests/test_tools.py
+```
+
+## 4. Contrôles statiques (CI)
+
+Trois vérificateurs sans dépendance externe, exécutés à chaque push et chaque
 PR par `.github/workflows/ci.yml`. Ils ne jugent pas le skill : ils empêchent
 le dépôt de se contredire lui-même.
 
 ```bash
 python tests/check_links.py      # liens Markdown relatifs
 python tests/check_commands.py   # sous-commandes doc ↔ CLI
+python tests/check_plugin.py     # manifeste et adaptateur plugin
 ```
 
 **`check_links.py`** — vérifie que chaque lien relatif Markdown (`[libellé]`
@@ -98,6 +112,11 @@ de code (blocs clôturés et spans `` `…` ``), la prose étant hors champ.
 
 Exclusions : `vault/` (notes historiques) et `skill/CHANGELOG.md` (journal
 immuable, qui cite légitimement des commandes retirées depuis).
+
+**`check_plugin.py`** — vérifie le manifeste, son identité, son interface, le
+point de découverte `skills/recherche-juridique/` et la présence intacte du
+skill historique `skill/SKILL.md`. Il interdit aussi de déclarer une app ou un
+serveur MCP sans fichier compagnon.
 
 > **Pourquoi ce contrôle existe.** La v3.1.0 a dû réparer la suppression
 > accidentelle de `ceta` et `constit` par une PR qui n'avait touché **aucun**

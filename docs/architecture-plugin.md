@@ -2,7 +2,10 @@
 
 Date de l'audit : **29 août 2026**
 
-Branche d'implémentation : **`feat/plugin-foundation`**
+Branches d'implémentation :
+
+- étape 1 : **`feat/plugin-foundation`** ;
+- étape 2a : **`feat/tooling-foundation`**.
 
 ## Décision
 
@@ -11,9 +14,9 @@ Le dépôt évolue selon une approche **skill-first, plugin-ready** :
 - `skill/` reste la source de vérité et le paquet autonome historique ;
 - le dépôt devient aussi un plugin OpenAI grâce à `.codex-plugin/plugin.json` ;
 - `skills/recherche-juridique/` sert d'adaptateur de découverte, sans copie du noyau ;
-- l'outillage API sera extrait progressivement avant d'être exposé par une app ou un serveur MCP.
+- l'outillage API est extrait progressivement dans le paquet autonome avant d'être exposé par une app ou un serveur MCP.
 
-Cette première étape ne modifie ni la méthode juridique, ni le CLI, ni les variables d'environnement existantes.
+La méthode juridique, l'interface du CLI et les variables d'environnement existantes restent stables.
 
 ## Audit de l'existant
 
@@ -53,14 +56,13 @@ droit-francais-skill/
 │   ├── references/
 │   ├── profils/
 │   └── scripts/
-│       └── legifrance.py           # à terme : façade CLI compatible
-├── tools/                          # étape 2
-│   └── droit_francais/
-│       ├── config.py               # environnement et secrets
-│       ├── transport.py            # HTTP, délais, erreurs
-│       ├── legifrance.py            # client Légifrance
-│       ├── judilibre.py             # client Judilibre
-│       └── cli.py                  # commandes et rendu terminal
+│       ├── legifrance.py           # façade CLI compatible
+│       └── droit_francais/         # bibliothèque incluse dans skill/
+│           ├── errors.py           # erreurs et codes de sortie
+│           ├── config.py           # environnement et secrets
+│           ├── transport.py        # HTTP, délais, erreurs réseau
+│           ├── legifrance.py       # étape 2b : client Légifrance
+│           └── judilibre.py        # étape 2b : client Judilibre
 ├── app/                            # étape 3
 │   └── server.*                    # pont d'outils/app vers la bibliothèque
 ├── .mcp.json                       # seulement quand le serveur existe
@@ -69,6 +71,7 @@ droit-francais-skill/
     ├── check_plugin.py
     ├── check_commands.py
     ├── check_links.py
+    ├── test_tools.py
     └── run_eval.py
 ```
 
@@ -79,7 +82,7 @@ Utilisateur
     ↓
 Plugin → skill recherche-juridique → méthode et règles de provenance
     ↓
-App / outils MCP → bibliothèque tools/droit_francais
+App / outils MCP → bibliothèque skill/scripts/droit_francais
     ↓
 API officielles Légifrance et Judilibre
 ```
@@ -98,12 +101,17 @@ Le skill décide **quand et comment rechercher**. La bibliothèque exécute les 
 
 Critère de sortie : le validateur du plugin, le validateur du skill et tous les tests historiques passent sans modifier le noyau.
 
-### Étape 2 — bibliothèque d'outils
+### Étape 2 — bibliothèque d'outils (en cours)
 
-- Extraire les fonctions de configuration, transport et clients API dans `tools/droit_francais/`.
+- **2a — implémentée :** extraire erreurs, configuration et transport dans `skill/scripts/droit_francais/`.
+- **2b — suivante :** extraire les clients Légifrance et Judilibre dans ce même paquet.
 - Conserver `skill/scripts/legifrance.py` comme façade compatible vers la nouvelle bibliothèque.
 - Ajouter des tests unitaires avec réponses HTTP simulées, sans dépendance au réseau ni aux clés PISTE.
 - Stabiliser des résultats structurés indépendants de l'affichage terminal.
+
+Le paquet reste volontairement sous `skill/scripts/` plutôt qu'à la racine :
+les installations historiques copient uniquement `skill/`. Un paquet racine
+aurait donc cassé le CLI autonome ou imposé une duplication du code.
 
 Critère de sortie : toutes les commandes, codes de sortie et variables d'environnement documentés restent compatibles.
 
@@ -131,11 +139,12 @@ Critère de sortie : un test de bout en bout démontre qu'un identifiant cité p
 5. Le manifeste ne déclare que les composants réellement présents et testés.
 6. Le noyau juridique ne doit exister qu'en un seul exemplaire maintenu.
 
-## Tests de l'étape 1
+## Tests actifs
 
 - validation officielle de `.codex-plugin/plugin.json` ;
 - validation du frontmatter de `skills/recherche-juridique/SKILL.md` ;
 - contrôle local `tests/check_plugin.py` ;
+- tests unitaires hors réseau `tests/test_tools.py` ;
 - compilation Python ;
 - contrôle des liens et des commandes documentées ;
 - évaluation hors ligne des 21 sondes existantes.

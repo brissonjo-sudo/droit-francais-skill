@@ -2,7 +2,7 @@
 
 **Skill LLM — méthodologie de recherche en droit français (v3.1.1)**
 
-**Distribution autonome + socle plugin OpenAI (plugin v0.1.0)**
+**Distribution autonome + socle plugin OpenAI (plugin v0.2.0)**
 
 [![CI](https://github.com/brissonjo-sudo/droit-francais-skill/actions/workflows/ci.yml/badge.svg)](https://github.com/brissonjo-sudo/droit-francais-skill/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/brissonjo-sudo/droit-francais-skill)](https://github.com/brissonjo-sudo/droit-francais-skill/releases)
@@ -143,16 +143,17 @@ contexte et pose la question quand elle devient décisionnelle.
 
 ## Installation
 
-### Comme plugin OpenAI — socle v0.1.0
+### Comme plugin OpenAI — socle v0.2.0
 
 Le dépôt contient désormais un manifeste `.codex-plugin/plugin.json` et un
 point d'entrée natif `skills/recherche-juridique/`. L'adaptateur charge le
 noyau historique depuis `skill/` : il n'existe donc qu'une seule source de
 vérité méthodologique.
 
-Cette première version prépare l'installation comme plugin, mais **ne déclare
-pas encore d'app ni de serveur MCP**. L'accès Légifrance/Judilibre reste assuré
-par le CLI existant jusqu'à l'extraction de la bibliothèque d'outils (étape 2).
+Cette version prépare l'installation comme plugin, mais **ne déclare pas encore
+d'app ni de serveur MCP**. L'accès Légifrance/Judilibre reste assuré par le CLI
+existant ; ses fondations réutilisables (configuration, erreurs et transport
+HTTP) sont désormais isolées dans `skill/scripts/droit_francais/`.
 Voir l'[audit et la trajectoire d'architecture](docs/architecture-plugin.md).
 
 ### Comme skill Claude Code — inchangé
@@ -204,7 +205,7 @@ Le skill s'active automatiquement quand vous :
 
 ---
 
-## Arborescence (skill v3.1.1 / plugin v0.1.0)
+## Arborescence (skill v3.1.1 / plugin v0.2.0)
 
 ```
 droit-francais-skill/
@@ -234,6 +235,10 @@ droit-francais-skill/
 │   │   └── format-citation.md      ← formats de citation normalisés (complément P4)
 │   └── scripts/                    ← outillage Palier 3
 │       ├── legifrance.py           ← API Légifrance + Judilibre (via PISTE)
+│       ├── droit_francais/         ← bibliothèque réutilisable embarquée
+│       │   ├── errors.py           ← erreurs et codes de sortie communs
+│       │   ├── config.py           ← environnements et chargement .env
+│       │   └── transport.py        ← transport HTTP JSON
 │       ├── .env.example            ← gabarit de configuration (BYOK)
 │       └── README.md               ← configuration PISTE + usage
 ├── .github/workflows/ci.yml        ← CI (py_compile + liens + doc↔CLI + éval)
@@ -248,7 +253,7 @@ droit-francais-skill/
 > Le fichier `profil.md` (choix de l'utilisateur, copié depuis `profils/`)
 > est local et gitignoré — il n'est pas versionné.
 
-Le détail de l'architecture cible `skill + tools/app + plugin` et de ses
+Le détail de l'architecture cible `skill + bibliothèque + app/plugin` et de ses
 invariants de non-régression est documenté dans
 [`docs/architecture-plugin.md`](docs/architecture-plugin.md).
 
