@@ -2,7 +2,7 @@
 
 **Skill LLM — méthodologie de recherche en droit français (v3.1.1)**
 
-**Distribution autonome + socle plugin OpenAI (plugin v0.2.0)**
+**Distribution autonome + socle plugin OpenAI (plugin v0.3.0)**
 
 [![CI](https://github.com/brissonjo-sudo/droit-francais-skill/actions/workflows/ci.yml/badge.svg)](https://github.com/brissonjo-sudo/droit-francais-skill/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/brissonjo-sudo/droit-francais-skill)](https://github.com/brissonjo-sudo/droit-francais-skill/releases)
@@ -143,7 +143,7 @@ contexte et pose la question quand elle devient décisionnelle.
 
 ## Installation
 
-### Comme plugin OpenAI — socle v0.2.0
+### Comme plugin OpenAI — socle v0.3.0
 
 Le dépôt contient désormais un manifeste `.codex-plugin/plugin.json` et un
 point d'entrée natif `skills/recherche-juridique/`. L'adaptateur charge le
@@ -152,8 +152,8 @@ vérité méthodologique.
 
 Cette version prépare l'installation comme plugin, mais **ne déclare pas encore
 d'app ni de serveur MCP**. L'accès Légifrance/Judilibre reste assuré par le CLI
-existant ; ses fondations réutilisables (configuration, erreurs et transport
-HTTP) sont désormais isolées dans `skill/scripts/droit_francais/`.
+existant ; ses clients et fondations réutilisables sont désormais isolés dans
+`skill/scripts/droit_francais/`, prêts à être appelés par une future app.
 Voir l'[audit et la trajectoire d'architecture](docs/architecture-plugin.md).
 
 ### Comme skill Claude Code — inchangé
@@ -205,7 +205,7 @@ Le skill s'active automatiquement quand vous :
 
 ---
 
-## Arborescence (skill v3.1.1 / plugin v0.2.0)
+## Arborescence (skill v3.1.1 / plugin v0.3.0)
 
 ```
 droit-francais-skill/
@@ -238,7 +238,9 @@ droit-francais-skill/
 │       ├── droit_francais/         ← bibliothèque réutilisable embarquée
 │       │   ├── errors.py           ← erreurs et codes de sortie communs
 │       │   ├── config.py           ← environnements et chargement .env
-│       │   └── transport.py        ← transport HTTP JSON
+│       │   ├── transport.py        ← transport HTTP JSON
+│       │   ├── legifrance.py       ← client OAuth/API Légifrance
+│       │   └── judilibre.py        ← client KeyId/OAuth Judilibre
 │       ├── .env.example            ← gabarit de configuration (BYOK)
 │       └── README.md               ← configuration PISTE + usage
 ├── .github/workflows/ci.yml        ← CI (py_compile + liens + doc↔CLI + éval)

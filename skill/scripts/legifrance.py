@@ -101,7 +101,6 @@ import argparse
 import json
 import os
 import sys
-import urllib.parse
 from pathlib import Path
 
 # Le CLI est aussi importé directement par les contrôles statiques. Dans ce
@@ -116,10 +115,13 @@ from droit_francais.config import (
     load_dotenv,
 )
 from droit_francais.errors import LegifranceError
-from droit_francais.transport import (
-    http_get_json as _http_get,
-    http_post_json as _http_post,
+from droit_francais.judilibre import (
+    _TOKEN_CACHE,
+    auth_modes as _judilibre_auth_modes,
+    get_token_cached,
+    judilibre_get,
 )
+from droit_francais.legifrance import api_call, get_token
 
 # Judilibre — valeurs de référence (spécification OpenAPI JUDILIBRE-public.json).
 # Les listes dépendantes de la juridiction (chamber, formation, theme) se
@@ -190,138 +192,6 @@ FONDS_JURIS = {
     "constit": {"fond": "CONSTIT", "prefix": "CONSTEXT",
                 "label": "Conseil constitutionnel"},
 }
-
-def get_token() -> str:
-    """Récupère un jeton OAuth2 client_credentials (scope openid)."""
-    client_id = os.environ.get("LEGIFRANCE_CLIENT_ID")
-    client_secret = os.environ.get("LEGIFRANCE_CLIENT_SECRET")
-    if not client_id or not client_secret:
-        raise LegifranceError(
-            "Identifiants PISTE absents : voie outillée indisponible.\n"
-            "→ Bascule attendue : voie de repli web (gabarits web_search / "
-            "web_fetch sur domaine officiel — references/gabarits-requetes.md, "
-            "échelle de récupération à l'étape 2 du SKILL.md).\n"
-            "La clé PISTE est OPTIONNELLE : le skill reste pleinement "
-            "opérationnel sans elle, et la règle de provenance s'applique à "
-            "l'identique sur la voie web. Ne pas demander de clé à "
-            "l'utilisateur : basculer.\n"
-            "Ce que la clé apporte, et qui se relève sinon à la main sur la "
-            "fiche officielle : identifiant, date de version en vigueur et "
-            "statut (en vigueur / modifié / abrogé) lus dans une réponse API "
-            "déterministe.\n"
-            "L'activer (gratuit, 2 minutes) :\n"
-            "  1. Compte + application abonnée à l'API « Légifrance » sur "
-            "https://piste.gouv.fr\n"
-            "  2. Copier .env.example en .env et y coller les deux identifiants\n"
-            "       cp skill/scripts/.env.example skill/scripts/.env\n"
-            "     (ou : export LEGIFRANCE_CLIENT_ID=… LEGIFRANCE_CLIENT_SECRET=…)\n"
-            "  3. Relancer la commande.\n"
-            "Détail pas-à-pas : skill/scripts/README.md",
-            exit_code=2,
-        )
-    payload = urllib.parse.urlencode(
-        {
-            "grant_type": "client_credentials",
-            "client_id": client_id,
-            "client_secret": client_secret,
-            "scope": "openid",
-        }
-    ).encode("utf-8")
-    try:
-        data = _http_post(
-            _env()["token"],
-            payload,
-            {"Content-Type": "application/x-www-form-urlencoded"},
-        )
-    except LegifranceError as exc:
-        raise LegifranceError(
-            f"Authentification PISTE échouée : {exc}", exit_code=3
-        ) from exc
-    token = data.get("access_token")
-    if not token:
-        raise LegifranceError(
-            f"Réponse OAuth sans access_token : {data}", exit_code=3
-        )
-    return token
-
-
-def api_call(path: str, body: dict, token: str) -> dict:
-    url = _env()["api"] + path
-    headers = {
-        "Authorization": f"Bearer {token}",
-        "Content-Type": "application/json",
-        "Accept": "application/json",
-    }
-    return _http_post(url, json.dumps(body).encode("utf-8"), headers)
-
-
-# --------------------------------------------------------------------------- #
-# Couche Judilibre (Cour de cassation) — GET + double mode d'authentification
-# --------------------------------------------------------------------------- #
-_TOKEN_CACHE: dict = {}
-
-
-def get_token_cached() -> str:
-    """Évite de redemander un jeton à chaque appel dans une même exécution."""
-    if "token" not in _TOKEN_CACHE:
-        _TOKEN_CACHE["token"] = get_token()
-    return _TOKEN_CACHE["token"]
-
-
-def _judilibre_auth_modes() -> list:
-    """Modes d'authentification à essayer, dans l'ordre.
-
-    L'en-tête ``KeyId`` est celui documenté par la Cour de cassation ; le
-    jeton OAuth2 PISTE fonctionne quand l'application est déclarée en client
-    confidentiel. Selon l'abonnement, l'un ou l'autre répond : on essaie donc
-    successivement plutôt que d'imposer un choix à l'utilisateur.
-    """
-    modes = []
-    key_id = os.environ.get("JUDILIBRE_KEY_ID") or os.environ.get("PISTE_KEY_ID")
-    if key_id:
-        modes.append(("KeyId", {"KeyId": key_id, "Accept": "application/json"}))
-    modes.append(("OAuth", None))  # jeton résolu paresseusement
-    return modes
-
-
-def judilibre_get(path: str, params: dict) -> dict:
-    """Appelle un endpoint Judilibre et renvoie le JSON.
-
-    ``params`` accepte des listes : chaque valeur est répétée dans la
-    *query string*, conformément à la spécification (paramètres multivalués).
-    """
-    base = _judilibre_base()
-    query = urllib.parse.urlencode(
-        {k: v for k, v in params.items() if v not in (None, "", [], ())},
-        doseq=True,
-    )
-    url = f"{base}{path}" + (f"?{query}" if query else "")
-
-    last: LegifranceError | None = None
-    for label, headers in _judilibre_auth_modes():
-        if headers is None:
-            headers = {
-                "Authorization": f"Bearer {get_token_cached()}",
-                "Accept": "application/json",
-            }
-        try:
-            return _http_get(url, headers)
-        except LegifranceError as exc:
-            # 401/403 : mode d'authentification refusé, on tente le suivant.
-            if exc.http_status in (401, 403):
-                last = LegifranceError(
-                    f"Authentification Judilibre refusée en mode {label} : {exc}",
-                    exit_code=3,
-                    http_status=exc.http_status,
-                )
-                continue
-            raise
-    raise last or LegifranceError(
-        "Aucun mode d'authentification Judilibre accepté. Vérifier que "
-        "l'application PISTE est bien abonnée à l'API « Judilibre », ou "
-        "renseigner JUDILIBRE_KEY_ID.",
-        exit_code=3,
-    )
 
 
 # --------------------------------------------------------------------------- #

@@ -64,7 +64,9 @@ le paquet voisin `droit_francais/`, inclus dans toute copie autonome de
 
 - `errors.py` — exception commune et codes de sortie ;
 - `config.py` — endpoints, sélection prod/sandbox et chargement `.env` ;
-- `transport.py` — requêtes HTTP et décodage JSON.
+- `transport.py` — requêtes HTTP et décodage JSON ;
+- `legifrance.py` — OAuth2 et appels POST Légifrance ;
+- `judilibre.py` — appels GET, cache et bascule `KeyId` vers OAuth2.
 
 Les tests hors réseau se lancent depuis la racine du dépôt avec :
 
@@ -72,8 +74,10 @@ Les tests hors réseau se lancent depuis la racine du dépôt avec :
 python tests/test_tools.py
 ```
 
-Les clients Légifrance et Judilibre seront extraits dans un lot ultérieur. Le
-CLI actuel reste la façade de compatibilité pendant toute la migration.
+Le CLI actuel reste la façade de compatibilité : ses huit commandes, ses codes
+de sortie et ses variables d'environnement sont inchangés. Les clients
+renvoient des dictionnaires structurés, directement réutilisables par la
+future couche app/MCP.
 
 ### Étape 1 — Obtenir des identifiants PISTE (gratuit)
 

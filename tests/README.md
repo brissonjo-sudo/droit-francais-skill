@@ -80,6 +80,8 @@ signification, qualité générale). Inclut une sonde d'hallucination
 - la sélection des environnements Légifrance et Judilibre ;
 - la priorité des variables exportées sur le fichier `.env` ;
 - le transport JSON et la traduction des erreurs HTTP ;
+- OAuth2 Légifrance et la construction des requêtes JSON authentifiées ;
+- le cache et la bascule `KeyId` vers OAuth2 de Judilibre ;
 - la conservation des huit sous-commandes publiques du CLI.
 
 ```bash

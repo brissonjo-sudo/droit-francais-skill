@@ -5,7 +5,8 @@ Date de l'audit : **29 août 2026**
 Branches d'implémentation :
 
 - étape 1 : **`feat/plugin-foundation`** ;
-- étape 2a : **`feat/tooling-foundation`**.
+- étape 2a : **`feat/tooling-foundation`** ;
+- étape 2b : **`feat/api-clients`**.
 
 ## Décision
 
@@ -61,8 +62,8 @@ droit-francais-skill/
 │           ├── errors.py           # erreurs et codes de sortie
 │           ├── config.py           # environnement et secrets
 │           ├── transport.py        # HTTP, délais, erreurs réseau
-│           ├── legifrance.py       # étape 2b : client Légifrance
-│           └── judilibre.py        # étape 2b : client Judilibre
+│           ├── legifrance.py       # client OAuth/API Légifrance
+│           └── judilibre.py        # client KeyId/OAuth Judilibre
 ├── app/                            # étape 3
 │   └── server.*                    # pont d'outils/app vers la bibliothèque
 ├── .mcp.json                       # seulement quand le serveur existe
@@ -101,10 +102,10 @@ Le skill décide **quand et comment rechercher**. La bibliothèque exécute les 
 
 Critère de sortie : le validateur du plugin, le validateur du skill et tous les tests historiques passent sans modifier le noyau.
 
-### Étape 2 — bibliothèque d'outils (en cours)
+### Étape 2 — bibliothèque d'outils (implémentée)
 
 - **2a — implémentée :** extraire erreurs, configuration et transport dans `skill/scripts/droit_francais/`.
-- **2b — suivante :** extraire les clients Légifrance et Judilibre dans ce même paquet.
+- **2b — implémentée :** extraire les clients Légifrance et Judilibre dans ce même paquet.
 - Conserver `skill/scripts/legifrance.py` comme façade compatible vers la nouvelle bibliothèque.
 - Ajouter des tests unitaires avec réponses HTTP simulées, sans dépendance au réseau ni aux clés PISTE.
 - Stabiliser des résultats structurés indépendants de l'affichage terminal.
@@ -113,7 +114,9 @@ Le paquet reste volontairement sous `skill/scripts/` plutôt qu'à la racine :
 les installations historiques copient uniquement `skill/`. Un paquet racine
 aurait donc cassé le CLI autonome ou imposé une duplication du code.
 
-Critère de sortie : toutes les commandes, codes de sortie et variables d'environnement documentés restent compatibles.
+Critère de sortie atteint : les huit commandes, codes de sortie et variables
+d'environnement restent compatibles ; les clients renvoient des structures
+JSON indépendantes du rendu terminal et sont testés sans réseau.
 
 ### Étape 3 — app / MCP
 

@@ -23,6 +23,8 @@ jobs:
           python -m py_compile skill/scripts/droit_francais/errors.py
           python -m py_compile skill/scripts/droit_francais/config.py
           python -m py_compile skill/scripts/droit_francais/transport.py
+          python -m py_compile skill/scripts/droit_francais/legifrance.py
+          python -m py_compile skill/scripts/droit_francais/judilibre.py
           python -m py_compile tests/run_eval.py
           python -m py_compile tests/check_links.py
           python -m py_compile tests/check_commands.py
