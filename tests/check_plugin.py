@@ -12,12 +12,14 @@ import json
 import re
 import sys
 from pathlib import Path
+from urllib.parse import urlparse
 
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
 
 ROOT = Path(__file__).resolve().parent.parent
 MANIFEST = ROOT / ".codex-plugin" / "plugin.json"
+SUBMISSION = ROOT / "chatgpt-app-submission.json"
 SEMVER = re.compile(r"^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$")
 PLUGIN_FIELDS = ("name", "version", "description", "author", "skills", "interface")
 INTERFACE_FIELDS = (
@@ -29,6 +31,19 @@ INTERFACE_FIELDS = (
     "capabilities",
     "defaultPrompt",
 )
+PUBLIC_URL_FIELDS = (
+    "websiteURL",
+    "privacyPolicyURL",
+    "termsOfServiceURL",
+)
+EXPECTED_TOOLS = {
+    "search",
+    "fetch",
+    "search_articles",
+    "get_article",
+    "search_case_law",
+    "get_decision",
+}
 
 
 def fail(message: str, problems: list[str]) -> None:
@@ -77,6 +92,11 @@ def main() -> int:
             isinstance(item, str) and item.strip() for item in capabilities
         ):
             fail("interface.capabilities doit être une liste de chaînes", problems)
+        for field in PUBLIC_URL_FIELDS:
+            value = interface.get(field)
+            parsed = urlparse(value) if isinstance(value, str) else None
+            if not parsed or parsed.scheme != "https" or not parsed.netloc:
+                fail(f"interface.{field} doit être une URL HTTPS publique", problems)
 
     if "[TODO:" in json.dumps(manifest, ensure_ascii=False):
         fail("le manifeste contient encore un marqueur TODO", problems)
@@ -97,6 +117,10 @@ def main() -> int:
 
     if not legacy.is_file():
         fail("point d'entrée historique supprimé : skill/SKILL.md", problems)
+
+    for policy in ("docs/privacy-policy.md", "docs/terms-of-use.md"):
+        if not (ROOT / policy).is_file():
+            fail(f"document public absent : {policy}", problems)
 
     companions = (("apps", ".app.json"), ("mcpServers", ".mcp.json"))
     for field, filename in companions:
@@ -143,6 +167,34 @@ def main() -> int:
                         f"secret ou variable sensible interdit dans .mcp.json : {secret_name}",
                         problems,
                     )
+
+    if not SUBMISSION.is_file():
+        fail("fichier de soumission absent : chatgpt-app-submission.json", problems)
+    else:
+        try:
+            submission = json.loads(SUBMISSION.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as exc:
+            fail(f"chatgpt-app-submission.json est illisible : {exc}", problems)
+        else:
+            if submission.get("schema_version") != 1:
+                fail("schema_version de la soumission doit valoir 1", problems)
+            tools = submission.get("tools")
+            if not isinstance(tools, dict) or set(tools) != EXPECTED_TOOLS:
+                fail("la soumission doit couvrir exactement les six outils MCP", problems)
+            else:
+                for name, descriptor in tools.items():
+                    annotations = descriptor.get("annotations", {})
+                    expected = {
+                        "readOnlyHint": True,
+                        "openWorldHint": False,
+                        "destructiveHint": False,
+                    }
+                    if annotations != expected:
+                        fail(f"annotations de soumission invalides pour {name}", problems)
+            if len(submission.get("test_cases", [])) != 5:
+                fail("la soumission doit contenir cinq cas de test positifs", problems)
+            if len(submission.get("negative_test_cases", [])) != 3:
+                fail("la soumission doit contenir trois cas de test négatifs", problems)
 
     if problems:
         print(f"❌ {len(problems)} problème(s) dans le socle plugin :")
