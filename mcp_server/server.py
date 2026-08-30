@@ -4,12 +4,14 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import logging
 import os
 import sys
 import time
 from pathlib import Path
 from typing import Any, Callable
+from urllib.parse import urlsplit, urlunsplit
 
 ROOT = Path(__file__).resolve().parent.parent
 SCRIPTS = ROOT / "skill" / "scripts"
@@ -32,6 +34,7 @@ from droit_francais.config import load_dotenv
 from droit_francais.errors import LegifranceError
 from droit_francais import tools as legal_tools
 from mcp_server.runtime import (
+    PrincipalRateLimiter,
     RequestGovernor,
     RuntimeCapacityError,
     RuntimeConfigurationError,
@@ -50,6 +53,37 @@ GOVERNOR = RequestGovernor(
     SETTINGS.tool_calls_per_minute,
     SETTINGS.queue_timeout_seconds,
 )
+USER_LIMITER = PrincipalRateLimiter(SETTINGS.user_calls_per_minute)
+
+SERVER_VERSION = "0.6.0"
+
+
+def _build_auth_options() -> dict[str, Any]:
+    """Configure le serveur en Resource Server OAuth 2.1, si demandé.
+
+    L'import du vérificateur reste local : le transport stdio, utilisé pour
+    un usage personnel, n'a alors besoin ni de PyJWT ni d'un émetteur.
+    """
+    if not SETTINGS.auth_enabled:
+        return {}
+
+    from mcp.server.auth.settings import AuthSettings
+
+    from mcp_server.auth import JwksTokenVerifier
+
+    verifier = JwksTokenVerifier(
+        issuer=SETTINGS.oauth_issuer,
+        jwks_url=SETTINGS.oauth_jwks_url,
+        audience=SETTINGS.oauth_audience,
+    )
+    return {
+        "token_verifier": verifier,
+        "auth": AuthSettings(
+            issuer_url=SETTINGS.oauth_issuer,
+            resource_server_url=SETTINGS.resource_url,
+            required_scopes=list(SETTINGS.oauth_required_scopes),
+        ),
+    }
 
 server_options: dict[str, Any] = {
     "log_level": SETTINGS.log_level,
@@ -60,9 +94,10 @@ server_options: dict[str, Any] = {
     )
 }
 if MCP_V2:
-    server_options["version"] = "0.5.0"
+    server_options["version"] = SERVER_VERSION
 else:
     server_options.update(host=SETTINGS.host, port=SETTINGS.port)
+server_options.update(_build_auth_options())
 server = MCPServer("Droit français", **server_options)
 
 READ_ONLY = ToolAnnotations(
@@ -73,16 +108,44 @@ READ_ONLY = ToolAnnotations(
 )
 
 
+def _canonical_issuer() -> str:
+    """Même écriture que la route RFC 9728 du SDK : chemin vide noté « / »."""
+    parts = urlsplit(SETTINGS.oauth_issuer)
+    path = parts.path or "/"
+    return urlunsplit((parts.scheme, parts.netloc, path, parts.query, parts.fragment))
+
+
+def _pseudonym(principal: str) -> str:
+    """Empreinte courte et stable : les journaux ne portent aucun identifiant brut."""
+    if principal == "anonyme":
+        return principal
+    return hashlib.sha256(principal.encode("utf-8")).hexdigest()[:12]
+
+
+def _current_principal() -> str:
+    """Sujet authentifié de la requête courante, sans jamais lire le jeton."""
+    if not SETTINGS.auth_enabled:
+        return "anonyme"
+    from mcp.server.auth.middleware.auth_context import get_access_token
+
+    from mcp_server.auth import principal_of
+
+    return principal_of(get_access_token())
+
+
 def _safe_call(operation: Callable[..., dict[str, Any]], *args: Any, **kwargs: Any) -> dict[str, Any]:
     """Transforme une erreur métier en erreur MCP sans exposer de secret."""
     started = time.monotonic()
     operation_name = getattr(operation, "__name__", "legal_operation")
+    principal = _current_principal()
     try:
+        USER_LIMITER.check(principal)
         with GOVERNOR.slot():
             result = operation(*args, **kwargs)
         LOGGER.info(
-            "tool_call tool=%s outcome=success duration_ms=%d",
+            "tool_call tool=%s principal=%s outcome=success duration_ms=%d",
             operation_name,
+            _pseudonym(principal),
             int((time.monotonic() - started) * 1000),
         )
         return result
@@ -117,7 +180,28 @@ if hasattr(server, "custom_route"):
     @server.custom_route("/health", methods=["GET"], include_in_schema=False)
     async def health(_request: Request) -> Response:
         """Sonde publique sans donnée interne ni vérification consommatrice d'API."""
-        return JSONResponse({"status": "ok", "version": "0.5.0"})
+        return JSONResponse(
+            {"status": "ok", "version": SERVER_VERSION, "auth": SETTINGS.auth_mode}
+        )
+
+    @server.custom_route(
+        "/.well-known/oauth-protected-resource",
+        methods=["GET", "OPTIONS"],
+        include_in_schema=False,
+    )
+    async def protected_resource_root(_request: Request) -> Response:
+        """Alias racine : certains clients ignorent le suffixe de chemin RFC 9728."""
+        if not SETTINGS.auth_enabled:
+            return PlainTextResponse("Not configured", status_code=404)
+        return JSONResponse(
+            {
+                "resource": SETTINGS.resource_url,
+                "authorization_servers": [_canonical_issuer()],
+                "scopes_supported": list(SETTINGS.oauth_required_scopes),
+                "bearer_methods_supported": ["header"],
+            },
+            headers={"Access-Control-Allow-Origin": "*"},
+        )
 
     @server.custom_route(
         "/.well-known/openai-apps-challenge",

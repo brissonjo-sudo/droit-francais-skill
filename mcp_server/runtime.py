@@ -7,8 +7,14 @@ import threading
 import time
 from collections import deque
 from contextlib import contextmanager
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Iterator, Mapping
+
+#: Portées exigées par défaut sur les outils de lecture juridique.
+DEFAULT_SCOPES: tuple[str, ...] = ("legal:read",)
+
+#: Modes d'authentification acceptés à l'entrée du transport HTTP.
+AUTH_MODES: frozenset[str] = frozenset({"disabled", "oauth"})
 
 
 class RuntimeConfigurationError(ValueError):
@@ -41,6 +47,24 @@ def _positive_float(env: Mapping[str, str], name: str, default: float) -> float:
     return value
 
 
+def _https_url(env: Mapping[str, str], name: str) -> str:
+    """Lit une URL publique et refuse tout schéma non chiffré."""
+    raw = env.get(name, "").strip().rstrip("/")
+    if not raw:
+        raise RuntimeConfigurationError(f"{name} est obligatoire avec MCP_AUTH_MODE=oauth.")
+    if not raw.startswith("https://"):
+        raise RuntimeConfigurationError(f"{name} doit commencer par https://.")
+    return raw
+
+
+def _split_scopes(raw: str | None, default: tuple[str, ...]) -> tuple[str, ...]:
+    if raw is None or not raw.strip():
+        return default
+    separator = "," if "," in raw else " "
+    values = tuple(item.strip() for item in raw.split(separator) if item.strip())
+    return values or default
+
+
 @dataclass(frozen=True)
 class RuntimeSettings:
     environment: str
@@ -51,6 +75,22 @@ class RuntimeSettings:
     tool_calls_per_minute: int
     queue_timeout_seconds: float
     max_request_body_bytes: int
+    auth_mode: str = "disabled"
+    public_url: str = ""
+    oauth_issuer: str = ""
+    oauth_jwks_url: str = ""
+    oauth_audience: str = ""
+    oauth_required_scopes: tuple[str, ...] = field(default_factory=lambda: DEFAULT_SCOPES)
+    user_calls_per_minute: int = 20
+
+    @property
+    def auth_enabled(self) -> bool:
+        return self.auth_mode == "oauth"
+
+    @property
+    def resource_url(self) -> str:
+        """URL canonique de la ressource protégée, au sens de la RFC 8707."""
+        return f"{self.public_url}/mcp" if self.public_url else ""
 
     @classmethod
     def from_env(cls, env: Mapping[str, str] | None = None) -> "RuntimeSettings":
@@ -69,6 +109,32 @@ class RuntimeSettings:
             raise RuntimeConfigurationError(
                 "MCP_ENV doit valoir development, test ou production."
             )
+
+        auth_mode = values.get("MCP_AUTH_MODE", "disabled").strip().lower()
+        if auth_mode not in AUTH_MODES:
+            raise RuntimeConfigurationError(
+                "MCP_AUTH_MODE doit valoir disabled ou oauth."
+            )
+
+        public_url = ""
+        issuer = ""
+        jwks_url = ""
+        audience = ""
+        scopes = _split_scopes(values.get("MCP_OAUTH_REQUIRED_SCOPES"), DEFAULT_SCOPES)
+        if auth_mode == "oauth":
+            public_url = _https_url(values, "MCP_PUBLIC_URL")
+            issuer = _https_url(values, "MCP_OAUTH_ISSUER")
+            jwks_url = values.get("MCP_OAUTH_JWKS_URL", "").strip()
+            if not jwks_url:
+                jwks_url = f"{issuer}/.well-known/jwks.json"
+            if not jwks_url.startswith("https://"):
+                raise RuntimeConfigurationError(
+                    "MCP_OAUTH_JWKS_URL doit commencer par https://."
+                )
+            audience = values.get("MCP_OAUTH_AUDIENCE", "").strip()
+            if not audience:
+                audience = f"{public_url}/mcp"
+
         return cls(
             environment=environment,
             host=values.get("MCP_HOST", "127.0.0.1"),
@@ -85,6 +151,15 @@ class RuntimeSettings:
             ),
             max_request_body_bytes=_positive_int(
                 values, "MCP_MAX_REQUEST_BODY_BYTES", 1_048_576
+            ),
+            auth_mode=auth_mode,
+            public_url=public_url,
+            oauth_issuer=issuer,
+            oauth_jwks_url=jwks_url,
+            oauth_audience=audience,
+            oauth_required_scopes=scopes,
+            user_calls_per_minute=_positive_int(
+                values, "MCP_USER_CALLS_PER_MINUTE", 20
             ),
         )
 
@@ -115,6 +190,13 @@ class RuntimeSettings:
         if values.get("JUDILIBRE_ENV", "prod").lower() != "prod":
             raise RuntimeConfigurationError(
                 "JUDILIBRE_ENV doit valoir prod en production."
+            )
+        if not self.auth_enabled:
+            # Sans authentification, l'URL publique consommerait les quotas
+            # PISTE sous la seule responsabilité du titulaire des clés.
+            raise RuntimeConfigurationError(
+                "MCP_AUTH_MODE doit valoir oauth en production : une passerelle "
+                "MCP publique anonyme engage les identifiants PISTE du titulaire."
             )
 
 
@@ -151,3 +233,44 @@ class RequestGovernor:
             yield
         finally:
             self._semaphore.release()
+
+
+class PrincipalRateLimiter:
+    """Quota glissant d'une minute, appliqué par utilisateur authentifié.
+
+    Le quota global de ``RequestGovernor`` protège l'instance ; celui-ci
+    empêche un seul compte de consommer à lui seul les quotas PISTE du
+    titulaire des clés. Les identifiants inactifs sont purgés à chaque
+    passage, ce qui borne l'empreinte mémoire sans tâche de fond.
+    """
+
+    def __init__(self, calls_per_minute: int, window_seconds: float = 60.0) -> None:
+        if calls_per_minute <= 0:
+            raise RuntimeConfigurationError(
+                "Le quota par utilisateur doit être strictement positif."
+            )
+        self._calls_per_minute = calls_per_minute
+        self._window_seconds = window_seconds
+        self._buckets: dict[str, deque[float]] = {}
+        self._lock = threading.Lock()
+
+    def check(self, principal: str) -> None:
+        """Enregistre un appel, ou lève ``RuntimeCapacityError`` si le quota est atteint."""
+        now = time.monotonic()
+        horizon = now - self._window_seconds
+        with self._lock:
+            for key in [k for k, v in self._buckets.items() if not v or v[-1] <= horizon]:
+                del self._buckets[key]
+            bucket = self._buckets.setdefault(principal, deque())
+            while bucket and bucket[0] <= horizon:
+                bucket.popleft()
+            if len(bucket) >= self._calls_per_minute:
+                raise RuntimeCapacityError(
+                    "Quota individuel atteint pour cette minute ; réessayer ensuite."
+                )
+            bucket.append(now)
+
+    @property
+    def tracked_principals(self) -> int:
+        with self._lock:
+            return len(self._buckets)

@@ -172,7 +172,11 @@ serveur est déployé en HTTPS à l'adresse
 `https://droit-francais-skill.onrender.com/mcp`, avec contrôle de configuration,
 limitation de charge et journaux sans arguments ni secrets. Voir le
 [guide de déploiement](docs/deployment.md) et le
-[guide de connexion/soumission ChatGPT](docs/chatgpt-submission.md). Le mapping
+[guide de connexion/soumission ChatGPT](docs/chatgpt-submission.md). L'accès
+public est protégé par OAuth 2.1 : le serveur vérifie un jeton porteur émis par
+un serveur d'autorisation externe et applique un quota par utilisateur, afin
+que les clés PISTE du titulaire ne soient jamais consommées anonymement — voir
+le [guide OAuth](docs/oauth.md). Le mapping
 `.app.json` ne sera ajouté qu'après création d'une intégration réelle ; aucun
 identifiant distant fictif n'est placé dans le dépôt.
 
@@ -276,6 +280,7 @@ droit-francais-skill/
 │   ├── mcp-app.md                  ← configuration et contrat des outils
 │   ├── deployment.md               ← exploitation de l'endpoint Render
 │   ├── chatgpt-submission.md       ← connexion et soumission OpenAI
+│   ├── oauth.md                    ← authentification OAuth 2.1 du serveur
 │   ├── privacy-policy.md           ← politique publique
 │   └── terms-of-use.md             ← conditions publiques
 ├── chatgpt-app-submission.json     ← métadonnées et cas de test importables

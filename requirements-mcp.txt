@@ -1,2 +1,4 @@
 # Serveur MCP local et HTTP. Compatible avec le SDK v1 actuel et la v2.
 mcp>=1.27,<3
+# Vérification locale des jetons OAuth 2.1 (JWKS de l'émetteur, RS256/ES256).
+PyJWT[crypto]>=2.9,<3

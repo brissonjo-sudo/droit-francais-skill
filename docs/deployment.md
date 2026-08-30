@@ -44,7 +44,11 @@ par `PORT` et expose :
 - `POST /mcp` : transport MCP Streamable HTTP ;
 - `GET /health` : sonde minimale (`status` et version, sans secret) ;
 - `GET /.well-known/openai-apps-challenge` : vérification de domaine OpenAI,
-  inactive tant que `OPENAI_APPS_CHALLENGE` n'est pas défini.
+  inactive tant que `OPENAI_APPS_CHALLENGE` n'est pas défini ;
+- `GET /.well-known/oauth-protected-resource/mcp` : métadonnées de ressource
+  protégée (RFC 9728), publiées dès que `MCP_AUTH_MODE=oauth`. La même charge
+  utile est servie sur `/.well-known/oauth-protected-resource` pour les clients
+  qui interrogent la racine.
 
 Le TLS doit être terminé par la plateforme d'hébergement ou un reverse proxy :
 la connexion soumise à ChatGPT doit être une URL publique `https://…/mcp`.
@@ -61,6 +65,22 @@ la connexion soumise à ChatGPT doit être une URL publique `https://…/mcp`.
 | `JUDILIBRE_KEY_ID` | Clé Judilibre (`PISTE_KEY_ID` reste accepté comme alias) |
 | `LEGIFRANCE_ENV=prod` | Interdit le sandbox sur le service public |
 | `JUDILIBRE_ENV=prod` | Interdit le sandbox sur le service public |
+| `MCP_AUTH_MODE=oauth` | Exige un jeton OAuth 2.1 valide sur `/mcp` |
+| `MCP_PUBLIC_URL` | URL publique du service, sans `/mcp` (https obligatoire) |
+| `MCP_OAUTH_ISSUER` | URL du serveur d'autorisation (https obligatoire) |
+
+Le démarrage échoue si `MCP_ENV=production` et `MCP_AUTH_MODE=disabled` :
+une passerelle MCP publique anonyme consommerait les quotas Légifrance et
+Judilibre sous la seule responsabilité du titulaire des clés PISTE. La
+procédure de configuration de l'émetteur figure dans [`oauth.md`](oauth.md).
+
+### Facultatives — authentification
+
+| Variable | Défaut | Effet |
+|---|---|---|
+| `MCP_OAUTH_AUDIENCE` | `MCP_PUBLIC_URL` + `/mcp` | Audience exigée dans le jeton (RFC 8707) |
+| `MCP_OAUTH_JWKS_URL` | `MCP_OAUTH_ISSUER` + `/.well-known/jwks.json` | Clés publiques de vérification |
+| `MCP_OAUTH_REQUIRED_SCOPES` | `legal:read` | Portées exigées, séparées par des virgules |
 
 Le conteneur définit déjà `MCP_ENV=production`, `MCP_HOST=0.0.0.0` et
 `PORT=8000`. La commande suivante permet de contrôler la configuration sans
@@ -76,6 +96,7 @@ python mcp_server/server.py --check-config
 |---|---:|---|
 | `MCP_MAX_CONCURRENT_REQUESTS` | `8` | Nombre maximal d'appels d'outils simultanés par instance |
 | `MCP_TOOL_CALLS_PER_MINUTE` | `120` | Budget glissant d'appels d'outils par instance |
+| `MCP_USER_CALLS_PER_MINUTE` | `20` | Budget glissant d'appels d'outils par utilisateur authentifié |
 | `MCP_QUEUE_TIMEOUT_SECONDS` | `2` | Attente maximale avant une erreur de surcharge explicite |
 | `MCP_MAX_REQUEST_BODY_BYTES` | `1048576` | Taille maximale d'une requête HTTP MCP |
 | `MCP_LOG_LEVEL` | `INFO` local, `WARNING` dans l'image | Niveau des journaux applicatifs et du SDK MCP |
@@ -90,8 +111,9 @@ façon conservatrice selon les quotas réellement accordés à l'application PIS
 ## Confidentialité et exploitation
 
 Le journal métier ajouté par l'application ne contient que le nom technique de
-l'opération, son résultat (`success`, `upstream_error` ou `throttled`) et sa
-durée. Il ne journalise ni les arguments, ni les textes juridiques, ni les
+l'opération, son résultat (`success`, `upstream_error` ou `throttled`), sa
+durée et une empreinte tronquée du sujet authentifié. Le jeton, sa charge utile
+et l'identifiant brut du compte ne sont jamais journalisés. Il ne journalise ni les arguments, ni les textes juridiques, ni les
 résultats, ni les clés. L'image utilise `WARNING` par défaut afin de supprimer
 les journaux informatifs du SDK MCP et du serveur HTTP. Si `INFO` est réactivé
 pour diagnostiquer un incident, ces composants peuvent journaliser une adresse

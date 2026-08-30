@@ -7,7 +7,10 @@
 - Serveur MCP universel : `https://droit-francais-skill.onrender.com/mcp`
 - Sonde publique : `https://droit-francais-skill.onrender.com/health`
 - Transport : MCP Streamable HTTP sur HTTPS
-- Authentification utilisateur : aucune ; les clés PISTE restent côté serveur
+- Authentification utilisateur : **OAuth 2.1**, serveur d'autorisation externe ;
+  les clés PISTE restent côté serveur et ne sont jamais exposées au client
+- Métadonnées de ressource protégée :
+  `https://droit-francais-skill.onrender.com/.well-known/oauth-protected-resource/mcp`
 - Outils : six opérations strictement en lecture seule
 
 ## Tester dans ChatGPT
@@ -16,7 +19,10 @@
    avancés.
 2. Activer le mode développeur.
 3. Créer une application distante avec l'URL MCP complète :
-   `https://droit-francais-skill.onrender.com/mcp`.
+   `https://droit-francais-skill.onrender.com/mcp`, en choisissant
+   l'authentification **OAuth**. ChatGPT lit les métadonnées de ressource
+   protégée, puis les métadonnées du serveur d'autorisation, et s'enregistre
+   lui-même par enregistrement dynamique de client (RFC 7591).
 4. Vérifier que ChatGPT découvre `search`, `fetch`, `search_articles`,
    `get_article`, `search_case_law` et `get_decision`.
 5. Exécuter les cinq scénarios positifs et les trois scénarios négatifs du

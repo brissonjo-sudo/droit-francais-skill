@@ -178,6 +178,9 @@ class RuntimeSafetyTests(unittest.TestCase):
     def test_production_accepts_judilibre_alias_without_exposing_values(self):
         env = {
             "MCP_ENV": "production",
+            "MCP_AUTH_MODE": "oauth",
+            "MCP_PUBLIC_URL": "https://exemple.onrender.com",
+            "MCP_OAUTH_ISSUER": "https://exemple-idp.eu.auth0.com",
             "LEGIFRANCE_CLIENT_ID": "client-secret-value",
             "LEGIFRANCE_CLIENT_SECRET": "oauth-secret-value",
             "PISTE_KEY_ID": "key-secret-value",
@@ -205,7 +208,9 @@ class RuntimeSafetyTests(unittest.TestCase):
     def test_health_and_domain_challenge_expose_no_configuration(self):
         health = asyncio.run(mcp_app.health(mock.Mock()))
         self.assertEqual(200, health.status_code)
-        self.assertEqual(b'{"status":"ok","version":"0.5.0"}', health.body)
+        self.assertEqual(
+            b'{"status":"ok","version":"0.6.0","auth":"disabled"}', health.body
+        )
 
         with mock.patch.dict(
             os.environ, {"OPENAI_APPS_CHALLENGE": "challenge-token"}, clear=False
