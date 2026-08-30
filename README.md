@@ -235,7 +235,8 @@ droit-francais-skill/
 │   └── logo.png                   ← logo original de distribution
 ├── .mcp.json                       ← lancement local du serveur MCP
 ├── mcp_server/
-│   └── server.py                   ← outils MCP stdio ou HTTP /mcp
+│   ├── server.py                   ← outils MCP stdio ou HTTP /mcp
+│   └── catalog.py                  ← liste des outils publiés (source unique)
 ├── skills/
 │   └── recherche-juridique/
 │       └── SKILL.md               ← adaptateur plugin vers le noyau

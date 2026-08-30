@@ -6,21 +6,19 @@ from __future__ import annotations
 import argparse
 import asyncio
 import sys
+from pathlib import Path
 
 from mcp import ClientSession
 from mcp.client.streamable_http import streamable_http_client
 
+ROOT = Path(__file__).resolve().parent.parent
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from mcp_server.catalog import EXPECTED_TOOLS  # noqa: E402
+
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
-
-EXPECTED_TOOLS = {
-    "search",
-    "fetch",
-    "search_articles",
-    "get_article",
-    "search_case_law",
-    "get_decision",
-}
 
 
 async def probe(url: str) -> None:
@@ -29,7 +27,7 @@ async def probe(url: str) -> None:
             await session.initialize()
             listed = await session.list_tools()
             names = {tool.name for tool in listed.tools}
-            if names != EXPECTED_TOOLS:
+            if names != set(EXPECTED_TOOLS):
                 raise RuntimeError(
                     f"Outils MCP inattendus : {sorted(names)}"
                 )

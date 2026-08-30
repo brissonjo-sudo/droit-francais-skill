@@ -91,11 +91,11 @@
       "expected_output_url": null
     },
     {
-      "description": "Lire une source précédemment identifiée.",
-      "user_prompt": "Lis intégralement l'article correspondant à l'identifiant LEGIARTI que tu viens de trouver.",
+      "description": "Lire une source officielle par son identifiant, via l'outil de lecture générique.",
+      "user_prompt": "Lis intégralement la source officielle correspondant à l'identifiant LEGIARTI000029946370.",
       "file_attachment_urls": null,
       "tools_triggered": "fetch",
-      "expected_output": "Retourne le texte officiel, l'URL et les métadonnées de version sans inventer de contenu absent.",
+      "expected_output": "Retourne le texte officiel, l'URL et les métadonnées de version de l'article L. 2212-2 du CGCT, sans inventer de contenu absent.",
       "expected_output_url": null
     },
     {
