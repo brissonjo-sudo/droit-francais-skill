@@ -33,6 +33,36 @@ async def probe(url: str) -> None:
                 raise RuntimeError(
                     f"Outils MCP inattendus : {sorted(names)}"
                 )
+            for tool in listed.tools:
+                annotations = tool.annotations
+                read_only = getattr(
+                    annotations,
+                    "readOnlyHint",
+                    getattr(annotations, "read_only_hint", None),
+                )
+                open_world = getattr(
+                    annotations,
+                    "openWorldHint",
+                    getattr(annotations, "open_world_hint", None),
+                )
+                destructive = getattr(
+                    annotations,
+                    "destructiveHint",
+                    getattr(annotations, "destructive_hint", None),
+                )
+                if (read_only, open_world, destructive) != (True, False, False):
+                    raise RuntimeError(
+                        f"Annotations de sécurité invalides pour {tool.name}"
+                    )
+                output_schema = getattr(
+                    tool,
+                    "outputSchema",
+                    getattr(tool, "output_schema", None),
+                )
+                if not output_schema:
+                    raise RuntimeError(
+                        f"Schéma de sortie absent pour {tool.name}"
+                    )
 
 
 def main() -> None:
@@ -40,7 +70,7 @@ def main() -> None:
     parser.add_argument("url", nargs="?", default="http://127.0.0.1:8000/mcp")
     args = parser.parse_args()
     asyncio.run(probe(args.url))
-    print("Endpoint MCP HTTP valide ; 6 outils découverts.")
+    print("Endpoint MCP HTTP valide ; 6 outils et métadonnées contrôlés.")
 
 
 if __name__ == "__main__":

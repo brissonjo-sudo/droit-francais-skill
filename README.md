@@ -167,12 +167,14 @@ Les identifiants PISTE restent fournis par variables d'environnement ou `.env`,
 jamais dans le manifeste. Voir le [guide MCP](docs/mcp-app.md) et
 l'[architecture progressive](docs/architecture-plugin.md).
 
-Cette version est directement testable comme plugin local dans Codex. Une image
-Docker non-root prépare aussi le futur endpoint public, avec contrôle de
-configuration, limitation de charge et journaux sans arguments ni secrets.
-Voir le [guide de déploiement](docs/deployment.md). La publication effective
-reste séparée : choix d'une origine HTTPS stable, enregistrement en mode
-développeur, tests de revue, puis ajout du mapping `.app.json` réel.
+Cette version est directement testable comme plugin local dans Codex. Le même
+serveur est déployé en HTTPS à l'adresse
+`https://droit-francais-skill.onrender.com/mcp`, avec contrôle de configuration,
+limitation de charge et journaux sans arguments ni secrets. Voir le
+[guide de déploiement](docs/deployment.md) et le
+[guide de connexion/soumission ChatGPT](docs/chatgpt-submission.md). Le mapping
+`.app.json` ne sera ajouté qu'après création d'une intégration réelle ; aucun
+identifiant distant fictif n'est placé dans le dépôt.
 
 ### Comme skill Claude Code — inchangé
 
@@ -229,6 +231,8 @@ Le skill s'active automatiquement quand vous :
 droit-francais-skill/
 ├── .codex-plugin/
 │   └── plugin.json                ← manifeste du plugin
+├── assets/
+│   └── logo.png                   ← logo original de distribution
 ├── .mcp.json                       ← lancement local du serveur MCP
 ├── mcp_server/
 │   └── server.py                   ← outils MCP stdio ou HTTP /mcp
@@ -268,7 +272,12 @@ droit-francais-skill/
 ├── .github/workflows/ci.yml        ← CI (py_compile + liens + doc↔CLI + éval)
 ├── docs/
 │   ├── architecture-plugin.md      ← audit, cible et étapes de migration
-│   └── mcp-app.md                  ← configuration et contrat des outils
+│   ├── mcp-app.md                  ← configuration et contrat des outils
+│   ├── deployment.md               ← exploitation de l'endpoint Render
+│   ├── chatgpt-submission.md       ← connexion et soumission OpenAI
+│   ├── privacy-policy.md           ← politique publique
+│   └── terms-of-use.md             ← conditions publiques
+├── chatgpt-app-submission.json     ← métadonnées et cas de test importables
 ├── vault/                          ← notes Obsidian (hors paquet)
 ├── tests/                          ← invariants, outils MCP + évals historiques
 ├── requirements-mcp.txt            ← dépendance du serveur uniquement

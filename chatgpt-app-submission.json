@@ -1,0 +1,152 @@
+{
+  "$schema": "https://developers.openai.com/apps-sdk/schemas/chatgpt-app-submission.v1.json",
+  "schema_version": 1,
+  "app_info": {
+    "display_name": "Droit français",
+    "subtitle": "Rechercher le droit français",
+    "description": "Droit français recherche et lit des articles et décisions dans les sources officielles Légifrance et Judilibre, avec des identifiants, des liens canoniques et des métadonnées de provenance utiles à une citation vérifiable.",
+    "category": "PRODUCTIVITY"
+  },
+  "tools": {
+    "search": {
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": false,
+        "destructiveHint": false
+      },
+      "justifications": {
+        "read_only_justification": "Interroge uniquement des sources juridiques officielles et retourne des résultats sans modifier de donnée.",
+        "open_world_justification": "Ne publie rien et ne modifie aucun système externe ou contenu accessible au public.",
+        "destructive_justification": "Ne supprime, n'écrase et ne révoque aucune donnée ou autorisation."
+      }
+    },
+    "fetch": {
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": false,
+        "destructiveHint": false
+      },
+      "justifications": {
+        "read_only_justification": "Lit une source officielle identifiée précédemment et en restitue le texte et les métadonnées.",
+        "open_world_justification": "N'effectue aucune publication ni modification sur Légifrance, Judilibre ou un autre service.",
+        "destructive_justification": "L'opération est une consultation qui ne peut supprimer ou altérer la source."
+      }
+    },
+    "search_articles": {
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": false,
+        "destructiveHint": false
+      },
+      "justifications": {
+        "read_only_justification": "Effectue une recherche bornée d'articles dans Légifrance sans écrire dans la source.",
+        "open_world_justification": "N'affecte aucun compte, système tiers ou contenu public.",
+        "destructive_justification": "Ne réalise aucune suppression, modification ou action irréversible."
+      }
+    },
+    "get_article": {
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": false,
+        "destructiveHint": false
+      },
+      "justifications": {
+        "read_only_justification": "Récupère une version d'article Légifrance et ses métadonnées de vigueur en lecture seule.",
+        "open_world_justification": "Ne crée ni ne modifie de contenu sur un système externe.",
+        "destructive_justification": "La récupération ne supprime, n'écrase et ne révoque rien."
+      }
+    },
+    "search_case_law": {
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": false,
+        "destructiveHint": false
+      },
+      "justifications": {
+        "read_only_justification": "Recherche des décisions judiciaires publiées par Judilibre sans changer la base officielle.",
+        "open_world_justification": "Ne publie aucun contenu et ne modifie aucun système externe.",
+        "destructive_justification": "Ne supprime, ne remplace et n'altère aucune décision ou métadonnée."
+      }
+    },
+    "get_decision": {
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": false,
+        "destructiveHint": false
+      },
+      "justifications": {
+        "read_only_justification": "Lit le texte et les métadonnées d'une décision Judilibre existante en lecture seule.",
+        "open_world_justification": "N'envoie, ne publie et ne modifie aucun contenu public ou compte tiers.",
+        "destructive_justification": "La lecture d'une décision n'entraîne aucune action irréversible."
+      }
+    }
+  },
+  "test_cases": [
+    {
+      "description": "Rechercher une référence juridique à partir d'une demande en langage naturel.",
+      "user_prompt": "Recherche l'article L. 2212-2 du CGCT dans sa version actuellement applicable.",
+      "file_attachment_urls": null,
+      "tools_triggered": "search",
+      "expected_output": "Retourne un résultat Légifrance avec un identifiant LEGIARTI, un titre et une URL canonique.",
+      "expected_output_url": null
+    },
+    {
+      "description": "Lire une source précédemment identifiée.",
+      "user_prompt": "Lis intégralement l'article correspondant à l'identifiant LEGIARTI que tu viens de trouver.",
+      "file_attachment_urls": null,
+      "tools_triggered": "fetch",
+      "expected_output": "Retourne le texte officiel, l'URL et les métadonnées de version sans inventer de contenu absent.",
+      "expected_output_url": null
+    },
+    {
+      "description": "Rechercher précisément un article avec sa date d'application.",
+      "user_prompt": "Cherche l'article L. 2212-2 du Code général des collectivités territoriales applicable au 30 août 2026.",
+      "file_attachment_urls": null,
+      "tools_triggered": "search_articles",
+      "expected_output": "Retourne les versions correspondantes avec identifiant, statut juridique, date et provenance Légifrance.",
+      "expected_output_url": null
+    },
+    {
+      "description": "Lire une version d'article par son identifiant officiel.",
+      "user_prompt": "Récupère l'article LEGIARTI000042193463 et indique son statut juridique.",
+      "file_attachment_urls": null,
+      "tools_triggered": "get_article",
+      "expected_output": "Retourne le texte de l'article et ses métadonnées officielles, ou une erreur explicite si l'identifiant n'est pas disponible.",
+      "expected_output_url": null
+    },
+    {
+      "description": "Rechercher puis lire une décision judiciaire pertinente.",
+      "user_prompt": "Trouve une décision Judilibre récente sur la responsabilité du fait des choses et lis le meilleur résultat.",
+      "file_attachment_urls": null,
+      "tools_triggered": "search_case_law, get_decision",
+      "expected_output": "Retourne une décision pertinente puis son texte et ses métadonnées officielles, avec une URL canonique.",
+      "expected_output_url": null
+    }
+  ],
+  "negative_test_cases": [
+    {
+      "description": "Ne pas déclencher pour une demande de droit étranger non couverte.",
+      "user_prompt": "Quel est le délai pour déposer une plainte en Californie ?",
+      "file_attachment_urls": null,
+      "tools_triggered": null,
+      "expected_output": "Le plugin ne doit pas être invoqué car ses sources couvrent le droit français et non le droit californien.",
+      "expected_output_url": null
+    },
+    {
+      "description": "Ne pas déclencher pour une demande personnelle sans rapport avec le droit.",
+      "user_prompt": "Organise mon agenda pour demain matin.",
+      "file_attachment_urls": null,
+      "tools_triggered": null,
+      "expected_output": "Le plugin ne doit pas être invoqué car il ne gère ni agenda ni données personnelles de productivité.",
+      "expected_output_url": null
+    },
+    {
+      "description": "Ne pas déclencher pour rédiger un texte créatif sans recherche juridique.",
+      "user_prompt": "Écris un poème sur la justice.",
+      "file_attachment_urls": null,
+      "tools_triggered": null,
+      "expected_output": "Le plugin ne doit pas être invoqué car aucune recherche de source juridique n'est demandée.",
+      "expected_output_url": null
+    }
+  ]
+}

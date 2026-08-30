@@ -2,11 +2,11 @@
 
 ## État de cette étape
 
-Le dépôt contient désormais un paquet de déploiement **portable**, mais aucun
-service n'est encore publié. Il manque volontairement un choix d'hébergeur, un
-nom de domaine stable et l'identité du compte OpenAI qui soumettra le plugin.
-Le skill historique et le serveur local déclaré dans `.mcp.json` restent
-inchangés dans leur mode d'installation.
+Le serveur est déployé sur Render à l'adresse
+`https://droit-francais-skill.onrender.com/mcp`. Le 30 août 2026, la sonde de
+santé, la découverte des six outils MCP et un appel réel vers chacune des API
+Légifrance et Judilibre ont réussi. Le skill historique et le serveur local
+déclaré dans `.mcp.json` restent inchangés dans leur mode d'installation.
 
 ```text
 ChatGPT / Codex
@@ -106,22 +106,25 @@ pas servir au profilage des magistrats ou des greffiers.
 
 Avant ouverture au public, finaliser la [checklist de confidentialité](privacy-checklist.md)
 et vérifier les quotas et conditions attachés aux abonnements PISTE utilisés.
+La [politique de confidentialité](privacy-policy.md), les
+[conditions d'utilisation](terms-of-use.md) et le
+[guide de soumission ChatGPT](chatgpt-submission.md) décrivent l'état public.
 
 ## Passage en mode développeur ChatGPT
 
-1. Déployer l'image derrière une origine HTTPS stable. Le changement ultérieur
-   de l'origine (`scheme`, hôte ou port) impose actuellement une nouvelle
-   soumission OpenAI.
+1. Utiliser l'origine HTTPS stable
+   `https://droit-francais-skill.onrender.com`. Le changement ultérieur de
+   l'origine (`scheme`, hôte ou port) peut imposer une nouvelle soumission.
 2. Tester `/mcp` avec MCP Inspector, puis chaque outil avec résultats, erreurs,
    identifiants absents et entrées invalides.
 
    Une sonde locale automatisée est également fournie :
 
    ```bash
-   python tests/check_mcp_http.py https://domaine.example/mcp
+   python tests/check_mcp_http.py https://droit-francais-skill.onrender.com/mcp
    ```
-3. Dans ChatGPT, activer le mode développeur et créer une connexion MCP avec
-   l'URL complète `https://domaine.example/mcp`.
+3. Dans ChatGPT, activer le mode développeur et créer une application MCP avec
+   l'URL complète `https://droit-francais-skill.onrender.com/mcp`.
 4. Vérifier les six outils. Ils doivent annoncer : `readOnlyHint: true`,
    `destructiveHint: false` et `openWorldHint: false`.
 5. Exécuter les jeux d'évaluation positifs et négatifs, puis conserver les
@@ -137,11 +140,14 @@ rattacher.
 ## Matériel encore requis pour la publication
 
 - identité développeur ou entreprise vérifiée et droit `Apps Management: Write` ;
-- domaine, site, support, politique de confidentialité et conditions publiques ;
-- logo et descriptions finales ;
-- cinq cas de test positifs et trois négatifs avec résultats attendus ;
-- URL MCP de production et preuve de contrôle du domaine ;
-- revue des données réellement renvoyées par les outils.
+- alignement du moyen de contact privé avec l'identité publiée ;
+- validation finale et téléversement du logo `assets/logo.png` ;
+- vérification du domaine dans le portail OpenAI ;
+- passage recommandé à une instance Render sans mise en veille.
+
+Les descriptions, les politiques publiques, l'URL MCP et les cinq cas de test
+positifs et trois négatifs sont préparés dans
+[`chatgpt-app-submission.json`](../chatgpt-app-submission.json).
 
 Références : [connexion et test du plugin][connect], [soumission][submission],
 [exigences de revue MCP][review] et [sécurité et confidentialité][security].

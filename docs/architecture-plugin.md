@@ -135,11 +135,17 @@ sur stdio. Le transport Streamable HTTP sert le même serveur sur `/mcp`.
 Le déploiement HTTPS et la connexion à un compte ChatGPT restent des opérations
 de distribution de l'étape 4 : aucune URL distante n'est inventée dans le dépôt.
 
-### Étape 4 — distribution
+### Étape 4 — distribution (en cours)
 
-- Ajouter les métadonnées visuelles et juridiques nécessaires à la distribution.
-- Choisir le canal de publication et son mécanisme d'authentification.
-- Tester l'installation, la mise à jour et la reprise dans une nouvelle conversation.
+- **Implémenté :** endpoint MCP public Render, politiques publiques, métadonnées
+  juridiques du manifeste, fichier de soumission et scénarios de revue.
+- **Implémenté :** service universel sans authentification utilisateur ; les
+  identifiants PISTE restent des secrets côté serveur.
+- **À effectuer dans le compte de l'éditeur :** connexion en mode développeur,
+  vérification du domaine, validation/téléversement du logo et soumission avec
+  l'identité OpenAI vérifiée.
+- Tester ensuite l'installation, la mise à jour et la reprise dans une nouvelle
+  conversation ChatGPT.
 
 ## Invariants de non-régression
 
