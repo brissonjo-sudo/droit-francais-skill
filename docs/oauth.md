@@ -189,6 +189,33 @@ C'est cet en-tête qui déclenche la découverte automatique par ChatGPT.
 Un échec renvoie `401` sans détail exploitable. Le motif technique est
 journalisé sous forme de nom de classe d'erreur, jamais avec le jeton.
 
+## Dépannage
+
+**« OAuth authorization server metadata must advertise PKCE support with
+code_challenge_methods_supported containing S256 »** — le formulaire de
+création du connecteur a été ouvert *avant* que le serveur ne passe en mode
+OAuth. ChatGPT découvre les endpoints à l'ouverture du formulaire ; une
+découverte faite contre un serveur encore anonyme reste vide et n'est pas
+rejouée. Fermer le formulaire et recréer le connecteur depuis le début : les
+endpoints se pré-remplissent alors seuls. Vérifier au préalable, à la main,
+que l'émetteur annonce bien `S256` :
+
+```bash
+curl -s https://<emetteur>/.well-known/oauth-authorization-server | grep -o 'code_challenge_methods_supported[^]]*]'
+```
+
+**Métadonnées introuvables chez l'émetteur** — ne pas saisir la base du
+serveur d'autorisation avec une barre oblique finale : le chemin de découverte
+y est concaténé et produit une double barre, qu'Auth0 renvoie en « Not found ».
+
+**Jeton opaque refusé par le serveur** — `Default Audience` n'est pas
+renseignée côté locataire ; Auth0 délivre alors un jeton destiné à
+`/userinfo` au lieu d'un JWT pour l'API.
+
+**`403` alors que l'authentification réussit** — la portée `legal:read` n'est
+pas accordée : soit le RBAC est activé sans rôle assigné, soit l'application
+n'est pas autorisée sur l'API (onglet **Application Access**).
+
 ## Limites connues
 
 * Le quota par utilisateur est local à une instance. Avec plusieurs réplicas,
