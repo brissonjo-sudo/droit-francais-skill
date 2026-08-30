@@ -163,6 +163,13 @@ class JwksTokenVerifierTests(unittest.TestCase):
         token = _sign(self._payload(aud="https://une-autre-api.example"), self.key)
         self.assertIsNone(self._verify(token))
 
+    def test_trailing_slash_in_issuer_is_accepted(self):
+        # Auth0 écrit « iss » avec une barre oblique finale absente des réglages.
+        token = _sign(self._payload(iss=f"{ISSUER}/"), self.key)
+        access = self._verify(token)
+        self.assertIsNotNone(access)
+        self.assertEqual(access.subject, "auth0|utilisateur-1")
+
     def test_token_from_another_issuer_is_refused(self):
         token = _sign(self._payload(iss="https://idp-pirate.example"), self.key)
         self.assertIsNone(self._verify(token))

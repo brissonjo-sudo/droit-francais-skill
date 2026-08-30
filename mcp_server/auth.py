@@ -14,7 +14,7 @@ quota par utilisateur et non plus seulement un quota global d'instance.
 Contrôles appliqués à chaque jeton :
 
 * signature asymétrique vérifiée contre le JWKS de l'émetteur ;
-* ``iss`` strictement égal à l'émetteur configuré ;
+* ``iss`` égal à l'émetteur configuré, à la barre oblique finale près ;
 * ``aud`` contenant l'audience configurée (indicateur de ressource,
   RFC 8707) — un jeton émis pour une autre API est refusé ;
 * ``exp`` et ``nbf`` vérifiés par la bibliothèque ;
@@ -88,6 +88,12 @@ class JwksTokenVerifier:
         algorithms: Sequence[str] = ALLOWED_ALGORITHMS,
     ) -> None:
         self._issuer = issuer
+        # Certains émetteurs (Auth0) écrivent « iss » avec une barre oblique
+        # finale que les métadonnées de configuration n'affichent pas. Les deux
+        # écritures désignent le même émetteur : accepter l'une et l'autre évite
+        # un refus systématique pour une différence purement typographique.
+        base = issuer.rstrip("/")
+        self._accepted_issuers = frozenset({base, base + "/"})
         self._audience = audience
         self._leeway_seconds = leeway_seconds
         self._algorithms = tuple(algorithms)
@@ -101,7 +107,7 @@ class JwksTokenVerifier:
             signing_key.key,
             algorithms=list(self._algorithms),
             audience=self._audience,
-            issuer=self._issuer,
+            issuer=self._accepted_issuers,
             leeway=self._leeway_seconds,
             options={"require": ["exp", "iss", "aud", "sub"]},
         )
