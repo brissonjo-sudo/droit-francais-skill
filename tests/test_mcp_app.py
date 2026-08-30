@@ -20,6 +20,7 @@ from droit_francais import tools as legal_tools  # noqa: E402
 from mcp import ClientSession, StdioServerParameters  # noqa: E402
 from mcp.client.stdio import stdio_client  # noqa: E402
 from mcp_server import server as mcp_app  # noqa: E402
+from mcp_server.catalog import EXPECTED_TOOLS  # noqa: E402
 from mcp_server.runtime import (  # noqa: E402
     RequestGovernor,
     RuntimeCapacityError,
@@ -227,17 +228,7 @@ class McpProtocolTests(unittest.TestCase):
                     await session.initialize()
                     listed = await session.list_tools()
                     names = {tool.name for tool in listed.tools}
-                    self.assertEqual(
-                        {
-                            "search",
-                            "fetch",
-                            "search_articles",
-                            "get_article",
-                            "search_case_law",
-                            "get_decision",
-                        },
-                        names,
-                    )
+                    self.assertEqual(set(EXPECTED_TOOLS), names)
                     self.assertTrue(
                         all(
                             getattr(

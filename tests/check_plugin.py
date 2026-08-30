@@ -14,10 +14,16 @@ import sys
 from pathlib import Path
 from urllib.parse import urlparse
 
+ROOT = Path(__file__).resolve().parent.parent
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+# Catalogue sans dépendance externe : importable ici sans le SDK MCP.
+from mcp_server.catalog import EXPECTED_TOOLS  # noqa: E402
+
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
 
-ROOT = Path(__file__).resolve().parent.parent
 MANIFEST = ROOT / ".codex-plugin" / "plugin.json"
 SUBMISSION = ROOT / "chatgpt-app-submission.json"
 SEMVER = re.compile(r"^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$")
@@ -36,14 +42,10 @@ PUBLIC_URL_FIELDS = (
     "privacyPolicyURL",
     "termsOfServiceURL",
 )
-EXPECTED_TOOLS = {
-    "search",
-    "fetch",
-    "search_articles",
-    "get_article",
-    "search_case_law",
-    "get_decision",
-}
+LOCAL_ASSET_FIELDS = (
+    "composerIcon",
+    "logo",
+)
 
 
 def fail(message: str, problems: list[str]) -> None:
@@ -97,6 +99,25 @@ def main() -> int:
             parsed = urlparse(value) if isinstance(value, str) else None
             if not parsed or parsed.scheme != "https" or not parsed.netloc:
                 fail(f"interface.{field} doit être une URL HTTPS publique", problems)
+        for field in LOCAL_ASSET_FIELDS:
+            value = interface.get(field)
+            if not isinstance(value, str) or not value.strip():
+                fail(f"interface.{field} doit être un chemin relatif", problems)
+                continue
+            if not value.startswith("./") or not value[2:].strip():
+                fail(
+                    f"interface.{field} doit être un chemin relatif au dépôt "
+                    f"de la forme ./chemin/fichier.png",
+                    problems,
+                )
+                continue
+            asset = (ROOT / value[2:]).resolve()
+            if ROOT not in asset.parents:
+                fail(f"interface.{field} sort du dépôt : {value}", problems)
+            elif not asset.is_file():
+                fail(f"interface.{field} pointe vers un fichier absent : {value}", problems)
+            elif asset.suffix.lower() != ".png":
+                fail(f"interface.{field} doit être une image PNG : {value}", problems)
 
     if "[TODO:" in json.dumps(manifest, ensure_ascii=False):
         fail("le manifeste contient encore un marqueur TODO", problems)
@@ -179,7 +200,7 @@ def main() -> int:
             if submission.get("schema_version") != 1:
                 fail("schema_version de la soumission doit valoir 1", problems)
             tools = submission.get("tools")
-            if not isinstance(tools, dict) or set(tools) != EXPECTED_TOOLS:
+            if not isinstance(tools, dict) or set(tools) != set(EXPECTED_TOOLS):
                 fail("la soumission doit couvrir exactement les six outils MCP", problems)
             else:
                 for name, descriptor in tools.items():
@@ -191,10 +212,34 @@ def main() -> int:
                     }
                     if annotations != expected:
                         fail(f"annotations de soumission invalides pour {name}", problems)
-            if len(submission.get("test_cases", [])) != 5:
+            positives = submission.get("test_cases", [])
+            negatives = submission.get("negative_test_cases", [])
+            if len(positives) != 5:
                 fail("la soumission doit contenir cinq cas de test positifs", problems)
-            if len(submission.get("negative_test_cases", [])) != 3:
+            if len(negatives) != 3:
                 fail("la soumission doit contenir trois cas de test négatifs", problems)
+
+            for index, case in enumerate(positives, start=1):
+                triggered = case.get("tools_triggered")
+                if not isinstance(triggered, str) or not triggered.strip():
+                    fail(
+                        f"cas de test positif {index} : tools_triggered est obligatoire",
+                        problems,
+                    )
+                    continue
+                named = [item.strip() for item in triggered.split(",")]
+                unknown = sorted(set(named) - set(EXPECTED_TOOLS))
+                if unknown:
+                    fail(
+                        f"cas de test positif {index} : outil inconnu {unknown}",
+                        problems,
+                    )
+            for index, case in enumerate(negatives, start=1):
+                if case.get("tools_triggered") is not None:
+                    fail(
+                        f"cas de test négatif {index} : tools_triggered doit être null",
+                        problems,
+                    )
 
     if problems:
         print(f"❌ {len(problems)} problème(s) dans le socle plugin :")
