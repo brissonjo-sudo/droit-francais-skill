@@ -286,6 +286,9 @@ droit-francais-skill/
 │   ├── deployment.md               ← exploitation de l'endpoint Render
 │   ├── chatgpt-submission.md       ← connexion et soumission OpenAI
 │   ├── oauth.md                    ← authentification OAuth 2.1 du serveur
+│   ├── audit-securite.md           ← plan d'audit sécurité de l'outil déployé
+│   ├── obligations-cgu.md          ← obligations CGU Légifrance et Judilibre
+│   ├── privacy-checklist.md        ← checklist avant publication
 │   ├── privacy-policy.md           ← politique publique
 │   └── terms-of-use.md             ← conditions publiques
 ├── chatgpt-app-submission.json     ← métadonnées et cas de test importables
