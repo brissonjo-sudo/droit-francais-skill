@@ -82,8 +82,8 @@ anonyme. Un échec ici bloque tout : ChatGPT applique la même comparaison.
 | # | Étape | Attendu | Constaté |
 |---|---|---|---|
 | 1.1 | `chatgpt.com` → **Settings → Security and login** → activer **Developer mode**, puis bouton **+** | Le formulaire de création s'ouvre | |
-| 1.2 | Saisir l'URL `https://droit-francais-skill.onrender.com/mcp`, authentification **OAuth**, identifiants laissés vides | Les endpoints OAuth se **pré-remplissent seuls** | |
-| 1.3 | Valider | Aucune erreur de métadonnée ni de PKCE | |
+| 1.2 | Sur `chatgpt.com/plugins`, bouton **+** : nom, description, puis sous **Connection** l'URL `https://droit-francais-skill.onrender.com/mcp`. Aucun champ d'authentification à remplir — elle est découverte | La connexion se crée sans réglage d'authentification | |
+| 1.3 | Valider | Les six outils apparaissent ; aucune erreur de métadonnée ni de PKCE | |
 
 > Si ChatGPT réclame `code_challenge_methods_supported` avec `S256`, le
 > formulaire a été ouvert avant que le serveur ne passe en mode OAuth : fermer
