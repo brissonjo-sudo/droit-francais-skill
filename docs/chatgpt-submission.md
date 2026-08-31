@@ -15,14 +15,36 @@
 
 ## Tester dans ChatGPT
 
-1. Ouvrir les paramètres ChatGPT, puis **Apps & Connectors** et les paramètres
-   avancés.
-2. Activer le mode développeur.
-3. Créer une application distante avec l'URL MCP complète :
+Procédure conforme à la documentation OpenAI du 31 août 2026 (voir « Sources »
+en fin de document). La version antérieure de cette section indiquait un chemin
+**Apps & Connectors** qui n'existe pas : elle avait été rédigée sans être
+parcourue, alors que le document se disait vérifié.
+
+### Prérequis
+
+Compte **Plus, Pro, Business, Enterprise ou Education**, et **sur le web**
+(`chatgpt.com`) — le mode développeur n'est pas exposé dans l'application
+mobile. Sur un espace de travail Business, Enterprise ou Education, un
+administrateur doit l'avoir autorisé au préalable dans *Workspace Settings →
+Permissions & Roles → Connected Data → Developer mode / Create custom MCP
+connectors*.
+
+### Étapes
+
+1. Ouvrir `chatgpt.com`, puis **Settings → Security and login**.
+2. Activer l'interrupteur **Developer mode**.
+3. Via le **bouton +**, créer une application en mode développeur pour un
+   serveur MCP distant, avec l'URL MCP complète :
    `https://droit-francais-skill.onrender.com/mcp`, en choisissant
-   l'authentification **OAuth**. ChatGPT lit les métadonnées de ressource
-   protégée, puis les métadonnées du serveur d'autorisation, et s'enregistre
-   lui-même par enregistrement dynamique de client (RFC 7591).
+   l'authentification **OAuth** et en laissant les champs d'identifiants
+   vides. ChatGPT lit les métadonnées de ressource protégée, puis celles du
+   serveur d'autorisation, et s'enregistre lui-même — l'enregistrement
+   dynamique de client (RFC 7591) est actif sur le locataire Auth0, vérifié le
+   31 août 2026. Les protocoles acceptés sont SSE et *streaming HTTP* ; le
+   transport du service est en Streamable HTTP.
+   L'application créée apparaît sous **Drafts**, avec une page de détail
+   permettant d'activer ou désactiver chaque outil et de rafraîchir la
+   découverte.
 4. Vérifier que ChatGPT découvre `search`, `fetch`, `search_articles`,
    `get_article`, `search_case_law` et `get_decision`.
 5. Exécuter les cinq scénarios positifs et les trois scénarios négatifs du
@@ -87,3 +109,12 @@ exigences de stabilité et de réactivité.
 - [Définir les outils](https://developers.openai.com/plugins/plan/tools)
 - [Soumettre et publier](https://developers.openai.com/plugins/deploy/submission)
 - [Règles de publication](https://developers.openai.com/plugins/app-guidelines)
+
+## Sources
+
+* [Developer mode — documentation OpenAI](https://developers.openai.com/api/docs/guides/developer-mode)
+* [Developer mode and MCP apps in ChatGPT — centre d'aide OpenAI](https://help.openai.com/en/articles/12584461-developer-mode-and-mcp-apps-in-chatgpt)
+
+Ces pages font foi sur les libellés d'interface, qui changent. Toute
+modification de cette section doit être vérifiée à la source, jamais rédigée
+de mémoire.
