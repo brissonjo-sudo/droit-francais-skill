@@ -70,6 +70,19 @@ class AuthSettingsTests(unittest.TestCase):
                 ("legal:read", "legal:search"),
             )
 
+    def test_scope_gate_can_be_disabled_explicitly(self):
+        for raw in ("-", "none", "AUCUNE"):
+            env = dict(BASE_ENV, MCP_OAUTH_REQUIRED_SCOPES=raw)
+            settings = RuntimeSettings.from_env(env)
+            self.assertEqual(settings.oauth_required_scopes, ())
+            # L'authentification reste exigée : seul le contrôle de portée tombe.
+            self.assertTrue(settings.auth_enabled)
+
+    def test_absent_scope_variable_keeps_the_default(self):
+        self.assertEqual(
+            RuntimeSettings.from_env(BASE_ENV).oauth_required_scopes, ("legal:read",)
+        )
+
     def test_plaintext_issuer_is_refused(self):
         env = dict(BASE_ENV, MCP_OAUTH_ISSUER="http://exemple-idp.local")
         with self.assertRaises(RuntimeConfigurationError):

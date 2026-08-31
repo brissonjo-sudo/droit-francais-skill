@@ -57,9 +57,24 @@ def _https_url(env: Mapping[str, str], name: str) -> str:
     return raw
 
 
+#: Valeurs signifiant « aucune portée exigée », écrites explicitement.
+NO_SCOPE_TOKENS: frozenset[str] = frozenset({"-", "none", "aucune"})
+
+
 def _split_scopes(raw: str | None, default: tuple[str, ...]) -> tuple[str, ...]:
+    """Découpe la liste des portées exigées, opt-out explicite compris.
+
+    Une variable absente garde la valeur par défaut. Une variable valant ``-``,
+    ``none`` ou ``aucune`` désactive volontairement le contrôle de portée : le
+    transport exige alors un jeton valide, mais aucune portée particulière.
+    Cas d'usage réel : un client qui n'annonce pas la portée personnalisée dans
+    sa requête d'autorisation, alors que l'authentification, elle, aboutit.
+    L'imputabilité repose sur le sujet du jeton, pas sur la portée.
+    """
     if raw is None or not raw.strip():
         return default
+    if raw.strip().lower() in NO_SCOPE_TOKENS:
+        return ()
     separator = "," if "," in raw else " "
     values = tuple(item.strip() for item in raw.split(separator) if item.strip())
     return values or default

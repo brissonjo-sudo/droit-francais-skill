@@ -218,9 +218,27 @@ y est concaténé et produit une double barre, qu'Auth0 renvoie en « Not found 
 renseignée côté locataire ; Auth0 délivre alors un jeton destiné à
 `/userinfo` au lieu d'un JWT pour l'API.
 
-**`403` alors que l'authentification réussit** — la portée `legal:read` n'est
-pas accordée : soit le RBAC est activé sans rôle assigné, soit l'application
-n'est pas autorisée sur l'API (onglet **Application Access**).
+**`403` alors que l'authentification réussit** — le jeton est valide mais ne
+porte pas `legal:read`. Les journaux du serveur le montrent sans ambiguïté :
+un `401` suivi d'une lecture des métadonnées, puis un `403`, sans aucune ligne
+`auth_rejected` — signature, émetteur, audience et expiration sont donc bons.
+
+Trois causes possibles, dans cet ordre de fréquence :
+
+1. le client n'a jamais demandé la portée. Un émetteur n'annonce dans
+   `scopes_supported` que ses portées OIDC ; une portée d'API personnalisée
+   n'y figure pas, et certains clients ne demandent que ce qui y est annoncé.
+   Aucun réglage côté émetteur n'y change quoi que ce soit ;
+2. le RBAC est activé sans rôle assigné à l'utilisateur ;
+3. l'application n'est pas autorisée sur l'API (onglet **Application Access**),
+   ou la valeur *Default Permissions for third-party applications* est restée
+   à « Unauthorized ».
+
+Pour le cas 1, poser `MCP_OAUTH_REQUIRED_SCOPES=-`. Le transport exige alors
+un jeton valide sans exiger de portée particulière. L'imputabilité est
+préservée : elle repose sur le sujet du jeton, pas sur la portée. Le serveur
+journalise `auth_scope_gate disabled` au démarrage pour que ce choix reste
+visible en exploitation.
 
 ## Limites connues
 

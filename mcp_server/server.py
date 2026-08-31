@@ -83,6 +83,10 @@ def _build_auth_options() -> dict[str, Any]:
         jwks_url=SETTINGS.oauth_jwks_url,
         audience=SETTINGS.oauth_audience,
     )
+    if not SETTINGS.oauth_required_scopes:
+        LOGGER.warning(
+            "auth_scope_gate disabled — jeton valide exigé, aucune portée requise"
+        )
     return {
         "token_verifier": verifier,
         "auth": AuthSettings(
