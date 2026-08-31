@@ -299,6 +299,27 @@ class AccesAutoriseTests(OAuthServerCase):
 
         self.assertEqual(["auth0|utilisateur-observe"], vus)
 
+    def test_les_portees_du_jeton_sont_journalisees(self):
+        """La portée portée par le jeton doit être lisible dans le journal.
+
+        C'est elle qui permettra de trancher la réactivation du contrôle de
+        portée sur une mesure plutôt que sur une hypothèse. Le journal ne doit
+        pour autant révéler ni le jeton ni le sujet en clair.
+        """
+        with mock.patch.object(mcp_app.legal_tools, "search", return_value={}):
+            with self.assertLogs("droit_francais.mcp", level="INFO") as journal:
+                self.call_tool(
+                    self.token(sub="auth0|alice", scope="legal:read openid"),
+                    "search",
+                    {"query": "x"},
+                )
+
+        lignes = [ligne for ligne in journal.output if "tool_call" in ligne]
+        self.assertTrue(lignes, journal.output)
+        ligne = lignes[0]
+        self.assertIn("scopes=legal:read,openid", ligne)
+        self.assertNotIn("auth0|alice", ligne)
+
     def test_l_erreur_metier_ne_reexpose_aucun_secret(self):
         from droit_francais.errors import LegifranceError
 
@@ -371,6 +392,18 @@ class PorteeDesactiveeTests(OAuthServerCase):
                 self.token(scope="openid profile"), "search", {"query": "x"}
             )
         self.assertFalse(self.en_erreur(resultat), resultat.content)
+
+    def test_un_jeton_sans_aucune_portee_est_journalise_comme_tel(self):
+        """« aucune » doit être lisible tel quel : c'est ce constat, dans les
+        journaux de production, qui dira si le contrôle de portée peut être
+        réactivé sans casser le connecteur."""
+        with mock.patch.object(mcp_app.legal_tools, "search", return_value={}):
+            with self.assertLogs("droit_francais.mcp", level="INFO") as journal:
+                self.call_tool(self.token(scope=""), "search", {"query": "x"})
+
+        lignes = [ligne for ligne in journal.output if "tool_call" in ligne]
+        self.assertTrue(lignes, journal.output)
+        self.assertIn("scopes=aucune", lignes[0])
 
 
 class PorteeExigeeTests(OAuthServerCase):
