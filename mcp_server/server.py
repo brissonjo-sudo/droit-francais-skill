@@ -194,7 +194,7 @@ if hasattr(server, "custom_route"):
 
     @server.custom_route(
         "/.well-known/oauth-protected-resource",
-        methods=["GET", "OPTIONS"],
+        methods=["GET"],
         include_in_schema=False,
     )
     async def protected_resource_root(_request: Request) -> Response:

@@ -134,9 +134,12 @@ Le champ **Allowed Callback URLs** de l'application est un composant à
 bouton d'enregistrement apparaisse.
 
 Auth0 écrit la revendication `iss` avec une barre oblique finale, absente des
-écrans de configuration. Le serveur accepte les deux écritures **dans le
-jeton**. La métadonnée publiée, elle, n'admet aucune tolérance : voir
-« Écriture exacte de l'émetteur » ci-dessous.
+écrans de configuration. Aucune tolérance n'est appliquée nulle part : la
+revendication `iss` du jeton est comparée **caractère pour caractère** à
+`MCP_OAUTH_ISSUER`, au même titre que la métadonnée publiée. C'est donc
+l'écriture du document de découverte — barre finale comprise — qu'il faut
+recopier dans la configuration, faute de quoi tout jeton est refusé en `401`.
+Voir « Écriture exacte de l'émetteur » ci-dessous.
 
 ## Configuration côté serveur
 
@@ -233,7 +236,7 @@ C'est cet en-tête qui déclenche la découverte automatique par ChatGPT.
 ## Contrôles appliqués à chaque jeton
 
 * signature vérifiée contre le JWKS de l'émetteur (RS256 uniquement) ;
-* `iss` égal à l'émetteur configuré, à la barre oblique finale près ;
+* `iss` strictement égal à l'émetteur canonique configuré ;
 * `aud` contenant l'audience configurée — un jeton émis pour une autre API est
   refusé, ce qui bloque la réutilisation d'un jeton dérobé ailleurs ;
 * `exp` et `nbf` contrôlés, avec 30 secondes de tolérance d'horloge ;

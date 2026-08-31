@@ -69,6 +69,9 @@ class LegalToolsTests(unittest.TestCase):
         self.assertEqual("LEGIARTI000042193463", article["id"])
         self.assertEqual("VIGUEUR", article["legal_status"])
         self.assertTrue(article["url"].startswith("https://www.legifrance.gouv.fr/"))
+        self.assertEqual(
+            "untrusted_source_data", result["provenance"]["content_trust"]
+        )
         body = api_call.call_args.args[1]
         self.assertEqual("CODE_DATE", body["fond"])
         self.assertEqual("L2212-2", body["recherche"]["champs"][0]["criteres"][0]["valeur"])
@@ -93,6 +96,9 @@ class LegalToolsTests(unittest.TestCase):
         self.assertEqual("Article L2212-2", article["title"])
         self.assertEqual("La police municipale comprend…", article["text"])
         self.assertTrue(article["metadata"]["verified"])
+        self.assertEqual(
+            "untrusted_source_data", article["metadata"]["content_trust"]
+        )
 
     @mock.patch("droit_francais.tools.judilibre_get")
     def test_case_law_search_and_fetch_are_traceable(self, judilibre_get):

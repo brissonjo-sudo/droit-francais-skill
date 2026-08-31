@@ -9,8 +9,6 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-RUN apk upgrade --no-cache
-
 RUN addgroup -S app && adduser -S -G app app
 
 COPY requirements-mcp.txt ./

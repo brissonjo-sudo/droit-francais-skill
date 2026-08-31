@@ -21,6 +21,10 @@ ARTICLE_URL = "https://www.legifrance.gouv.fr/codes/article_lc/{id}"
 DECISION_URL = "https://www.courdecassation.fr/decision/{id}"
 JUDILIBRE_SOURCE = "base Open Data de la Cour de cassation"
 JUDILIBRE_SUPPRESSION_ENV = "MCP_JUDILIBRE_SUPPRESSED_IDS"
+#: Qualification portée par toute provenance : le texte d'un article comme
+#: celui d'une décision est une donnée amont à analyser et à citer, jamais une
+#: instruction à exécuter. La marque vaut donc pour les deux sources.
+UNTRUSTED_CONTENT = "untrusted_source_data"
 _HTML_TAG = re.compile(r"<[^>]+>")
 _ARTICLE_QUERY = re.compile(
     r"\b(?:article|art\.?)\s+([LRDA]?\.?\s*\d[\w.-]*)",
@@ -62,7 +66,7 @@ def _judilibre_provenance() -> dict[str, Any]:
         "source": JUDILIBRE_SOURCE,
         "verified": True,
         "retrieved_at": dt.datetime.now(dt.timezone.utc).isoformat(),
-        "content_trust": "untrusted_source_data",
+        "content_trust": UNTRUSTED_CONTENT,
     }
 
 
@@ -233,7 +237,11 @@ def search_articles(
         "results": results[:safe_limit],
         "query": {"number": number, "code": code, "date": date_version},
         "dating": _dating(date),
-        "provenance": {"source": "Légifrance API", "verified": True},
+        "provenance": {
+            "source": "Légifrance API",
+            "verified": True,
+            "content_trust": UNTRUSTED_CONTENT,
+        },
     }
 
 
@@ -267,6 +275,7 @@ def get_article(article_id: str, date: str | None = None) -> dict[str, Any]:
             "end_date": article.get("dateFin"),
             "source": "Légifrance API",
             "verified": True,
+            "content_trust": UNTRUSTED_CONTENT,
             **_dating(date),
         },
     }
