@@ -9,6 +9,7 @@ point d'entrée historique.
 from __future__ import annotations
 
 import json
+import os
 import re
 import sys
 from pathlib import Path
@@ -27,6 +28,7 @@ if hasattr(sys.stdout, "reconfigure"):
 MANIFEST = ROOT / ".codex-plugin" / "plugin.json"
 SUBMISSION = ROOT / "chatgpt-app-submission.json"
 SEMVER = re.compile(r"^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$")
+PLUGIN_NAME = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 PLUGIN_FIELDS = ("name", "version", "description", "author", "skills", "interface")
 INTERFACE_FIELDS = (
     "displayName",
@@ -69,9 +71,14 @@ def main() -> int:
         if field not in manifest:
             fail(f"champ obligatoire absent : {field}", problems)
 
-    if manifest.get("name") != ROOT.name:
+    repository = os.environ.get("GITHUB_REPOSITORY", "")
+    repository_name = repository.rsplit("/", 1)[-1] if repository else ""
+    name = manifest.get("name")
+    if not isinstance(name, str) or PLUGIN_NAME.fullmatch(name) is None:
+        fail("name doit être un slug en minuscules séparé par des tirets", problems)
+    if repository_name and name != repository_name:
         fail(
-            f"name doit correspondre au dossier racine ({ROOT.name!r})",
+            f"name doit correspondre au dépôt GitHub ({repository_name!r})",
             problems,
         )
 
@@ -207,7 +214,7 @@ def main() -> int:
                     annotations = descriptor.get("annotations", {})
                     expected = {
                         "readOnlyHint": True,
-                        "openWorldHint": False,
+                        "openWorldHint": True,
                         "destructiveHint": False,
                     }
                     if annotations != expected:

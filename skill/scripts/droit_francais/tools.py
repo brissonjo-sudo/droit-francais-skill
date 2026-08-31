@@ -7,6 +7,7 @@ interfaces qui les exposent (CLI historique, serveur MCP, futurs tests).
 from __future__ import annotations
 
 import datetime as dt
+import os
 import re
 from html import unescape
 from typing import Any
@@ -18,6 +19,8 @@ from .legifrance import api_call, get_token
 ARTICLE_ID_PREFIX = "LEGIARTI"
 ARTICLE_URL = "https://www.legifrance.gouv.fr/codes/article_lc/{id}"
 DECISION_URL = "https://www.courdecassation.fr/decision/{id}"
+JUDILIBRE_SOURCE = "base Open Data de la Cour de cassation"
+JUDILIBRE_SUPPRESSION_ENV = "MCP_JUDILIBRE_SUPPRESSED_IDS"
 _HTML_TAG = re.compile(r"<[^>]+>")
 _ARTICLE_QUERY = re.compile(
     r"\b(?:article|art\.?)\s+([LRDA]?\.?\s*\d[\w.-]*)",
@@ -31,6 +34,36 @@ def _clean_text(value: Any) -> str:
         return ""
     text = unescape(_HTML_TAG.sub(" ", str(value)))
     return " ".join(text.split())
+
+
+def _suppressed_decision_ids() -> frozenset[str]:
+    """Liste d'urgence des décisions à ne plus redistribuer temporairement.
+
+    La valeur est relue à chaque appel afin qu'une rotation de configuration
+    puisse prendre effet au redémarrage sans reconstruction de l'image. Les
+    identifiants restent des données de configuration et ne sont jamais
+    ajoutés aux réponses publiques.
+    """
+    raw = os.environ.get(JUDILIBRE_SUPPRESSION_ENV, "")
+    return frozenset(item.strip() for item in raw.split(",") if item.strip())
+
+
+def _ensure_decision_available(decision_id: str) -> None:
+    if decision_id in _suppressed_decision_ids():
+        raise LegifranceError(
+            "Décision temporairement indisponible pendant le traitement "
+            "d'un signalement d'occultation.",
+            exit_code=5,
+        )
+
+
+def _judilibre_provenance() -> dict[str, Any]:
+    return {
+        "source": JUDILIBRE_SOURCE,
+        "verified": True,
+        "retrieved_at": dt.datetime.now(dt.timezone.utc).isoformat(),
+        "content_trust": "untrusted_source_data",
+    }
 
 
 def _iso_date(value: str | None) -> str:
@@ -269,9 +302,11 @@ def search_case_law(
         },
     )
     results: list[dict[str, Any]] = []
-    for decision in payload.get("results") or []:
+    suppressed = _suppressed_decision_ids()
+    source_results = payload.get("results") or []
+    for decision in source_results:
         decision_id = str(decision.get("id") or "").strip()
-        if not decision_id:
+        if not decision_id or decision_id in suppressed:
             continue
         jurisdiction_name = decision.get("jurisdiction") or "Juridiction inconnue"
         date = decision.get("decision_date") or "date inconnue"
@@ -286,13 +321,25 @@ def search_case_law(
                 "decision_date": decision.get("decision_date"),
                 "number": decision.get("number"),
                 "ecli": decision.get("ecli"),
+                "formation": decision.get("formation"),
+                "seat": decision.get("seat") or decision.get("location"),
+                "source_update_date": (
+                    decision.get("update_date")
+                    or decision.get("update")
+                    or decision.get("publication_date")
+                ),
             }
         )
     return {
         "results": results,
         "total": payload.get("total", len(results)),
         "query": query,
-        "provenance": {"source": "Judilibre API", "verified": True},
+        "provenance": _judilibre_provenance(),
+        "temporarily_suppressed_results": sum(
+            1
+            for item in source_results
+            if str(item.get("id") or "").strip() in suppressed
+        ),
     }
 
 
@@ -301,6 +348,7 @@ def get_decision(decision_id: str) -> dict[str, Any]:
     decision_id = decision_id.strip()
     if not decision_id:
         raise LegifranceError("L'identifiant de décision est obligatoire.", exit_code=2)
+    _ensure_decision_available(decision_id)
     decision = judilibre_get(
         "/decision",
         {"id": decision_id, "resolve_references": "true"},
@@ -308,6 +356,7 @@ def get_decision(decision_id: str) -> dict[str, Any]:
     if not decision or not decision.get("id"):
         raise LegifranceError(f"Décision {decision_id} introuvable.", exit_code=5)
     canonical_id = str(decision["id"])
+    _ensure_decision_available(canonical_id)
     jurisdiction = decision.get("jurisdiction") or "Juridiction inconnue"
     date = decision.get("decision_date") or "date inconnue"
     number = decision.get("number") or "sans numéro"
@@ -323,10 +372,15 @@ def get_decision(decision_id: str) -> dict[str, Any]:
             "number": decision.get("number"),
             "ecli": decision.get("ecli"),
             "formation": decision.get("formation"),
+            "seat": decision.get("seat") or decision.get("location"),
             "solution": decision.get("solution"),
             "publication": decision.get("publication") or [],
-            "source": "Judilibre API",
-            "verified": True,
+            "source_update_date": (
+                decision.get("update_date")
+                or decision.get("update")
+                or decision.get("publication_date")
+            ),
+            **_judilibre_provenance(),
         },
     }
 

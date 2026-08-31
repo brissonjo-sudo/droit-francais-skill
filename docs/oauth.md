@@ -42,7 +42,7 @@ L'émetteur choisi doit offrir :
 2. le flux `authorization_code` avec PKCE (S256) ;
 3. l'indicateur de ressource `resource` (RFC 8707), ou à défaut une audience
    fixe configurable ;
-4. des jetons signés en RS256 ou ES256, exposés via un JWKS public ;
+4. des jetons d'accès signés en RS256, exposés via un JWKS public ;
 5. soit l'enregistrement dynamique de client (RFC 7591), soit un client
    prédéfini — OpenAI accepte les deux, ainsi que les documents de métadonnées
    de client (CIMD).
@@ -232,7 +232,7 @@ C'est cet en-tête qui déclenche la découverte automatique par ChatGPT.
 
 ## Contrôles appliqués à chaque jeton
 
-* signature vérifiée contre le JWKS de l'émetteur (RS256/ES256 seulement) ;
+* signature vérifiée contre le JWKS de l'émetteur (RS256 uniquement) ;
 * `iss` égal à l'émetteur configuré, à la barre oblique finale près ;
 * `aud` contenant l'audience configurée — un jeton émis pour une autre API est
   refusé, ce qui bloque la réutilisation d'un jeton dérobé ailleurs ;

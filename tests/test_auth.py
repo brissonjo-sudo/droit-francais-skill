@@ -304,12 +304,9 @@ class JwksTokenVerifierTests(unittest.TestCase):
         token = _sign(self._payload(aud="https://une-autre-api.example"), self.key)
         self.assertIsNone(self._verify(token))
 
-    def test_trailing_slash_in_issuer_is_accepted(self):
-        # Auth0 écrit « iss » avec une barre oblique finale absente des réglages.
+    def test_non_canonical_trailing_slash_in_issuer_is_refused(self):
         token = _sign(self._payload(iss=f"{ISSUER}/"), self.key)
-        access = self._verify(token)
-        self.assertIsNotNone(access)
-        self.assertEqual(access.subject, "auth0|utilisateur-1")
+        self.assertIsNone(self._verify(token))
 
     def test_token_from_another_issuer_is_refused(self):
         token = _sign(self._payload(iss="https://idp-pirate.example"), self.key)
@@ -331,6 +328,10 @@ class JwksTokenVerifierTests(unittest.TestCase):
 
     def test_symmetric_algorithm_is_never_accepted(self):
         token = jwt.encode(self._payload(), "secret-partage", algorithm="HS256")
+        self.assertIsNone(self._verify(token))
+
+    def test_unconfigured_asymmetric_algorithm_is_refused(self):
+        token = jwt.encode(self._payload(), self.key, algorithm="RS384")
         self.assertIsNone(self._verify(token))
 
     def test_missing_token_gives_the_anonymous_principal(self):
