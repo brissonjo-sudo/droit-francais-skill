@@ -131,7 +131,9 @@ Le champ **Allowed Callback URLs** de l'application est un composant à
 bouton d'enregistrement apparaisse.
 
 Auth0 écrit la revendication `iss` avec une barre oblique finale, absente des
-écrans de configuration. Le serveur accepte les deux écritures.
+écrans de configuration. Le serveur accepte les deux écritures **dans le
+jeton**. La métadonnée publiée, elle, n'admet aucune tolérance : voir
+« Écriture exacte de l'émetteur » ci-dessous.
 
 ## Configuration côté serveur
 
@@ -140,7 +142,9 @@ Variables à définir sur l'hébergeur :
 ```bash
 MCP_AUTH_MODE=oauth
 MCP_PUBLIC_URL=https://droit-francais-skill.onrender.com
-MCP_OAUTH_ISSUER=https://<votre-emetteur>
+# Recopier à l'identique le champ « issuer » du document de découverte,
+# barre oblique finale comprise si l'émetteur en écrit une (cas d'Auth0).
+MCP_OAUTH_ISSUER=https://<votre-emetteur>/
 # Facultatif — valeurs déduites si absentes :
 # MCP_OAUTH_AUDIENCE=https://droit-francais-skill.onrender.com/mcp
 # MCP_OAUTH_JWKS_URL=https://<votre-emetteur>/.well-known/jwks.json
@@ -148,11 +152,38 @@ MCP_OAUTH_ISSUER=https://<votre-emetteur>
 MCP_USER_CALLS_PER_MINUTE=20
 ```
 
+### Écriture exacte de l'émetteur
+
+`MCP_OAUTH_ISSUER` est publié **verbatim** dans les métadonnées RFC 9728, sans
+aucune normalisation. C'est délibéré : OpenAI rapproche par comparaison
+textuelle stricte l'`issuer` annoncé par le serveur d'autorisation et celui que
+publie le serveur MCP. Une barre oblique finale ajoutée ou retirée suffit à
+faire échouer la création du connecteur, alors même que les deux chaînes
+désignent le même émetteur.
+
+La règle est donc : **recopier le champ `issuer` du document de découverte, tel
+quel**. Auth0 y écrit une barre finale ; d'autres émetteurs n'en écrivent pas.
+Le serveur ne devine ni n'ajoute rien.
+
+La barre finale ne pose plus de problème de concaténation : les URL dérivées
+(JWKS, découverte) sont construites sur une forme tronquée interne, jamais sur
+la forme canonique.
+
 Contrôle avant déploiement, sans lancer le service :
 
 ```bash
 python mcp_server/server.py --check-config
 ```
+
+Contrôle de l'écriture de l'émetteur, avec un appel réseau à l'émetteur —
+échoue avec un code non nul si la chaîne configurée diffère de celle publiée :
+
+```bash
+python mcp_server/server.py --check-issuer
+```
+
+Ce contrôle n'est jamais joué au démarrage : le service ne doit pas dépendre de
+la disponibilité de l'émetteur pour démarrer.
 
 En production, `MCP_AUTH_MODE=disabled` fait échouer le démarrage.
 
@@ -171,6 +202,19 @@ curl -si -X POST https://droit-francais-skill.onrender.com/mcp \
 # 3. Métadonnées du serveur d'autorisation
 curl -s https://<votre-emetteur>/.well-known/oauth-authorization-server
 ```
+
+Les **trois** valeurs suivantes doivent être identiques, caractère pour
+caractère. C'est le contrôle qui conditionne l'acceptation du connecteur :
+
+```bash
+curl -s https://<votre-emetteur>/.well-known/openid-configuration | grep -o '"issuer":"[^"]*"'
+curl -s https://droit-francais-skill.onrender.com/.well-known/oauth-protected-resource | grep -o '"authorization_servers":\["[^"]*"'
+curl -s https://droit-francais-skill.onrender.com/.well-known/oauth-protected-resource/mcp | grep -o '"authorization_servers":\["[^"]*"'
+```
+
+La route suffixée par `/mcp` est celle vers laquelle pointe le
+`WWW-Authenticate` du `401`, donc celle que ChatGPT lit réellement. La route
+racine n'est qu'un alias de compatibilité.
 
 La réponse attendue en 2 comporte
 `www-authenticate: Bearer error="invalid_token", …, resource_metadata="…"`.
@@ -210,9 +254,14 @@ que l'émetteur annonce bien `S256` :
 curl -s https://<emetteur>/.well-known/oauth-authorization-server | grep -o 'code_challenge_methods_supported[^]]*]'
 ```
 
-**Métadonnées introuvables chez l'émetteur** — ne pas saisir la base du
-serveur d'autorisation avec une barre oblique finale : le chemin de découverte
-y est concaténé et produit une double barre, qu'Auth0 renvoie en « Not found ».
+**Connecteur refusé alors que l'authentification fonctionne, ou émetteur jugé
+non concordant** — les deux chaînes diffèrent d'une barre oblique finale.
+Comparer les trois valeurs de la section « Vérification après déploiement », ou
+lancer `--check-issuer`. Historiquement, la consigne inverse figurait ici : ne
+pas écrire la barre finale, parce qu'elle produisait une double barre dans
+l'URL de découverte. Ce défaut de concaténation est corrigé — la forme
+canonique et la forme servant de préfixe sont désormais distinctes — et c'est
+bien la **recopie exacte** qui est attendue.
 
 **Jeton opaque refusé par le serveur** — `Default Audience` n'est pas
 renseignée côté locataire ; Auth0 délivre alors un jeton destiné à

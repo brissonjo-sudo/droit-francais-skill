@@ -1,4 +1,11 @@
-# Serveur MCP local et HTTP. Compatible avec le SDK v1 actuel et la v2.
-mcp>=1.27,<3
+# Serveur MCP local et HTTP.
+#
+# Versions figées volontairement. Le SDK MCP 2.x publie les métadonnées RFC 9728
+# avec « url_preserve_empty_path » : la chaîne configurée pour l'émetteur est
+# servie verbatim, barre oblique finale comprise. Le SDK 1.x, lui, laissait
+# pydantic rajouter cette barre — ce qui masquait en local un défaut visible en
+# production. Une plage de versions ferait donc diverger poste, CI et Render sur
+# le point précis dont dépend le connecteur ChatGPT.
+mcp==2.1.1
 # Vérification locale des jetons OAuth 2.1 (JWKS de l'émetteur, RS256/ES256).
-PyJWT[crypto]>=2.9,<3
+PyJWT[crypto]==2.13.0
