@@ -81,6 +81,7 @@ procédure de configuration de l'émetteur figure dans [`oauth.md`](oauth.md).
 | `MCP_OAUTH_AUDIENCE` | `MCP_PUBLIC_URL` + `/mcp` | Audience exigée dans le jeton (RFC 8707) |
 | `MCP_OAUTH_JWKS_URL` | `MCP_OAUTH_ISSUER` sans barre finale + `/.well-known/jwks.json` | Clés publiques de vérification |
 | `MCP_OAUTH_REQUIRED_SCOPES` | `legal:read` | Portées exigées, séparées par des virgules ; `-` désactive le contrôle de portée sans désactiver l'authentification |
+| `MCP_JUDILIBRE_SUPPRESSED_IDS` | vide | Identifiants Judilibre retirés temporairement, séparés par des virgules ; voir `incident-response.md` |
 
 Le conteneur définit déjà `MCP_ENV=production`, `MCP_HOST=0.0.0.0` et
 `PORT=8000`. La commande suivante permet de contrôler la configuration sans
@@ -102,8 +103,10 @@ python mcp_server/server.py --check-config
 | `MCP_LOG_LEVEL` | `INFO` local, `WARNING` dans l'image | Niveau des journaux applicatifs et du SDK MCP |
 | `OPENAI_APPS_CHALLENGE` | absent | Jeton temporaire de vérification du domaine |
 
-La limite est locale à chaque instance. Avec plusieurs réplicas, ajouter une
-limite globale au niveau de la plateforme afin de rester dans les quotas PISTE.
+La limite est locale à chaque instance et est remise à zéro au redémarrage.
+Tant qu'aucun limiteur global atomique n'est déployé, conserver **un seul
+réplica**. Avec plusieurs réplicas, ajouter une limite globale au niveau de la
+plateforme afin de rester dans les quotas PISTE.
 Le budget porte sur les appels d'outils ; une opération peut effectuer plusieurs
 requêtes techniques (authentification puis lecture). Régler donc cette valeur de
 façon conservatrice selon les quotas réellement accordés à l'application PISTE.
@@ -112,7 +115,8 @@ façon conservatrice selon les quotas réellement accordés à l'application PIS
 
 Le journal métier ajouté par l'application ne contient que le nom technique de
 l'opération, son résultat (`success`, `upstream_error` ou `throttled`), sa
-durée et une empreinte tronquée du sujet authentifié. Le jeton, sa charge utile
+durée et une empreinte tronquée du sujet authentifié. Cette empreinte est une
+donnée personnelle pseudonymisée, et non anonyme. Le jeton, sa charge utile
 et l'identifiant brut du compte ne sont jamais journalisés. Il ne journalise ni les arguments, ni les textes juridiques, ni les
 résultats, ni les clés. L'image utilise `WARNING` par défaut afin de supprimer
 les journaux informatifs du SDK MCP et du serveur HTTP. Si `INFO` est réactivé
@@ -126,11 +130,12 @@ dans des décisions publiques. Le service doit conserver les mécanismes de
 pseudonymisation et les restrictions de réutilisation de la source ; il ne doit
 pas servir au profilage des magistrats ou des greffiers.
 
-Avant ouverture au public, finaliser la [checklist de confidentialité](privacy-checklist.md),
+Le service est déjà exposé au réseau public, avec OAuth obligatoire. Avant sa
+publication dans l'annuaire OpenAI, finaliser la [checklist de confidentialité](privacy-checklist.md),
 dérouler le [plan d'audit sécurité](audit-securite.md) et le
 [registre des obligations CGU](obligations-cgu.md), puis vérifier les quotas et
 conditions attachés aux abonnements PISTE utilisés. La correction des findings
-critiques et élevés de l'audit conditionne la mise en ligne.
+critiques et élevés de l'audit conditionne la publication dans l'annuaire.
 La [politique de confidentialité](privacy-policy.md), les
 [conditions d'utilisation](terms-of-use.md) et le
 [guide de soumission ChatGPT](chatgpt-submission.md) décrivent l'état public.
@@ -151,7 +156,8 @@ La [politique de confidentialité](privacy-policy.md), les
 3. Dans ChatGPT, activer le mode développeur et créer une application MCP avec
    l'URL complète `https://droit-francais-skill.onrender.com/mcp`.
 4. Vérifier les six outils. Ils doivent annoncer : `readOnlyHint: true`,
-   `destructiveHint: false` et `openWorldHint: false`.
+   `destructiveHint: false` et `openWorldHint: true` : ils ne modifient pas
+   les données mais consultent des API externes et consomment leurs quotas.
 5. Exécuter les jeux d'évaluation positifs et négatifs, puis conserver les
    résultats de cette version.
 6. Lors de la soumission, placer le jeton fourni par OpenAI dans

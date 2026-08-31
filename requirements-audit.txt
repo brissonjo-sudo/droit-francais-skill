@@ -1,0 +1,3 @@
+# Outil CI uniquement : audit CVE et SBOM CycloneDX.
+pip-audit==2.10.1
+

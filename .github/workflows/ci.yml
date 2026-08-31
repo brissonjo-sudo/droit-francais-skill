@@ -5,19 +5,36 @@ on:
     branches: [main]
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   checks:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Set up Python
-        uses: actions/setup-python@v7
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
         with:
           python-version: "3.12"
 
       - name: Installer le SDK MCP
         run: python -m pip install -r requirements-mcp.txt
+
+      - name: Auditer les dépendances et produire le SBOM CycloneDX
+        run: |
+          python -m pip install -r requirements-audit.txt
+          python -m pip_audit -r requirements-mcp.txt --strict --format cyclonedx-json --output sbom.cdx.json
+
+      - name: Archiver le SBOM
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: sbom-cyclonedx
+          path: sbom.cdx.json
+          if-no-files-found: ignore
+          retention-days: 30
 
       # Les versions sont figees dans requirements-mcp.txt : le comportement
       # des metadonnees RFC 9728 depend du SDK installe. Les afficher rend une
@@ -128,6 +145,25 @@ jobs:
 
       - name: Construire l'image de déploiement
         run: docker build --tag droit-francais-mcp:test .
+
+      - name: Inventorier toutes les CVE élevées et critiques de l'image
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: droit-francais-mcp:test
+          format: table
+          exit-code: "0"
+          severity: HIGH,CRITICAL
+          scanners: vuln
+
+      - name: Bloquer les CVE élevées et critiques corrigeables
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: droit-francais-mcp:test
+          format: table
+          exit-code: "1"
+          ignore-unfixed: true
+          severity: HIGH,CRITICAL
+          scanners: vuln
 
       - name: Vérifier le socle du plugin
         run: python tests/check_plugin.py

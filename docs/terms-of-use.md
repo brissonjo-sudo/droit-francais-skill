@@ -92,5 +92,6 @@ Ne pas y publier de secret, de pièce confidentielle ou de donnée personnelle.
 - [Registre des obligations CGU (Légifrance et Judilibre)](obligations-cgu.md)
 - [CGU de réutilisation Judilibre](https://piste.gouv.fr/images/cgu/CGU_open_data_V8.pdf)
 - [API et données ouvertes Judilibre](https://www.courdecassation.fr/acces-rapide-judilibre/donnees-ouvertes-open-data-et-api)
-- [CGU de l'API Légifrance](https://piste.gouv.fr/images/cgu/DILA_Legifrance_Beta_v2.pdf)
+- [Catalogue PISTE — Légifrance et identifiant de la CGU courante](https://piste.gouv.fr/api-catalog-sandbox?filter=legifrance)
+- [Anciennes CGU Légifrance 2020 — archive uniquement](https://piste.gouv.fr/images/cgu/DILA_Legifrance_Beta_v2.pdf)
 - [Licence Ouverte 2.0 (Etalab)](https://www.etalab.gouv.fr/licence-ouverte-open-licence)

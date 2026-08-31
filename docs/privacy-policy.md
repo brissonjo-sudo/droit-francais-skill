@@ -1,6 +1,6 @@
 # Politique de confidentialité — Droit français
 
-Dernière mise à jour : 30 août 2026
+Dernière mise à jour : 31 août 2026
 
 ## Responsable et contact
 
@@ -71,9 +71,15 @@ OpenAI à l'utilisateur de ChatGPT ou Codex.
 
 L'application ne possède pas de base de données et ne conserve pas les requêtes
 ou les résultats. Son journal métier n'enregistre que le nom de l'opération,
-l'état de réussite ou d'erreur et la durée ; les arguments, résultats et
-secrets sont exclus.
+l'état de réussite ou d'erreur, la durée et une empreinte tronquée stable du
+sujet authentifié. Cette empreinte est une **donnée personnelle pseudonymisée**,
+pas une donnée anonyme. Elle sert exclusivement à la sécurité, à l'imputabilité
+et à la prévention des abus ; les arguments, résultats, identifiants bruts,
+jetons et secrets sont exclus.
 
+L'accès aux journaux doit rester limité aux personnes chargées de l'exploitation
+et les entrées doivent être supprimées à l'issue de la durée de rétention de
+l'hébergeur, sauf conservation probatoire justifiée pour un incident.
 L'hébergeur peut conserver des journaux techniques selon le forfait du compte.
 La documentation Render indique actuellement une conservation de 7 jours pour
 un espace Hobby. Aucun flux de journaux vers un prestataire tiers n'est prévu
@@ -92,14 +98,23 @@ la [CNIL](https://www.cnil.fr/).
 L'application ne conservant pas de requête dans une base propre, certaines
 demandes peuvent devoir être adressées directement à OpenAI, Render ou à la
 source officielle concernée. Les demandes d'occultation ou de levée
-d'occultation d'une décision Judilibre relèvent de la Cour de cassation.
+d'occultation d'une décision Judilibre relèvent exclusivement de la Cour de
+cassation et peuvent être adressées à
+`occultations.courdecassation@justice.fr`. Les droits d'accès ou de
+rectification portant sur le traitement Judilibre relèvent du SDER de la Cour
+de cassation.
 
 ## Sécurité et limites
 
 Les échanges utilisent HTTPS. Le conteneur s'exécute sans privilège, les
 secrets restent dans l'environnement de l'hébergeur et les erreurs sont filtrées
-avant d'être renvoyées au client. Aucun système ne pouvant être garanti sans
-risque, un incident peut être signalé par la page de support ci-dessus.
+avant d'être renvoyées au client. Lorsqu'un défaut d'occultation crédible est
+signalé, la décision complète peut être rendue temporairement indisponible,
+sans modification de son texte, puis le signalement est transmis sans délai à
+la Cour de cassation. Une réidentification manifeste persistante peut être
+signalée à `anonymisation.sder.courdecassation@justice.fr`. Aucun système ne
+pouvant être garanti sans risque, un incident peut être signalé par la page de
+support ci-dessus.
 
 ## Sources de référence
 

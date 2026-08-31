@@ -14,7 +14,7 @@ quota par utilisateur et non plus seulement un quota global d'instance.
 Contrôles appliqués à chaque jeton :
 
 * signature asymétrique vérifiée contre le JWKS de l'émetteur ;
-* ``iss`` égal à l'émetteur configuré, à la barre oblique finale près ;
+* ``iss`` strictement égal à l'émetteur canonique configuré ;
 * ``aud`` contenant l'audience configurée (indicateur de ressource,
   RFC 8707) — un jeton émis pour une autre API est refusé ;
 * ``exp`` et ``nbf`` vérifiés par la bibliothèque ;
@@ -26,7 +26,7 @@ Aucun jeton, aucune charge utile et aucun secret n'est journalisé.
 from __future__ import annotations
 
 import logging
-from typing import Any, Iterable, Sequence
+from typing import Any, Iterable
 
 import anyio
 import jwt
@@ -35,9 +35,10 @@ from mcp.server.auth.provider import AccessToken
 
 LOGGER = logging.getLogger("droit_francais.mcp.auth")
 
-#: Algorithmes asymétriques acceptés. Les algorithmes symétriques (HS*) et
-#: « none » sont exclus : le serveur ne partage aucun secret avec l'émetteur.
-ALLOWED_ALGORITHMS: tuple[str, ...] = ("RS256", "RS384", "RS512", "ES256", "ES384")
+#: Algorithme exact configuré dans le tenant Auth0 de production. Une liste
+#: générique d'algorithmes asymétriques élargirait inutilement la politique de
+#: validation des jetons.
+ALLOWED_ALGORITHMS: tuple[str, ...] = ("RS256",)
 
 
 class LegalAccessToken(AccessToken):
@@ -85,25 +86,11 @@ class JwksTokenVerifier:
         audience: str,
         *,
         leeway_seconds: int = 30,
-        algorithms: Sequence[str] = ALLOWED_ALGORITHMS,
     ) -> None:
         self._issuer = issuer
-        # Certains émetteurs (Auth0) écrivent « iss » avec une barre oblique
-        # finale que les métadonnées de configuration n'affichent pas. Les deux
-        # écritures désignent le même émetteur : accepter l'une et l'autre évite
-        # un refus systématique pour une différence purement typographique.
-        #
-        # Cette tolérance ne vaut QUE pour la revendication d'un jeton déjà
-        # authentifié par sa signature : elle ne relâche ni « aud », ni « exp »,
-        # ni l'exigence d'un « sub ». Elle ne s'étend surtout pas aux
-        # métadonnées publiées : côté RFC 9728, l'émetteur est servi verbatim et
-        # doit être identique caractère pour caractère à celui du document de
-        # découverte, sans quoi le connecteur ChatGPT refuse la ressource.
-        base = issuer.rstrip("/")
-        self._accepted_issuers = frozenset({base, base + "/"})
         self._audience = audience
         self._leeway_seconds = leeway_seconds
-        self._algorithms = tuple(algorithms)
+        self._algorithms = ALLOWED_ALGORITHMS
         self._jwks_client = PyJWKClient(jwks_url, cache_keys=True, lifespan=3600)
 
     def _decode(self, token: str) -> dict[str, Any]:
@@ -114,7 +101,7 @@ class JwksTokenVerifier:
             signing_key.key,
             algorithms=list(self._algorithms),
             audience=self._audience,
-            issuer=self._accepted_issuers,
+            issuer=self._issuer,
             leeway=self._leeway_seconds,
             options={"require": ["exp", "iss", "aud", "sub"]},
         )

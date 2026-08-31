@@ -1,8 +1,12 @@
-# Note de conformité — serveur MCP public
+# État des contrôles — serveur MCP public
 
-Audit sur pièces du serveur MCP déployé, de ses garde-fous et de son rapport
+Revue sur pièces du serveur MCP déployé, de ses garde-fous et de son rapport
 aux fournisseurs de données. Établi le 31 août 2026, sur l'état du dépôt à
 cette date.
+
+Ce document **n'est pas une attestation de conformité**. La configuration des
+consoles Auth0/Render/PISTE et le texte intégral des CGU Légifrance du
+15 décembre 2022 restent à vérifier selon `audit-securite.md`.
 
 Le principe qui structure tout ce qui suit : **les clés PISTE appartiennent au
 titulaire du service, jamais à l'utilisateur final.** Une passerelle publique
@@ -30,9 +34,9 @@ Légifrance ou Judilibre manquent, ou si l'environnement PISTE n'est pas `prod`.
 
 | Contrôle | État |
 |---|---|
-| Signature asymétrique vérifiée contre le JWKS de l'émetteur | ✅ RS256/RS384/RS512, ES256/ES384 |
+| Signature vérifiée contre le JWKS de l'émetteur | ✅ RS256 uniquement, valeur exacte du tenant |
 | Algorithmes symétriques et `none` refusés | ✅ Le serveur ne partage aucun secret avec l'émetteur |
-| `iss` contrôlé | ✅ Aux deux écritures de la barre finale près — tolérance documentée et strictement limitée au jeton |
+| `iss` contrôlé | ✅ Égalité stricte avec l'émetteur canonique configuré |
 | `aud` lié à la ressource MCP (RFC 8707) | ✅ Un jeton émis pour une autre API est refusé, ce qui bloque la réutilisation d'un jeton dérobé ailleurs |
 | `exp` / `nbf` contrôlés | ✅ 30 secondes de tolérance d'horloge |
 | `sub` exigé | ✅ Sans sujet, aucun quota n'est imputable : le jeton est refusé |
@@ -67,8 +71,9 @@ tourne en `WARNING`.
 
 Chaque ligne porte l'outil, l'issue, la durée et une **empreinte SHA-256
 tronquée à 12 caractères** du sujet. Jamais le jeton, jamais l'identifiant brut
-du compte. Un opérateur peut constater qu'un même utilisateur a émis une série
-d'appels, sans pouvoir lire son identité depuis le journal seul.
+du compte. Cette empreinte est une donnée personnelle pseudonymisée, et non
+anonyme : sa finalité, son accès, sa rétention et sa suppression restent donc
+encadrés par la politique de confidentialité.
 
 ## 5. Contrôle de portée désactivé — choix assumé
 
@@ -86,13 +91,18 @@ couverts par des tests. Aucune valeur de cette variable ne peut désactiver
 l'authentification : `MCP_AUTH_MODE` seul en décide, et la production refuse
 `disabled`.
 
-## 6. Dépendances
+## 6. Dépendances et image
 
 `mcp` et `PyJWT[crypto]` sont **épinglés à une version exacte**. Ce n'est pas
 une précaution de style : le comportement des métadonnées RFC 9728 dépend de la
 version du SDK, et une plage de versions avait fait diverger poste de
 développement, CI et production sur le point précis dont dépend le connecteur
-ChatGPT. La CI affiche les versions installées à chaque exécution.
+ChatGPT. L'image de base est épinglée par digest et ses paquets système sont mis
+à niveau pendant le build. La CI affiche les versions, produit un SBOM
+CycloneDX, audite les dépendances Python, inventorie toutes les CVE
+élevées/critiques de l'image et bloque celles disposant d'un correctif. Une CVE
+sans correctif reste visible et constitue un verrou de publication jusqu'à son
+analyse et son acceptation datée ; Dependabot suit Python, Actions et Docker.
 
 ## 7. Rapport aux fournisseurs
 
@@ -107,9 +117,10 @@ son propre quota. Le service n'offre pas un accès anonyme partagé aux quotas d
 titulaire — la production refuse d'ailleurs de démarrer dans cette
 configuration.
 
-**Limites de débit respectées.** Les quotas d'instance et par utilisateur sont
-dimensionnés pour rester sous les limites PISTE, et un dépassement local est
-refusé avant d'atteindre le fournisseur.
+**Limites de débit à valider.** Les quotas d'instance et par utilisateur
+refusent un dépassement local, mais leur alignement sur les quotas PISTE réels
+n'est pas encore prouvé. Le limiteur étant local et réinitialisé au redémarrage,
+la production doit rester à un réplica jusqu'à l'ajout d'un quota global.
 
 **Aucune prétention d'officialité.** Les conditions d'utilisation portent une
 clause de non-affiliation explicite : le service n'est ni édité, ni approuvé,
@@ -123,7 +134,9 @@ reste vérifiable dans la source primaire par son identifiant et son URL.
 
 **Licences.** Les données récupérées restent soumises aux droits et licences de
 leurs producteurs, notamment la Licence Ouverte 2.0. Le code et le skill sont
-sous CC BY-SA 4.0.
+sous CC BY-SA 4.0. La conformité contractuelle Légifrance ne sera conclue
+qu'après récupération et contrôle de la CGU 2022 actuellement référencée par
+PISTE ; le PDF 2020 n'est conservé que comme archive.
 
 ---
 
