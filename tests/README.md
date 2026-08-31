@@ -93,6 +93,19 @@ les limites de capacité, la configuration de production, les annotations et
 une session MCP `stdio` réelle. `test_deployment.py` contrôle le paquet Docker
 sans lancer de conteneur.
 
+`test_auth.py` vérifie le vérificateur de jetons isolément, ainsi que
+l'écriture canonique de l'émetteur publiée par les deux routes de métadonnées.
+
+`test_oauth_end_to_end.py` exerce la **chaîne complète** en processus :
+application ASGI construite par le SDK, middleware d'authentification,
+transport Streamable HTTP, dispatch d'outil. Seuls le JWKS de l'émetteur —
+remplacé par une clé RSA engendrée à la volée — et les appels aux API
+juridiques sont simulés. Sont couverts : le refus anonyme et son challenge,
+le jeton valide menant à un appel d'outil réussi, les refus pour audience,
+émetteur, expiration, signature et sujet manquant, le quota isolé par sujet,
+et le comportement du contrôle de portée dans ses deux réglages. Aucun secret
+n'est lu, aucun jeton réel n'est nécessaire.
+
 Le CI démarre en plus le serveur Streamable HTTP, vérifie `/health`, initialise
 une vraie session sur `/mcp`, découvre les six outils, puis construit l'image
 Docker. La même sonde HTTP peut viser un déploiement de test :
