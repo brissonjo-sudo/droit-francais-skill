@@ -101,10 +101,24 @@ Docker. La même sonde HTTP peut viser un déploiement de test :
 python tests/check_mcp_http.py https://domaine.example/mcp
 ```
 
+`check_oauth_metadata.py` contrôle le point dont dépend l'acceptation du
+connecteur ChatGPT : les deux routes RFC 9728 doivent annoncer l'émetteur
+**exactement** tel qu'il est configuré, sans normalisation de la barre oblique
+finale, et une requête anonyme doit être refusée en `401` avec un challenge
+renvoyant vers la bonne route. Aucun jeton n'est présenté, aucun secret n'est
+lu. La CI l'exécute sur les deux écritures avec un émetteur factice ; la même
+sonde vise la production, l'émetteur attendu étant alors lu dans le document
+de découverte :
+
+```bash
+python tests/check_oauth_metadata.py https://domaine.example --discover
+```
+
 ## 4. Contrôles statiques (CI)
 
-Trois vérificateurs sans dépendance externe, exécutés à chaque push et chaque
-PR par `.github/workflows/ci.yml`. Ils ne jugent pas le skill : ils empêchent
+Trois vérificateurs statiques sans dépendance externe, exécutés à chaque push
+et chaque PR par `.github/workflows/ci.yml`, aux côtés des sondes HTTP
+`check_mcp_http.py` et `check_oauth_metadata.py`. Ils ne jugent pas le skill : ils empêchent
 le dépôt de se contredire lui-même.
 
 ```bash
