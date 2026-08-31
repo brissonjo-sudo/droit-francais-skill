@@ -11,7 +11,6 @@ import sys
 import time
 from pathlib import Path
 from typing import Any, Callable
-from urllib.parse import urlsplit, urlunsplit
 
 ROOT = Path(__file__).resolve().parent.parent
 SCRIPTS = ROOT / "skill" / "scripts"
@@ -119,13 +118,6 @@ READ_ONLY = ToolAnnotations(
 )
 
 
-def _canonical_issuer() -> str:
-    """Même écriture que la route RFC 9728 du SDK : chemin vide noté « / »."""
-    parts = urlsplit(SETTINGS.oauth_issuer)
-    path = parts.path or "/"
-    return urlunsplit((parts.scheme, parts.netloc, path, parts.query, parts.fragment))
-
-
 def _pseudonym(principal: str) -> str:
     """Empreinte courte et stable : les journaux ne portent aucun identifiant brut."""
     if principal == "anonyme":
@@ -201,13 +193,19 @@ if hasattr(server, "custom_route"):
         include_in_schema=False,
     )
     async def protected_resource_root(_request: Request) -> Response:
-        """Alias racine : certains clients ignorent le suffixe de chemin RFC 9728."""
+        """Alias racine : certains clients ignorent le suffixe de chemin RFC 9728.
+
+        L'émetteur est recopié verbatim depuis la configuration, sans
+        normalisation : c'est la seule façon d'être identique, caractère pour
+        caractère, à ce que sert la route ``/mcp`` du SDK — laquelle préserve
+        elle aussi la chaîne configurée (``url_preserve_empty_path``).
+        """
         if not SETTINGS.auth_enabled:
             return PlainTextResponse("Not configured", status_code=404)
         return JSONResponse(
             {
                 "resource": SETTINGS.resource_url,
-                "authorization_servers": [_canonical_issuer()],
+                "authorization_servers": [SETTINGS.oauth_issuer],
                 "scopes_supported": list(SETTINGS.oauth_required_scopes),
                 "bearer_methods_supported": ["header"],
             },
@@ -338,6 +336,34 @@ def get_decision(id: str) -> dict[str, Any]:
     return _safe_call(legal_tools.get_decision, id)
 
 
+def check_issuer() -> None:
+    """Compare l'émetteur configuré à celui que publie le serveur d'autorisation.
+
+    OpenAI rapproche textuellement l'``issuer`` du document de découverte et la
+    valeur annoncée par les métadonnées RFC 9728 du serveur MCP : une barre
+    oblique finale de différence suffit à faire échouer le connecteur. Ce
+    contrôle est un appel réseau explicite, jamais joué au démarrage, pour que
+    le service ne dépende pas de la disponibilité de l'émetteur pour démarrer.
+    """
+    import json
+    import urllib.request
+
+    if not SETTINGS.auth_enabled:
+        raise RuntimeConfigurationError(
+            "--check-issuer exige MCP_AUTH_MODE=oauth."
+        )
+    url = f"{SETTINGS.oauth_issuer_base}/.well-known/openid-configuration"
+    with urllib.request.urlopen(url, timeout=10) as response:
+        published = json.load(response).get("issuer")
+    if published != SETTINGS.oauth_issuer:
+        raise RuntimeConfigurationError(
+            "MCP_OAUTH_ISSUER ne correspond pas au document de découverte : "
+            f"configuré {SETTINGS.oauth_issuer!r}, publié {published!r}. "
+            "Recopier le champ « issuer » à l'identique, barre finale comprise."
+        )
+    print(f"Émetteur conforme au document de découverte : {published}")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Serveur MCP Droit français")
     parser.add_argument(
@@ -351,11 +377,25 @@ def main() -> None:
         action="store_true",
         help="Valide la configuration de production puis quitte.",
     )
+    parser.add_argument(
+        "--check-issuer",
+        action="store_true",
+        help=(
+            "Interroge le document de découverte de l'émetteur et exige "
+            "l'égalité stricte avec MCP_OAUTH_ISSUER, puis quitte."
+        ),
+    )
     args = parser.parse_args()
     try:
         SETTINGS.validate_public()
     except RuntimeConfigurationError as exc:
         parser.error(str(exc))
+    if args.check_issuer:
+        try:
+            check_issuer()
+        except RuntimeConfigurationError as exc:
+            parser.error(str(exc))
+        return
     if args.check_config:
         print("Configuration MCP valide.")
         return

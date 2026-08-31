@@ -93,6 +93,19 @@ les limites de capacité, la configuration de production, les annotations et
 une session MCP `stdio` réelle. `test_deployment.py` contrôle le paquet Docker
 sans lancer de conteneur.
 
+`test_auth.py` vérifie le vérificateur de jetons isolément, ainsi que
+l'écriture canonique de l'émetteur publiée par les deux routes de métadonnées.
+
+`test_oauth_end_to_end.py` exerce la **chaîne complète** en processus :
+application ASGI construite par le SDK, middleware d'authentification,
+transport Streamable HTTP, dispatch d'outil. Seuls le JWKS de l'émetteur —
+remplacé par une clé RSA engendrée à la volée — et les appels aux API
+juridiques sont simulés. Sont couverts : le refus anonyme et son challenge,
+le jeton valide menant à un appel d'outil réussi, les refus pour audience,
+émetteur, expiration, signature et sujet manquant, le quota isolé par sujet,
+et le comportement du contrôle de portée dans ses deux réglages. Aucun secret
+n'est lu, aucun jeton réel n'est nécessaire.
+
 Le CI démarre en plus le serveur Streamable HTTP, vérifie `/health`, initialise
 une vraie session sur `/mcp`, découvre les six outils, puis construit l'image
 Docker. La même sonde HTTP peut viser un déploiement de test :
@@ -101,10 +114,24 @@ Docker. La même sonde HTTP peut viser un déploiement de test :
 python tests/check_mcp_http.py https://domaine.example/mcp
 ```
 
+`check_oauth_metadata.py` contrôle le point dont dépend l'acceptation du
+connecteur ChatGPT : les deux routes RFC 9728 doivent annoncer l'émetteur
+**exactement** tel qu'il est configuré, sans normalisation de la barre oblique
+finale, et une requête anonyme doit être refusée en `401` avec un challenge
+renvoyant vers la bonne route. Aucun jeton n'est présenté, aucun secret n'est
+lu. La CI l'exécute sur les deux écritures avec un émetteur factice ; la même
+sonde vise la production, l'émetteur attendu étant alors lu dans le document
+de découverte :
+
+```bash
+python tests/check_oauth_metadata.py https://domaine.example --discover
+```
+
 ## 4. Contrôles statiques (CI)
 
-Trois vérificateurs sans dépendance externe, exécutés à chaque push et chaque
-PR par `.github/workflows/ci.yml`. Ils ne jugent pas le skill : ils empêchent
+Trois vérificateurs statiques sans dépendance externe, exécutés à chaque push
+et chaque PR par `.github/workflows/ci.yml`, aux côtés des sondes HTTP
+`check_mcp_http.py` et `check_oauth_metadata.py`. Ils ne jugent pas le skill : ils empêchent
 le dépôt de se contredire lui-même.
 
 ```bash

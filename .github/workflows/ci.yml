@@ -19,6 +19,13 @@ jobs:
       - name: Installer le SDK MCP
         run: python -m pip install -r requirements-mcp.txt
 
+      # Les versions sont figees dans requirements-mcp.txt : le comportement
+      # des metadonnees RFC 9728 depend du SDK installe. Les afficher rend une
+      # divergence poste / CI / Render visible dans le journal, sans avoir a
+      # deduire la cause d'un echec de test.
+      - name: Afficher les versions installees
+        run: python -m pip list
+
       - name: Compiler les scripts Python (py_compile)
         run: |
           python -m py_compile skill/scripts/legifrance.py
@@ -38,10 +45,12 @@ jobs:
           python -m py_compile tests/check_commands.py
           python -m py_compile tests/check_plugin.py
           python -m py_compile tests/check_mcp_http.py
+          python -m py_compile tests/check_oauth_metadata.py
           python -m py_compile tests/test_deployment.py
           python -m py_compile tests/test_tools.py
           python -m py_compile tests/test_mcp_app.py
           python -m py_compile tests/test_auth.py
+          python -m py_compile tests/test_oauth_end_to_end.py
 
       - name: Tester la bibliothèque et le serveur MCP hors réseau
         run: python -m unittest discover -s tests -v
@@ -63,6 +72,55 @@ jobs:
           done
           curl --fail --silent http://127.0.0.1:8000/health
           python tests/check_mcp_http.py
+
+      # Point de rupture historique du connecteur ChatGPT : les deux routes de
+      # metadonnees doivent annoncer l'emetteur exactement tel qu'il est
+      # configure, sans normalisation de la barre oblique finale. Joue sur les
+      # deux ecritures, avec un emetteur factice : aucun jeton, aucun secret.
+      - name: Tester les metadonnees OAuth et le refus anonyme
+        env:
+          MCP_ENV: test
+          MCP_AUTH_MODE: oauth
+          MCP_HOST: 127.0.0.1
+          MCP_PUBLIC_URL: https://exemple.test
+        run: |
+          # Un port distinct par ecriture : ne jamais dependre du recyclage du
+          # port entre deux iterations, sous peine de sonder par erreur le
+          # serveur precedent et de lire une metadonnee qui n'est pas la sienne.
+          port=8001
+          for issuer in "https://exemple.eu.auth0.com/" "https://exemple.eu.auth0.com"; do
+            echo "::group::emetteur $issuer (port $port)"
+            PORT="$port" MCP_OAUTH_ISSUER="$issuer" python mcp_server/server.py --transport streamable-http &
+            server_pid=$!
+            # Le shell d'Actions tourne en « set -e » : chaque attente est
+            # testee par un « if », faute de quoi un echec de sondage
+            # interromprait l'etape avant meme que le serveur ait demarre.
+            demarre=""
+            for attempt in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15; do
+              if curl --fail --silent "http://127.0.0.1:$port/health" >/dev/null; then
+                demarre="oui"
+                break
+              fi
+              sleep 1
+            done
+            # Sans ce garde-fou, un serveur qui ne demarre pas produirait une
+            # erreur de metadonnee trompeuse au lieu d'une erreur de demarrage.
+            if [ -z "$demarre" ]; then
+              echo "le serveur n'a pas repondu sur le port $port"
+              kill "$server_pid" 2>/dev/null || true
+              echo "::endgroup::"
+              exit 1
+            fi
+            if ! python tests/check_oauth_metadata.py "http://127.0.0.1:$port" --issuer "$issuer"; then
+              kill "$server_pid" 2>/dev/null || true
+              echo "::endgroup::"
+              exit 1
+            fi
+            kill "$server_pid" 2>/dev/null || true
+            wait "$server_pid" 2>/dev/null || true
+            echo "::endgroup::"
+            port=$((port + 1))
+          done
 
       - name: Construire l'image de déploiement
         run: docker build --tag droit-francais-mcp:test .

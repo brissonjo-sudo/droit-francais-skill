@@ -1,6 +1,6 @@
 # Conditions d'utilisation — Droit français
 
-Dernière mise à jour : 30 août 2026
+Dernière mise à jour : 31 août 2026
 
 ## 1. Objet
 
@@ -8,6 +8,13 @@ Le plugin **Droit français** fournit des outils en lecture seule pour recherche
 et consulter des sources juridiques françaises officielles via Légifrance et
 Judilibre. Il applique en complément une méthode de vérification et de citation
 traçable distribuée dans le skill du même dépôt.
+
+**Service indépendant.** *Droit français* n'est ni édité, ni approuvé, ni
+labellisé par la DILA, Légifrance, la Cour de cassation, Judilibre, ni par
+aucune autre administration française. Il consomme les API publiques mises à
+disposition par PISTE, dans les conditions fixées par leurs producteurs. Le nom
+de ces sources n'est employé que pour désigner l'origine des données
+consultées, jamais pour suggérer un adoubement.
 
 ## 2. Absence de conseil juridique individualisé
 
