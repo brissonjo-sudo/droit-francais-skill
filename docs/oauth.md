@@ -123,7 +123,10 @@ explicitement les portées OIDC demandées (`openid`, `profile`, `email`,
 
 ### 5. Valeurs à relever
 
-* Émetteur : `https://<locataire>.eu.auth0.com`
+* Émetteur : recopier le champ `issuer` du document de découverte **tel quel**.
+  Auth0 y écrit une barre oblique finale : `https://<locataire>.eu.auth0.com/`.
+  Voir « Écriture exacte de l'émetteur » ci-dessous — c'est le point qui a
+  bloqué la première tentative de connexion.
 * JWKS : `https://<locataire>.eu.auth0.com/.well-known/jwks.json`
 
 Le champ **Allowed Callback URLs** de l'application est un composant à

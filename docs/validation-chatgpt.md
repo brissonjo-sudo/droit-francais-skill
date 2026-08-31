@@ -10,6 +10,47 @@ portées — mais il ne peut pas prouver qu'un utilisateur parvient à se connec
 Les deux volets sont complémentaires : le harnais empêche la régression et
 tourne en CI, cette check-list constate le résultat.
 
+## Raccourci : valider les outils sans navigateur
+
+Les sections 3 à 6 ci-dessous n'ont pas besoin de ChatGPT. Elles ont besoin
+d'un **jeton d'accès valide**, que l'on peut obtenir en une commande via le
+flux *client credentials*, sans écran de connexion.
+
+### 1. Créer une application machine à machine dans Auth0
+
+*Applications → Create Application → Machine to Machine*, autorisée sur l'API
+dont l'identifiant est `https://droit-francais-skill.onrender.com/mcp`. Cocher
+la portée `legal:read` si le contrôle de portée est réactivé.
+
+### 2. Demander un jeton
+
+Remplacer les deux valeurs entre chevrons. **Ne jamais coller le résultat dans
+un fichier du dépôt, ni dans une conversation.**
+
+```bash
+export MCP_ACCESS_TOKEN=$(curl -s --request POST   --url https://dev-7soa32jfmxpejzhs.eu.auth0.com/oauth/token   --header 'content-type: application/json'   --data '{"client_id":"<ID>","client_secret":"<SECRET>","audience":"https://droit-francais-skill.onrender.com/mcp","grant_type":"client_credentials"}'   | python -c 'import json,sys; print(json.load(sys.stdin)["access_token"])')
+```
+
+### 3. Lancer la sonde
+
+```bash
+python tests/check_live_tools.py
+```
+
+Elle vérifie la découverte des six outils et leurs annotations, un appel
+Légifrance réel, la datation explicite de la réponse, un appel Judilibre réel,
+le comportement face à un article inexistant, et l'absence de toute valeur de
+clé fournisseur dans ce qui est renvoyé. Le jeton est lu dans l'environnement,
+jamais affiché ni écrit.
+
+Cette sonde consomme le quota PISTE du titulaire, comme n'importe quel appel
+réel.
+
+> **Ce raccourci ne remplace pas les sections 1 et 2.** Un jeton machine à
+> machine prouve que le serveur répond correctement à un porteur authentifié ;
+> il ne prouve pas qu'un utilisateur parvient à créer le connecteur et à
+> s'autoriser depuis ChatGPT, qui est le critère de fin réel.
+
 ---
 
 ## 0. Prérequis — état du serveur
@@ -66,6 +107,8 @@ anonyme. Un échec ici bloque tout : ChatGPT applique la même comparaison.
 
 ## 4. Appel Légifrance réel
 
+> Automatisable par `check_live_tools.py` — voir le raccourci ci-dessus.
+
 Demander par exemple : « Recherche l'article L. 2212-2 du Code général des
 collectivités territoriales. »
 
@@ -78,6 +121,8 @@ collectivités territoriales. »
 | 4.5 | Aucune clé fournisseur n'apparaît | Aucun `LEGIFRANCE_*`, `JUDILIBRE_*`, `PISTE_*` | |
 
 ## 5. Appel JUDILIBRE réel
+
+> Automatisable par `check_live_tools.py` — voir le raccourci ci-dessus.
 
 Demander par exemple : « Trouve une décision récente de la Cour de cassation
 sur la responsabilité du fait des choses. »

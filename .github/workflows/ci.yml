@@ -46,6 +46,7 @@ jobs:
           python -m py_compile tests/check_plugin.py
           python -m py_compile tests/check_mcp_http.py
           python -m py_compile tests/check_oauth_metadata.py
+          python -m py_compile tests/check_live_tools.py
           python -m py_compile tests/test_deployment.py
           python -m py_compile tests/test_tools.py
           python -m py_compile tests/test_mcp_app.py

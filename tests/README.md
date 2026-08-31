@@ -127,6 +127,23 @@ de découverte :
 python tests/check_oauth_metadata.py https://domaine.example --discover
 ```
 
+`check_live_tools.py` valide les **six outils contre le service déployé**, avec
+un vrai jeton : découverte et annotations, appel Légifrance réel, datation
+explicite de la réponse, appel Judilibre réel, comportement face à un article
+inexistant, et absence de toute valeur de clé fournisseur dans ce qui est
+renvoyé au client. Le jeton est lu dans `MCP_ACCESS_TOKEN` — jamais en
+argument, qui serait visible dans l'historique du shell et la liste des
+processus — et n'est ni affiché ni écrit.
+
+```bash
+export MCP_ACCESS_TOKEN="…"
+python tests/check_live_tools.py
+```
+
+Cette sonde n'est **pas** jouée en CI : elle exige un jeton et consomme le
+quota PISTE du titulaire. Elle sert la validation de bout en bout décrite dans
+[`docs/validation-chatgpt.md`](../docs/validation-chatgpt.md).
+
 ## 4. Contrôles statiques (CI)
 
 Trois vérificateurs statiques sans dépendance externe, exécutés à chaque push
