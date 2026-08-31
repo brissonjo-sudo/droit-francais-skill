@@ -6,11 +6,11 @@ modifiés par aucune de ces phases.
 
 | Phase | Objet | Branche | État |
 |---|---|---|---|
-| 1 | Débloquer OAuth (écriture de l'émetteur) | `fix/oauth-issuer-metadata` | Code fusionné (PR #14) — attend la variable Render |
+| 1 | Débloquer OAuth (écriture de l'émetteur) | `fix/oauth-issuer-metadata` | **Terminée** — vérifiée en production le 31/08/2026 |
 | 2 | Rendre la CI contraignante | `ci/restore-full-validation` | Terminée (PR #17 fusionnée, `main` protégée) |
 | 3 | Inventaire du checkout local | — | Terminée (sans objet) |
 | 4 | Retirer les artefacts de développement | `chore/remove-patch-artifacts` | Terminée (PR #15 fusionnée) |
-| 5 | Validation OAuth et MCP de bout en bout | `test/oauth-end-to-end` | Harnais livré — check-list manuelle à exécuter |
+| 5 | Validation OAuth et MCP de bout en bout | `test/oauth-end-to-end` | Harnais livré et vert — check-list ChatGPT à exécuter |
 | 6 | Sécurité et conformité | `docs/conformite` | Terminée — voir [conformite.md](conformite.md) |
 | 7 | Dossier de soumission | `release/chatgpt-submission` | À faire |
 | 8 | Publication progressive | — | À faire |
@@ -82,17 +82,31 @@ Deux conséquences ont orienté le correctif :
 * `--check-issuer` contre le locataire Auth0 réel : accepte l'écriture exacte,
   rejette l'autre avec un message explicite et un code de sortie `2`.
 
-### Action humaine requise
+### Critère de fin — atteint le 31 août 2026
 
-Le code seul ne peut pas produire le critère de fin. Sur Render, passer :
+La variable Render `MCP_OAUTH_ISSUER` a été passée à la forme canonique, barre
+oblique finale incluse. Relevé sur la production après redéploiement :
 
+| Source | Valeur publiée |
+|---|---|
+| Auth0, champ `issuer` | `https://dev-7soa32jfmxpejzhs.eu.auth0.com/` |
+| `/.well-known/oauth-protected-resource` | `https://dev-7soa32jfmxpejzhs.eu.auth0.com/` |
+| `/.well-known/oauth-protected-resource/mcp` | `https://dev-7soa32jfmxpejzhs.eu.auth0.com/` |
+
+Les trois chaînes sont identiques caractère pour caractère. Vérifications
+complémentaires :
+
+* la sonde automatisée passe — émetteur conforme au document de découverte,
+  ressource cohérente entre les deux routes, requête anonyme refusée en `401`
+  avec le bon challenge :
+
+```bash
+python tests/check_oauth_metadata.py https://droit-francais-skill.onrender.com --discover
 ```
-MCP_OAUTH_ISSUER=https://dev-7soa32jfmxpejzhs.eu.auth0.com/
-```
 
-(barre oblique finale incluse), puis redéployer. Vérifier ensuite que les trois
-valeurs de la section « Vérification après déploiement » de
-[oauth.md](oauth.md) sont identiques.
+* l'URL JWKS dérivée répond en `200` : la barre finale n'est pas concaténée, et
+  le défaut de double barre qui motivait historiquement la troncature n'existe
+  donc plus.
 
 ---
 
