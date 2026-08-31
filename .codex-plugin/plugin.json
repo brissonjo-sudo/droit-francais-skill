@@ -1,6 +1,6 @@
 {
   "name": "droit-francais-skill",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Méthodologie rigoureuse de recherche en droit français, distribuée comme plugin OpenAI.",
   "author": {
     "name": "brissonjo-sudo",
@@ -19,7 +19,7 @@
   "mcpServers": "./.mcp.json",
   "interface": {
     "displayName": "Droit français",
-    "shortDescription": "Recherche juridique française traçable et sourcée.",
+    "shortDescription": "Rechercher le droit français",
     "longDescription": "Applique une méthode anti-hallucination fondée sur les sources primaires, la vérification de vigueur et des citations traçables.",
     "developerName": "brissonjo-sudo",
     "category": "Productivity",
@@ -28,6 +28,7 @@
       "MCP"
     ],
     "websiteURL": "https://github.com/brissonjo-sudo/droit-francais-skill",
+    "supportURL": "https://github.com/brissonjo-sudo/droit-francais-skill/issues",
     "privacyPolicyURL": "https://github.com/brissonjo-sudo/droit-francais-skill/blob/main/docs/privacy-policy.md",
     "termsOfServiceURL": "https://github.com/brissonjo-sudo/droit-francais-skill/blob/main/docs/terms-of-use.md",
     "composerIcon": "./assets/logo.png",

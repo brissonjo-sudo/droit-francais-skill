@@ -10,9 +10,9 @@ modifiés par aucune de ces phases.
 | 2 | Rendre la CI contraignante | `ci/restore-full-validation` | Terminée (PR #17 fusionnée, `main` protégée) |
 | 3 | Inventaire du checkout local | — | Terminée (sans objet) |
 | 4 | Retirer les artefacts de développement | `chore/remove-patch-artifacts` | Terminée (PR #15 fusionnée) |
-| 5 | Validation OAuth et MCP de bout en bout | `test/oauth-end-to-end` | Harnais livré et vert — check-list ChatGPT à exécuter |
+| 5 | Validation OAuth et MCP de bout en bout | `test/oauth-end-to-end` | **Terminée** — connecteur éprouvé dans ChatGPT le 31/08/2026 |
 | 6 | Sécurité et conformité | `docs/conformite` | Terminée — voir [conformite.md](conformite.md) |
-| 7 | Dossier de soumission | `release/chatgpt-submission` | À faire |
+| 7 | Dossier de soumission | `release/chatgpt-submission` | Dépôt conforme — reste trois pièces humaines |
 | 8 | Publication progressive | — | À faire |
 
 ---
@@ -268,3 +268,84 @@ Cour de cassation, Judilibre ou une autre administration.
 La note liste six points à surveiller — dont le dimensionnement des quotas,
 jamais confronté à une charge réelle, et le fait qu'une version épinglée doit
 être suivie sous peine de devenir une dette de sécurité.
+
+---
+
+## Phase 5 — Clôture
+
+Le connecteur « Droit français » a été connecté dans ChatGPT en OAuth sur
+l'endpoint Render, ses six outils découverts, et un essai réel a abouti le
+31 août 2026 : ChatGPT a enchaîné `search_articles` puis `fetch` et rendu le
+texte en vigueur de l'article L. 2212-2 du CGCT, avec l'identifiant
+`LEGIARTI000029946370`, son statut, sa date de version et le lien Légifrance.
+
+Le critère de fin est donc atteint : un utilisateur se connecte depuis ChatGPT
+et obtient une réponse juridique réelle issue d'une source officielle. Le
+connecteur reste en statut **development**, non soumis et non publié.
+
+---
+
+## Phase 7 — Dossier de soumission
+
+### Méthode
+
+Les exigences ont été relevées **à la source**, dans la documentation OpenAI,
+et non reprises de `docs/chatgpt-submission.md` — dont une section s'était déjà
+révélée fausse tout en se déclarant vérifiée. Le fichier de soumission a
+ensuite été validé contre le schéma JSON officiel qu'il déclare.
+
+### Défauts trouvés et corrigés
+
+| Défaut | Conséquence évitée |
+|---|---|
+| `$schema` pointait vers l'ancien chemin `apps-sdk` | **Échec de validation** du dossier : le schéma exige la forme `plugins` |
+| `shortDescription` faisait 50 caractères | Rejet : la limite est de 30 |
+| `supportURL` absent du manifeste | Rejet : quatre URL sont exigées, pas trois |
+| `release_notes` absent | Rejet : obligatoire à la soumission |
+| Version du manifeste `0.5.0` ≠ serveur `0.6.0` | Incohérence visible du dossier |
+
+Le fichier de soumission **valide désormais contre le schéma officiel**.
+
+### Ce qui était déjà conforme
+
+Logo carré 1254 × 1254 en PNG, très en deçà des 5 Mio et des 4096 pixels
+admis ; nom, description longue et nom de développeur sous leurs limites ;
+catégorie dans la liste OpenAI ; trois prompts de démarrage distincts et
+courts ; cinq cas positifs et trois cas négatifs ; justification présente pour
+chacune des trois annotations de chacun des six outils ; quatre URL publiques
+répondant en `200`.
+
+### Garde-fous ajoutés
+
+`tests/check_plugin.py` applique désormais les limites publiées par OpenAI —
+longueurs de champs, liste des catégories, nombre et longueur des prompts et
+des capacités, quatre URL, URL de schéma, présence des notes de version et des
+justifications — ainsi que la règle de version retenue : **le manifeste du
+plugin suit le serveur MCP**, le skill gardant sa propre ligne éditoriale.
+
+Les huit défauts correspondants ont été réintroduits un à un et sont tous
+détectés, avec un message nommant la limite dépassée.
+
+### Reste à faire — trois pièces humaines
+
+Elles ne peuvent pas vivre dans le dépôt :
+
+1. **Identité vérifiée** (individuelle ou commerciale) sur OpenAI Platform, et
+   droit *Apps Management: Write*. Le relecteur s'en sert pour vérifier que nom,
+   site, support, confidentialité et conditions concordent.
+2. **Identifiants de démonstration** pour le relecteur, le serveur étant en
+   OAuth. Ils doivent fonctionner **sans MFA, SMS ni confirmation par courriel**.
+   À créer dans Auth0 comme compte de test dédié.
+3. **Enregistrement vidéo** montrant les principaux cas d'usage et outils.
+
+S'y ajoute la **vérification de domaine** : le portail fournit un jeton
+temporaire à placer dans la variable Render `OPENAI_APPS_CHALLENGE`, puis à
+retirer aussitôt après validation. Le serveur expose déjà la route
+`/.well-known/openai-apps-challenge`.
+
+### Point ouvert avant soumission
+
+`MCP_OAUTH_REQUIRED_SCOPES=-` reste actif : `scopes_supported` est vide en
+production. C'est documenté comme configuration de compatibilité
+([conformite.md](conformite.md) §5) et réversible par un simple changement de
+variable. À trancher avant le dépôt du dossier.
