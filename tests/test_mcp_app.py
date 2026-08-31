@@ -218,6 +218,28 @@ class RuntimeSafetyTests(unittest.TestCase):
             challenge = asyncio.run(mcp_app.openai_apps_challenge(mock.Mock()))
         self.assertEqual(b"challenge-token", challenge.body)
 
+    def test_challenge_returns_the_bare_token_only(self):
+        """Un jeton collé depuis le portail emporte souvent un retour à la ligne.
+
+        La vérification de domaine compare la réponse au jeton exact : rendre
+        « jeton\\n » la ferait échouer sans que rien ne l'explique.
+        """
+        with mock.patch.dict(
+            os.environ, {"OPENAI_APPS_CHALLENGE": "  jeton-colle\n"}, clear=False
+        ):
+            challenge = asyncio.run(mcp_app.openai_apps_challenge(mock.Mock()))
+        self.assertEqual(b"jeton-colle", challenge.body)
+        # Texte brut exigé : ni JSON, ni liste, ni plusieurs jetons.
+        self.assertTrue(
+            challenge.headers.get("content-type", "").startswith("text/plain"),
+            challenge.headers.get("content-type"),
+        )
+
+    def test_challenge_absent_is_not_configured(self):
+        with mock.patch.dict(os.environ, {"OPENAI_APPS_CHALLENGE": "   "}, clear=False):
+            challenge = asyncio.run(mcp_app.openai_apps_challenge(mock.Mock()))
+        self.assertEqual(404, challenge.status_code)
+
 
 class McpProtocolTests(unittest.TestCase):
     def test_stdio_protocol_lists_tools_and_returns_explicit_error(self):
