@@ -216,6 +216,13 @@ La route suffixée par `/mcp` est celle vers laquelle pointe le
 `WWW-Authenticate` du `401`, donc celle que ChatGPT lit réellement. La route
 racine n'est qu'un alias de compatibilité.
 
+Ces trois contrôles sont automatisés — l'émetteur attendu est alors lu dans le
+document de découverte, et le refus anonyme est vérifié dans la foulée :
+
+```bash
+python tests/check_oauth_metadata.py https://droit-francais-skill.onrender.com --discover
+```
+
 La réponse attendue en 2 comporte
 `www-authenticate: Bearer error="invalid_token", …, resource_metadata="…"`.
 C'est cet en-tête qui déclenche la découverte automatique par ChatGPT.
