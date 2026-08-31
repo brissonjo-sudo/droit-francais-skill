@@ -1,4 +1,4 @@
-# Gabarits de sortie — détail (v2.2.0)
+# Gabarits de sortie — détail (v3.2.0)
 
 > Référencé depuis `SKILL.md §6`. Lire ce fichier avant toute rédaction de livrable.
 > Tout gabarit commence par l'en-tête standardisé et se termine par l'encart récapitulatif.
@@ -153,6 +153,43 @@ Triangulation : [chemin 1 + chemin 2]
 
 [Encart final récapitulatif]
 ```
+
+### Gabarit D — Audit documentaire
+
+Pour : audit, relecture juridique ou correction directe d'un ou plusieurs
+fichiers. Le registre complet peut rester un document de travail ; la
+synthèse doit montrer immédiatement les corrections et les limites.
+
+```
+[En-tête standardisé]
+
+## Périmètre
+- Fichiers contrôlés : […]
+- Date du droit : […]
+- Audit antérieur : […] (sans présomption de conformité)
+
+## Corrections effectuées
+- [fichier / emplacement] : [ancienne proposition] → [correction]
+  Motif : [source / conséquence / compétence / date / cohérence]
+
+## Contrôles transversaux
+- Affirmations à risque élevé : [n/n traitées]
+- Matrice acteur–lieu–propriétaire–pouvoir : [complète / limites]
+- Divergences interdocuments : [résolues / ouvertes]
+- Recherche post-correction : [résultat]
+
+## Points restant à vérifier ou arbitrer
+- […]
+
+## Étape 7 — Auto-critique adversariale
+- Conséquence opérationnelle excessive encore possible : […]
+- Résidu ou divergence possible : […]
+
+[Encart final récapitulatif]
+```
+
+Ne jamais écrire « conforme » si le contrôle à 100 % du risque élevé ou le
+contrôle post-correction n'est pas achevé.
 
 ### Sous-gabarit « note de concours » (balise `[syllogisme]`)
 

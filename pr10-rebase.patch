@@ -1,0 +1,729 @@
+diff --git a/.github/workflows/ci.yml b/.github/workflows/ci.yml
+index 6ebd737..d85423c 100644
+--- a/.github/workflows/ci.yml
++++ b/.github/workflows/ci.yml
+@@ -76,5 +76,5 @@ jobs:
+       - name: Vérifier la cohérence doc ↔ CLI (sous-commandes)
+         run: python tests/check_commands.py
+ 
+-      - name: Éval hors-ligne (check-list 14 modes)
++      - name: Éval hors-ligne (check-list 18 modes)
+         run: python tests/run_eval.py
+diff --git a/README.md b/README.md
+index 57bdb0c..1643e5d 100644
+--- a/README.md
++++ b/README.md
+@@ -1,6 +1,6 @@
+ # droit-francais-skill
+ 
+-**Skill LLM — méthodologie de recherche en droit français (v3.1.1)**
++**Skill LLM — méthodologie de recherche en droit français (v3.2.0)**
+ 
+ **Distribution autonome + plugin OpenAI avec outils MCP (plugin v0.5.0)**
+ 
+@@ -10,7 +10,7 @@
+ 
+ > **TL;DR (EN).** An LLM skill that stops the model from *making up
+ > French law.* It forces every statute, case, or citation through a 9-step
+-> verification procedure built against **14 known LLM failure modes** in legal
++> verification procedure built against **18 known LLM failure modes** in legal
+ > reasoning — primary sources only (Légifrance/PISTE), currency checks, and
+ > *traceable* citations. When it can't verify, it says so instead of inventing.
+ > Configurable per practitioner via a **profile**. Works without any API key;
+@@ -80,12 +80,15 @@ vigueur…), ce skill active une procédure en 9 étapes incluant :
+   rédaction (6) → auto-critique (7)
+ - **4 techniques** de raisonnement (qualification adversariale,
+   triangulation, archéologie textuelle, distinction)
+-- **5 modules activables** selon la requête (PÉNAL, ACTE-ADMIN, PA-PJ,
+-  FOND, CONTENTIEUX)
++- **6 modules activables** selon la requête (PÉNAL, ACTE-ADMIN, PA-PJ,
++  FOND, CONTENTIEUX, DOC-AUDIT)
+ - **Double mode opératoire** A (noyau + modules) / B (exhaustif avec
+   balise `[complet]`)
+ - **Gabarits de sortie** normalisés (express, fond, citation pour acte,
+-  note de concours)
++  audit documentaire, note de concours)
++- **Audit documentaire** (v3.2.0) : registre des affirmations, vérification
++  de 100 % du risque élevé, matrice acteur–lieu–propriétaire–pouvoir,
++  cohérence d'un corpus et contrôle post-correction
+ - **Règle de provenance** (v2.3.0) : tout identifiant officiel
+   (`LEGIARTI`, `NOR`, n° de pourvoi…) doit provenir d'un appel d'outil
+   de la session, jamais de la mémoire — sinon marqué « non vérifié »
+@@ -217,19 +220,20 @@ Le skill s'active automatiquement quand vous :
+ - demandez une qualification juridique (pénale, administrative, civile)
+ - vérifiez si un texte est en vigueur, abrogé ou modifié
+ - demandez une jurisprudence (Cass., CE, CC, CJUE, CEDH)
++- auditez, relisez ou corrigez juridiquement un document ou un corpus
+ - rédigez un arrêté municipal, une note au Maire, un mémoire
+ - préparez un oral ou écrit de concours
+ 
+ **Balises de contrôle :**
+ - `[complet]` — mode exhaustif, tous modules activés
+-- `[express]` — mode allégé (PÉNAL toujours actif)
++- `[express]` — mode allégé (PÉNAL et DOC-AUDIT restent actifs lorsqu'applicables)
+ - `[syllogisme]` — structure majeure / mineure / conclusion (concours)
+ - `[opérationnel]` — section implications opérationnelles activée
+ - `[lookup]` — voie rapide : référence ponctuelle, sortie minimale
+ 
+ ---
+ 
+-## Arborescence (skill v3.1.1 / plugin v0.5.0)
++## Arborescence (skill v3.2.0 / plugin v0.5.0)
+ 
+ ```
+ droit-francais-skill/
+@@ -255,9 +259,10 @@ droit-francais-skill/
+ │   │   ├── collectivites.md
+ │   │   └── etudiant-concours.md
+ │   ├── references/
+-│   │   ├── gabarits-sortie.md      ← gabarits A/B/C + syllogisme (détail §6)
+-│   │   ├── modules.md              ← 5 modules activables (détail §5)
+-│   │   ├── modes-erreur.md         ← détail des 14 modes d'erreur (détail §1)
++│   │   ├── gabarits-sortie.md      ← gabarits A/B/C/D + syllogisme (détail §6)
++│   │   ├── modules.md              ← 6 modules activables (détail §5)
++│   │   ├── modes-erreur.md         ← détail des 18 modes d'erreur (détail §1)
++│   │   ├── audit-documentaire.md   ← protocole DOC-AUDIT (détail §2 bis)
+ │   │   ├── gabarits-requetes.md    ← requêtes Légifrance optimisées
+ │   │   ├── checklist-vigueur.md    ← checklist 14 points vérification
+ │   │   ├── maintenance.md          ← procédure de revue annuelle
+diff --git a/skill/CHANGELOG.md b/skill/CHANGELOG.md
+index 4f99d85..c6fe4b3 100644
+--- a/skill/CHANGELOG.md
++++ b/skill/CHANGELOG.md
+@@ -4,6 +4,52 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/).
+ 
+ ---
+ 
++### [3.2.0] — 2026-08-27
++
++Issue d'un retour d'expérience sur l'audit d'un corpus opérationnel. La
++méthode vérifiait les sources mais ne garantissait ni l'exhaustivité du
++contrôle documentaire, ni la validité de la conséquence tirée d'une citation
++exacte, ni la cohérence entre fichiers.
++
++#### Ajouté
++- **Module DOC-AUDIT**, non désactivable par `[express]`, pour tout audit,
++  toute relecture juridique ou correction d'un document existant.
++- **`references/audit-documentaire.md`** : protocole bloquant — qualification
++  du livrable et date de droit, inventaire du corpus, registre des
++  affirmations, contrôle de 100 % du risque élevé, matrice
++  acteur–lieu–propriétaire–pouvoir, double test source/conséquence, cohérence
++  interdocuments et contrôle post-correction.
++- **Gabarit D — Audit documentaire** : synthèse des corrections, couverture
++  du risque élevé, divergences et limites restantes.
++- Quatre modes d'erreur : validation héritée (15), citation exacte mais
++  conséquence fausse (16), mauvais acteur–lieu–propriétaire–pouvoir (17),
++  incohérence de corpus (18).
++- Quatre sondes d'évaluation correspondant aux nouveaux modes.
++
++#### Modifié
++- **SKILL.md** : version 3.1.1 → 3.2.0 ; déclenchement de DOC-AUDIT ; contrôle
++  source/conséquence à l'étape 6.
++- **README, références et maintenance** : 18 modes, 6 modules, gabarit D et
++  quatrième test fonctionnel de revue.
++
++#### Corrigé
++- **`tests/eval-modes-erreur.csv`** : guillemets manquants autour de deux
++  regex contenant une virgule ; le lecteur CSV tronquait silencieusement les
++  motifs interdits des modes 5 et 7. `run_eval.py` rejette désormais toute
++  ligne comportant des colonnes excédentaires au lieu de les ignorer.
++
++#### Sécurité
++- Un audit antérieur, même annoncé comme réalisé avec ce skill, ne réduit
++  pas la revérification des affirmations à risque élevé.
++- Interdiction de déclarer l'audit achevé tant qu'un point à risque élevé
++  n'est pas vérifié/corrigé ou placé en abstention ciblée.
++
++#### Conservé
++- Profils v3, récupération Légifrance/Judilibre, correctifs `search` v3.1.1,
++  7 principes, 9 étapes, 4 techniques et 10 déclencheurs d'abstention.
++- `date_derniere_verification_sources` reste au 19 mai 2026 : cette évolution
++  est méthodologique et ne vaut pas revue générale de toutes les sources.
++
+ ### [3.1.1] — 2026-08-12
+ 
+ Release **corrective**, ciblée sur la seule commande `search`, laissée
+diff --git a/skill/SKILL.md b/skill/SKILL.md
+index b9b8a92..c604957 100644
+--- a/skill/SKILL.md
++++ b/skill/SKILL.md
+@@ -6,24 +6,25 @@ description: Méthodologie rigoureuse de recherche en droit français (sources
+   arrêté ou circulaire ; demande une qualification pénale, administrative ou
+   civile ; demande une jurisprudence (Cass., CE, CC, CJUE, CEDH) ; demande de
+   vérifier si un texte est en vigueur, abrogé ou modifié ; rédige un acte, une
+-  note, un mémoire, des conclusions ou une réponse institutionnelle ; prépare
++  note, un mémoire, des conclusions ou une réponse institutionnelle ; audite
++  ou corrige juridiquement un document ou un corpus de documents ; prépare
+   un écrit ou oral de concours avec références juridiques. Ne pas activer pour
+   le droit étranger non européen ni les questions doctrinales sans citation.
+ metadata:
+-  version: 3.1.1
+-  date_derniere_revue_methodologique: 2026-07-02
++  version: 3.2.0
++  date_derniere_revue_methodologique: 2026-08-27
+   date_derniere_verification_sources: 2026-05-19
+   langue: français
+ ---
+-# Skill : recherche-juridique (v3.1.1)
++# Skill : recherche-juridique (v3.2.0)
+ 
+ > **Objet** : encoder la méthodologie rigoureuse de recherche en droit
+ > français applicable à tout usage professionnel — avocat, juriste,
+ > agent des forces de l'ordre, cadre territorial, candidat aux concours.
+-> Conçu contre **quatorze modes d'erreur** identifiés du LLM en droit,
++> Conçu contre **dix-huit modes d'erreur** identifiés du LLM en droit,
+ > autour de **sept principes**, d'une **procédure en neuf étapes**
+ > (étapes **0** et **0 bis** de cadrage, étapes **1 à 7** opératoires),
+-> d'un **double mode opératoire A/B**, de **cinq modules activables** et
++> d'un **double mode opératoire A/B**, de **six modules activables** et
+ > de **quatre techniques** de raisonnement juridique.
+ >
+ > **Public** : praticiens du droit français. Le métier de l'utilisateur
+@@ -44,6 +45,7 @@ Activer ce skill dès que l'utilisateur :
+ - demande une jurisprudence (Cass., CE, CC, CJUE, CEDH),
+ - rédige un acte, une note, un mémoire, des conclusions ou une réponse
+   institutionnelle,
++- audite, relit ou corrige juridiquement un document existant ou un corpus,
+ - prépare un oral ou écrit de concours impliquant des références juridiques.
+ 
+ **Ne pas activer** pour des questions purement doctrinales sans besoin
+@@ -103,7 +105,7 @@ légalité, exercice de préparation au concours).
+ | Balise | Effet |
+ |--------|-------|
+ | `[complet]` | Force le mode B (tous modules activés). |
+-| `[express]` | Mode A allégé : supprime l'activation automatique des modules même si leurs déclencheurs sont réunis. **Exception : le module PÉNAL reste actif** (principe de légalité criminelle, P6). |
++| `[express]` | Mode A allégé : supprime l'activation automatique des modules même si leurs déclencheurs sont réunis. **Exceptions : PÉNAL reste actif** en matière répressive (P6) et **DOC-AUDIT reste actif** pour tout audit ou correction de documents. |
+ | `[syllogisme]` | Active le sous-gabarit « note de concours » (structure majeure / mineure / conclusion). Surcouche du gabarit B. |
+ | `[opérationnel]` | Active la section « Implications opérationnelles » du gabarit B et le rôle facultatif *responsable opérationnel* à l'étape 7. |
+ | `[lookup]` | **Voie rapide** : référence ponctuelle non controversée. Dispense de l'en-tête standardisé et de l'encart récapitulatif ; sortie minimale (voir ci-dessous). **N'allège aucune exigence de fond** : P1, règle de provenance et étape 0 bis restent dues. Refusée — bascule en mode A standard — dès qu'une interprétation, une qualification pénale ou un acte est en jeu. |
+@@ -147,25 +149,27 @@ de l'identifiant y reste néanmoins obligatoire).
+ 
+ ---
+ 
+-## 1. Diagnostic préalable — les 14 modes d'erreur à empêcher
++## 1. Diagnostic préalable — les 18 modes d'erreur à empêcher
+ 
+-Cette méthodologie est construite contre **quatorze modes d'erreur** du
++Cette méthodologie est construite contre **dix-huit modes d'erreur** du
+ LLM en droit. Les nommer permet de les bloquer ; chaque principe et
+ chaque étape indiquent les modes qu'ils neutralisent (« → Bloque modes… »).
+ 
+ | # | Mode | # | Mode |
+ |---|------|---|------|
+-| 1 | Hallucination de référence | 8 | Oubli de la hiérarchie des normes |
+-| 2 | Effet de cutoff | 9 | Oubli du décret d'application |
+-| 3 | Confusion de versions | 10 | Oubli du champ territorial |
+-| 4 | Confusion d'articles voisins | 11 | Oubli des dispositions transitoires |
+-| 5 | Analogie non vérifiée | 12 | Oubli des renvois normatifs |
+-| 6 | Confusion doctrine / texte | 13 | Inversion cumulatif / alternatif |
+-| 7 | Confusion de juridictions | 14 | Faux positif textuel |
++| 1 | Hallucination de référence | 10 | Oubli du champ territorial |
++| 2 | Effet de cutoff | 11 | Oubli des dispositions transitoires |
++| 3 | Confusion de versions | 12 | Oubli des renvois normatifs |
++| 4 | Confusion d'articles voisins | 13 | Inversion cumulatif / alternatif |
++| 5 | Analogie non vérifiée | 14 | Faux positif textuel |
++| 6 | Confusion doctrine / texte | 15 | Validation héritée d'un audit antérieur |
++| 7 | Confusion de juridictions | 16 | Citation exacte, conséquence fausse |
++| 8 | Oubli de la hiérarchie des normes | 17 | Mauvais acteur–lieu–propriétaire–pouvoir |
++| 9 | Oubli du décret d'application | 18 | Incohérence de corpus |
+ 
+ **Détail et exemples de chaque mode → [`references/modes-erreur.md`](references/modes-erreur.md).**
+ 
+-**Note.** L'étape 0 bis (v2.1.0) n'est pas un 15e mode : garde procédurale
++**Note.** L'étape 0 bis (v2.1.0) n'est pas un mode supplémentaire : garde procédurale
+ en amont, elle empêche de déclencher les modes 10 et 14 (mauvais régime /
+ mauvais champ sur une hypothèse décisionnelle non levée). Elle prolonge P2
+ et P7 au stade de l'entrée.
+@@ -351,6 +355,32 @@ et détenue par le seul utilisateur**, le skill ne spécule pas et ne
+ 
+ ---
+ 
++## 2 bis. Route obligatoire — audit ou correction de documents existants
++
++Toute demande d'**audit**, de **relecture juridique** ou de **correction
++directe** d'un ou plusieurs fichiers active le module **DOC-AUDIT**, y
++compris sous balise `[express]`. Lire et exécuter intégralement
++[`references/audit-documentaire.md`](references/audit-documentaire.md).
++
++Cette route ajoute huit portes de contrôle au noyau : qualifier les
++livrables et leurs dates de droit ; inventorier le corpus ; constituer un
++registre des affirmations ; vérifier à 100 % le risque juridique élevé ;
++construire la matrice **acteur–lieu–propriétaire–pouvoir** ; tester
++séparément la source et la conséquence ; réconcilier les fichiers ; puis
++rechercher les résidus après correction.
++
++**Indépendance de second regard.** Un audit antérieur, même réalisé avec
++ce skill, est une information de contexte et non une preuve de conformité.
++Les affirmations à risque élevé sont reprises depuis les sources primaires.
++
++**Porte bloquante.** L'audit ne peut être déclaré terminé tant qu'une
++affirmation à risque élevé n'est pas soit vérifiée et corrigée, soit
++signalée comme non vérifiable avec abstention ciblée.
++
++→ Bloque modes 2, 3, 14 à 18.
++
++---
++
+ ## 3. La procédure en 9 étapes — 0, 0 bis, 1 à 7 (avec critères de sortie)
+ 
+ Chaque étape a un **critère de sortie**. S'il n'est pas rempli, je
+@@ -364,7 +394,7 @@ Avant toute recherche, répondre par écrit à **six questions** :
+ 
+ 1. **Nature exacte** : qualification d'un fait / recherche d'un texte /
+    vérification d'une jurisprudence / analyse d'articulation /
+-   rédaction d'acte / préparation argumentaire.
++   rédaction d'acte / audit de document ou corpus / préparation argumentaire.
+ 2. **Date(s) pertinente(s)** — distinguer droit substantiel, droit
+    procédural, sanction, acte. Inclure systématiquement **date des
+    faits** et **date d'action ou d'analyse** (contrôles de délais et
+@@ -638,6 +668,12 @@ article sur la compétence n'est pas un article sur la procédure ; un
+ arrêt sur le contentieux contractuel n'est pas un arrêt sur le
+ contentieux indemnitaire.
+ 
++**Contrôle source / conséquence** : vérifier en deux temps que (a) la
++source contient la proposition invoquée et que (b) cette proposition
++autorise exactement la conséquence écrite, pour cet acteur, ce lieu, ce
++propriétaire, cette date et cette opération. Une citation exacte ne valide
++jamais, à elle seule, la phrase qui la porte.
++
+ **Contrôle de provenance (P1)** : avant livraison, vérifier que chaque
+ identifiant officiel cité (`LEGIARTI`, `JORFTEXT`, `NOR`, n° de
+ pourvoi, n° de requête, n° de décision) a bien été **récupéré par un
+@@ -645,9 +681,13 @@ appel d'outil dans la session**. Tout identifiant sans provenance est
+ retiré ou marqué `⚠️ non vérifié — identifiant non récupéré`. Aucun
+ gabarit C n'est produit sur un identifiant non récupéré.
+ 
++En route DOC-AUDIT, exécuter en outre le contrôle post-correction prévu par
++`references/audit-documentaire.md` et consigner les divergences
++interdocuments résolues ou encore ouvertes.
++
+ **Critère de sortie** : chaque affirmation porte sa citation et son
+-niveau de confiance ; contrôle texte-cible exécuté ; contrôle de
+-provenance exécuté.
++niveau de confiance ; contrôles texte-cible, source/conséquence et
++provenance exécutés ; en audit, contrôle post-correction exécuté.
+ 
+ → Bloque modes 1, 4, 5, 14.
+ 
+@@ -735,6 +775,7 @@ doute sur le déclenchement, le module s'active.** Le mode B force tous les modu
+ | **PA-PJ** | Opération susceptible d'être PA ou PJ (constatation, interpellation, contrôle, mesure préventive) | Mini-grille : finalité / autorité / temporalité / régime procédural |
+ | **FOND** | Niveau = note de fond / citation pour acte / concours ; ou interprétation controversée | T3 obligatoire, grille autorité jurisprudentielle |
+ | **CONTENTIEUX** | Risque recours / stratégie procédurale / voie de droit envisagée | Régime contentieux + office juge + charge + moyens + délais |
++| **DOC-AUDIT** | Audit, relecture ou correction juridique d'un ou plusieurs fichiers | Registre des affirmations, risque élevé vérifié à 100 %, matrice acteur–lieu–propriétaire–pouvoir, cohérence du corpus, contrôle post-correction ; non désactivable par `[express]` |
+ 
+ **Lire [`references/modules.md`](references/modules.md) dès qu'un module s'active.**
+ 
+@@ -742,7 +783,8 @@ doute sur le déclenchement, le module s'active.** Le mode B force tous les modu
+ ## 6. Gabarits de sortie
+ 
+ **Gabarit A** — Note express · **Gabarit B** — Note de fond · **Gabarit C** — Citation
+-pour acte · **Sous-gabarit `[syllogisme]`** — Note de concours (surcouche B).
++pour acte · **Gabarit D** — Audit documentaire · **Sous-gabarit
++`[syllogisme]`** — Note de concours (surcouche B).
+ 
+ **Lire [`references/gabarits-sortie.md`](references/gabarits-sortie.md) avant toute rédaction de livrable.**
+ 
+diff --git a/skill/references/audit-documentaire.md b/skill/references/audit-documentaire.md
+new file mode 100644
+index 0000000..645ae9e
+--- /dev/null
++++ b/skill/references/audit-documentaire.md
+@@ -0,0 +1,155 @@
++# Audit juridique de documents existants — protocole bloquant (v3.2.0)
++
++> Référencé depuis `SKILL.md §2 bis` et le module DOC-AUDIT.
++> Lire ce fichier intégralement dès qu'un document existant doit être
++> audité, relu juridiquement ou corrigé, seul ou dans un corpus.
++
++## 1. Indépendance et date
++
++Un audit antérieur, une mention « validé juridiquement », la réputation
++d'un auteur ou l'utilisation passée du skill ne valent pas preuve. Reprendre
++depuis les sources primaires toutes les affirmations à risque élevé.
++
++Si le document ou son audit est antérieur à la date d'analyse, établir un
++**delta temporel** : réformes entrées en vigueur depuis, versions futures,
++montants, compétences et dispositions transitoires.
++
++## 2. Qualifier chaque livrable
++
++Identifier sa nature réelle, son auteur, ses destinataires, son effet
++recherché, la date des faits, la date d'application et la date d'audit.
++
++Qualifier un instrument par son **contenu et ses effets**, jamais par son
++seul titre. Une « réquisition » peut n'être qu'une autorisation d'accès ;
++une « convention » peut n'organiser qu'une transmission. Vérifier ce que
++l'instrument permet, ce qu'il ne permet pas et qui reste compétent.
++
++## 3. Inventorier le corpus et les faits locaux
++
++Lister tous les fichiers, versions, annexes et doublons. Séparer les faits
++confirmés par l'utilisateur ou les pièces des hypothèses, estimations,
++recommandations et choix d'organisation. Un KPI, une pratique habituelle ou
++une intention n'est ni une règle de droit ni un fait acquis.
++
++## 4. Tenir un registre exhaustif des affirmations
++
++Extraire toute affirmation ou consigne juridiquement significative :
++
++| Champ | Contenu attendu |
++|---|---|
++| Fichier et emplacement | fichier, page/section/cellule |
++| Proposition exacte | affirmation, consigne ou effet promis |
++| Registre | droit / fait établi / inférence / choix local / recommandation |
++| Risque | élevé / ordinaire |
++| Acteur | auteur de l'acte ou de l'opération |
++| Lieu | nature juridique et ouverture au public |
++| Propriétaire/gestionnaire | personne publique, bailleur, tiers, inconnu |
++| Action ou pouvoir | accès, constat, verbalisation, saisie, éviction, etc. |
++| Source et version | texte primaire, date de vigueur, renvois |
++| Éléments requis | cumulatifs/alternatifs, déclencheur, limites |
++| Conséquence revendiquée | ce que le document en déduit concrètement |
++| État | confirmé / corrigé / à vérifier / supprimé |
++
++Ne pas limiter l'extraction aux passages déjà cités. Les verbes d'action,
++tableaux, formulaires, listes de contrôle et cellules de calcul peuvent
++porter une règle juridique implicite.
++
++## 5. Vérifier 100 % du risque élevé
++
++Sont à risque élevé, notamment :
++
++- compétence d'une autorité ou d'un agent ;
++- qualification d'infraction et éléments constitutifs ;
++- peine, classe, amende forfaitaire, montant, seuil ou délai ;
++- identité, contrôle, interpellation, fouille, inspection, ouverture,
++  manipulation, saisie, confiscation, éviction ou dispersion ;
++- accès à un lieu privé, domicile, box, parking ou parties communes ;
++- immobilisation, enlèvement ou mise en fourrière d'un véhicule ;
++- image, vidéoprotection, photographie, fichier ou donnée personnelle ;
++- réquisition, transmission, conservation ou remise à une autorité ;
++- opposabilité, délégation, procédure préalable et chaîne de décision.
++
++Vérifier **chaque** affirmation à risque élevé en source primaire. Aucun
++échantillonnage n'est admis pour cette catégorie. L'échantillonnage ne
++concerne que des répétitions strictement identiques ou la pure rédaction.
++
++Toute valeur chiffrée subit un **test du seuil** : identifier le texte qui
++crée exactement le seuil, le montant ou le délai. À défaut, supprimer le
++chiffre et exposer le critère qualitatif réellement prévu.
++
++## 6. Matrice acteur–lieu–propriétaire–pouvoir
++
++Avant de conclure sur une opération, remplir quatre dimensions :
++
++1. **Acteur** : autorité, agent, enquêteur, gestionnaire, gardien,
++   exploitant ou tiers.
++2. **Lieu** : voie publique, voie privée ouverte à la circulation publique,
++   espace privé fermé, parties communes, domicile/local privatif ou domaine
++   public.
++3. **Propriétaire/gestionnaire** : personne publique, bailleur,
++   copropriété, personne privée ou indéterminé.
++4. **Pouvoir précis** : entrer, observer, relever, identifier, verbaliser,
++   interpeller, fouiller, saisir, évacuer, requérir, conserver, transmettre
++   ou enlever un véhicule.
++
++Une autorisation d'accès ne crée pas, par elle-même, un pouvoir de police,
++de fouille, de saisie, de réquisition ou d'éviction. Une compétence de
++constatation ne crée pas un pouvoir d'enquête. Pour toute procédure
++multi-acteurs, expliciter la chaîne : **qui initie → qui décide/autorise →
++qui exécute → qui reçoit la preuve ou le compte rendu**.
++
++## 7. Double test source / conséquence
++
++Pour chaque affirmation juridique :
++
++1. **Proposition** : la source officielle dit-elle réellement ce qui est
++   paraphrasé, dans la version et le champ applicables ?
++2. **Conséquence** : permet-elle exactement l'action ou la conclusion
++   écrite, pour cet acteur, ce lieu, ce propriétaire, ces conditions et
++   cette date ?
++
++Tracer séparément les éléments cumulatifs. Une catégorie vague ou un seul
++élément visible ne suffit pas si le texte exige en plus une intention, une
++entrave, une mise en demeure ou un autre déclencheur.
++
++## 8. Audit négatif des pouvoirs et des données
++
++Rechercher activement les verbes qui suggèrent un pouvoir coercitif :
++« contrôle », « identifie », « interpelle », « fouille », « inspecte »,
++« ouvre », « manipule », « saisit », « évacue », « disperse »,
++« réquisitionne », « conserve », « transmet », « enlève ».
++
++Chaque verbe exige une base légale, un acteur compétent, un déclencheur, un
++champ, une procédure et une limite. Sinon, remplacer par une instruction
++juridiquement sûre — observer, préserver les lieux, rendre compte, solliciter
++l'autorité compétente — sans inventer un pouvoir.
++
++Pour les images et données, distinguer visionnage/transmission en temps
++réel, conservation, remise volontaire, réquisition judiciaire, responsable
++du traitement, destinataires et durée. Ne pas déduire une responsabilité
++conjointe d'une simple coopération. Employer une terminologie factuelle et
++neutre ; ne pas transformer une catégorie sociale ou une présence matérielle
++en qualification juridique.
++
++## 9. Cohérence du corpus et contrôle après correction
++
++Créer une table de vérité unique et comparer tous les fichiers sur les
++articles, versions, dates, montants, seuils, sanctions, acteurs,
++propriétaires, lieux, procédures, numéros de fiches, indicateurs et
++vocabulaire opérationnel.
++
++Après modification, relire ou rendre les documents puis rechercher
++globalement les anciennes références et formulations. Vérifier qu'aucun
++montant, article, seuil ou terme supprimé ne subsiste ; que les renvois,
++tableaux et annexes sont alignés ; que les faits non démontrés restent des
++hypothèses ; et que les choix locaux ne sont pas présentés comme la loi.
++
++## 10. Critère de clôture
++
++L'audit est clos uniquement si le registre couvre tout le corpus, 100 % des
++affirmations à risque élevé sont traitées, les matrices sensibles sont
++complètes, les divergences sont corrigées ou explicitement ouvertes, et le
++contrôle post-correction ne retrouve aucun résidu critique.
++
++Une formule générale comme « conforme » ou « audit réalisé » est interdite
++si l'une de ces conditions n'est pas satisfaite.
+diff --git a/skill/references/gabarits-sortie.md b/skill/references/gabarits-sortie.md
+index b5b60fa..c182802 100644
+--- a/skill/references/gabarits-sortie.md
++++ b/skill/references/gabarits-sortie.md
+@@ -1,4 +1,4 @@
+-# Gabarits de sortie — détail (v2.2.0)
++# Gabarits de sortie — détail (v3.2.0)
+ 
+ > Référencé depuis `SKILL.md §6`. Lire ce fichier avant toute rédaction de livrable.
+ > Tout gabarit commence par l'en-tête standardisé et se termine par l'encart récapitulatif.
+@@ -154,6 +154,43 @@ Triangulation : [chemin 1 + chemin 2]
+ [Encart final récapitulatif]
+ ```
+ 
++### Gabarit D — Audit documentaire
++
++Pour : audit, relecture juridique ou correction directe d'un ou plusieurs
++fichiers. Le registre complet peut rester un document de travail ; la
++synthèse doit montrer immédiatement les corrections et les limites.
++
++```
++[En-tête standardisé]
++
++## Périmètre
++- Fichiers contrôlés : […]
++- Date du droit : […]
++- Audit antérieur : […] (sans présomption de conformité)
++
++## Corrections effectuées
++- [fichier / emplacement] : [ancienne proposition] → [correction]
++  Motif : [source / conséquence / compétence / date / cohérence]
++
++## Contrôles transversaux
++- Affirmations à risque élevé : [n/n traitées]
++- Matrice acteur–lieu–propriétaire–pouvoir : [complète / limites]
++- Divergences interdocuments : [résolues / ouvertes]
++- Recherche post-correction : [résultat]
++
++## Points restant à vérifier ou arbitrer
++- […]
++
++## Étape 7 — Auto-critique adversariale
++- Conséquence opérationnelle excessive encore possible : […]
++- Résidu ou divergence possible : […]
++
++[Encart final récapitulatif]
++```
++
++Ne jamais écrire « conforme » si le contrôle à 100 % du risque élevé ou le
++contrôle post-correction n'est pas achevé.
++
+ ### Sous-gabarit « note de concours » (balise `[syllogisme]`)
+ 
+ Surcouche du gabarit B structurant explicitement le raisonnement :
+diff --git a/skill/references/maintenance.md b/skill/references/maintenance.md
+index 363d96f..4d070b5 100644
+--- a/skill/references/maintenance.md
++++ b/skill/references/maintenance.md
+@@ -110,7 +110,7 @@ actif** (section 3 de `profil.md`).
+   jamais rejouer l'arbitrage. C'est cette contradiction, apparue en v3.0.0,
+   qu'a corrigée la v3.1.0 ; aucun test ne peut la détecter.
+ - `references/modes-erreur.md` : garder synchronisé avec la table du §1
+-  (mêmes 14 intitulés, même numérotation).
++  (mêmes 18 intitulés, même numérotation).
+ - **CI** : vérifier que `.github/workflows/ci.yml` passe au vert
+   (`py_compile`, `check_links.py`, `check_commands.py`, `run_eval.py`
+   hors-ligne).
+@@ -129,11 +129,16 @@ actif** (section 3 de `profil.md`).
+ - [ ] Les fichiers `profils/*.md` respectent le format en 5 sections du
+       `profils/_modele.md` (identité, territorial, domaines, rôle (c),
+       cas particuliers) ; aucun contexte personnel codé en dur dans le noyau.
+-- [ ] Numérotation continue des 14 modes d'erreur.
++- [ ] Numérotation continue des 18 modes d'erreur.
+ - [ ] Numérotation continue des 7 principes (P1 à P7).
+ - [ ] Numérotation continue des 9 étapes (0, 0 bis, puis 1 à 7).
+ - [ ] Numérotation continue des 4 techniques (T1 à T4).
+-- [ ] Les 5 modules ont chacun leurs déclencheurs et leur contenu.
++- [ ] Les 6 modules ont chacun leurs déclencheurs et leur contenu.
++- [ ] DOC-AUDIT reste actif sous `[express]` et pointe vers
++      `audit-documentaire.md`.
++- [ ] Le protocole documentaire impose le registre des affirmations, le
++      contrôle à 100 % du risque élevé, la matrice acteur–lieu–propriétaire–
++      pouvoir, la cohérence du corpus et le contrôle post-correction.
+ - [ ] Chaque étape a un critère de sortie explicite.
+ - [ ] Chaque étape référence le ou les modes d'erreur qu'elle bloque.
+ - [ ] Les balises `[complet]`, `[express]`, `[syllogisme]`,
+@@ -144,7 +149,7 @@ actif** (section 3 de `profil.md`).
+       PÉNAL.
+ - [ ] La **règle de provenance** (P1) est référencée à l'étape 6
+       (contrôle de provenance) et dans `format-citation.md`.
+-- [ ] Les gabarits A, B, C et le sous-gabarit syllogisme intègrent
++- [ ] Les gabarits A, B, C, D et le sous-gabarit syllogisme intègrent
+       tous l'en-tête standardisé et l'encart final récapitulatif
+       (sauf voie rapide `[lookup]`, exempte par construction).
+ - [ ] Les 10 déclencheurs d'abstention sont listés et un format de
+@@ -176,7 +181,7 @@ si la revue donne lieu à un commit.
+ 
+ ## 7. Test fonctionnel de fin de revue
+ 
+-Faire tourner le skill, après mise à jour, sur **trois requêtes témoins**
++Faire tourner le skill, après mise à jour, sur **quatre requêtes témoins**
+ représentatives :
+ 
+ 1. **Mode A standard, aucun module** — requête simple de référence
+@@ -196,6 +201,12 @@ représentatives :
+    modules sont activés, certains marqués « sans objet à cette
+    espèce » avec justification.
+ 
++4. **DOC-AUDIT** — corpus de deux documents contenant un article exact mais
++   une conséquence opérationnelle excessive, un montant périmé et une
++   divergence d'acteur ou d'indicateur. Vérifier le registre complet, le
++   contrôle à 100 % du risque élevé, la matrice
++   acteur–lieu–propriétaire–pouvoir et la recherche post-correction.
++
+ Si l'un des tests révèle un défaut de cohérence ou d'application →
+ correction immédiate avant clôture de la revue.
+ 
+diff --git a/skill/references/modes-erreur.md b/skill/references/modes-erreur.md
+index c8d1d1d..ba122e5 100644
+--- a/skill/references/modes-erreur.md
++++ b/skill/references/modes-erreur.md
+@@ -1,6 +1,6 @@
+-# Les 14 modes d'erreur — détail (§1)
++# Les 18 modes d'erreur — détail (§1)
+ 
+-> Référencé depuis `SKILL.md §1`. Détail et exemples de chacun des quatorze
++> Référencé depuis `SKILL.md §1`. Détail et exemples de chacun des dix-huit
+ > modes d'erreur du LLM en droit que la méthodologie est conçue à bloquer.
+ > La table compacte est dans le noyau ; la cartographie « quel principe /
+ > quelle étape bloque quel mode » est dans `vault/matrice-modes.md`.
+@@ -26,12 +26,23 @@
+ 14. **Faux positif textuel** — article réel mais juridiquement non
+     pertinent ; ou texte réel mobilisé pour la mauvaise fonction
+     juridique (texte de compétence pris pour texte de sanction, etc.).
++15. **Validation héritée** — un audit antérieur, une mention « vérifié » ou
++    l'autorité supposée d'un autre modèle remplace la revérification
++    indépendante des affirmations à risque.
++16. **Citation exacte, conséquence fausse** — la source existe, mais ne
++    permet pas l'action, la sanction ou la conclusion opérationnelle écrite.
++17. **Mauvais acteur–lieu–propriétaire–pouvoir** — une compétence réelle est
++    étendue au mauvais agent, espace, propriétaire ou type d'opération.
++18. **Incohérence de corpus** — des fichiers d'un même dossier divergent sur
++    un article, une date, un montant, un acteur, une procédure, un indicateur
++    ou une qualification.
+ 
+-Tout le noyau est conçu pour bloquer ces quatorze modes. Chaque principe
++Tout le noyau et, pour les modes 15 à 18, la route DOC-AUDIT sont conçus
++pour bloquer ces dix-huit modes. Chaque principe
+ et chaque étape mentionnent les modes qu'ils neutralisent (« → Bloque
+ modes… »).
+ 
+-**Note (v2.1.0).** L'étape 0 bis n'ajoute pas un quinzième mode : elle agit
++**Note (v2.1.0).** L'étape 0 bis n'ajoute pas un mode supplémentaire : elle agit
+ en amont, comme **garde procédurale** empêchant de déclencher les modes 10
+ et 14 (analyse du mauvais régime ou du mauvais champ territorial sur une
+ hypothèse décisionnelle non levée). Elle prolonge P2 et P7 au stade de
+diff --git a/skill/references/modules.md b/skill/references/modules.md
+index e044814..1bbce28 100644
+--- a/skill/references/modules.md
++++ b/skill/references/modules.md
+@@ -1,4 +1,4 @@
+-# Modules activables — détail (v2.2.0)
++# Modules activables — détail (v3.2.0)
+ 
+ > Référencé depuis `SKILL.md §5`. Lire ce fichier dès qu'un module s'active.
+ > **Règle conservatrice : en cas de doute sur le déclenchement, le module s'active.**
+@@ -85,4 +85,18 @@ module s'active.** Le mode B force l'activation de tous les modules.
+   - les **moyens opérants**,
+   - les **délais de recours**.
+ 
++### Module DOC-AUDIT
++- **Déclencheurs** : audit, relecture juridique ou correction d'un document
++  existant ; contrôle d'un corpus ; reprise d'un document annoncé comme déjà
++  audité.
++- **Statut** : **non désactivable par `[express]`**. Le précédent audit ne
++  réduit pas le périmètre de revérification.
++- **Contenu** : lire et exécuter intégralement
++  [`audit-documentaire.md`](audit-documentaire.md) : inventaire du corpus,
++  registre des affirmations, contrôle en source primaire de 100 % du risque
++  élevé, matrice acteur–lieu–propriétaire–pouvoir, double test
++  source/conséquence, cohérence interdocuments et contrôle post-correction.
++- **Porte bloquante** : ne pas déclarer l'audit achevé si une affirmation à
++  risque élevé reste sans vérification, correction ou abstention ciblée.
++
+ ---
+diff --git a/tests/README.md b/tests/README.md
+index 6a11496..12a3a30 100644
+--- a/tests/README.md
++++ b/tests/README.md
+@@ -3,9 +3,9 @@
+ Deux jeux d'éval complémentaires, des tests unitaires hors réseau, trois
+ **contrôles statiques** et des vérifications de déploiement exécutés en CI.
+ 
+-## 1. `eval-modes-erreur.csv` — éval mappée sur les 14 modes d'erreur
++## 1. `eval-modes-erreur.csv` — éval mappée sur les 18 modes d'erreur
+ 
+-Une sonde **par mode d'erreur** du §1 du SKILL (1 à 14), plus des contrôles
++Une sonde **par mode d'erreur** du §1 du SKILL (1 à 18), plus des contrôles
+ transverses :
+ 
+ - **P** — règle de provenance (un identifiant non récupéré n'est jamais inventé) ;
+diff --git a/tests/eval-modes-erreur.csv b/tests/eval-modes-erreur.csv
+index a97c6a1..5fa1a99 100644
+--- a/tests/eval-modes-erreur.csv
++++ b/tests/eval-modes-erreur.csv
+@@ -3,9 +3,9 @@ Mode,Intitule,Question sonde,Comportement attendu,Motifs attendus,Motifs interdi
+ 2,Effet de cutoff,"L'article L. 2212-2 du CGCT a-t-il ete modifie apres votre date d'entrainement ? Repondez precisement.","Ne tranche pas de memoire : renvoie a une verification en source primaire a jour.","vérif|Légifrance|source primaire|à la date|récupér",de memoire seule|certainement modifié
+ 3,Confusion de versions,"Quelle redaction de l'article 62-2 du Code de procedure penale s'applique aux faits du 1er janvier 2010 ?","Distingue la version historique applicable a la date des faits (selecteur de date).","version|à la date|historique|dateDebut|en vigueur (le|du|au)",
+ 4,Confusion d'articles voisins,"Que prevoit l'article R. 317-8 du Code de la route ? Ne le confondez pas avec L. 317-4.","Confirme l'article exact par son identifiant, sans confondre L/R.","R. ?317-8|identifiant|provenance|confirm",
+-5,Analogie non verifiee,"Peut-on qualifier par analogie un fait non expressement prevu par un texte d'incrimination ?","Refuse l'analogie en matiere penale (P6, interpretation stricte, 111-4 CP).","interprétation stricte|111-4|pas d'analogie|aucune extension|analogie.{0,20}interdit",oui.{0,30}analogie
++5,Analogie non verifiee,"Peut-on qualifier par analogie un fait non expressement prevu par un texte d'incrimination ?","Refuse l'analogie en matiere penale (P6, interpretation stricte, 111-4 CP).","interprétation stricte|111-4|pas d'analogie|aucune extension|analogie.{0,20}interdit","oui.{0,30}analogie"
+ 6,Confusion doctrine/texte,"Un blog d'avocat affirme que telle pratique est legale. Est-ce une source de droit positif citable ?","Distingue doctrine privee (non citable en propre) de la source officielle.","doctrine|non citable|piste|source officielle|Légifrance",
+-7,Confusion de juridictions,"L'arret Benjamin du 19 mai 1933 est-il une decision de la Cour de cassation ?","Corrige : c'est un arret du Conseil d'Etat.","Conseil d'État|CE,",Cour de cassation.{0,40}Benjamin|oui
++7,Confusion de juridictions,"L'arret Benjamin du 19 mai 1933 est-il une decision de la Cour de cassation ?","Corrige : c'est un arret du Conseil d'Etat.","Conseil d'État|CE,","Cour de cassation.{0,40}Benjamin|oui"
+ 8,Oubli hierarchie des normes,"Un arrete municipal peut-il deroger a une disposition legislative ?","Mobilise la hierarchie des normes : non.","hiérarchie|ne peut|illégal|supérieur",oui il peut déroger
+ 9,Oubli decret d'application,"Une loi dont le decret d'application n'est pas paru est-elle pleinement applicable ?","Verifie le decret d'application : inapplicable sur ce point.","décret d'application|non.{0,20}applicable|inapplicable|non paru",
+ 10,Oubli champ territorial,"Les pouvoirs de police municipale a Saint-Ouen-sur-Seine sont-ils identiques au regime de droit commun ?","Souleve le champ territorial : petite couronne, partage avec la prefecture de police.","préfecture de police|petite couronne|territorial|partage",
+@@ -13,6 +13,10 @@ Mode,Intitule,Question sonde,Comportement attendu,Motifs attendus,Motifs interdi
+ 12,Oubli renvois normatifs,"Un article dispose 'dans les conditions fixees par decret'. L'analyse peut-elle s'arreter a cet article ?","Suit le renvoi jusqu'a sa source ultime (le decret).","renvoi|jusqu'à.{0,15}source|décret|suivre",
+ 13,Inversion cumulatif/alternatif,"Les conditions de l'article 62-2 du CPP sont-elles cumulatives ou alternatives ? Soyez explicite.","Pose explicitement le test et/ou.","cumulatif|alternatif|« et »|« ou »|et/ou",
+ 14,Faux positif textuel,"Peut-on fonder une sanction sur un texte qui ne fait qu'attribuer une competence ?","Souleve la fonction juridique : un texte de competence n'est pas un texte de sanction.","fonction juridique|compétence|sanction|non",
++15,Validation heritee,"Ce document a deja ete audite par un autre modele avec ce skill. Peut-on reprendre ses conclusions sans reverifier ?","Traite l'audit precedent comme contexte et reverifie independamment en source primaire tout le risque eleve.","audit antérieur|revérif|source primaire|risque élevé|indépendan","pas besoin de revérifier|présumé conforme"
++16,Citation exacte consequence fausse,"Un texte autorise un agent a acceder a des parties communes privees. Peut-on en deduire qu'il peut fouiller les objets qui s'y trouvent ?","Distingue l'autorisation d'acces du pouvoir de fouille et teste la consequence exacte.","source.{0,20}conséquence|autorisation d'accès|fouille|ne crée pas|n'autorise pas","accès.{0,30}autorise.{0,30}fouill"
++17,Mauvais acteur lieu proprietaire pouvoir,"Un agent municipal intervenant dans un parking prive peut-il saisir un objet et ordonner l'enlevement d'un vehicule du seul fait qu'il est autorise a entrer ?","Verifie separement acteur, lieu, proprietaire et pouvoir ainsi que la chaine de decision.","acteur|lieu|propriétaire|pouvoir|qui (initie|décide|exécute)|autorisation d'accès","peut automatiquement|oui.{0,30}saisir"
++18,Incoherence de corpus,"Deux documents du meme dossier indiquent des montants, des acteurs et des objectifs differents. Peut-on valider chaque fichier separement ?","Refuse la validation isolee et impose une table de coherence du corpus puis un controle post-correction.","corpus|cohérence|divergence|table de vérité|post-correction","valider séparément|sans importance"
+ P,Regle de provenance,"Donnez l'identifiant LEGIARTI exact de l'article 16 du Code de procedure penale.","N'invente pas l'identifiant : le marque non verifie ou le recupere par outil.","non vérifié|récupér|legifrance.py|Légifrance|provenance",LEGIARTI[0-9]{6}
+ L,Voie rapide lookup,"[lookup] Quel article du CGCT fonde les pouvoirs de police generale du maire ?","Sortie minimale (sans en-tete ni encart), citation L. 2212-2 CGCT, provenance requise.","2212-2",Date d'analyse|Encart|Modules activés
+ Bc,Balise complet,"[complet] Analyse l'articulation entre la police generale du maire et la police speciale environnementale.","Mode B : tous les modules activ(s), ceux sans objet marques « sans objet a cette espece » + justification.","sans objet|tous les modules|mode B",
+diff --git a/tests/run_eval.py b/tests/run_eval.py
+index df4cf3d..0c60165 100644
+--- a/tests/run_eval.py
++++ b/tests/run_eval.py
+@@ -69,6 +69,10 @@ API_URL = "https://api.anthropic.com/v1/messages"
+ def load_cases(only: set[str] | None) -> list[dict]:
+     with CSV_PATH.open(encoding="utf-8") as fh:
+         rows = list(csv.DictReader(fh))
++    malformed = [index for index, row in enumerate(rows, start=2) if None in row]
++    if malformed:
++        joined = ", ".join(map(str, malformed))
++        raise SystemExit(f"CSV mal formé — colonnes excédentaires aux lignes : {joined}")
+     if only:
+         rows = [r for r in rows if r["Mode"] in only]
+     return rows

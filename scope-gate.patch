@@ -1,0 +1,116 @@
+diff --git a/docs/deployment.md b/docs/deployment.md
+index ab13497..0687c87 100644
+--- a/docs/deployment.md
++++ b/docs/deployment.md
+@@ -80,7 +80,7 @@ procédure de configuration de l'émetteur figure dans [`oauth.md`](oauth.md).
+ |---|---|---|
+ | `MCP_OAUTH_AUDIENCE` | `MCP_PUBLIC_URL` + `/mcp` | Audience exigée dans le jeton (RFC 8707) |
+ | `MCP_OAUTH_JWKS_URL` | `MCP_OAUTH_ISSUER` + `/.well-known/jwks.json` | Clés publiques de vérification |
+-| `MCP_OAUTH_REQUIRED_SCOPES` | `legal:read` | Portées exigées, séparées par des virgules |
++| `MCP_OAUTH_REQUIRED_SCOPES` | `legal:read` | Portées exigées, séparées par des virgules ; `-` désactive le contrôle de portée sans désactiver l'authentification |
+ 
+ Le conteneur définit déjà `MCP_ENV=production`, `MCP_HOST=0.0.0.0` et
+ `PORT=8000`. La commande suivante permet de contrôler la configuration sans
+diff --git a/docs/oauth.md b/docs/oauth.md
+index 2c0127a..a6562fc 100644
+--- a/docs/oauth.md
++++ b/docs/oauth.md
+@@ -218,9 +218,27 @@ y est concaténé et produit une double barre, qu'Auth0 renvoie en « Not found
+ renseignée côté locataire ; Auth0 délivre alors un jeton destiné à
+ `/userinfo` au lieu d'un JWT pour l'API.
+ 
+-**`403` alors que l'authentification réussit** — la portée `legal:read` n'est
+-pas accordée : soit le RBAC est activé sans rôle assigné, soit l'application
+-n'est pas autorisée sur l'API (onglet **Application Access**).
++**`403` alors que l'authentification réussit** — le jeton est valide mais ne
++porte pas `legal:read`. Les journaux du serveur le montrent sans ambiguïté :
++un `401` suivi d'une lecture des métadonnées, puis un `403`, sans aucune ligne
++`auth_rejected` — signature, émetteur, audience et expiration sont donc bons.
++
++Trois causes possibles, dans cet ordre de fréquence :
++
++1. le client n'a jamais demandé la portée. Un émetteur n'annonce dans
++   `scopes_supported` que ses portées OIDC ; une portée d'API personnalisée
++   n'y figure pas, et certains clients ne demandent que ce qui y est annoncé.
++   Aucun réglage côté émetteur n'y change quoi que ce soit ;
++2. le RBAC est activé sans rôle assigné à l'utilisateur ;
++3. l'application n'est pas autorisée sur l'API (onglet **Application Access**),
++   ou la valeur *Default Permissions for third-party applications* est restée
++   à « Unauthorized ».
++
++Pour le cas 1, poser `MCP_OAUTH_REQUIRED_SCOPES=-`. Le transport exige alors
++un jeton valide sans exiger de portée particulière. L'imputabilité est
++préservée : elle repose sur le sujet du jeton, pas sur la portée. Le serveur
++journalise `auth_scope_gate disabled` au démarrage pour que ce choix reste
++visible en exploitation.
+ 
+ ## Limites connues
+ 
+diff --git a/mcp_server/runtime.py b/mcp_server/runtime.py
+index 82d9145..66dce04 100644
+--- a/mcp_server/runtime.py
++++ b/mcp_server/runtime.py
+@@ -57,9 +57,24 @@ def _https_url(env: Mapping[str, str], name: str) -> str:
+     return raw
+ 
+ 
++#: Valeurs signifiant « aucune portée exigée », écrites explicitement.
++NO_SCOPE_TOKENS: frozenset[str] = frozenset({"-", "none", "aucune"})
++
++
+ def _split_scopes(raw: str | None, default: tuple[str, ...]) -> tuple[str, ...]:
++    """Découpe la liste des portées exigées, opt-out explicite compris.
++
++    Une variable absente garde la valeur par défaut. Une variable valant ``-``,
++    ``none`` ou ``aucune`` désactive volontairement le contrôle de portée : le
++    transport exige alors un jeton valide, mais aucune portée particulière.
++    Cas d'usage réel : un client qui n'annonce pas la portée personnalisée dans
++    sa requête d'autorisation, alors que l'authentification, elle, aboutit.
++    L'imputabilité repose sur le sujet du jeton, pas sur la portée.
++    """
+     if raw is None or not raw.strip():
+         return default
++    if raw.strip().lower() in NO_SCOPE_TOKENS:
++        return ()
+     separator = "," if "," in raw else " "
+     values = tuple(item.strip() for item in raw.split(separator) if item.strip())
+     return values or default
+diff --git a/mcp_server/server.py b/mcp_server/server.py
+index 83d21b5..81ce879 100644
+--- a/mcp_server/server.py
++++ b/mcp_server/server.py
+@@ -83,6 +83,10 @@ def _build_auth_options() -> dict[str, Any]:
+         jwks_url=SETTINGS.oauth_jwks_url,
+         audience=SETTINGS.oauth_audience,
+     )
++    if not SETTINGS.oauth_required_scopes:
++        LOGGER.warning(
++            "auth_scope_gate disabled — jeton valide exigé, aucune portée requise"
++        )
+     return {
+         "token_verifier": verifier,
+         "auth": AuthSettings(
+diff --git a/tests/test_auth.py b/tests/test_auth.py
+index 38cb93b..b8e3c66 100644
+--- a/tests/test_auth.py
++++ b/tests/test_auth.py
+@@ -70,6 +70,19 @@ class AuthSettingsTests(unittest.TestCase):
+                 ("legal:read", "legal:search"),
+             )
+ 
++    def test_scope_gate_can_be_disabled_explicitly(self):
++        for raw in ("-", "none", "AUCUNE"):
++            env = dict(BASE_ENV, MCP_OAUTH_REQUIRED_SCOPES=raw)
++            settings = RuntimeSettings.from_env(env)
++            self.assertEqual(settings.oauth_required_scopes, ())
++            # L'authentification reste exigée : seul le contrôle de portée tombe.
++            self.assertTrue(settings.auth_enabled)
++
++    def test_absent_scope_variable_keeps_the_default(self):
++        self.assertEqual(
++            RuntimeSettings.from_env(BASE_ENV).oauth_required_scopes, ("legal:read",)
++        )
++
+     def test_plaintext_issuer_is_refused(self):
+         env = dict(BASE_ENV, MCP_OAUTH_ISSUER="http://exemple-idp.local")
+         with self.assertRaises(RuntimeConfigurationError):

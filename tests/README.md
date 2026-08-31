@@ -3,9 +3,9 @@
 Deux jeux d'éval complémentaires, des tests unitaires hors réseau, trois
 **contrôles statiques** et des vérifications de déploiement exécutés en CI.
 
-## 1. `eval-modes-erreur.csv` — éval mappée sur les 14 modes d'erreur
+## 1. `eval-modes-erreur.csv` — éval mappée sur les 18 modes d'erreur
 
-Une sonde **par mode d'erreur** du §1 du SKILL (1 à 14), plus des contrôles
+Une sonde **par mode d'erreur** du §1 du SKILL (1 à 18), plus des contrôles
 transverses :
 
 - **P** — règle de provenance (un identifiant non récupéré n'est jamais inventé) ;

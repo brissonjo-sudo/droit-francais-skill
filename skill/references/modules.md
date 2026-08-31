@@ -1,4 +1,4 @@
-# Modules activables — détail (v2.2.0)
+# Modules activables — détail (v3.2.0)
 
 > Référencé depuis `SKILL.md §5`. Lire ce fichier dès qu'un module s'active.
 > **Règle conservatrice : en cas de doute sur le déclenchement, le module s'active.**
@@ -84,5 +84,19 @@ module s'active.** Le mode B force l'activation de tous les modules.
   - la **charge argumentative**,
   - les **moyens opérants**,
   - les **délais de recours**.
+
+### Module DOC-AUDIT
+- **Déclencheurs** : audit, relecture juridique ou correction d'un document
+  existant ; contrôle d'un corpus ; reprise d'un document annoncé comme déjà
+  audité.
+- **Statut** : **non désactivable par `[express]`**. Le précédent audit ne
+  réduit pas le périmètre de revérification.
+- **Contenu** : lire et exécuter intégralement
+  [`audit-documentaire.md`](audit-documentaire.md) : inventaire du corpus,
+  registre des affirmations, contrôle en source primaire de 100 % du risque
+  élevé, matrice acteur–lieu–propriétaire–pouvoir, double test
+  source/conséquence, cohérence interdocuments et contrôle post-correction.
+- **Porte bloquante** : ne pas déclarer l'audit achevé si une affirmation à
+  risque élevé reste sans vérification, correction ou abstention ciblée.
 
 ---

@@ -110,7 +110,7 @@ actif** (section 3 de `profil.md`).
   jamais rejouer l'arbitrage. C'est cette contradiction, apparue en v3.0.0,
   qu'a corrigée la v3.1.0 ; aucun test ne peut la détecter.
 - `references/modes-erreur.md` : garder synchronisé avec la table du §1
-  (mêmes 14 intitulés, même numérotation).
+  (mêmes 18 intitulés, même numérotation).
 - **CI** : vérifier que `.github/workflows/ci.yml` passe au vert
   (`py_compile`, `check_links.py`, `check_commands.py`, `run_eval.py`
   hors-ligne).
@@ -129,11 +129,16 @@ actif** (section 3 de `profil.md`).
 - [ ] Les fichiers `profils/*.md` respectent le format en 5 sections du
       `profils/_modele.md` (identité, territorial, domaines, rôle (c),
       cas particuliers) ; aucun contexte personnel codé en dur dans le noyau.
-- [ ] Numérotation continue des 14 modes d'erreur.
+- [ ] Numérotation continue des 18 modes d'erreur.
 - [ ] Numérotation continue des 7 principes (P1 à P7).
 - [ ] Numérotation continue des 9 étapes (0, 0 bis, puis 1 à 7).
 - [ ] Numérotation continue des 4 techniques (T1 à T4).
-- [ ] Les 5 modules ont chacun leurs déclencheurs et leur contenu.
+- [ ] Les 6 modules ont chacun leurs déclencheurs et leur contenu.
+- [ ] DOC-AUDIT reste actif sous `[express]` et pointe vers
+      `audit-documentaire.md`.
+- [ ] Le protocole documentaire impose le registre des affirmations, le
+      contrôle à 100 % du risque élevé, la matrice acteur–lieu–propriétaire–
+      pouvoir, la cohérence du corpus et le contrôle post-correction.
 - [ ] Chaque étape a un critère de sortie explicite.
 - [ ] Chaque étape référence le ou les modes d'erreur qu'elle bloque.
 - [ ] Les balises `[complet]`, `[express]`, `[syllogisme]`,
@@ -144,7 +149,7 @@ actif** (section 3 de `profil.md`).
       PÉNAL.
 - [ ] La **règle de provenance** (P1) est référencée à l'étape 6
       (contrôle de provenance) et dans `format-citation.md`.
-- [ ] Les gabarits A, B, C et le sous-gabarit syllogisme intègrent
+- [ ] Les gabarits A, B, C, D et le sous-gabarit syllogisme intègrent
       tous l'en-tête standardisé et l'encart final récapitulatif
       (sauf voie rapide `[lookup]`, exempte par construction).
 - [ ] Les 10 déclencheurs d'abstention sont listés et un format de
@@ -176,7 +181,7 @@ si la revue donne lieu à un commit.
 
 ## 7. Test fonctionnel de fin de revue
 
-Faire tourner le skill, après mise à jour, sur **trois requêtes témoins**
+Faire tourner le skill, après mise à jour, sur **quatre requêtes témoins**
 représentatives :
 
 1. **Mode A standard, aucun module** — requête simple de référence
@@ -195,6 +200,12 @@ représentatives :
    et police spéciale environnementale »). Vérifier que tous les
    modules sont activés, certains marqués « sans objet à cette
    espèce » avec justification.
+
+4. **DOC-AUDIT** — corpus de deux documents contenant un article exact mais
+   une conséquence opérationnelle excessive, un montant périmé et une
+   divergence d'acteur ou d'indicateur. Vérifier le registre complet, le
+   contrôle à 100 % du risque élevé, la matrice
+   acteur–lieu–propriétaire–pouvoir et la recherche post-correction.
 
 Si l'un des tests révèle un défaut de cohérence ou d'application →
 correction immédiate avant clôture de la revue.

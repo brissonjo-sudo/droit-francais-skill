@@ -1,6 +1,6 @@
 # droit-francais-skill
 
-**Skill LLM — méthodologie de recherche en droit français (v3.1.1)**
+**Skill LLM — méthodologie de recherche en droit français (v3.2.0)**
 
 **Distribution autonome + plugin OpenAI avec outils MCP (plugin v0.5.0)**
 
@@ -10,7 +10,7 @@
 
 > **TL;DR (EN).** An LLM skill that stops the model from *making up
 > French law.* It forces every statute, case, or citation through a 9-step
-> verification procedure built against **14 known LLM failure modes** in legal
+> verification procedure built against **18 known LLM failure modes** in legal
 > reasoning — primary sources only (Légifrance/PISTE), currency checks, and
 > *traceable* citations. When it can't verify, it says so instead of inventing.
 > Configurable per practitioner via a **profile**. Works without any API key;
@@ -80,12 +80,15 @@ vigueur…), ce skill active une procédure en 9 étapes incluant :
   rédaction (6) → auto-critique (7)
 - **4 techniques** de raisonnement (qualification adversariale,
   triangulation, archéologie textuelle, distinction)
-- **5 modules activables** selon la requête (PÉNAL, ACTE-ADMIN, PA-PJ,
-  FOND, CONTENTIEUX)
+- **6 modules activables** selon la requête (PÉNAL, ACTE-ADMIN, PA-PJ,
+  FOND, CONTENTIEUX, DOC-AUDIT)
 - **Double mode opératoire** A (noyau + modules) / B (exhaustif avec
   balise `[complet]`)
 - **Gabarits de sortie** normalisés (express, fond, citation pour acte,
-  note de concours)
+  audit documentaire, note de concours)
+- **Audit documentaire** (v3.2.0) : registre des affirmations, vérification
+  de 100 % du risque élevé, matrice acteur–lieu–propriétaire–pouvoir,
+  cohérence d'un corpus et contrôle post-correction
 - **Règle de provenance** (v2.3.0) : tout identifiant officiel
   (`LEGIARTI`, `NOR`, n° de pourvoi…) doit provenir d'un appel d'outil
   de la session, jamais de la mémoire — sinon marqué « non vérifié »
@@ -217,19 +220,20 @@ Le skill s'active automatiquement quand vous :
 - demandez une qualification juridique (pénale, administrative, civile)
 - vérifiez si un texte est en vigueur, abrogé ou modifié
 - demandez une jurisprudence (Cass., CE, CC, CJUE, CEDH)
+- auditez, relisez ou corrigez juridiquement un document ou un corpus
 - rédigez un arrêté municipal, une note au Maire, un mémoire
 - préparez un oral ou écrit de concours
 
 **Balises de contrôle :**
 - `[complet]` — mode exhaustif, tous modules activés
-- `[express]` — mode allégé (PÉNAL toujours actif)
+- `[express]` — mode allégé (PÉNAL et DOC-AUDIT restent actifs lorsqu'applicables)
 - `[syllogisme]` — structure majeure / mineure / conclusion (concours)
 - `[opérationnel]` — section implications opérationnelles activée
 - `[lookup]` — voie rapide : référence ponctuelle, sortie minimale
 
 ---
 
-## Arborescence (skill v3.1.1 / plugin v0.5.0)
+## Arborescence (skill v3.2.0 / plugin v0.5.0)
 
 ```
 droit-francais-skill/
@@ -255,9 +259,10 @@ droit-francais-skill/
 │   │   ├── collectivites.md
 │   │   └── etudiant-concours.md
 │   ├── references/
-│   │   ├── gabarits-sortie.md      ← gabarits A/B/C + syllogisme (détail §6)
-│   │   ├── modules.md              ← 5 modules activables (détail §5)
-│   │   ├── modes-erreur.md         ← détail des 14 modes d'erreur (détail §1)
+│   │   ├── gabarits-sortie.md      ← gabarits A/B/C/D + syllogisme (détail §6)
+│   │   ├── modules.md              ← 6 modules activables (détail §5)
+│   │   ├── modes-erreur.md         ← détail des 18 modes d'erreur (détail §1)
+│   │   ├── audit-documentaire.md   ← protocole DOC-AUDIT (détail §2 bis)
 │   │   ├── gabarits-requetes.md    ← requêtes Légifrance optimisées
 │   │   ├── checklist-vigueur.md    ← checklist 14 points vérification
 │   │   ├── maintenance.md          ← procédure de revue annuelle

@@ -1,0 +1,994 @@
+diff --git a/.github/workflows/ci.yml b/.github/workflows/ci.yml
+index 705a4b7..6ebd737 100644
+--- a/.github/workflows/ci.yml
++++ b/.github/workflows/ci.yml
+@@ -30,6 +30,7 @@ jobs:
+           python -m py_compile skill/scripts/droit_francais/judilibre.py
+           python -m py_compile skill/scripts/droit_francais/tools.py
+           python -m py_compile mcp_server/runtime.py
++          python -m py_compile mcp_server/auth.py
+           python -m py_compile mcp_server/catalog.py
+           python -m py_compile mcp_server/server.py
+           python -m py_compile tests/run_eval.py
+@@ -40,6 +41,7 @@ jobs:
+           python -m py_compile tests/test_deployment.py
+           python -m py_compile tests/test_tools.py
+           python -m py_compile tests/test_mcp_app.py
++          python -m py_compile tests/test_auth.py
+ 
+       - name: Tester la bibliothèque et le serveur MCP hors réseau
+         run: python -m unittest discover -s tests -v
+diff --git a/README.md b/README.md
+index 1f44ba8..57bdb0c 100644
+--- a/README.md
++++ b/README.md
+@@ -172,7 +172,11 @@ serveur est déployé en HTTPS à l'adresse
+ `https://droit-francais-skill.onrender.com/mcp`, avec contrôle de configuration,
+ limitation de charge et journaux sans arguments ni secrets. Voir le
+ [guide de déploiement](docs/deployment.md) et le
+-[guide de connexion/soumission ChatGPT](docs/chatgpt-submission.md). Le mapping
++[guide de connexion/soumission ChatGPT](docs/chatgpt-submission.md). L'accès
++public est protégé par OAuth 2.1 : le serveur vérifie un jeton porteur émis par
++un serveur d'autorisation externe et applique un quota par utilisateur, afin
++que les clés PISTE du titulaire ne soient jamais consommées anonymement — voir
++le [guide OAuth](docs/oauth.md). Le mapping
+ `.app.json` ne sera ajouté qu'après création d'une intégration réelle ; aucun
+ identifiant distant fictif n'est placé dans le dépôt.
+ 
+@@ -276,6 +280,7 @@ droit-francais-skill/
+ │   ├── mcp-app.md                  ← configuration et contrat des outils
+ │   ├── deployment.md               ← exploitation de l'endpoint Render
+ │   ├── chatgpt-submission.md       ← connexion et soumission OpenAI
++│   ├── oauth.md                    ← authentification OAuth 2.1 du serveur
+ │   ├── privacy-policy.md           ← politique publique
+ │   └── terms-of-use.md             ← conditions publiques
+ ├── chatgpt-app-submission.json     ← métadonnées et cas de test importables
+diff --git a/docs/chatgpt-submission.md b/docs/chatgpt-submission.md
+index 7763b81..38fa097 100644
+--- a/docs/chatgpt-submission.md
++++ b/docs/chatgpt-submission.md
+@@ -7,7 +7,10 @@
+ - Serveur MCP universel : `https://droit-francais-skill.onrender.com/mcp`
+ - Sonde publique : `https://droit-francais-skill.onrender.com/health`
+ - Transport : MCP Streamable HTTP sur HTTPS
+-- Authentification utilisateur : aucune ; les clés PISTE restent côté serveur
++- Authentification utilisateur : **OAuth 2.1**, serveur d'autorisation externe ;
++  les clés PISTE restent côté serveur et ne sont jamais exposées au client
++- Métadonnées de ressource protégée :
++  `https://droit-francais-skill.onrender.com/.well-known/oauth-protected-resource/mcp`
+ - Outils : six opérations strictement en lecture seule
+ 
+ ## Tester dans ChatGPT
+@@ -16,7 +19,10 @@
+    avancés.
+ 2. Activer le mode développeur.
+ 3. Créer une application distante avec l'URL MCP complète :
+-   `https://droit-francais-skill.onrender.com/mcp`.
++   `https://droit-francais-skill.onrender.com/mcp`, en choisissant
++   l'authentification **OAuth**. ChatGPT lit les métadonnées de ressource
++   protégée, puis les métadonnées du serveur d'autorisation, et s'enregistre
++   lui-même par enregistrement dynamique de client (RFC 7591).
+ 4. Vérifier que ChatGPT découvre `search`, `fetch`, `search_articles`,
+    `get_article`, `search_case_law` et `get_decision`.
+ 5. Exécuter les cinq scénarios positifs et les trois scénarios négatifs du
+diff --git a/docs/deployment.md b/docs/deployment.md
+index a603751..ab13497 100644
+--- a/docs/deployment.md
++++ b/docs/deployment.md
+@@ -44,7 +44,11 @@ par `PORT` et expose :
+ - `POST /mcp` : transport MCP Streamable HTTP ;
+ - `GET /health` : sonde minimale (`status` et version, sans secret) ;
+ - `GET /.well-known/openai-apps-challenge` : vérification de domaine OpenAI,
+-  inactive tant que `OPENAI_APPS_CHALLENGE` n'est pas défini.
++  inactive tant que `OPENAI_APPS_CHALLENGE` n'est pas défini ;
++- `GET /.well-known/oauth-protected-resource/mcp` : métadonnées de ressource
++  protégée (RFC 9728), publiées dès que `MCP_AUTH_MODE=oauth`. La même charge
++  utile est servie sur `/.well-known/oauth-protected-resource` pour les clients
++  qui interrogent la racine.
+ 
+ Le TLS doit être terminé par la plateforme d'hébergement ou un reverse proxy :
+ la connexion soumise à ChatGPT doit être une URL publique `https://…/mcp`.
+@@ -61,6 +65,22 @@ la connexion soumise à ChatGPT doit être une URL publique `https://…/mcp`.
+ | `JUDILIBRE_KEY_ID` | Clé Judilibre (`PISTE_KEY_ID` reste accepté comme alias) |
+ | `LEGIFRANCE_ENV=prod` | Interdit le sandbox sur le service public |
+ | `JUDILIBRE_ENV=prod` | Interdit le sandbox sur le service public |
++| `MCP_AUTH_MODE=oauth` | Exige un jeton OAuth 2.1 valide sur `/mcp` |
++| `MCP_PUBLIC_URL` | URL publique du service, sans `/mcp` (https obligatoire) |
++| `MCP_OAUTH_ISSUER` | URL du serveur d'autorisation (https obligatoire) |
++
++Le démarrage échoue si `MCP_ENV=production` et `MCP_AUTH_MODE=disabled` :
++une passerelle MCP publique anonyme consommerait les quotas Légifrance et
++Judilibre sous la seule responsabilité du titulaire des clés PISTE. La
++procédure de configuration de l'émetteur figure dans [`oauth.md`](oauth.md).
++
++### Facultatives — authentification
++
++| Variable | Défaut | Effet |
++|---|---|---|
++| `MCP_OAUTH_AUDIENCE` | `MCP_PUBLIC_URL` + `/mcp` | Audience exigée dans le jeton (RFC 8707) |
++| `MCP_OAUTH_JWKS_URL` | `MCP_OAUTH_ISSUER` + `/.well-known/jwks.json` | Clés publiques de vérification |
++| `MCP_OAUTH_REQUIRED_SCOPES` | `legal:read` | Portées exigées, séparées par des virgules |
+ 
+ Le conteneur définit déjà `MCP_ENV=production`, `MCP_HOST=0.0.0.0` et
+ `PORT=8000`. La commande suivante permet de contrôler la configuration sans
+@@ -76,6 +96,7 @@ python mcp_server/server.py --check-config
+ |---|---:|---|
+ | `MCP_MAX_CONCURRENT_REQUESTS` | `8` | Nombre maximal d'appels d'outils simultanés par instance |
+ | `MCP_TOOL_CALLS_PER_MINUTE` | `120` | Budget glissant d'appels d'outils par instance |
++| `MCP_USER_CALLS_PER_MINUTE` | `20` | Budget glissant d'appels d'outils par utilisateur authentifié |
+ | `MCP_QUEUE_TIMEOUT_SECONDS` | `2` | Attente maximale avant une erreur de surcharge explicite |
+ | `MCP_MAX_REQUEST_BODY_BYTES` | `1048576` | Taille maximale d'une requête HTTP MCP |
+ | `MCP_LOG_LEVEL` | `INFO` local, `WARNING` dans l'image | Niveau des journaux applicatifs et du SDK MCP |
+@@ -90,8 +111,9 @@ façon conservatrice selon les quotas réellement accordés à l'application PIS
+ ## Confidentialité et exploitation
+ 
+ Le journal métier ajouté par l'application ne contient que le nom technique de
+-l'opération, son résultat (`success`, `upstream_error` ou `throttled`) et sa
+-durée. Il ne journalise ni les arguments, ni les textes juridiques, ni les
++l'opération, son résultat (`success`, `upstream_error` ou `throttled`), sa
++durée et une empreinte tronquée du sujet authentifié. Le jeton, sa charge utile
++et l'identifiant brut du compte ne sont jamais journalisés. Il ne journalise ni les arguments, ni les textes juridiques, ni les
+ résultats, ni les clés. L'image utilise `WARNING` par défaut afin de supprimer
+ les journaux informatifs du SDK MCP et du serveur HTTP. Si `INFO` est réactivé
+ pour diagnostiquer un incident, ces composants peuvent journaliser une adresse
+diff --git a/docs/oauth.md b/docs/oauth.md
+new file mode 100644
+index 0000000..35c43b8
+--- /dev/null
++++ b/docs/oauth.md
+@@ -0,0 +1,126 @@
++# Authentification OAuth 2.1 du serveur MCP public
++
++État vérifié le 30 août 2026.
++
++## Pourquoi une authentification
++
++Les clés PISTE (Légifrance, Judilibre) sont conservées côté serveur et ne sont
++jamais renvoyées au client. Ce point est conforme aux CGU. Le risque résiduel
++est ailleurs : sans authentification, toute personne connaissant l'URL publique
++consomme les API officielles **sous l'application PISTE du titulaire des clés**,
++sans quota individuel ni imputabilité.
++
++Les CGU PISTE réservent la clé à l'application enregistrée et laissent son
++titulaire responsable de l'usage et des quotas ; les CGU Judilibre interdisent
++en outre le profilage des magistrats et des greffiers. Une passerelle publique
++anonyme rend ces obligations invérifiables.
++
++L'authentification déplace donc l'usage vers un sujet identifié : quota par
++utilisateur, journal imputable, révocation possible.
++
++## Architecture retenue
++
++| Liaison | Mécanisme |
++|---|---|
++| ChatGPT → serveur MCP | OAuth 2.1, jeton porteur signé |
++| Serveur MCP → serveur d'autorisation | Vérification locale du JWKS public |
++| Serveur MCP → PISTE | Clés du titulaire, variables d'environnement |
++| Utilisateur final → clés PISTE | Aucun accès, jamais |
++
++Le serveur MCP est un **Resource Server** : il ne délivre aucun jeton,
++n'héberge aucun mot de passe et ne stocke aucun compte. Il publie ses
++métadonnées (RFC 9728) et vérifie chaque jeton contre les clés publiques de
++l'émetteur. Aucun état d'authentification n'est conservé en mémoire, ce qui
++rend le service insensible aux redémarrages d'instance.
++
++## Exigences imposées au serveur d'autorisation
++
++ChatGPT découvre et s'enregistre seul. L'émetteur choisi doit donc offrir :
++
++1. les métadonnées `/.well-known/oauth-authorization-server` (RFC 8414) ;
++2. l'enregistrement dynamique de client (RFC 7591) ;
++3. le flux `authorization_code` avec PKCE (S256) ;
++4. l'indicateur de ressource `resource` (RFC 8707), ou à défaut une audience
++   fixe configurable ;
++5. des jetons signés en RS256 ou ES256, exposés via un JWKS public.
++
++Auth0, Stytch, Clerk, WorkOS et Descope remplissent ces cinq conditions.
++Les algorithmes symétriques (`HS*`) sont refusés par le serveur : aucun secret
++n'est partagé avec l'émetteur.
++
++## Configuration côté émetteur
++
++1. Créer une API (ou « ressource protégée ») dont l'identifiant est
++   exactement `https://droit-francais-skill.onrender.com/mcp`.
++2. Déclarer la portée `legal:read` et l'accorder par défaut.
++3. Activer l'enregistrement dynamique de client.
++4. Restreindre les URI de redirection au domaine de ChatGPT indiqué par la
++   console développeur.
++5. Relever l'URL de l'émetteur (`issuer`) et vérifier que
++   `<issuer>/.well-known/jwks.json` répond.
++
++## Configuration côté serveur
++
++Variables à définir sur l'hébergeur :
++
++```bash
++MCP_AUTH_MODE=oauth
++MCP_PUBLIC_URL=https://droit-francais-skill.onrender.com
++MCP_OAUTH_ISSUER=https://<votre-emetteur>
++# Facultatif — valeurs déduites si absentes :
++# MCP_OAUTH_AUDIENCE=https://droit-francais-skill.onrender.com/mcp
++# MCP_OAUTH_JWKS_URL=https://<votre-emetteur>/.well-known/jwks.json
++# MCP_OAUTH_REQUIRED_SCOPES=legal:read
++MCP_USER_CALLS_PER_MINUTE=20
++```
++
++Contrôle avant déploiement, sans lancer le service :
++
++```bash
++python mcp_server/server.py --check-config
++```
++
++En production, `MCP_AUTH_MODE=disabled` fait échouer le démarrage.
++
++## Vérification après déploiement
++
++```bash
++# 1. Métadonnées de ressource protégée
++curl -s https://droit-francais-skill.onrender.com/.well-known/oauth-protected-resource/mcp
++
++# 2. Refus attendu sans jeton : 401 + en-tête WWW-Authenticate
++curl -si -X POST https://droit-francais-skill.onrender.com/mcp \
++  -H 'Content-Type: application/json' \
++  -H 'Accept: application/json, text/event-stream' \
++  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}' | head -n 8
++
++# 3. Métadonnées du serveur d'autorisation
++curl -s https://<votre-emetteur>/.well-known/oauth-authorization-server
++```
++
++La réponse attendue en 2 comporte
++`www-authenticate: Bearer error="invalid_token", …, resource_metadata="…"`.
++C'est cet en-tête qui déclenche la découverte automatique par ChatGPT.
++
++## Contrôles appliqués à chaque jeton
++
++* signature vérifiée contre le JWKS de l'émetteur (RS256/ES256 seulement) ;
++* `iss` strictement égal à l'émetteur configuré ;
++* `aud` contenant l'audience configurée — un jeton émis pour une autre API est
++  refusé, ce qui bloque la réutilisation d'un jeton dérobé ailleurs ;
++* `exp` et `nbf` contrôlés, avec 30 secondes de tolérance d'horloge ;
++* portées requises vérifiées avant l'exécution de l'outil ;
++* quota glissant par sujet authentifié, distinct du quota global d'instance.
++
++Un échec renvoie `401` sans détail exploitable. Le motif technique est
++journalisé sous forme de nom de classe d'erreur, jamais avec le jeton.
++
++## Limites connues
++
++* Le quota par utilisateur est local à une instance. Avec plusieurs réplicas,
++  il faut une limitation partagée au niveau de la plateforme.
++* La révocation dépend de l'émetteur : le serveur ne consulte pas d'endpoint
++  d'introspection et respecte donc la durée de vie du jeton.
++* Le contrôle des usages interdits par les CGU Judilibre (profilage des
++  magistrats et des greffiers) reste à implémenter dans les outils de
++  jurisprudence ; l'authentification le rend imputable, pas impossible.
+diff --git a/mcp_server/auth.py b/mcp_server/auth.py
+new file mode 100644
+index 0000000..f60e89b
+--- /dev/null
++++ b/mcp_server/auth.py
+@@ -0,0 +1,152 @@
++#!/usr/bin/env python3
++"""Vérification des jetons OAuth 2.1 présentés au serveur MCP public.
++
++Le serveur MCP est un *Resource Server* : il ne délivre aucun jeton et
++n'héberge aucun mot de passe. Un serveur d'autorisation externe (Auth0,
++Stytch, Clerk, WorkOS, Descope…) authentifie l'utilisateur, puis émet un
++jeton signé que ce module valide localement à partir du JWKS public de
++l'émetteur.
++
++Conséquence pratique : les clés PISTE restent sur le serveur, mais chaque
++appel d'outil devient imputable à un sujet identifié, ce qui permet un
++quota par utilisateur et non plus seulement un quota global d'instance.
++
++Contrôles appliqués à chaque jeton :
++
++* signature asymétrique vérifiée contre le JWKS de l'émetteur ;
++* ``iss`` strictement égal à l'émetteur configuré ;
++* ``aud`` contenant l'audience configurée (indicateur de ressource,
++  RFC 8707) — un jeton émis pour une autre API est refusé ;
++* ``exp`` et ``nbf`` vérifiés par la bibliothèque ;
++* portées requises vérifiées en amont par le SDK MCP.
++
++Aucun jeton, aucune charge utile et aucun secret n'est journalisé.
++"""
++
++from __future__ import annotations
++
++import logging
++from typing import Any, Iterable, Sequence
++
++import anyio
++import jwt
++from jwt import PyJWKClient
++from mcp.server.auth.provider import AccessToken
++
++LOGGER = logging.getLogger("droit_francais.mcp.auth")
++
++#: Algorithmes asymétriques acceptés. Les algorithmes symétriques (HS*) et
++#: « none » sont exclus : le serveur ne partage aucun secret avec l'émetteur.
++ALLOWED_ALGORITHMS: tuple[str, ...] = ("RS256", "RS384", "RS512", "ES256", "ES384")
++
++
++class LegalAccessToken(AccessToken):
++    """Jeton validé, enrichi du sujet servant de clé de quota."""
++
++    subject: str
++
++
++def _normalise_scopes(payload: dict[str, Any]) -> list[str]:
++    """Extrait les portées, quel que soit le dialecte de l'émetteur."""
++    raw: Any = payload.get("scope")
++    if isinstance(raw, str):
++        return [item for item in raw.split(" ") if item]
++    for key in ("scp", "permissions", "scopes"):
++        value = payload.get(key)
++        if isinstance(value, str):
++            return [item for item in value.split(" ") if item]
++        if isinstance(value, (list, tuple)):
++            return [str(item) for item in value if str(item)]
++    return []
++
++
++def _client_identifier(payload: dict[str, Any]) -> str:
++    """Identifie l'application appelante sans jamais renvoyer le jeton."""
++    for key in ("azp", "client_id", "cid", "aud"):
++        value = payload.get(key)
++        if isinstance(value, str) and value:
++            return value
++        if isinstance(value, (list, tuple)) and value:
++            return str(value[0])
++    return "client-inconnu"
++
++
++class JwksTokenVerifier:
++    """Implémente le protocole ``TokenVerifier`` du SDK MCP.
++
++    Le client JWKS met les clés publiques en cache et ne rappelle l'émetteur
++    qu'en cas de rotation, ce qui évite un appel réseau par requête.
++    """
++
++    def __init__(
++        self,
++        issuer: str,
++        jwks_url: str,
++        audience: str,
++        *,
++        leeway_seconds: int = 30,
++        algorithms: Sequence[str] = ALLOWED_ALGORITHMS,
++    ) -> None:
++        self._issuer = issuer
++        self._audience = audience
++        self._leeway_seconds = leeway_seconds
++        self._algorithms = tuple(algorithms)
++        self._jwks_client = PyJWKClient(jwks_url, cache_keys=True, lifespan=3600)
++
++    def _decode(self, token: str) -> dict[str, Any]:
++        """Décodage bloquant, exécuté hors de la boucle d'événements."""
++        signing_key = self._jwks_client.get_signing_key_from_jwt(token)
++        return jwt.decode(
++            token,
++            signing_key.key,
++            algorithms=list(self._algorithms),
++            audience=self._audience,
++            issuer=self._issuer,
++            leeway=self._leeway_seconds,
++            options={"require": ["exp", "iss", "aud", "sub"]},
++        )
++
++    async def verify_token(self, token: str) -> AccessToken | None:
++        """Retourne le jeton validé, ou ``None`` si un contrôle échoue."""
++        try:
++            payload = await anyio.to_thread.run_sync(self._decode, token)
++        except jwt.PyJWTError as exc:
++            # Le motif est journalisé, jamais le jeton ni sa charge utile.
++            LOGGER.info("auth_rejected reason=%s", type(exc).__name__)
++            return None
++        except Exception as exc:  # réseau JWKS indisponible, etc.
++            LOGGER.warning("auth_unavailable reason=%s", type(exc).__name__)
++            return None
++
++        subject = str(payload.get("sub", ""))
++        if not subject:
++            LOGGER.info("auth_rejected reason=MissingSubject")
++            return None
++
++        expires_at = payload.get("exp")
++        return LegalAccessToken(
++            token=token,
++            client_id=_client_identifier(payload),
++            scopes=_normalise_scopes(payload),
++            expires_at=int(expires_at) if isinstance(expires_at, (int, float)) else None,
++            resource=self._audience,
++            subject=subject,
++        )
++
++
++def principal_of(access_token: AccessToken | None) -> str:
++    """Clé de quota : le sujet authentifié, sinon l'application appelante."""
++    if access_token is None:
++        return "anonyme"
++    subject = getattr(access_token, "subject", "")
++    if isinstance(subject, str) and subject:
++        return subject
++    return access_token.client_id or "anonyme"
++
++
++def scopes_from_env_value(raw: str | None, default: Iterable[str]) -> list[str]:
++    """Découpe une liste de portées écrite avec des virgules ou des espaces."""
++    if raw is None or not raw.strip():
++        return list(default)
++    separators = "," if "," in raw else " "
++    return [item.strip() for item in raw.split(separators) if item.strip()]
+diff --git a/mcp_server/runtime.py b/mcp_server/runtime.py
+index 6d0ebc8..82d9145 100644
+--- a/mcp_server/runtime.py
++++ b/mcp_server/runtime.py
+@@ -7,9 +7,15 @@ import threading
+ import time
+ from collections import deque
+ from contextlib import contextmanager
+-from dataclasses import dataclass
++from dataclasses import dataclass, field
+ from typing import Iterator, Mapping
+ 
++#: Portées exigées par défaut sur les outils de lecture juridique.
++DEFAULT_SCOPES: tuple[str, ...] = ("legal:read",)
++
++#: Modes d'authentification acceptés à l'entrée du transport HTTP.
++AUTH_MODES: frozenset[str] = frozenset({"disabled", "oauth"})
++
+ 
+ class RuntimeConfigurationError(ValueError):
+     """Configuration invalide, formulée sans recopier les secrets."""
+@@ -41,6 +47,24 @@ def _positive_float(env: Mapping[str, str], name: str, default: float) -> float:
+     return value
+ 
+ 
++def _https_url(env: Mapping[str, str], name: str) -> str:
++    """Lit une URL publique et refuse tout schéma non chiffré."""
++    raw = env.get(name, "").strip().rstrip("/")
++    if not raw:
++        raise RuntimeConfigurationError(f"{name} est obligatoire avec MCP_AUTH_MODE=oauth.")
++    if not raw.startswith("https://"):
++        raise RuntimeConfigurationError(f"{name} doit commencer par https://.")
++    return raw
++
++
++def _split_scopes(raw: str | None, default: tuple[str, ...]) -> tuple[str, ...]:
++    if raw is None or not raw.strip():
++        return default
++    separator = "," if "," in raw else " "
++    values = tuple(item.strip() for item in raw.split(separator) if item.strip())
++    return values or default
++
++
+ @dataclass(frozen=True)
+ class RuntimeSettings:
+     environment: str
+@@ -51,6 +75,22 @@ class RuntimeSettings:
+     tool_calls_per_minute: int
+     queue_timeout_seconds: float
+     max_request_body_bytes: int
++    auth_mode: str = "disabled"
++    public_url: str = ""
++    oauth_issuer: str = ""
++    oauth_jwks_url: str = ""
++    oauth_audience: str = ""
++    oauth_required_scopes: tuple[str, ...] = field(default_factory=lambda: DEFAULT_SCOPES)
++    user_calls_per_minute: int = 20
++
++    @property
++    def auth_enabled(self) -> bool:
++        return self.auth_mode == "oauth"
++
++    @property
++    def resource_url(self) -> str:
++        """URL canonique de la ressource protégée, au sens de la RFC 8707."""
++        return f"{self.public_url}/mcp" if self.public_url else ""
+ 
+     @classmethod
+     def from_env(cls, env: Mapping[str, str] | None = None) -> "RuntimeSettings":
+@@ -69,6 +109,32 @@ class RuntimeSettings:
+             raise RuntimeConfigurationError(
+                 "MCP_ENV doit valoir development, test ou production."
+             )
++
++        auth_mode = values.get("MCP_AUTH_MODE", "disabled").strip().lower()
++        if auth_mode not in AUTH_MODES:
++            raise RuntimeConfigurationError(
++                "MCP_AUTH_MODE doit valoir disabled ou oauth."
++            )
++
++        public_url = ""
++        issuer = ""
++        jwks_url = ""
++        audience = ""
++        scopes = _split_scopes(values.get("MCP_OAUTH_REQUIRED_SCOPES"), DEFAULT_SCOPES)
++        if auth_mode == "oauth":
++            public_url = _https_url(values, "MCP_PUBLIC_URL")
++            issuer = _https_url(values, "MCP_OAUTH_ISSUER")
++            jwks_url = values.get("MCP_OAUTH_JWKS_URL", "").strip()
++            if not jwks_url:
++                jwks_url = f"{issuer}/.well-known/jwks.json"
++            if not jwks_url.startswith("https://"):
++                raise RuntimeConfigurationError(
++                    "MCP_OAUTH_JWKS_URL doit commencer par https://."
++                )
++            audience = values.get("MCP_OAUTH_AUDIENCE", "").strip()
++            if not audience:
++                audience = f"{public_url}/mcp"
++
+         return cls(
+             environment=environment,
+             host=values.get("MCP_HOST", "127.0.0.1"),
+@@ -86,6 +152,15 @@ class RuntimeSettings:
+             max_request_body_bytes=_positive_int(
+                 values, "MCP_MAX_REQUEST_BODY_BYTES", 1_048_576
+             ),
++            auth_mode=auth_mode,
++            public_url=public_url,
++            oauth_issuer=issuer,
++            oauth_jwks_url=jwks_url,
++            oauth_audience=audience,
++            oauth_required_scopes=scopes,
++            user_calls_per_minute=_positive_int(
++                values, "MCP_USER_CALLS_PER_MINUTE", 20
++            ),
+         )
+ 
+     def validate_public(self, env: Mapping[str, str] | None = None) -> None:
+@@ -116,6 +191,13 @@ class RuntimeSettings:
+             raise RuntimeConfigurationError(
+                 "JUDILIBRE_ENV doit valoir prod en production."
+             )
++        if not self.auth_enabled:
++            # Sans authentification, l'URL publique consommerait les quotas
++            # PISTE sous la seule responsabilité du titulaire des clés.
++            raise RuntimeConfigurationError(
++                "MCP_AUTH_MODE doit valoir oauth en production : une passerelle "
++                "MCP publique anonyme engage les identifiants PISTE du titulaire."
++            )
+ 
+ 
+ class RequestGovernor:
+@@ -151,3 +233,44 @@ class RequestGovernor:
+             yield
+         finally:
+             self._semaphore.release()
++
++
++class PrincipalRateLimiter:
++    """Quota glissant d'une minute, appliqué par utilisateur authentifié.
++
++    Le quota global de ``RequestGovernor`` protège l'instance ; celui-ci
++    empêche un seul compte de consommer à lui seul les quotas PISTE du
++    titulaire des clés. Les identifiants inactifs sont purgés à chaque
++    passage, ce qui borne l'empreinte mémoire sans tâche de fond.
++    """
++
++    def __init__(self, calls_per_minute: int, window_seconds: float = 60.0) -> None:
++        if calls_per_minute <= 0:
++            raise RuntimeConfigurationError(
++                "Le quota par utilisateur doit être strictement positif."
++            )
++        self._calls_per_minute = calls_per_minute
++        self._window_seconds = window_seconds
++        self._buckets: dict[str, deque[float]] = {}
++        self._lock = threading.Lock()
++
++    def check(self, principal: str) -> None:
++        """Enregistre un appel, ou lève ``RuntimeCapacityError`` si le quota est atteint."""
++        now = time.monotonic()
++        horizon = now - self._window_seconds
++        with self._lock:
++            for key in [k for k, v in self._buckets.items() if not v or v[-1] <= horizon]:
++                del self._buckets[key]
++            bucket = self._buckets.setdefault(principal, deque())
++            while bucket and bucket[0] <= horizon:
++                bucket.popleft()
++            if len(bucket) >= self._calls_per_minute:
++                raise RuntimeCapacityError(
++                    "Quota individuel atteint pour cette minute ; réessayer ensuite."
++                )
++            bucket.append(now)
++
++    @property
++    def tracked_principals(self) -> int:
++        with self._lock:
++            return len(self._buckets)
+diff --git a/mcp_server/server.py b/mcp_server/server.py
+index 2e1cb47..6f0399d 100644
+--- a/mcp_server/server.py
++++ b/mcp_server/server.py
+@@ -4,12 +4,14 @@
+ from __future__ import annotations
+ 
+ import argparse
++import hashlib
+ import logging
+ import os
+ import sys
+ import time
+ from pathlib import Path
+ from typing import Any, Callable
++from urllib.parse import urlsplit, urlunsplit
+ 
+ ROOT = Path(__file__).resolve().parent.parent
+ SCRIPTS = ROOT / "skill" / "scripts"
+@@ -32,6 +34,7 @@ from droit_francais.config import load_dotenv
+ from droit_francais.errors import LegifranceError
+ from droit_francais import tools as legal_tools
+ from mcp_server.runtime import (
++    PrincipalRateLimiter,
+     RequestGovernor,
+     RuntimeCapacityError,
+     RuntimeConfigurationError,
+@@ -50,6 +53,37 @@ GOVERNOR = RequestGovernor(
+     SETTINGS.tool_calls_per_minute,
+     SETTINGS.queue_timeout_seconds,
+ )
++USER_LIMITER = PrincipalRateLimiter(SETTINGS.user_calls_per_minute)
++
++SERVER_VERSION = "0.6.0"
++
++
++def _build_auth_options() -> dict[str, Any]:
++    """Configure le serveur en Resource Server OAuth 2.1, si demandé.
++
++    L'import du vérificateur reste local : le transport stdio, utilisé pour
++    un usage personnel, n'a alors besoin ni de PyJWT ni d'un émetteur.
++    """
++    if not SETTINGS.auth_enabled:
++        return {}
++
++    from mcp.server.auth.settings import AuthSettings
++
++    from mcp_server.auth import JwksTokenVerifier
++
++    verifier = JwksTokenVerifier(
++        issuer=SETTINGS.oauth_issuer,
++        jwks_url=SETTINGS.oauth_jwks_url,
++        audience=SETTINGS.oauth_audience,
++    )
++    return {
++        "token_verifier": verifier,
++        "auth": AuthSettings(
++            issuer_url=SETTINGS.oauth_issuer,
++            resource_server_url=SETTINGS.resource_url,
++            required_scopes=list(SETTINGS.oauth_required_scopes),
++        ),
++    }
+ 
+ server_options: dict[str, Any] = {
+     "log_level": SETTINGS.log_level,
+@@ -60,9 +94,10 @@ server_options: dict[str, Any] = {
+     )
+ }
+ if MCP_V2:
+-    server_options["version"] = "0.5.0"
++    server_options["version"] = SERVER_VERSION
+ else:
+     server_options.update(host=SETTINGS.host, port=SETTINGS.port)
++server_options.update(_build_auth_options())
+ server = MCPServer("Droit français", **server_options)
+ 
+ READ_ONLY = ToolAnnotations(
+@@ -73,16 +108,44 @@ READ_ONLY = ToolAnnotations(
+ )
+ 
+ 
++def _canonical_issuer() -> str:
++    """Même écriture que la route RFC 9728 du SDK : chemin vide noté « / »."""
++    parts = urlsplit(SETTINGS.oauth_issuer)
++    path = parts.path or "/"
++    return urlunsplit((parts.scheme, parts.netloc, path, parts.query, parts.fragment))
++
++
++def _pseudonym(principal: str) -> str:
++    """Empreinte courte et stable : les journaux ne portent aucun identifiant brut."""
++    if principal == "anonyme":
++        return principal
++    return hashlib.sha256(principal.encode("utf-8")).hexdigest()[:12]
++
++
++def _current_principal() -> str:
++    """Sujet authentifié de la requête courante, sans jamais lire le jeton."""
++    if not SETTINGS.auth_enabled:
++        return "anonyme"
++    from mcp.server.auth.middleware.auth_context import get_access_token
++
++    from mcp_server.auth import principal_of
++
++    return principal_of(get_access_token())
++
++
+ def _safe_call(operation: Callable[..., dict[str, Any]], *args: Any, **kwargs: Any) -> dict[str, Any]:
+     """Transforme une erreur métier en erreur MCP sans exposer de secret."""
+     started = time.monotonic()
+     operation_name = getattr(operation, "__name__", "legal_operation")
++    principal = _current_principal()
+     try:
++        USER_LIMITER.check(principal)
+         with GOVERNOR.slot():
+             result = operation(*args, **kwargs)
+         LOGGER.info(
+-            "tool_call tool=%s outcome=success duration_ms=%d",
++            "tool_call tool=%s principal=%s outcome=success duration_ms=%d",
+             operation_name,
++            _pseudonym(principal),
+             int((time.monotonic() - started) * 1000),
+         )
+         return result
+@@ -117,7 +180,28 @@ if hasattr(server, "custom_route"):
+     @server.custom_route("/health", methods=["GET"], include_in_schema=False)
+     async def health(_request: Request) -> Response:
+         """Sonde publique sans donnée interne ni vérification consommatrice d'API."""
+-        return JSONResponse({"status": "ok", "version": "0.5.0"})
++        return JSONResponse(
++            {"status": "ok", "version": SERVER_VERSION, "auth": SETTINGS.auth_mode}
++        )
++
++    @server.custom_route(
++        "/.well-known/oauth-protected-resource",
++        methods=["GET", "OPTIONS"],
++        include_in_schema=False,
++    )
++    async def protected_resource_root(_request: Request) -> Response:
++        """Alias racine : certains clients ignorent le suffixe de chemin RFC 9728."""
++        if not SETTINGS.auth_enabled:
++            return PlainTextResponse("Not configured", status_code=404)
++        return JSONResponse(
++            {
++                "resource": SETTINGS.resource_url,
++                "authorization_servers": [_canonical_issuer()],
++                "scopes_supported": list(SETTINGS.oauth_required_scopes),
++                "bearer_methods_supported": ["header"],
++            },
++            headers={"Access-Control-Allow-Origin": "*"},
++        )
+ 
+     @server.custom_route(
+         "/.well-known/openai-apps-challenge",
+diff --git a/requirements-mcp.txt b/requirements-mcp.txt
+index e5f564b..242a3c7 100644
+--- a/requirements-mcp.txt
++++ b/requirements-mcp.txt
+@@ -1,2 +1,4 @@
+ # Serveur MCP local et HTTP. Compatible avec le SDK v1 actuel et la v2.
+ mcp>=1.27,<3
++# Vérification locale des jetons OAuth 2.1 (JWKS de l'émetteur, RS256/ES256).
++PyJWT[crypto]>=2.9,<3
+diff --git a/tests/test_auth.py b/tests/test_auth.py
+new file mode 100644
+index 0000000..ca8308a
+--- /dev/null
++++ b/tests/test_auth.py
+@@ -0,0 +1,201 @@
++#!/usr/bin/env python3
++"""Tests hors réseau de l'authentification OAuth du serveur MCP public."""
++
++from __future__ import annotations
++
++import asyncio
++import sys
++import time
++import unittest
++from pathlib import Path
++from unittest import mock
++
++ROOT = Path(__file__).resolve().parent.parent
++SCRIPTS = ROOT / "skill" / "scripts"
++sys.path.insert(0, str(SCRIPTS))
++sys.path.insert(0, str(ROOT))
++
++import jwt  # noqa: E402
++from cryptography.hazmat.primitives.asymmetric import rsa  # noqa: E402
++
++from mcp_server.auth import (  # noqa: E402
++    JwksTokenVerifier,
++    LegalAccessToken,
++    _normalise_scopes,
++    principal_of,
++)
++from mcp_server.runtime import (  # noqa: E402
++    PrincipalRateLimiter,
++    RuntimeCapacityError,
++    RuntimeConfigurationError,
++    RuntimeSettings,
++)
++
++ISSUER = "https://exemple-idp.eu.auth0.com"
++RESOURCE = "https://droit-francais-skill.onrender.com/mcp"
++
++BASE_ENV = {
++    "MCP_ENV": "production",
++    "MCP_AUTH_MODE": "oauth",
++    "MCP_PUBLIC_URL": "https://droit-francais-skill.onrender.com",
++    "MCP_OAUTH_ISSUER": ISSUER,
++}
++
++PISTE_ENV = {
++    "LEGIFRANCE_CLIENT_ID": "identifiant",
++    "LEGIFRANCE_CLIENT_SECRET": "secret",
++    "JUDILIBRE_KEY_ID": "cle",
++}
++
++
++class AuthSettingsTests(unittest.TestCase):
++    def test_oauth_mode_derives_resource_jwks_and_audience(self):
++        settings = RuntimeSettings.from_env(BASE_ENV)
++        self.assertTrue(settings.auth_enabled)
++        self.assertEqual(settings.resource_url, RESOURCE)
++        self.assertEqual(settings.oauth_audience, RESOURCE)
++        self.assertEqual(settings.oauth_jwks_url, f"{ISSUER}/.well-known/jwks.json")
++        self.assertEqual(settings.oauth_required_scopes, ("legal:read",))
++
++    def test_trailing_slash_never_produces_a_double_separator(self):
++        env = dict(BASE_ENV, MCP_PUBLIC_URL="https://droit-francais-skill.onrender.com/")
++        self.assertEqual(RuntimeSettings.from_env(env).resource_url, RESOURCE)
++
++    def test_scopes_accept_commas_and_spaces(self):
++        for raw in ("legal:read, legal:search", "legal:read legal:search"):
++            env = dict(BASE_ENV, MCP_OAUTH_REQUIRED_SCOPES=raw)
++            self.assertEqual(
++                RuntimeSettings.from_env(env).oauth_required_scopes,
++                ("legal:read", "legal:search"),
++            )
++
++    def test_plaintext_issuer_is_refused(self):
++        env = dict(BASE_ENV, MCP_OAUTH_ISSUER="http://exemple-idp.local")
++        with self.assertRaises(RuntimeConfigurationError):
++            RuntimeSettings.from_env(env)
++
++    def test_oauth_mode_requires_a_public_url(self):
++        env = {key: value for key, value in BASE_ENV.items() if key != "MCP_PUBLIC_URL"}
++        with self.assertRaises(RuntimeConfigurationError):
++            RuntimeSettings.from_env(env)
++
++    def test_production_refuses_an_anonymous_public_gateway(self):
++        env = dict(BASE_ENV, MCP_AUTH_MODE="disabled")
++        settings = RuntimeSettings.from_env(env)
++        with self.assertRaises(RuntimeConfigurationError) as raised:
++            settings.validate_public(dict(env, **PISTE_ENV))
++        self.assertIn("MCP_AUTH_MODE", str(raised.exception))
++
++    def test_production_accepts_a_complete_oauth_configuration(self):
++        settings = RuntimeSettings.from_env(BASE_ENV)
++        settings.validate_public(dict(BASE_ENV, **PISTE_ENV))
++
++    def test_local_stdio_usage_stays_unauthenticated(self):
++        settings = RuntimeSettings.from_env({"MCP_ENV": "development"})
++        self.assertFalse(settings.auth_enabled)
++        self.assertEqual(settings.resource_url, "")
++
++
++class PrincipalRateLimiterTests(unittest.TestCase):
++    def test_quota_is_counted_per_principal(self):
++        limiter = PrincipalRateLimiter(calls_per_minute=2)
++        limiter.check("utilisateur-a")
++        limiter.check("utilisateur-a")
++        with self.assertRaises(RuntimeCapacityError):
++            limiter.check("utilisateur-a")
++        # Un second utilisateur dispose de son propre quota.
++        limiter.check("utilisateur-b")
++
++    def test_window_expiry_frees_the_quota_and_purges_the_bucket(self):
++        limiter = PrincipalRateLimiter(calls_per_minute=1, window_seconds=0.05)
++        limiter.check("utilisateur-a")
++        time.sleep(0.06)
++        limiter.check("utilisateur-a")
++        self.assertEqual(limiter.tracked_principals, 1)
++
++
++def _sign(payload: dict[str, object], key) -> str:
++    return jwt.encode(payload, key, algorithm="RS256")
++
++
++class JwksTokenVerifierTests(unittest.TestCase):
++    @classmethod
++    def setUpClass(cls):
++        cls.key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
++
++    def _verifier(self) -> JwksTokenVerifier:
++        with mock.patch("mcp_server.auth.PyJWKClient"):
++            verifier = JwksTokenVerifier(
++                issuer=ISSUER, jwks_url=f"{ISSUER}/jwks", audience=RESOURCE
++            )
++        signing_key = mock.Mock()
++        signing_key.key = self.key.public_key()
++        verifier._jwks_client.get_signing_key_from_jwt.return_value = signing_key
++        return verifier
++
++    def _verify(self, token: str):
++        return asyncio.run(self._verifier().verify_token(token))
++
++    def _payload(self, **overrides) -> dict[str, object]:
++        now = int(time.time())
++        payload = {
++            "iss": ISSUER,
++            "aud": RESOURCE,
++            "sub": "auth0|utilisateur-1",
++            "azp": "application-chatgpt",
++            "scope": "legal:read",
++            "iat": now,
++            "exp": now + 300,
++        }
++        payload.update(overrides)
++        return payload
++
++    def test_valid_token_yields_subject_scopes_and_resource(self):
++        access = self._verify(_sign(self._payload(), self.key))
++        self.assertIsInstance(access, LegalAccessToken)
++        self.assertEqual(access.subject, "auth0|utilisateur-1")
++        self.assertEqual(access.client_id, "application-chatgpt")
++        self.assertEqual(access.scopes, ["legal:read"])
++        self.assertEqual(access.resource, RESOURCE)
++        self.assertEqual(principal_of(access), "auth0|utilisateur-1")
++
++    def test_token_issued_for_another_api_is_refused(self):
++        token = _sign(self._payload(aud="https://une-autre-api.example"), self.key)
++        self.assertIsNone(self._verify(token))
++
++    def test_token_from_another_issuer_is_refused(self):
++        token = _sign(self._payload(iss="https://idp-pirate.example"), self.key)
++        self.assertIsNone(self._verify(token))
++
++    def test_expired_token_is_refused(self):
++        now = int(time.time())
++        token = _sign(self._payload(iat=now - 7200, exp=now - 3600), self.key)
++        self.assertIsNone(self._verify(token))
++
++    def test_token_without_subject_is_refused(self):
++        payload = self._payload()
++        del payload["sub"]
++        self.assertIsNone(self._verify(_sign(payload, self.key)))
++
++    def test_token_signed_by_an_unknown_key_is_refused(self):
++        other = rsa.generate_private_key(public_exponent=65537, key_size=2048)
++        self.assertIsNone(self._verify(_sign(self._payload(), other)))
++
++    def test_symmetric_algorithm_is_never_accepted(self):
++        token = jwt.encode(self._payload(), "secret-partage", algorithm="HS256")
++        self.assertIsNone(self._verify(token))
++
++    def test_missing_token_gives_the_anonymous_principal(self):
++        self.assertEqual(principal_of(None), "anonyme")
++
++
++class ScopeNormalisationTests(unittest.TestCase):
++    def test_every_common_dialect_is_understood(self):
++        self.assertEqual(_normalise_scopes({"scope": "a b"}), ["a", "b"])
++        self.assertEqual(_normalise_scopes({"scp": ["a", "b"]}), ["a", "b"])
++        self.assertEqual(_normalise_scopes({"permissions": ["a"]}), ["a"])
++        self.assertEqual(_normalise_scopes({}), [])
++
++
++if __name__ == "__main__":
++    unittest.main()
+diff --git a/tests/test_mcp_app.py b/tests/test_mcp_app.py
+index 21a068b..f182471 100644
+--- a/tests/test_mcp_app.py
++++ b/tests/test_mcp_app.py
+@@ -178,6 +178,9 @@ class RuntimeSafetyTests(unittest.TestCase):
+     def test_production_accepts_judilibre_alias_without_exposing_values(self):
+         env = {
+             "MCP_ENV": "production",
++            "MCP_AUTH_MODE": "oauth",
++            "MCP_PUBLIC_URL": "https://exemple.onrender.com",
++            "MCP_OAUTH_ISSUER": "https://exemple-idp.eu.auth0.com",
+             "LEGIFRANCE_CLIENT_ID": "client-secret-value",
+             "LEGIFRANCE_CLIENT_SECRET": "oauth-secret-value",
+             "PISTE_KEY_ID": "key-secret-value",
+@@ -205,7 +208,9 @@ class RuntimeSafetyTests(unittest.TestCase):
+     def test_health_and_domain_challenge_expose_no_configuration(self):
+         health = asyncio.run(mcp_app.health(mock.Mock()))
+         self.assertEqual(200, health.status_code)
+-        self.assertEqual(b'{"status":"ok","version":"0.5.0"}', health.body)
++        self.assertEqual(
++            b'{"status":"ok","version":"0.6.0","auth":"disabled"}', health.body
++        )
+ 
+         with mock.patch.dict(
+             os.environ, {"OPENAI_APPS_CHALLENGE": "challenge-token"}, clear=False

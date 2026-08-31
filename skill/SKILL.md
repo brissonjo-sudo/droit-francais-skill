@@ -6,24 +6,25 @@ description: Méthodologie rigoureuse de recherche en droit français (sources
   arrêté ou circulaire ; demande une qualification pénale, administrative ou
   civile ; demande une jurisprudence (Cass., CE, CC, CJUE, CEDH) ; demande de
   vérifier si un texte est en vigueur, abrogé ou modifié ; rédige un acte, une
-  note, un mémoire, des conclusions ou une réponse institutionnelle ; prépare
+  note, un mémoire, des conclusions ou une réponse institutionnelle ; audite
+  ou corrige juridiquement un document ou un corpus de documents ; prépare
   un écrit ou oral de concours avec références juridiques. Ne pas activer pour
   le droit étranger non européen ni les questions doctrinales sans citation.
 metadata:
-  version: 3.1.1
-  date_derniere_revue_methodologique: 2026-07-02
+  version: 3.2.0
+  date_derniere_revue_methodologique: 2026-08-27
   date_derniere_verification_sources: 2026-05-19
   langue: français
 ---
-# Skill : recherche-juridique (v3.1.1)
+# Skill : recherche-juridique (v3.2.0)
 
 > **Objet** : encoder la méthodologie rigoureuse de recherche en droit
 > français applicable à tout usage professionnel — avocat, juriste,
 > agent des forces de l'ordre, cadre territorial, candidat aux concours.
-> Conçu contre **quatorze modes d'erreur** identifiés du LLM en droit,
+> Conçu contre **dix-huit modes d'erreur** identifiés du LLM en droit,
 > autour de **sept principes**, d'une **procédure en neuf étapes**
 > (étapes **0** et **0 bis** de cadrage, étapes **1 à 7** opératoires),
-> d'un **double mode opératoire A/B**, de **cinq modules activables** et
+> d'un **double mode opératoire A/B**, de **six modules activables** et
 > de **quatre techniques** de raisonnement juridique.
 >
 > **Public** : praticiens du droit français. Le métier de l'utilisateur
@@ -44,6 +45,7 @@ Activer ce skill dès que l'utilisateur :
 - demande une jurisprudence (Cass., CE, CC, CJUE, CEDH),
 - rédige un acte, une note, un mémoire, des conclusions ou une réponse
   institutionnelle,
+- audite, relit ou corrige juridiquement un document existant ou un corpus,
 - prépare un oral ou écrit de concours impliquant des références juridiques.
 
 **Ne pas activer** pour des questions purement doctrinales sans besoin
@@ -103,7 +105,7 @@ légalité, exercice de préparation au concours).
 | Balise | Effet |
 |--------|-------|
 | `[complet]` | Force le mode B (tous modules activés). |
-| `[express]` | Mode A allégé : supprime l'activation automatique des modules même si leurs déclencheurs sont réunis. **Exception : le module PÉNAL reste actif** (principe de légalité criminelle, P6). |
+| `[express]` | Mode A allégé : supprime l'activation automatique des modules même si leurs déclencheurs sont réunis. **Exceptions : PÉNAL reste actif** en matière répressive (P6) et **DOC-AUDIT reste actif** pour tout audit ou correction de documents. |
 | `[syllogisme]` | Active le sous-gabarit « note de concours » (structure majeure / mineure / conclusion). Surcouche du gabarit B. |
 | `[opérationnel]` | Active la section « Implications opérationnelles » du gabarit B et le rôle facultatif *responsable opérationnel* à l'étape 7. |
 | `[lookup]` | **Voie rapide** : référence ponctuelle non controversée. Dispense de l'en-tête standardisé et de l'encart récapitulatif ; sortie minimale (voir ci-dessous). **N'allège aucune exigence de fond** : P1, règle de provenance et étape 0 bis restent dues. Refusée — bascule en mode A standard — dès qu'une interprétation, une qualification pénale ou un acte est en jeu. |
@@ -147,25 +149,27 @@ de l'identifiant y reste néanmoins obligatoire).
 
 ---
 
-## 1. Diagnostic préalable — les 14 modes d'erreur à empêcher
+## 1. Diagnostic préalable — les 18 modes d'erreur à empêcher
 
-Cette méthodologie est construite contre **quatorze modes d'erreur** du
+Cette méthodologie est construite contre **dix-huit modes d'erreur** du
 LLM en droit. Les nommer permet de les bloquer ; chaque principe et
 chaque étape indiquent les modes qu'ils neutralisent (« → Bloque modes… »).
 
 | # | Mode | # | Mode |
 |---|------|---|------|
-| 1 | Hallucination de référence | 8 | Oubli de la hiérarchie des normes |
-| 2 | Effet de cutoff | 9 | Oubli du décret d'application |
-| 3 | Confusion de versions | 10 | Oubli du champ territorial |
-| 4 | Confusion d'articles voisins | 11 | Oubli des dispositions transitoires |
-| 5 | Analogie non vérifiée | 12 | Oubli des renvois normatifs |
-| 6 | Confusion doctrine / texte | 13 | Inversion cumulatif / alternatif |
-| 7 | Confusion de juridictions | 14 | Faux positif textuel |
+| 1 | Hallucination de référence | 10 | Oubli du champ territorial |
+| 2 | Effet de cutoff | 11 | Oubli des dispositions transitoires |
+| 3 | Confusion de versions | 12 | Oubli des renvois normatifs |
+| 4 | Confusion d'articles voisins | 13 | Inversion cumulatif / alternatif |
+| 5 | Analogie non vérifiée | 14 | Faux positif textuel |
+| 6 | Confusion doctrine / texte | 15 | Validation héritée d'un audit antérieur |
+| 7 | Confusion de juridictions | 16 | Citation exacte, conséquence fausse |
+| 8 | Oubli de la hiérarchie des normes | 17 | Mauvais acteur–lieu–propriétaire–pouvoir |
+| 9 | Oubli du décret d'application | 18 | Incohérence de corpus |
 
 **Détail et exemples de chaque mode → [`references/modes-erreur.md`](references/modes-erreur.md).**
 
-**Note.** L'étape 0 bis (v2.1.0) n'est pas un 15e mode : garde procédurale
+**Note.** L'étape 0 bis (v2.1.0) n'est pas un mode supplémentaire : garde procédurale
 en amont, elle empêche de déclencher les modes 10 et 14 (mauvais régime /
 mauvais champ sur une hypothèse décisionnelle non levée). Elle prolonge P2
 et P7 au stade de l'entrée.
@@ -351,6 +355,32 @@ et détenue par le seul utilisateur**, le skill ne spécule pas et ne
 
 ---
 
+## 2 bis. Route obligatoire — audit ou correction de documents existants
+
+Toute demande d'**audit**, de **relecture juridique** ou de **correction
+directe** d'un ou plusieurs fichiers active le module **DOC-AUDIT**, y
+compris sous balise `[express]`. Lire et exécuter intégralement
+[`references/audit-documentaire.md`](references/audit-documentaire.md).
+
+Cette route ajoute huit portes de contrôle au noyau : qualifier les
+livrables et leurs dates de droit ; inventorier le corpus ; constituer un
+registre des affirmations ; vérifier à 100 % le risque juridique élevé ;
+construire la matrice **acteur–lieu–propriétaire–pouvoir** ; tester
+séparément la source et la conséquence ; réconcilier les fichiers ; puis
+rechercher les résidus après correction.
+
+**Indépendance de second regard.** Un audit antérieur, même réalisé avec
+ce skill, est une information de contexte et non une preuve de conformité.
+Les affirmations à risque élevé sont reprises depuis les sources primaires.
+
+**Porte bloquante.** L'audit ne peut être déclaré terminé tant qu'une
+affirmation à risque élevé n'est pas soit vérifiée et corrigée, soit
+signalée comme non vérifiable avec abstention ciblée.
+
+→ Bloque modes 2, 3, 14 à 18.
+
+---
+
 ## 3. La procédure en 9 étapes — 0, 0 bis, 1 à 7 (avec critères de sortie)
 
 Chaque étape a un **critère de sortie**. S'il n'est pas rempli, je
@@ -364,7 +394,7 @@ Avant toute recherche, répondre par écrit à **six questions** :
 
 1. **Nature exacte** : qualification d'un fait / recherche d'un texte /
    vérification d'une jurisprudence / analyse d'articulation /
-   rédaction d'acte / préparation argumentaire.
+   rédaction d'acte / audit de document ou corpus / préparation argumentaire.
 2. **Date(s) pertinente(s)** — distinguer droit substantiel, droit
    procédural, sanction, acte. Inclure systématiquement **date des
    faits** et **date d'action ou d'analyse** (contrôles de délais et
@@ -638,6 +668,12 @@ article sur la compétence n'est pas un article sur la procédure ; un
 arrêt sur le contentieux contractuel n'est pas un arrêt sur le
 contentieux indemnitaire.
 
+**Contrôle source / conséquence** : vérifier en deux temps que (a) la
+source contient la proposition invoquée et que (b) cette proposition
+autorise exactement la conséquence écrite, pour cet acteur, ce lieu, ce
+propriétaire, cette date et cette opération. Une citation exacte ne valide
+jamais, à elle seule, la phrase qui la porte.
+
 **Contrôle de provenance (P1)** : avant livraison, vérifier que chaque
 identifiant officiel cité (`LEGIARTI`, `JORFTEXT`, `NOR`, n° de
 pourvoi, n° de requête, n° de décision) a bien été **récupéré par un
@@ -645,9 +681,13 @@ appel d'outil dans la session**. Tout identifiant sans provenance est
 retiré ou marqué `⚠️ non vérifié — identifiant non récupéré`. Aucun
 gabarit C n'est produit sur un identifiant non récupéré.
 
+En route DOC-AUDIT, exécuter en outre le contrôle post-correction prévu par
+`references/audit-documentaire.md` et consigner les divergences
+interdocuments résolues ou encore ouvertes.
+
 **Critère de sortie** : chaque affirmation porte sa citation et son
-niveau de confiance ; contrôle texte-cible exécuté ; contrôle de
-provenance exécuté.
+niveau de confiance ; contrôles texte-cible, source/conséquence et
+provenance exécutés ; en audit, contrôle post-correction exécuté.
 
 → Bloque modes 1, 4, 5, 14.
 
@@ -735,6 +775,7 @@ doute sur le déclenchement, le module s'active.** Le mode B force tous les modu
 | **PA-PJ** | Opération susceptible d'être PA ou PJ (constatation, interpellation, contrôle, mesure préventive) | Mini-grille : finalité / autorité / temporalité / régime procédural |
 | **FOND** | Niveau = note de fond / citation pour acte / concours ; ou interprétation controversée | T3 obligatoire, grille autorité jurisprudentielle |
 | **CONTENTIEUX** | Risque recours / stratégie procédurale / voie de droit envisagée | Régime contentieux + office juge + charge + moyens + délais |
+| **DOC-AUDIT** | Audit, relecture ou correction juridique d'un ou plusieurs fichiers | Registre des affirmations, risque élevé vérifié à 100 %, matrice acteur–lieu–propriétaire–pouvoir, cohérence du corpus, contrôle post-correction ; non désactivable par `[express]` |
 
 **Lire [`references/modules.md`](references/modules.md) dès qu'un module s'active.**
 
@@ -742,7 +783,8 @@ doute sur le déclenchement, le module s'active.** Le mode B force tous les modu
 ## 6. Gabarits de sortie
 
 **Gabarit A** — Note express · **Gabarit B** — Note de fond · **Gabarit C** — Citation
-pour acte · **Sous-gabarit `[syllogisme]`** — Note de concours (surcouche B).
+pour acte · **Gabarit D** — Audit documentaire · **Sous-gabarit
+`[syllogisme]`** — Note de concours (surcouche B).
 
 **Lire [`references/gabarits-sortie.md`](references/gabarits-sortie.md) avant toute rédaction de livrable.**
 
