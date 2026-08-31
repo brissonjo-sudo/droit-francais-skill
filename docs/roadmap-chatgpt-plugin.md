@@ -11,7 +11,7 @@ modifiés par aucune de ces phases.
 | 3 | Inventaire du checkout local | — | Terminée (sans objet) |
 | 4 | Retirer les artefacts de développement | `chore/remove-patch-artifacts` | Terminée (PR #15 fusionnée) |
 | 5 | Validation OAuth et MCP de bout en bout | `test/oauth-end-to-end` | Harnais livré — check-list manuelle à exécuter |
-| 6 | Sécurité et conformité | — | À faire |
+| 6 | Sécurité et conformité | `docs/conformite` | Terminée — voir [conformite.md](conformite.md) |
 | 7 | Dossier de soumission | `release/chatgpt-submission` | À faire |
 | 8 | Publication progressive | — | À faire |
 
@@ -233,3 +233,24 @@ d'échec et le quota.
 
 **La phase reste ouverte tant que cette check-list n'est pas revenue
 renseignée.** Les phases 6 à 8 en dépendent.
+
+---
+
+## Phase 6 — Sécurité et conformité
+
+Audit sur pièces consigné dans [conformite.md](conformite.md). Aucun défaut
+constaté : les garde-fous attendus existaient déjà et ont été vérifiés un à un
+— secrets hors dépôt et masqués dans les erreurs, validation JWT complète avec
+audience liée à la ressource, limitation de concurrence et de débit, quota par
+sujet, taille de requête et délais réseau bornés, journal pseudonymisé par
+empreinte SHA-256 tronquée, refus de démarrage d'une passerelle publique
+anonyme.
+
+Un seul manque a été comblé : les conditions d'utilisation ne portaient pas de
+clause de **non-affiliation**. Elles disent désormais explicitement que le
+service n'est ni édité, ni approuvé, ni labellisé par la DILA, Légifrance, la
+Cour de cassation, Judilibre ou une autre administration.
+
+La note liste six points à surveiller — dont le dimensionnement des quotas,
+jamais confronté à une charge réelle, et le fait qu'une version épinglée doit
+être suivie sous peine de devenir une dette de sécurité.
