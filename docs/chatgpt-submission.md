@@ -88,13 +88,47 @@ Type de soumission : **With MCP**, URL **Universal**.
 | Conditions | `https://github.com/brissonjo-sudo/droit-francais-skill/blob/main/docs/terms-of-use.md` |
 | MCP | `https://droit-francais-skill.onrender.com/mcp` |
 
-Le fichier `chatgpt-app-submission.json` contient les informations d'app,
-les justifications des annotations et les huit cas de test importables.
+La table ci-dessus ne couvrait que sept champs. Le formulaire en demande
+davantage ; les voici tous, relevés dans la documentation OpenAI le 31 août
+2026.
+
+**Section « Info »** — nom, description courte, description longue, identité de
+développeur vérifiée, logo, catégorie, puis les **quatre** URL publiques : site,
+support, confidentialité, conditions.
+
+**Section « MCP »** — type d'URL (`Universal` ou `Template`), URL MCP de
+production, configuration d'authentification, **identifiants de démonstration**
+et domaines de politique de sécurité de contenu.
+
+**Puis** — prompts de démarrage, cinq cas de test positifs et trois négatifs,
+pays de distribution, et notes de version.
+
+Les identifiants de démonstration doivent fonctionner **sans MFA, ni SMS, ni
+confirmation par courriel** : un relecteur ne peut pas recevoir votre second
+facteur. Prévoir un compte de test dédié dans le locataire Auth0.
+
+Le fichier `chatgpt-app-submission.json` porte les informations d'app, les
+justifications des annotations, les notes de version et les huit cas de test
+importables. Il est **validé contre le schéma officiel** par
+`python tests/check_plugin.py`, à chaque PR.
+
+> Attention à deux vocabulaires distincts : `app_info.category` du fichier de
+> soumission utilise l'énumération en majuscules du schéma (`PRODUCTIVITY`),
+> tandis que `interface.category` du manifeste utilise la liste en casse de
+> titre (`Productivity`). Les deux sont contrôlés, chacun contre sa liste.
 
 ## Vérification du domaine
 
-Le serveur expose `GET /.well-known/openai-apps-challenge`. Lorsque le portail
-fournit son jeton temporaire :
+Un plugin avec MCP doit prouver le contrôle du domaine qui héberge le serveur.
+Le serveur expose `GET /.well-known/openai-apps-challenge`, qui rend **le jeton
+seul** — ni JSON, ni liste, ni plusieurs jetons : le portail compare la réponse
+au jeton exact. Les espaces et retours à la ligne sont retirés côté serveur,
+parce qu'un jeton collé depuis le portail en emporte souvent un.
+
+L'origine interrogée par le portail (*Challenge Base URL*) doit être l'hôte du
+serveur MCP ou un hôte parent ; les chemins sont ignorés.
+
+Lorsque le portail fournit son jeton temporaire :
 
 1. ajouter le jeton dans la variable Render `OPENAI_APPS_CHALLENGE` ;
 2. laisser Render redéployer le service ;
@@ -137,6 +171,7 @@ exigences de stabilité et de réactivité.
 * [Developer mode and MCP apps in ChatGPT — centre d'aide OpenAI](https://help.openai.com/en/articles/12584461-developer-mode-and-mcp-apps-in-chatgpt)
 * [Connect and test your plugin — documentation OpenAI](https://developers.openai.com/plugins/deploy/connect-chatgpt)
 * [Authentication — documentation OpenAI](https://developers.openai.com/plugins/build/auth)
+* [Verifying your domain — centre d'aide OpenAI](https://help.openai.com/en/articles/8871611-domain-verification)
 
 Ces pages font foi sur les libellés d'interface, qui changent. Toute
 modification de cette section doit être vérifiée à la source, jamais rédigée

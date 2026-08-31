@@ -57,6 +57,13 @@ MAX_LONGUEUR_URL = 1024
 SCHEMA_SOUMISSION = (
     "https://developers.openai.com/plugins/schemas/chatgpt-app-submission.v1.json"
 )
+
+#: Copie locale du schema officiel, relevee le 31 aout 2026. Embarquee pour que
+#: la validation soit rejouable hors ligne et en CI : le defaut de $schema qui
+#: rendait le dossier invalide n'avait ete vu que par une validation manuelle,
+#: jouee une seule fois. A rafraichir depuis SCHEMA_SOUMISSION lors des revues.
+SCHEMA_LOCAL = ROOT / "tests" / "fixtures" / "chatgpt-app-submission.v1.schema.json"
+
 SEMVER = re.compile(r"^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$")
 PLUGIN_FIELDS = ("name", "version", "description", "author", "skills", "interface")
 INTERFACE_FIELDS = (
@@ -84,6 +91,37 @@ LOCAL_ASSET_FIELDS = (
 
 def fail(message: str, problems: list[str]) -> None:
     problems.append(message)
+
+
+def valider_contre_le_schema(submission: dict, problems: list[str]) -> None:
+    """Valide le dossier contre la copie locale du schema officiel.
+
+    La validation est *facultative* : ce controle se veut sans dependance
+    externe, et jsonschema n'arrive qu'avec le SDK MCP. Quand il manque,
+    l'absence de validation est dite explicitement plutot que passee sous
+    silence — un controle muet se lit a tort comme un controle reussi.
+    """
+    try:
+        import jsonschema
+    except ImportError:
+        print(
+            "ℹ️  jsonschema absent : dossier NON valide contre le schema "
+            "(installer requirements-mcp.txt pour ce controle)"
+        )
+        return
+
+    if not SCHEMA_LOCAL.is_file():
+        fail(f"copie locale du schema absente : {SCHEMA_LOCAL.name}", problems)
+        return
+    try:
+        schema = json.loads(SCHEMA_LOCAL.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        fail(f"copie locale du schema illisible : {exc}", problems)
+        return
+
+    for erreur in jsonschema.Draft202012Validator(schema).iter_errors(submission):
+        chemin = "/".join(str(part) for part in erreur.path) or "(racine)"
+        fail(f"schema officiel — {chemin} : {erreur.message}", problems)
 
 
 def main() -> int:
@@ -310,6 +348,7 @@ def main() -> int:
                 )
             if not str(submission.get("release_notes", "")).strip():
                 fail("release_notes est obligatoire a la soumission", problems)
+            valider_contre_le_schema(submission, problems)
             tools = submission.get("tools")
             if not isinstance(tools, dict) or set(tools) != set(EXPECTED_TOOLS):
                 fail("la soumission doit couvrir exactement les six outils MCP", problems)

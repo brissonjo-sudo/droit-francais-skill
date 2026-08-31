@@ -188,6 +188,23 @@ point de découverte `skills/recherche-juridique/` et la présence intacte du
 skill historique `skill/SKILL.md`. Il interdit aussi de déclarer une app ou un
 serveur MCP sans fichier compagnon.
 
+Il applique en outre les **limites publiées par OpenAI** pour la soumission —
+longueurs de champs, liste des catégories, nombre et longueur des prompts et
+des capacités, quatre URL publiques, notes de version, justification par
+annotation — et la règle de version retenue : *le manifeste du plugin suit le
+serveur MCP*, le skill gardant sa propre ligne éditoriale.
+
+Enfin, il **valide `chatgpt-app-submission.json` contre le schéma officiel**,
+dont une copie est embarquée dans `fixtures/`. Cette validation est facultative :
+elle demande `jsonschema`, qui arrive avec le SDK MCP. Quand il manque, son
+absence est dite explicitement — un contrôle muet se lit à tort comme un
+contrôle réussi. Rafraîchir la copie depuis l'URL déclarée lors des revues.
+
+> **Pourquoi cette validation existe.** Le fichier déclarait une URL de schéma
+> obsolète (`apps-sdk` au lieu de `plugins`) et **échouait à la validation
+> officielle**. Le défaut n'a été vu qu'en téléchargeant le schéma à la main,
+> une fois. Rien, dans le dépôt, ne l'aurait signalé.
+
 > **Pourquoi ce contrôle existe.** La v3.1.0 a dû réparer la suppression
 > accidentelle de `ceta` et `constit` par une PR qui n'avait touché **aucun**
 > `.md` : pendant ce temps, quatre fichiers prescrivaient au modèle des
