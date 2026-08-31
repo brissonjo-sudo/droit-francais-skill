@@ -249,8 +249,17 @@ journalisé sous forme de nom de classe d'erreur, jamais avec le jeton.
 Le journal métier (`droit_francais.mcp`) reste en `INFO` même lorsque l'image
 tourne en `WARNING` : c'est la seule trace permettant de rattacher un appel
 d'outil à un utilisateur, donc de tenir l'engagement d'imputabilité pris
-envers PISTE. Chaque ligne porte l'outil, l'issue, la durée et une empreinte
-tronquée du sujet — jamais le jeton ni l'identifiant brut du compte.
+envers PISTE. Chaque ligne porte l'outil, l'issue, la durée, une empreinte
+tronquée du sujet et les **portées reçues** — jamais le jeton ni l'identifiant
+brut du compte.
+
+```
+tool_call tool=search principal=a1b2c3d4e5f6 scopes=legal:read outcome=success duration_ms=412
+```
+
+Le champ `scopes=` n'est pas décoratif : c'est lui qui dira si le contrôle de
+portée peut être réactivé sans casser le connecteur. Une portée n'est pas une
+donnée personnelle ; la journaliser ne coûte rien à la vie privée.
 
 ## Dépannage
 

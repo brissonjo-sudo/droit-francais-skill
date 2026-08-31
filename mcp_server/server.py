@@ -141,6 +141,27 @@ def _current_principal() -> str:
     return principal_of(get_access_token())
 
 
+def _current_scopes() -> str:
+    """Portées effectivement portées par le jeton courant.
+
+    Journalisées parce qu'elles tranchent une question ouverte : le contrôle de
+    portée est désactivé faute de savoir si le client demande bien la portée
+    personnalisée. Le SDK couple annonce et exigence — ``scopes_supported`` vaut
+    ``required_scopes`` — donc réactiver le contrôle sans savoir ce que portent
+    les jetons reviendrait à parier sur un `403` généralisé. Une portée n'est
+    pas une donnée personnelle : la journaliser ne coûte rien à la vie privée
+    et rend la décision mesurable au lieu d'être spéculative.
+    """
+    if not SETTINGS.auth_enabled:
+        return "-"
+    from mcp.server.auth.middleware.auth_context import get_access_token
+
+    access_token = get_access_token()
+    if access_token is None:
+        return "-"
+    return ",".join(access_token.scopes) if access_token.scopes else "aucune"
+
+
 def _safe_call(operation: Callable[..., dict[str, Any]], *args: Any, **kwargs: Any) -> dict[str, Any]:
     """Transforme une erreur métier en erreur MCP sans exposer de secret."""
     started = time.monotonic()
@@ -151,9 +172,10 @@ def _safe_call(operation: Callable[..., dict[str, Any]], *args: Any, **kwargs: A
         with GOVERNOR.slot():
             result = operation(*args, **kwargs)
         LOGGER.info(
-            "tool_call tool=%s principal=%s outcome=success duration_ms=%d",
+            "tool_call tool=%s principal=%s scopes=%s outcome=success duration_ms=%d",
             operation_name,
             _pseudonym(principal),
+            _current_scopes(),
             int((time.monotonic() - started) * 1000),
         )
         return result
