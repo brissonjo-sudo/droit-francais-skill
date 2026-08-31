@@ -47,9 +47,18 @@ def _positive_float(env: Mapping[str, str], name: str, default: float) -> float:
     return value
 
 
-def _https_url(env: Mapping[str, str], name: str) -> str:
-    """Lit une URL publique et refuse tout schéma non chiffré."""
-    raw = env.get(name, "").strip().rstrip("/")
+def _https_url(
+    env: Mapping[str, str], name: str, *, strip_trailing_slash: bool = True
+) -> str:
+    """Lit une URL publique et refuse tout schéma non chiffré.
+
+    ``strip_trailing_slash`` vaut ``False`` pour l'émetteur OAuth : sa forme
+    canonique doit rester celle que publie le serveur d'autorisation, barre
+    oblique finale comprise. Voir ``RuntimeSettings.oauth_issuer``.
+    """
+    raw = env.get(name, "").strip()
+    if strip_trailing_slash:
+        raw = raw.rstrip("/")
     if not raw:
         raise RuntimeConfigurationError(f"{name} est obligatoire avec MCP_AUTH_MODE=oauth.")
     if not raw.startswith("https://"):
@@ -92,6 +101,10 @@ class RuntimeSettings:
     max_request_body_bytes: int
     auth_mode: str = "disabled"
     public_url: str = ""
+    #: Émetteur OAuth dans sa forme canonique, recopiée telle quelle depuis le
+    #: champ « issuer » du document de découverte. OpenAI compare cette chaîne
+    #: caractère pour caractère à celle que publient les métadonnées RFC 9728 :
+    #: une barre oblique finale ajoutée ou retirée fait échouer le connecteur.
     oauth_issuer: str = ""
     oauth_jwks_url: str = ""
     oauth_audience: str = ""
@@ -106,6 +119,16 @@ class RuntimeSettings:
     def resource_url(self) -> str:
         """URL canonique de la ressource protégée, au sens de la RFC 8707."""
         return f"{self.public_url}/mcp" if self.public_url else ""
+
+    @property
+    def oauth_issuer_base(self) -> str:
+        """Émetteur tronqué de sa barre finale, réservé aux concaténations d'URL.
+
+        ``oauth_issuer`` porte la forme canonique publiée telle quelle dans les
+        métadonnées ; elle ne doit jamais servir à construire un chemin, sous
+        peine de produire une double barre qu'Auth0 renvoie en « Not found ».
+        """
+        return self.oauth_issuer.rstrip("/")
 
     @classmethod
     def from_env(cls, env: Mapping[str, str] | None = None) -> "RuntimeSettings":
@@ -138,10 +161,12 @@ class RuntimeSettings:
         scopes = _split_scopes(values.get("MCP_OAUTH_REQUIRED_SCOPES"), DEFAULT_SCOPES)
         if auth_mode == "oauth":
             public_url = _https_url(values, "MCP_PUBLIC_URL")
-            issuer = _https_url(values, "MCP_OAUTH_ISSUER")
+            issuer = _https_url(
+                values, "MCP_OAUTH_ISSUER", strip_trailing_slash=False
+            )
             jwks_url = values.get("MCP_OAUTH_JWKS_URL", "").strip()
             if not jwks_url:
-                jwks_url = f"{issuer}/.well-known/jwks.json"
+                jwks_url = f"{issuer.rstrip('/')}/.well-known/jwks.json"
             if not jwks_url.startswith("https://"):
                 raise RuntimeConfigurationError(
                     "MCP_OAUTH_JWKS_URL doit commencer par https://."

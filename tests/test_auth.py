@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import asyncio
 import datetime as dt
+import json
 import sys
 import time
 import unittest
@@ -108,6 +109,132 @@ class AuthSettingsTests(unittest.TestCase):
         settings = RuntimeSettings.from_env({"MCP_ENV": "development"})
         self.assertFalse(settings.auth_enabled)
         self.assertEqual(settings.resource_url, "")
+
+
+class IssuerCanonicalisationTests(unittest.TestCase):
+    """L'émetteur publié doit être celui du document de découverte, à la lettre.
+
+    OpenAI rapproche textuellement l'``issuer`` annoncé par le serveur
+    d'autorisation et celui que publient les métadonnées RFC 9728 du serveur
+    MCP. Aucune normalisation n'est appliquée de leur côté : une barre oblique
+    finale ajoutée ou retirée suffit à faire échouer le connecteur.
+    """
+
+    AVEC_BARRE = "https://exemple-idp.eu.auth0.com/"
+    SANS_BARRE = "https://exemple-idp.eu.auth0.com"
+
+    def test_trailing_slash_is_preserved(self):
+        env = dict(BASE_ENV, MCP_OAUTH_ISSUER=self.AVEC_BARRE)
+        self.assertEqual(RuntimeSettings.from_env(env).oauth_issuer, self.AVEC_BARRE)
+
+    def test_absent_trailing_slash_is_never_invented(self):
+        # L'exploitant recopie ce que publie son émetteur : Auth0 écrit la
+        # barre, Google ne l'écrit pas. Normaliser dans un sens ou dans l'autre
+        # casserait l'un des deux.
+        env = dict(BASE_ENV, MCP_OAUTH_ISSUER=self.SANS_BARRE)
+        self.assertEqual(RuntimeSettings.from_env(env).oauth_issuer, self.SANS_BARRE)
+
+    def test_base_form_never_carries_a_trailing_slash(self):
+        for raw in (self.AVEC_BARRE, self.SANS_BARRE):
+            env = dict(BASE_ENV, MCP_OAUTH_ISSUER=raw)
+            self.assertEqual(
+                RuntimeSettings.from_env(env).oauth_issuer_base, self.SANS_BARRE
+            )
+
+    def test_derived_jwks_url_never_doubles_the_separator(self):
+        for raw in (self.AVEC_BARRE, self.SANS_BARRE):
+            env = dict(BASE_ENV, MCP_OAUTH_ISSUER=raw)
+            jwks = RuntimeSettings.from_env(env).oauth_jwks_url
+            self.assertEqual(jwks, f"{self.SANS_BARRE}/.well-known/jwks.json")
+            self.assertNotIn("//.well-known", jwks)
+
+    def test_explicit_jwks_url_still_wins(self):
+        env = dict(
+            BASE_ENV,
+            MCP_OAUTH_ISSUER=self.AVEC_BARRE,
+            MCP_OAUTH_JWKS_URL="https://exemple-idp.eu.auth0.com/cles.json",
+        )
+        self.assertEqual(
+            RuntimeSettings.from_env(env).oauth_jwks_url,
+            "https://exemple-idp.eu.auth0.com/cles.json",
+        )
+
+    def test_whitespace_only_issuer_is_still_refused(self):
+        env = dict(BASE_ENV, MCP_OAUTH_ISSUER="   ")
+        with self.assertRaises(RuntimeConfigurationError):
+            RuntimeSettings.from_env(env)
+
+    def test_public_url_keeps_its_trailing_slash_stripped(self):
+        # La troncature reste indispensable là où l'URL sert de préfixe.
+        env = dict(
+            BASE_ENV,
+            MCP_PUBLIC_URL="https://droit-francais-skill.onrender.com/",
+            MCP_OAUTH_ISSUER=self.AVEC_BARRE,
+        )
+        self.assertEqual(RuntimeSettings.from_env(env).resource_url, RESOURCE)
+
+    @staticmethod
+    def _root_route_issuer(settings) -> str:
+        """Émetteur réellement servi par la route racine de ``server.py``."""
+        from mcp_server import server as mcp_app
+
+        with mock.patch.object(mcp_app, "SETTINGS", settings):
+            response = asyncio.run(mcp_app.protected_resource_root(mock.Mock()))
+        return json.loads(response.body)["authorization_servers"][0]
+
+    @staticmethod
+    def _sdk_route_issuer(settings) -> str:
+        """Émetteur réellement servi par la route « /mcp » du SDK.
+
+        Reproduit la construction de ``create_protected_resource_routes`` : le
+        SDK instancie ``ProtectedResourceMetadata`` à partir de
+        ``AuthSettings.issuer_url``, puis sérialise le modèle tel quel.
+        """
+        from mcp.server.auth.settings import AuthSettings
+        from mcp.shared.auth import ProtectedResourceMetadata
+
+        auth = AuthSettings(
+            issuer_url=settings.oauth_issuer,
+            resource_server_url=settings.resource_url,
+            required_scopes=list(settings.oauth_required_scopes),
+        )
+        metadata = ProtectedResourceMetadata(
+            resource=auth.resource_server_url,
+            authorization_servers=[auth.issuer_url],
+            scopes_supported=auth.required_scopes,
+        )
+        payload = metadata.model_dump(by_alias=True, mode="json", exclude_none=True)
+        return payload["authorization_servers"][0]
+
+    def test_root_route_publishes_the_issuer_verbatim(self):
+        for raw in (self.AVEC_BARRE, self.SANS_BARRE):
+            with self.subTest(issuer=raw):
+                settings = RuntimeSettings.from_env(dict(BASE_ENV, MCP_OAUTH_ISSUER=raw))
+                self.assertEqual(self._root_route_issuer(settings), raw)
+
+    def test_sdk_route_publishes_the_issuer_verbatim(self):
+        # Garde-fou de version : le SDK MCP 2.x préserve la chaîne configurée
+        # (« url_preserve_empty_path »), là où le 1.x laissait pydantic ajouter
+        # une barre finale. Un échec ici signale un SDK non conforme à
+        # requirements-mcp.txt, donc une métadonnée que ChatGPT refusera.
+        for raw in (self.AVEC_BARRE, self.SANS_BARRE):
+            with self.subTest(issuer=raw):
+                settings = RuntimeSettings.from_env(dict(BASE_ENV, MCP_OAUTH_ISSUER=raw))
+                self.assertEqual(
+                    self._sdk_route_issuer(settings),
+                    raw,
+                    "le SDK MCP installé ne préserve pas l'émetteur configuré ; "
+                    "vérifier la version épinglée dans requirements-mcp.txt",
+                )
+
+    def test_both_metadata_routes_publish_the_same_string(self):
+        """C'est l'égalité des deux routes qui débloque le connecteur ChatGPT."""
+        for raw in (self.AVEC_BARRE, self.SANS_BARRE):
+            with self.subTest(issuer=raw):
+                settings = RuntimeSettings.from_env(dict(BASE_ENV, MCP_OAUTH_ISSUER=raw))
+                self.assertEqual(
+                    self._root_route_issuer(settings), self._sdk_route_issuer(settings)
+                )
 
 
 class PrincipalRateLimiterTests(unittest.TestCase):

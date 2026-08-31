@@ -67,7 +67,7 @@ la connexion soumise à ChatGPT doit être une URL publique `https://…/mcp`.
 | `JUDILIBRE_ENV=prod` | Interdit le sandbox sur le service public |
 | `MCP_AUTH_MODE=oauth` | Exige un jeton OAuth 2.1 valide sur `/mcp` |
 | `MCP_PUBLIC_URL` | URL publique du service, sans `/mcp` (https obligatoire) |
-| `MCP_OAUTH_ISSUER` | URL du serveur d'autorisation (https obligatoire) |
+| `MCP_OAUTH_ISSUER` | Émetteur, recopié **à l'identique** depuis le champ `issuer` du document de découverte, barre oblique finale comprise (https obligatoire) — voir [oauth.md](oauth.md) |
 
 Le démarrage échoue si `MCP_ENV=production` et `MCP_AUTH_MODE=disabled` :
 une passerelle MCP publique anonyme consommerait les quotas Légifrance et
@@ -79,7 +79,7 @@ procédure de configuration de l'émetteur figure dans [`oauth.md`](oauth.md).
 | Variable | Défaut | Effet |
 |---|---|---|
 | `MCP_OAUTH_AUDIENCE` | `MCP_PUBLIC_URL` + `/mcp` | Audience exigée dans le jeton (RFC 8707) |
-| `MCP_OAUTH_JWKS_URL` | `MCP_OAUTH_ISSUER` + `/.well-known/jwks.json` | Clés publiques de vérification |
+| `MCP_OAUTH_JWKS_URL` | `MCP_OAUTH_ISSUER` sans barre finale + `/.well-known/jwks.json` | Clés publiques de vérification |
 | `MCP_OAUTH_REQUIRED_SCOPES` | `legal:read` | Portées exigées, séparées par des virgules ; `-` désactive le contrôle de portée sans désactiver l'authentification |
 
 Le conteneur définit déjà `MCP_ENV=production`, `MCP_HOST=0.0.0.0` et

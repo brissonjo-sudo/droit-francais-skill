@@ -92,6 +92,13 @@ class JwksTokenVerifier:
         # finale que les métadonnées de configuration n'affichent pas. Les deux
         # écritures désignent le même émetteur : accepter l'une et l'autre évite
         # un refus systématique pour une différence purement typographique.
+        #
+        # Cette tolérance ne vaut QUE pour la revendication d'un jeton déjà
+        # authentifié par sa signature : elle ne relâche ni « aud », ni « exp »,
+        # ni l'exigence d'un « sub ». Elle ne s'étend surtout pas aux
+        # métadonnées publiées : côté RFC 9728, l'émetteur est servi verbatim et
+        # doit être identique caractère pour caractère à celui du document de
+        # découverte, sans quoi le connecteur ChatGPT refuse la ressource.
         base = issuer.rstrip("/")
         self._accepted_issuers = frozenset({base, base + "/"})
         self._audience = audience
