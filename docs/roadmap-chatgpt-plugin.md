@@ -13,7 +13,7 @@ modifiés par aucune de ces phases.
 | 5 | Validation OAuth et MCP de bout en bout | `test/oauth-end-to-end` | **Terminée** — connecteur éprouvé dans ChatGPT le 31/08/2026 |
 | 6 | Sécurité et conformité | `docs/conformite` | Terminée — voir [conformite.md](conformite.md) |
 | 7 | Dossier de soumission | `release/chatgpt-submission` | Dépôt conforme — reste trois pièces humaines |
-| 8 | Publication progressive | — | À faire |
+| 8 | Publication progressive | `ops/exploitation-surveillance` | Outillage livré — observation et pièces humaines à mener |
 
 ---
 
@@ -349,3 +349,57 @@ retirer aussitôt après validation. Le serveur expose déjà la route
 production. C'est documenté comme configuration de compatibilité
 ([conformite.md](conformite.md) §5) et réversible par un simple changement de
 variable. À trancher avant le dépôt du dossier.
+
+---
+
+## Phase 8 — Publication progressive
+
+### Ce qui est livré
+
+`tests/check_service_health.py` — sonde d'exploitation **sans jeton et sans
+consommation de quota** : latence de `/health`, version et mode
+d'authentification annoncés, contrôles de métadonnées et refus anonyme rejoués.
+Sa sortie `--json` tient sur une ligne, faite pour être accumulée : une dérive
+de latence ne se voit que sur une série, jamais sur une mesure isolée.
+
+[exploitation.md](exploitation.md) — surveillance, rollback, incidents connus
+et conditions de publication.
+
+### Mesures de référence, prises le 31 août 2026
+
+Service chaud, depuis la France : `/health` entre 0,15 s et 0,60 s ;
+métadonnées et refus anonyme du même ordre. Ce sont des mesures, pas des
+objectifs choisis a priori — les seuils de la sonde en découlent.
+
+### Deux points d'exploitation qui n'étaient écrits nulle part
+
+* **Un rollback depuis le tableau de bord Render désactive les déploiements
+  automatiques du service.** C'est voulu — cela évite qu'un déploiement
+  réintroduise le défaut — mais le correctif suivant ne partira pas tout seul.
+  Le rollback par l'API, lui, ne les désactive pas : un déploiement automatique
+  peut alors restaurer le code qu'on venait d'écarter. Les deux voies sont donc
+  distinguées, avec leurs pièges respectifs.
+* **Un défaut peut venir d'une variable d'environnement, pas du code.** Le
+  rollback d'artefact n'y change alors rien. Le cas s'est produit ici même, à la
+  phase 1 : le correctif était déployé, mais la variable ne l'était pas.
+
+### Quatre incidents consignés
+
+Écriture de l'émetteur, réveil d'instance pris pour une panne, jeton opaque
+refusé faute de *Default Audience*, et portée annoncée vide. Chacun avec son
+symptôme, sa cause, sa résolution — et, quand elle existe, la prévention
+automatisée.
+
+### Reste à faire
+
+| Condition | État |
+|---|---|
+| Parcours OAuth éprouvé dans ChatGPT | ✅ |
+| Dossier conforme au schéma officiel | ✅ |
+| Instance sans mise en veille | ⚠️ à trancher |
+| Essai avec un second compte | ☐ |
+| Période d'observation sans défaut | ☐ |
+| Identité vérifiée, identifiants de démo, vidéo | ☐ humain |
+
+La publication n'est pas une étape de code : elle attend une période
+d'observation stable et trois pièces que le dépôt ne peut pas porter.
