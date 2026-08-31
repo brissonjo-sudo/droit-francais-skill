@@ -9,6 +9,12 @@ Thumbs.db
 # Worktrees et état local des agents Claude Code (copies complètes du dépôt).
 .claude/
 
+# Correctifs exportes pendant le developpement (git format-patch, git diff >).
+# Ce sont des artefacts de travail : le contenu vit dans l'historique, pas a la
+# racine du depot public.
+*.patch
+*.diff
+
 # Python (outillage scripts/ et tests/)
 __pycache__/
 *.pyc
