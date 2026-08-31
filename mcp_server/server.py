@@ -48,6 +48,13 @@ logging.basicConfig(
     format="%(asctime)s %(levelname)s %(name)s %(message)s",
 )
 LOGGER = logging.getLogger("droit_francais.mcp")
+# L'image de production tourne en WARNING pour faire taire le SDK MCP et le
+# serveur HTTP. Le journal métier, lui, est la seule trace d'imputabilité des
+# appels d'outils : il doit survivre à ce réglage. Le niveau du logger
+# d'origine décide seul de l'émission, indépendamment du logger racine.
+if LOGGER.level in (logging.NOTSET,) or LOGGER.getEffectiveLevel() > logging.INFO:
+    LOGGER.setLevel(logging.INFO)
+logging.getLogger("droit_francais.mcp.auth").setLevel(logging.INFO)
 GOVERNOR = RequestGovernor(
     SETTINGS.max_concurrent_requests,
     SETTINGS.tool_calls_per_minute,
@@ -251,7 +258,11 @@ def fetch(id: str) -> dict[str, Any]:
     title="Rechercher un article de code",
     description=(
         "Recherche dans Légifrance un numéro d'article applicable à une date. "
-        "Le code, s'il est fourni, doit être son libellé officiel complet."
+        "Le code, s'il est fourni, doit être son libellé officiel complet. "
+        "Ne renseigner date QUE si l'utilisateur demande une date précise, "
+        "passée ou future. Laisser ce paramètre vide pour le droit en vigueur "
+        "aujourd'hui : le serveur utilise sa propre horloge, plus fiable que "
+        "la date supposée par le modèle."
     ),
     annotations=READ_ONLY,
 )
@@ -270,7 +281,10 @@ def search_articles(
     title="Lire un article Légifrance",
     description=(
         "Récupère le texte, le statut juridique et les dates d'une version "
-        "d'article à partir de son identifiant LEGIARTI."
+        "d'article à partir de son identifiant LEGIARTI. Ne renseigner date "
+        "QUE si l'utilisateur demande une date précise. Laisser ce paramètre "
+        "vide pour la version en vigueur aujourd'hui : le serveur utilise sa "
+        "propre horloge, plus fiable que la date supposée par le modèle."
     ),
     annotations=READ_ONLY,
 )

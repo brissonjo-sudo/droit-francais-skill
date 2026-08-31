@@ -46,6 +46,42 @@ def _iso_date(value: str | None) -> str:
         ) from exc
 
 
+def _dating(requested: str | None) -> dict[str, Any]:
+    """Décrit sur quelle date la réponse est construite, et le signale.
+
+    Un modèle appelant l'outil peut fournir une date qu'il croit être celle du
+    jour alors qu'elle est celle de son corpus d'entraînement. La réponse est
+    alors exacte pour cette date, mais présentée comme « en vigueur ». Le
+    champ ``caveat`` rend cet écart visible dans la réponse elle-même.
+    """
+    today = dt.date.today()
+    if not requested:
+        return {
+            "as_of_date": today.isoformat(),
+            "date_basis": "date du jour du serveur",
+            "requested_date": None,
+        }
+    effective = dt.date.fromisoformat(_iso_date(requested))
+    info: dict[str, Any] = {
+        "as_of_date": effective.isoformat(),
+        "date_basis": "date fournie par l'appelant",
+        "requested_date": effective.isoformat(),
+        "server_date": today.isoformat(),
+    }
+    if effective < today:
+        info["caveat"] = (
+            f"Version applicable au {effective.strftime('%d/%m/%Y')}, et non "
+            f"nécessairement en vigueur au {today.strftime('%d/%m/%Y')}. "
+            "Relancer sans paramètre de date pour le droit en vigueur."
+        )
+    elif effective > today:
+        info["caveat"] = (
+            f"Date postérieure au {today.strftime('%d/%m/%Y')} : la réponse "
+            "porte sur une version future ou inexistante."
+        )
+    return info
+
+
 def _epoch_ms(value: str) -> int:
     date = dt.date.fromisoformat(value)
     moment = dt.datetime.combine(date, dt.time(), tzinfo=dt.timezone.utc)
@@ -163,6 +199,7 @@ def search_articles(
     return {
         "results": results[:safe_limit],
         "query": {"number": number, "code": code, "date": date_version},
+        "dating": _dating(date),
         "provenance": {"source": "Légifrance API", "verified": True},
     }
 
@@ -195,9 +232,9 @@ def get_article(article_id: str, date: str | None = None) -> dict[str, Any]:
             "legal_status": article.get("etat") or article.get("etatJuridique") or "UNKNOWN",
             "start_date": article.get("dateDebut"),
             "end_date": article.get("dateFin"),
-            "requested_date": date,
             "source": "Légifrance API",
             "verified": True,
+            **_dating(date),
         },
     }
 

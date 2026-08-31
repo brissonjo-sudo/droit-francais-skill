@@ -101,3 +101,17 @@ clé et ne dépendent pas de la disponibilité de PISTE.
 La validation de niveau 2 a également été réalisée le 29 août 2026 : le
 transport HTTP a accepté une initialisation MCP réelle sur `/mcp` et a exposé
 les six outils attendus.
+
+## Datation des réponses
+
+Les outils `search_articles` et `get_article` acceptent un paramètre `date`
+facultatif. Laissé vide, le serveur utilise **sa propre horloge**.
+
+Un modèle appelant l'outil fournit parfois une date qu'il croit être celle du
+jour, alors qu'elle vient de son corpus d'entraînement. La réponse serait
+exacte pour cette date, mais présentée comme « en vigueur ». Deux garde-fous :
+
+* la description des outils demande explicitement de laisser `date` vide pour
+  le droit en vigueur ;
+* la réponse porte un bloc `dating` indiquant `as_of_date`, `date_basis` et,
+  si la date reçue diffère de celle du serveur, un `caveat` qui nomme l'écart.

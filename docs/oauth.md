@@ -189,6 +189,12 @@ C'est cet en-tête qui déclenche la découverte automatique par ChatGPT.
 Un échec renvoie `401` sans détail exploitable. Le motif technique est
 journalisé sous forme de nom de classe d'erreur, jamais avec le jeton.
 
+Le journal métier (`droit_francais.mcp`) reste en `INFO` même lorsque l'image
+tourne en `WARNING` : c'est la seule trace permettant de rattacher un appel
+d'outil à un utilisateur, donc de tenir l'engagement d'imputabilité pris
+envers PISTE. Chaque ligne porte l'outil, l'issue, la durée et une empreinte
+tronquée du sujet — jamais le jeton ni l'identifiant brut du compte.
+
 ## Dépannage
 
 **« OAuth authorization server metadata must advertise PKCE support with

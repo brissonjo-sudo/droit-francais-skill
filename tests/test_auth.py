@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import asyncio
+import datetime as dt
 import sys
 import time
 import unittest
@@ -194,6 +195,38 @@ class JwksTokenVerifierTests(unittest.TestCase):
 
     def test_missing_token_gives_the_anonymous_principal(self):
         self.assertEqual(principal_of(None), "anonyme")
+
+
+class DatingTests(unittest.TestCase):
+    """La date qui sert de référence doit être explicite dans la réponse."""
+
+    def setUp(self):
+        from droit_francais.tools import _dating
+
+        self._dating = _dating
+
+    def test_no_date_uses_the_server_clock(self):
+        info = self._dating(None)
+        self.assertEqual(info["as_of_date"], dt.date.today().isoformat())
+        self.assertEqual(info["date_basis"], "date du jour du serveur")
+        self.assertIsNone(info["requested_date"])
+        self.assertNotIn("caveat", info)
+
+    def test_past_date_supplied_by_the_caller_is_flagged(self):
+        passee = (dt.date.today() - dt.timedelta(days=120)).isoformat()
+        info = self._dating(passee)
+        self.assertEqual(info["as_of_date"], passee)
+        self.assertEqual(info["date_basis"], "date fournie par l'appelant")
+        self.assertIn("Version applicable au", info["caveat"])
+        self.assertIn("sans paramètre de date", info["caveat"])
+
+    def test_future_date_is_flagged_too(self):
+        future = (dt.date.today() + dt.timedelta(days=30)).isoformat()
+        self.assertIn("postérieure", self._dating(future)["caveat"])
+
+    def test_today_supplied_explicitly_carries_no_caveat(self):
+        info = self._dating(dt.date.today().isoformat())
+        self.assertNotIn("caveat", info)
 
 
 class ScopeNormalisationTests(unittest.TestCase):
