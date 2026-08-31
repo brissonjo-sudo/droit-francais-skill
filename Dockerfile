@@ -1,4 +1,4 @@
-FROM python:3.12-slim@sha256:09f7da3bc104798d0afb40bc08d23ab2da20a76130cec1f2ef170848f5d85217
+FROM python:3.12-alpine@sha256:d09d15e60962ca365d1cd544a48773bac9d33f2fb1b00f2aa0deec78ade7dc31
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
@@ -9,11 +9,9 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-RUN apt-get update \
-    && apt-get upgrade --yes \
-    && rm -rf /var/lib/apt/lists/*
+RUN apk upgrade --no-cache
 
-RUN addgroup --system app && adduser --system --ingroup app app
+RUN addgroup -S app && adduser -S -G app app
 
 COPY requirements-mcp.txt ./
 RUN python -m pip install --no-cache-dir --requirement requirements-mcp.txt
