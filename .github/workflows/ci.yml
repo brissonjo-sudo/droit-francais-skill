@@ -38,6 +38,7 @@ jobs:
           python -m py_compile skill/scripts/droit_francais/tools.py
           python -m py_compile mcp_server/runtime.py
           python -m py_compile mcp_server/auth.py
+          python -m py_compile mcp_server/skills.py
           python -m py_compile mcp_server/catalog.py
           python -m py_compile mcp_server/server.py
           python -m py_compile tests/run_eval.py
@@ -52,6 +53,7 @@ jobs:
           python -m py_compile tests/test_tools.py
           python -m py_compile tests/test_mcp_app.py
           python -m py_compile tests/test_auth.py
+          python -m py_compile tests/test_skills.py
           python -m py_compile tests/test_oauth_end_to_end.py
 
       - name: Tester la bibliothèque et le serveur MCP hors réseau
