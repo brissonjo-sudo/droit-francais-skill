@@ -115,3 +115,36 @@ exacte pour cette date, mais présentée comme « en vigueur ». Deux garde-fous
   le droit en vigueur ;
 * la réponse porte un bloc `dating` indiquant `as_of_date`, `date_basis` et,
   si la date reçue diffère de celle du serveur, un `caveat` qui nomme l'écart.
+
+## Extension Skills — catalogue préparé, transport en attente
+
+L'Apps SDK sait importer un skill **servi par le serveur MCP** : l'utilisateur
+n'installe alors rien, quel que soit son plan. C'est la seule voie par laquelle
+la méthodologie voyage avec l'outil plutôt qu'à côté.
+
+Le contrat tient en trois méthodes — `skills/list`, `skills/get` et
+`resources/read` — plus une capacité `io.modelcontextprotocol/skills` déclarée
+à l'initialisation, avec des identifiants `skill://<serveur>/<nom>/<chemin>` et
+une empreinte SHA-256 par ressource.
+
+**Ce qui est fait.** `mcp_server/skills.py` calcule ce catalogue à partir de
+`skill/` : identifiants, frontmatter, ressources et empreintes. Il ne dépend
+que de la bibliothèque standard et `tests/test_skills.py` en vérifie la forme,
+la résolution de chaque identifiant et la correspondance de chaque empreinte
+avec le contenu réel.
+
+**Ce qui manque, et pourquoi.** Le SDK MCP valide les requêtes entrantes contre
+une union fermée de types. Ni la 1.27 ni la 2.1.1 ne connaissent `skills/list` :
+la requête est rejetée avant d'atteindre un gestionnaire. Le brancher
+aujourd'hui reviendrait à rustiner cette union, sur une proposition — le
+[SEP-2640](https://github.com/modelcontextprotocol/modelcontextprotocol/pull/2640)
+— qui n'appartient pas encore à la spécification stable.
+
+**Ce qu'il restera à faire** le jour où le SDK la portera : déclarer
+`EXTENSION_CAPABILITY`, router `skills/list` et `skills/get` vers
+`build_catalogue()` et `build_skill()`, et `resources/read` vers
+`read_resource()`.
+
+Le catalogue publie le noyau et les fichiers de `references/` et `profils/`.
+Les scripts en sont exclus : ce sont des programmes, et leurs capacités sont
+déjà exposées comme outils.

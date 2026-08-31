@@ -140,6 +140,17 @@ export MCP_ACCESS_TOKEN="…"
 python tests/check_live_tools.py
 ```
 
+`check_service_health.py` est la sonde d'**exploitation courante** : latence
+de `/health`, version et mode d'authentification annoncés, plus les contrôles
+de métadonnées rejoués. Elle n'appelle aucun outil, donc ne consomme aucun
+quota, et n'exige aucun jeton. Sa sortie `--json` tient sur une ligne, faite
+pour être accumulée — une dérive de latence ne se voit que sur une série.
+
+```bash
+python tests/check_service_health.py
+python tests/check_service_health.py --json >> surveillance.jsonl
+```
+
 Cette sonde n'est **pas** jouée en CI : elle exige un jeton et consomme le
 quota PISTE du titulaire. Elle sert la validation de bout en bout décrite dans
 [`docs/validation-chatgpt.md`](../docs/validation-chatgpt.md).
@@ -176,6 +187,23 @@ immuable, qui cite légitimement des commandes retirées depuis).
 point de découverte `skills/recherche-juridique/` et la présence intacte du
 skill historique `skill/SKILL.md`. Il interdit aussi de déclarer une app ou un
 serveur MCP sans fichier compagnon.
+
+Il applique en outre les **limites publiées par OpenAI** pour la soumission —
+longueurs de champs, liste des catégories, nombre et longueur des prompts et
+des capacités, quatre URL publiques, notes de version, justification par
+annotation — et la règle de version retenue : *le manifeste du plugin suit le
+serveur MCP*, le skill gardant sa propre ligne éditoriale.
+
+Enfin, il **valide `chatgpt-app-submission.json` contre le schéma officiel**,
+dont une copie est embarquée dans `fixtures/`. Cette validation est facultative :
+elle demande `jsonschema`, qui arrive avec le SDK MCP. Quand il manque, son
+absence est dite explicitement — un contrôle muet se lit à tort comme un
+contrôle réussi. Rafraîchir la copie depuis l'URL déclarée lors des revues.
+
+> **Pourquoi cette validation existe.** Le fichier déclarait une URL de schéma
+> obsolète (`apps-sdk` au lieu de `plugins`) et **échouait à la validation
+> officielle**. Le défaut n'a été vu qu'en téléchargeant le schéma à la main,
+> une fois. Rien, dans le dépôt, ne l'aurait signalé.
 
 > **Pourquoi ce contrôle existe.** La v3.1.0 a dû réparer la suppression
 > accidentelle de `ceta` et `constit` par une PR qui n'avait touché **aucun**

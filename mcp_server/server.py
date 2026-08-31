@@ -222,8 +222,14 @@ if hasattr(server, "custom_route"):
         include_in_schema=False,
     )
     async def openai_apps_challenge(_request: Request) -> Response:
-        """Répond exactement au jeton temporaire fourni lors de la soumission."""
-        token = os.environ.get("OPENAI_APPS_CHALLENGE", "")
+        """Répond exactement au jeton temporaire fourni lors de la soumission.
+
+        La route doit rendre **le jeton seul** : ni JSON, ni liste, ni plusieurs
+        jetons. Les espaces et retours à la ligne sont retirés, parce qu'un
+        jeton collé depuis le portail en emporte souvent un — et que la
+        vérification compare la réponse au jeton exact.
+        """
+        token = os.environ.get("OPENAI_APPS_CHALLENGE", "").strip()
         if not token:
             return PlainTextResponse("Not configured", status_code=404)
         return PlainTextResponse(token)
