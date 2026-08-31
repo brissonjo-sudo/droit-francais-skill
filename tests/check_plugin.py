@@ -26,6 +26,37 @@ if hasattr(sys.stdout, "reconfigure"):
 
 MANIFEST = ROOT / ".codex-plugin" / "plugin.json"
 SUBMISSION = ROOT / "chatgpt-app-submission.json"
+SERVER = ROOT / "mcp_server" / "server.py"
+
+# Limites publiees par OpenAI pour la soumission au repertoire d'applications.
+# Elles sont recopiees ici plutot que deduites : un depassement fait echouer la
+# soumission sans que rien, dans le depot, ne l'ait signale auparavant.
+# Source : https://developers.openai.com/plugins/deploy/submission-errors
+LIMITES_TEXTE = {
+    "displayName": 30,
+    "shortDescription": 30,
+    "longDescription": 4000,
+    "developerName": 80,
+}
+CATEGORIES = frozenset(
+    {
+        "Productivity", "Creativity", "Developer Tools", "Business & Operations",
+        "Data & Analytics", "Communication", "Education & Research", "Security",
+        "Finance", "Healthcare", "Travel", "Entertainment", "Other",
+    }
+)
+MAX_PROMPTS = 3
+MAX_LONGUEUR_PROMPT = 128
+MAX_CAPABILITIES = 20
+MAX_LONGUEUR_CAPABILITY = 120
+MAX_LONGUEUR_URL = 1024
+
+#: URL de schema attendue dans le fichier de soumission. Le chemin historique
+#: « apps-sdk » redirige, mais le schema exige desormais la forme « plugins » :
+#: un fichier declarant l'ancienne valeur echoue a la validation officielle.
+SCHEMA_SOUMISSION = (
+    "https://developers.openai.com/plugins/schemas/chatgpt-app-submission.v1.json"
+)
 SEMVER = re.compile(r"^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$")
 PLUGIN_FIELDS = ("name", "version", "description", "author", "skills", "interface")
 INTERFACE_FIELDS = (
@@ -37,8 +68,11 @@ INTERFACE_FIELDS = (
     "capabilities",
     "defaultPrompt",
 )
+#: Les quatre URL exigees a la soumission. « supportURL » manquait au
+#: manifeste : son absence ne se serait vue qu'au depot du dossier.
 PUBLIC_URL_FIELDS = (
     "websiteURL",
+    "supportURL",
     "privacyPolicyURL",
     "termsOfServiceURL",
 )
@@ -118,6 +152,75 @@ def main() -> int:
                 fail(f"interface.{field} pointe vers un fichier absent : {value}", problems)
             elif asset.suffix.lower() != ".png":
                 fail(f"interface.{field} doit être une image PNG : {value}", problems)
+
+        for champ, limite in LIMITES_TEXTE.items():
+            valeur = interface.get(champ)
+            if isinstance(valeur, str) and len(valeur) > limite:
+                fail(
+                    f"interface.{champ} fait {len(valeur)} caracteres, "
+                    f"la soumission OpenAI en accepte {limite} au plus",
+                    problems,
+                )
+        if interface.get("category") not in CATEGORIES:
+            fail(
+                "interface.category doit figurer dans la liste OpenAI : "
+                f"{sorted(CATEGORIES)}",
+                problems,
+            )
+        for champ in PUBLIC_URL_FIELDS:
+            valeur = interface.get(champ)
+            if isinstance(valeur, str) and len(valeur) > MAX_LONGUEUR_URL:
+                fail(
+                    f"interface.{champ} depasse {MAX_LONGUEUR_URL} caracteres",
+                    problems,
+                )
+        if isinstance(capabilities, list):
+            if len(capabilities) > MAX_CAPABILITIES:
+                fail(
+                    f"interface.capabilities compte {len(capabilities)} entrees, "
+                    f"la soumission en accepte {MAX_CAPABILITIES} au plus",
+                    problems,
+                )
+            for item in capabilities:
+                if isinstance(item, str) and len(item) > MAX_LONGUEUR_CAPABILITY:
+                    fail(
+                        f"une capability depasse {MAX_LONGUEUR_CAPABILITY} caracteres",
+                        problems,
+                    )
+        prompts = interface.get("defaultPrompt")
+        if not isinstance(prompts, list) or not prompts:
+            fail("interface.defaultPrompt doit etre une liste non vide", problems)
+        else:
+            if len(prompts) > MAX_PROMPTS:
+                fail(
+                    f"interface.defaultPrompt compte {len(prompts)} entrees, "
+                    f"la soumission en accepte {MAX_PROMPTS} au plus",
+                    problems,
+                )
+            if len(set(prompts)) != len(prompts):
+                fail("les prompts de demarrage doivent etre distincts", problems)
+            for item in prompts:
+                if not isinstance(item, str) or not item.strip():
+                    fail("un prompt de demarrage est vide", problems)
+                elif len(item) > MAX_LONGUEUR_PROMPT:
+                    fail(
+                        f"un prompt de demarrage depasse {MAX_LONGUEUR_PROMPT} caracteres",
+                        problems,
+                    )
+
+    # Le manifeste du plugin suit la version du serveur MCP : ce sont les deux
+    # faces d'un meme deploiement. Le skill, lui, garde sa propre ligne
+    # editoriale et n'est pas contraint ici.
+    if SERVER.is_file():
+        trouve = re.search(
+            r'^SERVER_VERSION = "([^"]+)"', SERVER.read_text(encoding="utf-8"), re.M
+        )
+        if trouve and version != trouve.group(1):
+            fail(
+                f"version du manifeste ({version}) differente de SERVER_VERSION "
+                f"({trouve.group(1)}) : le plugin suit le serveur MCP",
+                problems,
+            )
 
     if "[TODO:" in json.dumps(manifest, ensure_ascii=False):
         fail("le manifeste contient encore un marqueur TODO", problems)
@@ -199,11 +302,31 @@ def main() -> int:
         else:
             if submission.get("schema_version") != 1:
                 fail("schema_version de la soumission doit valoir 1", problems)
+            if submission.get("$schema") != SCHEMA_SOUMISSION:
+                fail(
+                    f"$schema doit valoir {SCHEMA_SOUMISSION} : l'ancienne forme "
+                    "apps-sdk echoue a la validation officielle",
+                    problems,
+                )
+            if not str(submission.get("release_notes", "")).strip():
+                fail("release_notes est obligatoire a la soumission", problems)
             tools = submission.get("tools")
             if not isinstance(tools, dict) or set(tools) != set(EXPECTED_TOOLS):
                 fail("la soumission doit couvrir exactement les six outils MCP", problems)
             else:
                 for name, descriptor in tools.items():
+                    justifications = descriptor.get("justifications", {})
+                    for cle in (
+                        "read_only_justification",
+                        "open_world_justification",
+                        "destructive_justification",
+                    ):
+                        if not str(justifications.get(cle, "")).strip():
+                            fail(
+                                f"justification {cle} absente pour {name} : "
+                                "OpenAI en exige une par annotation",
+                                problems,
+                            )
                     annotations = descriptor.get("annotations", {})
                     expected = {
                         "readOnlyHint": True,

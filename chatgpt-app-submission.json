@@ -1,5 +1,5 @@
 {
-  "$schema": "https://developers.openai.com/apps-sdk/schemas/chatgpt-app-submission.v1.json",
+  "$schema": "https://developers.openai.com/plugins/schemas/chatgpt-app-submission.v1.json",
   "schema_version": 1,
   "app_info": {
     "display_name": "Droit français",
@@ -7,6 +7,7 @@
     "description": "Droit français recherche et lit des articles et décisions dans les sources officielles Légifrance et Judilibre, avec des identifiants, des liens canoniques et des métadonnées de provenance utiles à une citation vérifiable.",
     "category": "PRODUCTIVITY"
   },
+  "release_notes": "Première soumission. Serveur MCP en lecture seule exposant six outils sur les sources officielles Légifrance et Judilibre, protégé par OAuth 2.1 avec quota par utilisateur authentifié. Les clés d'accès aux API publiques restent côté serveur et ne sont jamais transmises au client.",
   "tools": {
     "search": {
       "annotations": {
