@@ -33,6 +33,19 @@ de conservation doivent être connus avant de rédiger la version opposable.
   profilage des magistrats et greffiers ;
 - faire correspondre strictement cette politique aux champs réellement renvoyés.
 
+## Conformité CGU et audit sécurité
+
+Cette checklist est complétée par deux documents dédiés, à dérouler avant toute
+ouverture au public :
+
+- le [registre des obligations CGU](obligations-cgu.md) — obligations
+  Légifrance et Judilibre opposables au titulaire des clés, et écarts à traiter
+  (procédure d'incident, signalement des réidentifications, mentions RGPD
+  Judilibre, mentions de source et de date) ;
+- le [plan d'audit sécurité](audit-securite.md) — phases, skills mobilisés,
+  grille de sévérité et livrables. Les findings critiques et élevés doivent
+  être corrigés avant la mise en ligne.
+
 ## Test de sortie
 
 Avant soumission, appeler chaque outil avec des cas réalistes et inspecter les

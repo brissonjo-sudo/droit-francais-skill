@@ -126,8 +126,11 @@ dans des décisions publiques. Le service doit conserver les mécanismes de
 pseudonymisation et les restrictions de réutilisation de la source ; il ne doit
 pas servir au profilage des magistrats ou des greffiers.
 
-Avant ouverture au public, finaliser la [checklist de confidentialité](privacy-checklist.md)
-et vérifier les quotas et conditions attachés aux abonnements PISTE utilisés.
+Avant ouverture au public, finaliser la [checklist de confidentialité](privacy-checklist.md),
+dérouler le [plan d'audit sécurité](audit-securite.md) et le
+[registre des obligations CGU](obligations-cgu.md), puis vérifier les quotas et
+conditions attachés aux abonnements PISTE utilisés. La correction des findings
+critiques et élevés de l'audit conditionne la mise en ligne.
 La [politique de confidentialité](privacy-policy.md), les
 [conditions d'utilisation](terms-of-use.md) et le
 [guide de soumission ChatGPT](chatgpt-submission.md) décrivent l'état public.
