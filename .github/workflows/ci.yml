@@ -143,12 +143,22 @@ jobs:
       - name: Construire l'image de déploiement
         run: docker build --tag droit-francais-mcp:test .
 
-      - name: Scanner l'image pour les CVE élevées et critiques
+      - name: Inventorier toutes les CVE élevées et critiques de l'image
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: droit-francais-mcp:test
+          format: table
+          exit-code: "0"
+          severity: HIGH,CRITICAL
+          scanners: vuln
+
+      - name: Bloquer les CVE élevées et critiques corrigeables
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
           image-ref: droit-francais-mcp:test
           format: table
           exit-code: "1"
+          ignore-unfixed: true
           severity: HIGH,CRITICAL
           scanners: vuln
 

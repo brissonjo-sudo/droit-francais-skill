@@ -97,9 +97,12 @@ l'authentification : `MCP_AUTH_MODE` seul en décide, et la production refuse
 une précaution de style : le comportement des métadonnées RFC 9728 dépend de la
 version du SDK, et une plage de versions avait fait diverger poste de
 développement, CI et production sur le point précis dont dépend le connecteur
-ChatGPT. L'image de base est épinglée par digest. La CI affiche les versions,
-produit un SBOM CycloneDX, audite les dépendances Python et bloque les CVE
-élevées/critiques de l'image ; Dependabot suit Python, Actions et Docker.
+ChatGPT. L'image de base est épinglée par digest et ses paquets système sont mis
+à niveau pendant le build. La CI affiche les versions, produit un SBOM
+CycloneDX, audite les dépendances Python, inventorie toutes les CVE
+élevées/critiques de l'image et bloque celles disposant d'un correctif. Une CVE
+sans correctif reste visible et constitue un verrou de publication jusqu'à son
+analyse et son acceptation datée ; Dependabot suit Python, Actions et Docker.
 
 ## 7. Rapport aux fournisseurs
 

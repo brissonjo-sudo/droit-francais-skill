@@ -85,6 +85,7 @@ Statuts : `PROUVÉ`, `À REJOUER`, `ACTION HUMAINE`, `BLOQUANT`, `ACCEPTÉ`.
 | E8 | Paramètres tenant Auth0 | ACTION HUMAINE | checklist `auth0-security-checklist.md` signée/capturée | admin Auth0 | — |
 | E9 | Quotas réels et nombre de réplicas | ACTION HUMAINE | capture PISTE + configuration Render | titulaire PISTE | — |
 | E10 | Retrait d'urgence Judilibre | À REJOUER | test unitaire + exercice du runbook | mainteneur | 31/08/2026 |
+| E11 | CVE système sans correctif éditeur | BLOQUANT | rapport Trivy CI + analyse d'exploitabilité et acceptation datée | mainteneur sécurité | à chaque build |
 
 ## 5. Programme de contrôles
 
@@ -93,14 +94,20 @@ Statuts : `PROUVÉ`, `À REJOUER`, `ACTION HUMAINE`, `BLOQUANT`, `ACCEPTÉ`.
 - inventorier versions, images, actions CI et comptes GitHub/Render/Auth0/PISTE ;
 - vérifier MFA, rôles, comptes dormants, jetons personnels et journaux d'audit ;
 - produire un SBOM CycloneDX pour Python et l'image ;
-- scanner dépendances Python et image pour les CVE ;
+- scanner dépendances Python et image pour les CVE ; la CI inventorie toutes
+  les sévérités élevées/critiques et bloque automatiquement celles pour
+  lesquelles l'éditeur publie un correctif ;
+- mettre à niveau les paquets système pendant le build. Une CVE sans correctif
+  ne doit jamais être masquée : elle reste dans le rapport et impose, avant
+  publication, une analyse d'exploitabilité et une acceptation datée en E11 ;
 - vérifier les hashes/lock des dépendances et épingler l'image de base par digest ;
 - épingler les GitHub Actions par SHA, réduire `permissions`, isoler les secrets
   des PR de forks et activer les mises à jour automatiques ;
 - conserver l'attestation reliant image, commit et résultat des contrôles.
 
-Sortie : inventaire daté, SBOM, rapports CVE, aucun secret dans le dépôt ou
-l'historique, risques de comptes documentés.
+Sortie : inventaire daté, SBOM, rapports CVE complets, aucune CVE corrigeable
+élevée/critique, aucun secret dans le dépôt ou l'historique, risques résiduels
+et risques de comptes documentés.
 
 ### Phase B — OAuth 2.1 et tenant Auth0
 
