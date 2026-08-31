@@ -9,6 +9,15 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
+# Le digest ci-dessus fige la base, mais il vieillit plus vite que les paquets
+# Alpine : entre deux republications de l'image officielle, le digest épinglé
+# traîne des CVE déjà corrigées en dépôt. Le pin sans cette montée a été essayé
+# et rejeté par la porte Trivy (CVE-2026-14456, openssl 3.5.7-r0 → 3.5.8-r0).
+# La couche est donc volontairement non reproductible bit à bit : c'est ce qui
+# garantit qu'aucune CVE corrigeable ne survit à la construction. La porte
+# Trivy de la CI reste l'autorité — elle scanne l'image après cette montée.
+RUN apk upgrade --no-cache
+
 RUN addgroup -S app && adduser -S -G app app
 
 COPY requirements-mcp.txt ./
