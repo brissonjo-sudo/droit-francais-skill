@@ -140,6 +140,17 @@ export MCP_ACCESS_TOKEN="…"
 python tests/check_live_tools.py
 ```
 
+`check_service_health.py` est la sonde d'**exploitation courante** : latence
+de `/health`, version et mode d'authentification annoncés, plus les contrôles
+de métadonnées rejoués. Elle n'appelle aucun outil, donc ne consomme aucun
+quota, et n'exige aucun jeton. Sa sortie `--json` tient sur une ligne, faite
+pour être accumulée — une dérive de latence ne se voit que sur une série.
+
+```bash
+python tests/check_service_health.py
+python tests/check_service_health.py --json >> surveillance.jsonl
+```
+
 Cette sonde n'est **pas** jouée en CI : elle exige un jeton et consomme le
 quota PISTE du titulaire. Elle sert la validation de bout en bout décrite dans
 [`docs/validation-chatgpt.md`](../docs/validation-chatgpt.md).
