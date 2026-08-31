@@ -7,10 +7,10 @@ modifiés par aucune de ces phases.
 | Phase | Objet | Branche | État |
 |---|---|---|---|
 | 1 | Débloquer OAuth (écriture de l'émetteur) | `fix/oauth-issuer-metadata` | Code fusionné (PR #14) — attend la variable Render |
-| 2 | Rendre la CI contraignante | `ci/restore-full-validation` | Sonde CI livrée — protection de branche à activer |
+| 2 | Rendre la CI contraignante | `ci/restore-full-validation` | Terminée (PR #17 fusionnée, `main` protégée) |
 | 3 | Inventaire du checkout local | — | Terminée (sans objet) |
 | 4 | Retirer les artefacts de développement | `chore/remove-patch-artifacts` | Terminée (PR #15 fusionnée) |
-| 5 | Validation OAuth et MCP de bout en bout | — | Bloquée par la phase 1 |
+| 5 | Validation OAuth et MCP de bout en bout | `test/oauth-end-to-end` | Harnais livré — check-list manuelle à exécuter |
 | 6 | Sécurité et conformité | — | À faire |
 | 7 | Dossier de soumission | `release/chatgpt-submission` | À faire |
 | 8 | Publication progressive | — | À faire |
@@ -170,3 +170,66 @@ suivi par ailleurs.
 
 `vault/` est conservé : contenu rédigé (versions historiques de la
 méthodologie), pas un artefact de construction.
+
+---
+
+## Phase 2 — Protection de branche (complément)
+
+Appliquée sur `main` et vérifiée par un push direct, effectivement rejeté :
+
+| Réglage | Valeur |
+|---|---|
+| Check requis | `checks`, en mode strict (branche à jour exigée) |
+| Pull request | Obligatoire, 0 relecture requise — un mainteneur seul peut fusionner |
+| Appliqué aux administrateurs | Oui : le propriétaire non plus ne peut pas pousser directement |
+| Force-push, suppression | Interdits |
+| Historique linéaire | Exigé |
+
+Le compte de relectures est volontairement à zéro : exiger une approbation
+bloquerait un dépôt à mainteneur unique, sans rien ajouter à la garantie
+recherchée, qui est que **la CI passe avant toute fusion**.
+
+---
+
+## Phase 5 — Validation de bout en bout
+
+### Volet automatisé — livré
+
+`tests/test_oauth_end_to_end.py` exerce la chaîne réelle en processus :
+application ASGI construite par le SDK, middleware d'authentification,
+transport Streamable HTTP, dispatch d'outil. Seuls le JWKS de l'émetteur
+(clé RSA engendrée à la volée) et les appels aux API juridiques sont simulés.
+
+Seize tests couvrant les scénarios 1 à 5 de la mission :
+
+* requête anonyme refusée en `401`, avec le challenge attendu ;
+* jeton valide menant à un appel d'outil réussi, imputé au `sub` du jeton ;
+* refus pour audience étrangère, émetteur étranger, expiration, signature
+  inconnue, sujet absent ;
+* absence de détail exploitable dans le corps du refus ;
+* erreur métier ne réexposant aucun secret d'environnement ;
+* quota isolé par sujet, avec message explicite au dépassement, et second
+  sujet toujours servi ;
+* `MCP_OAUTH_REQUIRED_SCOPES=-` laissant l'authentification exigée tout en
+  acceptant un jeton sans la portée ; réglage inverse refusant ce même jeton
+  en `403`.
+
+Deux points relevés en écrivant ces tests, et corrigés :
+
+* le cas « jeton accepté » ne peut pas se vérifier sur un `POST` brut — hors
+  session MCP, le transport répond `400` quel que soit le jeton, ce qui ne
+  dirait rien de l'autorisation. Il porte donc sur une session complète ;
+* une assertion `assertNotEqual(401, …)` aurait laissé passer un `403`, donc un
+  refus de portée. Remplacée par une vérification du succès effectif.
+
+Le harnais est joué par `unittest discover`, donc en CI à chaque PR.
+
+### Volet manuel — à exécuter
+
+[validation-chatgpt.md](validation-chatgpt.md) : check-list numérotée couvrant
+la création du connecteur, l'autorisation Auth0, la découverte des six outils,
+un appel Légifrance réel, un appel Judilibre réel, le comportement en cas
+d'échec et le quota.
+
+**La phase reste ouverte tant que cette check-list n'est pas revenue
+renseignée.** Les phases 6 à 8 en dépendent.
