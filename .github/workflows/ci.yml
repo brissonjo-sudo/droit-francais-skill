@@ -60,6 +60,7 @@ jobs:
           python -m py_compile mcp_server/server.py
           python -m py_compile tests/run_eval.py
           python -m py_compile tests/check_links.py
+          python -m py_compile tests/check_affirmations.py
           python -m py_compile tests/check_commands.py
           python -m py_compile tests/check_plugin.py
           python -m py_compile tests/check_mcp_http.py
@@ -69,6 +70,7 @@ jobs:
           python -m py_compile tests/test_deployment.py
           python -m py_compile tests/test_tools.py
           python -m py_compile tests/test_mcp_app.py
+          python -m py_compile tests/test_affirmations.py
           python -m py_compile tests/test_auth.py
           python -m py_compile tests/test_skills.py
           python -m py_compile tests/test_oauth_end_to_end.py
@@ -170,6 +172,9 @@ jobs:
 
       - name: Vérifier les liens Markdown
         run: python tests/check_links.py
+
+      - name: Vérifier les affirmations de la documentation
+        run: python tests/check_affirmations.py
 
       - name: Vérifier la cohérence doc ↔ CLI (sous-commandes)
         run: python tests/check_commands.py
