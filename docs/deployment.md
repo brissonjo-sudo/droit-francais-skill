@@ -115,7 +115,11 @@ façon conservatrice selon les quotas réellement accordés à l'application PIS
 
 Le journal métier ajouté par l'application ne contient que le nom technique de
 l'opération, son résultat (`success`, `upstream_error` ou `throttled`), sa
-durée et une empreinte tronquée du sujet authentifié. Cette empreinte est une
+durée et une empreinte tronquée du sujet authentifié. Une ligne
+`upstream_error` porte en plus un identifiant de corrélation (`ref=`), rendu
+au client dans le message d'erreur, et le détail technique de l'erreur amont
+(hôte, URL, fragment de réponse), secrets masqués — ce détail ne quitte jamais
+le journal. Cette empreinte est une
 donnée personnelle pseudonymisée, et non anonyme. Le jeton, sa charge utile
 et l'identifiant brut du compte ne sont jamais journalisés. Il ne journalise ni les arguments, ni les textes juridiques, ni les
 résultats, ni les clés. L'image utilise `WARNING` par défaut afin de supprimer

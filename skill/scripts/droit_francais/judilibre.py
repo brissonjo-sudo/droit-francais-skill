@@ -62,6 +62,7 @@ def judilibre_get(path: str, params: dict) -> dict:
                     f"Authentification Judilibre refusée en mode {label} : {exc}",
                     exit_code=3,
                     http_status=exc.http_status,
+                    detail=exc.detail,
                 )
                 continue
             raise

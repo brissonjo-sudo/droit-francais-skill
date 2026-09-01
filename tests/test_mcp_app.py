@@ -321,17 +321,56 @@ class LegalToolsTests(unittest.TestCase):
 
     def test_mcp_error_masks_credentials(self):
         def fail():
-            raise LegifranceError("clé super-secret refusée", exit_code=3)
+            raise LegifranceError(
+                "clé super-secret refusée",
+                exit_code=3,
+                detail="HTTP 401 sur https://x?client_secret=super-secret",
+            )
 
         with mock.patch.dict(
             os.environ,
             {"LEGIFRANCE_CLIENT_SECRET": "super-secret"},
             clear=False,
         ):
-            with self.assertRaises(mcp_app.ToolError) as caught:
-                mcp_app._safe_call(fail)
+            with self.assertLogs("droit_francais.mcp", level="WARNING") as journal:
+                with self.assertRaises(mcp_app.ToolError) as caught:
+                    mcp_app._safe_call(fail)
         self.assertNotIn("super-secret", str(caught.exception))
         self.assertIn("secret masqué", str(caught.exception))
+        # Le détail journalisé est masqué de la même façon que la réponse.
+        rendu = " | ".join(journal.output)
+        self.assertNotIn("super-secret", rendu)
+        self.assertIn("client_secret=[secret masqué]", rendu)
+
+    def test_upstream_detail_stays_in_the_journal_not_in_the_reply(self):
+        """Le client reçoit code, phrase et référence ; le journal a le reste.
+
+        La check-list de soumission OpenAI demande que les réponses finales ne
+        portent pas de charge de débogage. L'URL amont avec ses paramètres et
+        le fragment de corps remontaient jusqu'au modèle.
+        """
+        def fail():
+            raise LegifranceError(
+                "Source amont indisponible (api.piste.gouv.fr, HTTP 503) : réessayer plus tard.",
+                exit_code=4,
+                http_status=503,
+                detail='HTTP 503 sur https://api.piste.gouv.fr/x?q=1\n{"trace": "stack-interne-42"}',
+            )
+
+        with self.assertLogs("droit_francais.mcp", level="WARNING") as journal:
+            with self.assertRaises(mcp_app.ToolError) as caught:
+                mcp_app._safe_call(fail)
+        reply = str(caught.exception)
+        self.assertIn("Source officielle non vérifiée (code 4)", reply)
+        self.assertIn("réessayer plus tard", reply)
+        self.assertNotIn("stack-interne-42", reply)
+        self.assertNotIn("q=1", reply)
+        reference = reply.rsplit("[réf. ", 1)[1].rstrip("]")
+        self.assertEqual(8, len(reference))
+        rendu = " | ".join(journal.output)
+        self.assertIn("stack-interne-42", rendu)
+        self.assertIn(f"ref={reference}", rendu)
+        self.assertIn("status=503", rendu)
 
 
 class RuntimeSafetyTests(unittest.TestCase):

@@ -24,7 +24,8 @@ ci-dessous existe pour que cette responsabilité reste tenable.
 | Fixtures de test sans valeur réelle | ✅ | `tests/fixtures/sample.env` ne contient que deux variables factices |
 | Secrets absents du manifeste MCP | ✅ | Contrôlé en CI par `check_plugin.py`, qui échoue si `.mcp.json` nomme une variable sensible |
 | Secrets masqués dans les erreurs | ✅ | `_safe_call()` remplace les valeurs de `LEGIFRANCE_CLIENT_ID`, `LEGIFRANCE_CLIENT_SECRET`, `JUDILIBRE_KEY_ID` et `PISTE_KEY_ID` par `[secret masqué]` avant de propager une erreur au client |
-| Secrets absents des journaux | ✅ | Aucun jeton ni charge utile n'est journalisé ; un refus est tracé sous forme de nom de classe d'erreur |
+| Secrets absents des journaux | ✅ | Aucun jeton ni charge utile n'est journalisé ; un refus est tracé sous forme de nom de classe d'erreur ; le détail d'une erreur amont est journalisé après le même masquage que la réponse |
+| Détail amont réservé au journal | ✅ | Depuis le 1er septembre 2026, le client reçoit un message public stable (code, phrase actionnable, hôte amont) et un identifiant de corrélation ; l'URL amont complète et le fragment de corps de réponse vont dans le journal sous cet identifiant |
 
 En production, les secrets vivent exclusivement dans les variables
 d'environnement de l'hébergeur. Le démarrage échoue si les identifiants
@@ -56,6 +57,7 @@ Ces contrôles sont couverts par `tests/test_auth.py` (vérificateur isolé) et
 | Attente en file | 2 s | Refuse vite plutôt que d'accumuler |
 | Taille maximale de requête | 1 Mio | Borne l'entrée |
 | Délai des appels sortants | 30 s | Borne la sortie |
+| Reprise sur erreur transitoire | 2 au plus, budget 8 s | Absorbe un `429`/`5xx` ponctuel des API amont sans contourner les plafonds ci-dessus ; `Retry-After` respecté, aucun autre `4xx` rejoué |
 
 Le quota par utilisateur est indexé sur le `sub` du jeton et purge ses
 compteurs inactifs à chaque passage, ce qui borne l'empreinte mémoire sans

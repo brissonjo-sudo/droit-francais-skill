@@ -9,6 +9,7 @@ import logging
 import os
 import sys
 import time
+import uuid
 from pathlib import Path
 from typing import Any, Callable, Literal
 
@@ -183,8 +184,32 @@ def _current_scopes() -> str:
     return ",".join(access_token.scopes) if access_token.scopes else "aucune"
 
 
+#: Variables dont la valeur ne doit apparaître ni dans une réponse ni dans le
+#: journal. Le masquage porte sur la valeur, pas sur le nom.
+SECRET_VARIABLES = (
+    "LEGIFRANCE_CLIENT_ID",
+    "LEGIFRANCE_CLIENT_SECRET",
+    "JUDILIBRE_KEY_ID",
+    "PISTE_KEY_ID",
+)
+
+
+def _mask_secrets(text: str) -> str:
+    for key in SECRET_VARIABLES:
+        secret = os.environ.get(key)
+        if secret:
+            text = text.replace(secret, "[secret masqué]")
+    return text
+
+
 def _safe_call(operation: Callable[..., dict[str, Any]], *args: Any, **kwargs: Any) -> dict[str, Any]:
-    """Transforme une erreur métier en erreur MCP sans exposer de secret."""
+    """Transforme une erreur métier en erreur MCP sans exposer de secret.
+
+    Le client reçoit un message public — code, phrase actionnable, hôte amont
+    — et un identifiant de corrélation. Le détail technique (URL amont
+    complète, fragment de corps) va dans le journal sous le même identifiant :
+    c'est là, et seulement là, qu'on dépanne.
+    """
     started = time.monotonic()
     operation_name = getattr(operation, "__name__", "legal_operation")
     principal = _current_principal()
@@ -204,23 +229,20 @@ def _safe_call(operation: Callable[..., dict[str, Any]], *args: Any, **kwargs: A
         LOGGER.warning("tool_call tool=%s outcome=throttled", operation_name)
         raise ToolError(str(exc)) from exc
     except LegifranceError as exc:
+        reference = uuid.uuid4().hex[:8]
         LOGGER.warning(
-            "tool_call tool=%s outcome=upstream_error duration_ms=%d",
+            "tool_call tool=%s outcome=upstream_error ref=%s code=%d status=%s "
+            "duration_ms=%d detail=%s",
             operation_name,
+            reference,
+            exc.exit_code,
+            exc.http_status if exc.http_status is not None else "-",
             int((time.monotonic() - started) * 1000),
+            _mask_secrets(" ".join((exc.detail or str(exc)).split())),
         )
-        message = str(exc)
-        for key in (
-            "LEGIFRANCE_CLIENT_ID",
-            "LEGIFRANCE_CLIENT_SECRET",
-            "JUDILIBRE_KEY_ID",
-            "PISTE_KEY_ID",
-        ):
-            secret = os.environ.get(key)
-            if secret:
-                message = message.replace(secret, "[secret masqué]")
         raise ToolError(
-            f"Source officielle non vérifiée (code {exc.exit_code}) : {message}"
+            f"Source officielle non vérifiée (code {exc.exit_code}) : "
+            f"{_mask_secrets(str(exc))} [réf. {reference}]"
         ) from exc
 
 
