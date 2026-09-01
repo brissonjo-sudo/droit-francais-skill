@@ -85,11 +85,21 @@ Ce réglage existe pour un cas réel : un client qui n'annonce pas la portée
 personnalisée dans sa requête d'autorisation alors que l'authentification, elle,
 aboutit. Le refus se manifeste par un `403` après une authentification réussie.
 
-C'est une **configuration de compatibilité**, pas un état cible. Le retour à
-`legal:read` est un simple changement de variable, et les deux réglages sont
-couverts par des tests. Aucune valeur de cette variable ne peut désactiver
-l'authentification : `MCP_AUTH_MODE` seul en décide, et la production refuse
-`disabled`.
+C'est une **configuration de compatibilité**, et l'arbitrage a été tranché :
+elle reste en place. Le SDK construit la métadonnée avec
+`scopes_supported=auth.required_scopes` et remet **la même liste** au middleware
+d'autorisation : annoncer et exiger sont indissociables. Or une portée d'API
+personnalisée n'apparaît jamais dans le document de découverte OIDC de
+l'émetteur, donc un client qui ne demande que ce qui y est annoncé obtiendrait
+un jeton sans `legal:read`. Réactiver le contrôle reviendrait à répondre `403`
+à tout le monde.
+
+Le journal métier porte désormais les portées reçues (`scopes=`) : la
+réactivation deviendra possible le jour où les appels réels montreront
+`legal:read`. Voir [exploitation.md](exploitation.md), incident n° 4.
+
+Aucune valeur de cette variable ne peut désactiver l'authentification :
+`MCP_AUTH_MODE` seul en décide, et la production refuse `disabled`.
 
 ## 6. Dépendances et image
 
@@ -153,7 +163,8 @@ sous l'œil.
    plusieurs utilisateurs actifs, en regard des limites PISTE effectives.
 3. **Portée désactivée.** Tant que `MCP_OAUTH_REQUIRED_SCOPES=-` est en place,
    tout jeton valide émis par l'émetteur pour cette audience ouvre l'accès. La
-   granularité par portée est perdue ; seule l'audience discrimine.
+   granularité par portée est perdue ; seule l'audience discrimine. Le journal
+   porte les portées reçues : relire `scopes=` avant de trancher à nouveau.
 4. **Mémoire du limiteur.** Les compteurs vivent en mémoire de processus : un
    redémarrage remet les quotas à zéro, et une exécution multi-instance ne les
    partagerait pas. Acceptable pour une instance unique, à revoir en cas de

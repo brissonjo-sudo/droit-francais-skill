@@ -29,7 +29,7 @@ jobs:
 
       - name: Archiver le SBOM
         if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: sbom-cyclonedx
           path: sbom.cdx.json
@@ -60,6 +60,7 @@ jobs:
           python -m py_compile mcp_server/server.py
           python -m py_compile tests/run_eval.py
           python -m py_compile tests/check_links.py
+          python -m py_compile tests/check_affirmations.py
           python -m py_compile tests/check_commands.py
           python -m py_compile tests/check_plugin.py
           python -m py_compile tests/check_mcp_http.py
@@ -69,6 +70,7 @@ jobs:
           python -m py_compile tests/test_deployment.py
           python -m py_compile tests/test_tools.py
           python -m py_compile tests/test_mcp_app.py
+          python -m py_compile tests/test_affirmations.py
           python -m py_compile tests/test_auth.py
           python -m py_compile tests/test_skills.py
           python -m py_compile tests/test_oauth_end_to_end.py
@@ -170,6 +172,9 @@ jobs:
 
       - name: Vérifier les liens Markdown
         run: python tests/check_links.py
+
+      - name: Vérifier les affirmations de la documentation
+        run: python tests/check_affirmations.py
 
       - name: Vérifier la cohérence doc ↔ CLI (sous-commandes)
         run: python tests/check_commands.py

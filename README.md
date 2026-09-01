@@ -2,7 +2,7 @@
 
 **Skill LLM — méthodologie de recherche en droit français (v3.2.0)**
 
-**Distribution autonome + plugin OpenAI avec outils MCP (plugin v0.5.0)**
+**Distribution autonome + plugin OpenAI avec outils MCP (plugin v0.7.0)**
 
 [![CI](https://github.com/brissonjo-sudo/droit-francais-skill/actions/workflows/ci.yml/badge.svg)](https://github.com/brissonjo-sudo/droit-francais-skill/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/brissonjo-sudo/droit-francais-skill)](https://github.com/brissonjo-sudo/droit-francais-skill/releases)
@@ -146,7 +146,7 @@ contexte et pose la question quand elle devient décisionnelle.
 
 ## Installation
 
-### Comme plugin OpenAI — outils MCP locaux v0.5.0
+### Comme plugin OpenAI — outils MCP locaux v0.7.0
 
 Le dépôt contient désormais un manifeste `.codex-plugin/plugin.json` et un
 point d'entrée natif `skills/recherche-juridique/`. L'adaptateur charge le
@@ -233,7 +233,7 @@ Le skill s'active automatiquement quand vous :
 
 ---
 
-## Arborescence (skill v3.2.0 / plugin v0.5.0)
+## Arborescence (skill v3.2.0 / plugin v0.7.0)
 
 ```
 droit-francais-skill/

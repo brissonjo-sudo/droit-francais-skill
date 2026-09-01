@@ -10,7 +10,7 @@ import os
 import sys
 import time
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any, Callable, Literal
 
 ROOT = Path(__file__).resolve().parent.parent
 SCRIPTS = ROOT / "skill" / "scripts"
@@ -116,10 +116,11 @@ READ_ONLY = ToolAnnotations(
     readOnlyHint=True,
     destructiveHint=False,
     idempotentHint=True,
-    # La consultation est sans écriture, mais elle atteint des API externes et
-    # consomme les quotas PISTE du titulaire : OpenAI classe ce comportement
-    # comme une interaction avec le monde externe.
-    openWorldHint=True,
+    # OpenAI réserve openWorldHint aux outils d'écriture susceptibles de
+    # modifier l'état publiquement visible d'internet. Une consultation en
+    # lecture seule n'en modifie aucun, même si elle appelle une API externe
+    # et consomme un quota.
+    openWorldHint=False,
 )
 
 
@@ -141,6 +142,27 @@ def _current_principal() -> str:
     return principal_of(get_access_token())
 
 
+def _current_scopes() -> str:
+    """Portées effectivement portées par le jeton courant.
+
+    Journalisées parce qu'elles tranchent une question ouverte : le contrôle de
+    portée est désactivé faute de savoir si le client demande bien la portée
+    personnalisée. Le SDK couple annonce et exigence — ``scopes_supported`` vaut
+    ``required_scopes`` — donc réactiver le contrôle sans savoir ce que portent
+    les jetons reviendrait à parier sur un `403` généralisé. Une portée n'est
+    pas une donnée personnelle : la journaliser ne coûte rien à la vie privée
+    et rend la décision mesurable au lieu d'être spéculative.
+    """
+    if not SETTINGS.auth_enabled:
+        return "-"
+    from mcp.server.auth.middleware.auth_context import get_access_token
+
+    access_token = get_access_token()
+    if access_token is None:
+        return "-"
+    return ",".join(access_token.scopes) if access_token.scopes else "aucune"
+
+
 def _safe_call(operation: Callable[..., dict[str, Any]], *args: Any, **kwargs: Any) -> dict[str, Any]:
     """Transforme une erreur métier en erreur MCP sans exposer de secret."""
     started = time.monotonic()
@@ -151,9 +173,10 @@ def _safe_call(operation: Callable[..., dict[str, Any]], *args: Any, **kwargs: A
         with GOVERNOR.slot():
             result = operation(*args, **kwargs)
         LOGGER.info(
-            "tool_call tool=%s principal=%s outcome=success duration_ms=%d",
+            "tool_call tool=%s principal=%s scopes=%s outcome=success duration_ms=%d",
             operation_name,
             _pseudonym(principal),
+            _current_scopes(),
             int((time.monotonic() - started) * 1000),
         )
         return result
@@ -310,18 +333,25 @@ def get_article(id: str, date: str | None = None) -> dict[str, Any]:
     title="Rechercher une décision judiciaire",
     description=(
         "Recherche la jurisprudence judiciaire officielle dans Judilibre, avec "
-        "filtres facultatifs de juridiction et de dates ISO."
+        "filtres facultatifs de juridiction et de dates ISO. jurisdiction "
+        "attend un code : cc (Cour de cassation), ca (Cour d'appel), tj "
+        "(Tribunal judiciaire) ou tcom (Tribunal de commerce). Omettre ce "
+        "paramètre ne recherche pas dans toutes les juridictions : Judilibre "
+        "retombe alors sur la Cour de cassation. sort choisit le classement : "
+        "relevance pour la pertinence (défaut), date pour les décisions les "
+        "plus récentes d'abord."
     ),
     annotations=READ_ONLY,
 )
 def search_case_law(
     query: str,
-    jurisdiction: str | None = None,
+    jurisdiction: Literal["cc", "ca", "tj", "tcom"] | None = None,
     date_start: str | None = None,
     date_end: str | None = None,
     limit: int = 10,
+    sort: Literal["relevance", "date"] = "relevance",
 ) -> dict[str, Any]:
-    """Search Judilibre decisions with optional filters."""
+    """Search Judilibre decisions with optional filters and sort order."""
     return _safe_call(
         legal_tools.search_case_law,
         query,
@@ -329,6 +359,7 @@ def search_case_law(
         date_start,
         date_end,
         limit,
+        sort,
     )
 
 
