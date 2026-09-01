@@ -1,0 +1,84 @@
+name: Surveillance
+
+# Sonde le service déployé toutes les dix minutes, sans jeton et sans quota,
+# et consigne chaque mesure sur la branche « surveillance ». Deux rôles :
+#
+# 1. Période d'observation avant publication : la série de mesures — pas une
+#    mesure isolée — dit si le service tient sans défaut ni dérive de latence.
+#    Lecture : docs/exploitation.md, § « Surveillance automatique ».
+# 2. Maintien hors veille de l'instance Render gratuite, qui s'endort après
+#    quinze minutes sans trafic (32,6 s mesurées au réveil le 1er sept. 2026).
+#    Le pas de dix minutes laisse une marge sur les retards du planificateur
+#    GitHub ; si la série montre encore des réveils, resserrer à */5 ou passer
+#    à une instance sans mise en veille.
+#
+# La branche « surveillance » est orpheline et hors protection : elle ne porte
+# que le journal. Le jeton par défaut suffit à y pousser, et un push de ce
+# jeton ne déclenche aucun autre workflow.
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+# Une seule exécution à la fois : deux runs qui pousseraient en même temps sur
+# la branche du journal se rejetteraient mutuellement.
+concurrency:
+  group: surveillance
+  cancel-in-progress: false
+
+jobs:
+  sonde:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Récupérer le journal
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: surveillance
+          path: journal
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: "3.12"
+
+      # La sonde rend un code non nul sur défaut ; on le conserve pour la fin
+      # du job, après avoir consigné la mesure : un défaut non journalisé
+      # serait invisible dans la série.
+      - name: Sonder le service
+        id: sonde
+        run: |
+          horodatage=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          set +e
+          python tests/check_service_health.py --json --horodatage "$horodatage" > mesure.json
+          code=$?
+          set -e
+          echo "code=$code" >> "$GITHUB_OUTPUT"
+          cat mesure.json
+
+      - name: Consigner la mesure
+        run: |
+          cat mesure.json >> journal/surveillance.jsonl
+          cd journal
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add surveillance.jsonl
+          git commit --quiet -m "mesure $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          # Un run précédent a pu pousser entre notre checkout et maintenant.
+          git pull --rebase --quiet origin surveillance
+          git push --quiet origin HEAD:surveillance
+
+      - name: Résumer la série
+        run: python tests/summarize_surveillance.py journal/surveillance.jsonl --jours 7 >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Signaler le défaut
+        if: steps.sonde.outputs.code != '0'
+        run: |
+          echo "La sonde a relevé un défaut (voir la mesure ci-dessus)."
+          exit 1

@@ -151,6 +151,16 @@ python tests/check_service_health.py
 python tests/check_service_health.py --json >> surveillance.jsonl
 ```
 
+`summarize_surveillance.py` résume une telle série (défauts, latence médiane
+et p95, réveils d'instance, ventilation par jour) ; `--jours N` borne la
+fenêtre, `--exiger-sans-defaut` rend 1 si elle porte un défaut. Le workflow
+`surveillance.yml` alimente le journal toutes les dix minutes sur la branche
+`surveillance` — voir `docs/exploitation.md`.
+
+```bash
+git show origin/surveillance:surveillance.jsonl | python tests/summarize_surveillance.py - --jours 7
+```
+
 Cette sonde n'est **pas** jouée en CI : elle exige un jeton et consomme le
 quota PISTE du titulaire. Elle sert la validation de bout en bout décrite dans
 [`docs/validation-chatgpt.md`](../docs/validation-chatgpt.md).
