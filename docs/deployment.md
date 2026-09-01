@@ -156,8 +156,9 @@ La [politique de confidentialité](privacy-policy.md), les
 3. Dans ChatGPT, activer le mode développeur et créer une application MCP avec
    l'URL complète `https://droit-francais-skill.onrender.com/mcp`.
 4. Vérifier les six outils. Ils doivent annoncer : `readOnlyHint: true`,
-   `destructiveHint: false` et `openWorldHint: true` : ils ne modifient pas
-   les données mais consultent des API externes et consomment leurs quotas.
+   `destructiveHint: false` et `openWorldHint: false` : ils ne modifient
+   aucun état publiquement visible d'internet, même s'ils consultent des API
+   externes et consomment leurs quotas.
 5. Exécuter les jeux d'évaluation positifs et négatifs, puis conserver les
    résultats de cette version.
 6. Lors de la soumission, placer le jeton fourni par OpenAI dans

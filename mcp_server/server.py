@@ -116,10 +116,11 @@ READ_ONLY = ToolAnnotations(
     readOnlyHint=True,
     destructiveHint=False,
     idempotentHint=True,
-    # La consultation est sans écriture, mais elle atteint des API externes et
-    # consomme les quotas PISTE du titulaire : OpenAI classe ce comportement
-    # comme une interaction avec le monde externe.
-    openWorldHint=True,
+    # OpenAI réserve openWorldHint aux outils d'écriture susceptibles de
+    # modifier l'état publiquement visible d'internet. Une consultation en
+    # lecture seule n'en modifie aucun, même si elle appelle une API externe
+    # et consomme un quota.
+    openWorldHint=False,
 )
 
 

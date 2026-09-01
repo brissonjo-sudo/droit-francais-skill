@@ -62,9 +62,11 @@ Deux conséquences ont orienté le correctif :
   une barre quand le chemin était vide (juste pour Auth0, faux pour un émetteur
   dont la forme canonique n'en porte pas). La route racine sert désormais
   `SETTINGS.oauth_issuer` verbatim. Ajout de `--check-issuer`.
-* `mcp_server/auth.py` — inchangé sur le fond. La tolérance à la barre finale
-  dans la revendication `iss` d'un jeton est conservée et désormais documentée
-  comme distincte de l'égalité stricte exigée côté métadonnée.
+* `mcp_server/auth.py` — inchangé sur le fond à cette étape. La tolérance à la
+  barre finale dans la revendication `iss` d'un jeton était alors conservée et
+  documentée comme distincte de l'égalité stricte exigée côté métadonnée.
+  **Périmé depuis la PR #24** (31/08/2026) : cette tolérance a été supprimée,
+  la comparaison est désormais stricte des deux côtés. Voir `oauth.md`.
 * `requirements-mcp.txt` — `mcp==2.1.1` et `PyJWT[crypto]==2.13.0` figés, pour
   que poste, CI et Render se comportent identiquement sur ce point précis.
 

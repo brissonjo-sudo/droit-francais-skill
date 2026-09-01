@@ -373,12 +373,12 @@ class McpProtocolTests(unittest.TestCase):
                             for tool in listed.tools
                         )
                     )
-                    self.assertTrue(
-                        all(
+                    self.assertFalse(
+                        any(
                             getattr(
                                 tool.annotations,
                                 "openWorldHint",
-                                getattr(tool.annotations, "open_world_hint", False),
+                                getattr(tool.annotations, "open_world_hint", True),
                             )
                             for tool in listed.tools
                         )

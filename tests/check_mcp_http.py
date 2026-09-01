@@ -48,7 +48,7 @@ async def probe(url: str) -> None:
                     "destructiveHint",
                     getattr(annotations, "destructive_hint", None),
                 )
-                if (read_only, open_world, destructive) != (True, True, False):
+                if (read_only, open_world, destructive) != (True, False, False):
                     raise RuntimeError(
                         f"Annotations de sécurité invalides pour {tool.name}"
                     )
