@@ -2,7 +2,7 @@
 
 **Skill LLM — méthodologie de recherche en droit français (v3.2.0)**
 
-**Distribution autonome + plugin OpenAI avec outils MCP (plugin v0.7.0)**
+**Distribution autonome + plugins OpenAI et Claude Code avec outils MCP (plugin v0.7.0)**
 
 [![CI](https://github.com/brissonjo-sudo/droit-francais-skill/actions/workflows/ci.yml/badge.svg)](https://github.com/brissonjo-sudo/droit-francais-skill/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/brissonjo-sudo/droit-francais-skill)](https://github.com/brissonjo-sudo/droit-francais-skill/releases)
@@ -16,7 +16,7 @@
 > Configurable per practitioner via a **profile**. Works without any API key;
 > a free PISTE key unlocks deterministic retrieval. It remains installable as
 > a standalone Claude Code skill and is now packaged as an OpenAI plugin
-> foundation without duplicating the legal methodology.
+> and a Claude Code plugin without duplicating the legal methodology.
 
 ---
 
@@ -183,6 +183,31 @@ le [guide OAuth](docs/oauth.md). Le mapping
 `.app.json` ne sera ajouté qu'après création d'une intégration réelle ; aucun
 identifiant distant fictif n'est placé dans le dépôt.
 
+### Comme plugin Claude Code — v0.7.0
+
+Le manifeste `.claude-plugin/plugin.json` réutilise les mêmes briques que le
+plugin OpenAI : le point d'entrée `skills/recherche-juridique/` (adaptateur
+vers le noyau `skill/`) et le serveur MCP local, déclaré avec
+`${CLAUDE_PLUGIN_ROOT}` pour résoudre les chemins une fois le plugin installé.
+Le dépôt sert aussi de marketplace (`.claude-plugin/marketplace.json`) :
+
+```bash
+claude plugin marketplace add brissonjo-sudo/droit-francais-skill
+claude plugin install droit-francais-skill@droit-francais
+```
+
+Ou, en session interactive : `/plugin marketplace add
+brissonjo-sudo/droit-francais-skill` puis `/plugin install
+droit-francais-skill@droit-francais`.
+
+Deux prérequis côté poste : un `python` accessible dans le PATH avec les
+dépendances du serveur (`python -m pip install -r requirements-mcp.txt`), et
+les identifiants PISTE fournis par variables d'environnement ou par un `.env`
+désigné via `LEGIFRANCE_DOTENV` — le `.env` n'étant pas versionné, il ne
+voyage pas avec le plugin. Sans identifiants, le skill méthodologique reste
+pleinement fonctionnel ; seuls les outils MCP de récupération déterministe
+sont indisponibles.
+
 ### Comme skill Claude Code — inchangé
 
 > **Installation autonome :** empaqueter uniquement le dossier `skill/` — il contient le
@@ -237,8 +262,11 @@ Le skill s'active automatiquement quand vous :
 
 ```
 droit-francais-skill/
+├── .claude-plugin/
+│   ├── plugin.json                ← manifeste du plugin Claude Code
+│   └── marketplace.json           ← distribution directe depuis le dépôt
 ├── .codex-plugin/
-│   └── plugin.json                ← manifeste du plugin
+│   └── plugin.json                ← manifeste du plugin OpenAI
 ├── assets/
 │   └── logo.png                   ← logo original de distribution
 ├── .mcp.json                       ← lancement local du serveur MCP

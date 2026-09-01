@@ -1,0 +1,19 @@
+{
+  "name": "droit-francais",
+  "owner": {
+    "name": "brissonjo-sudo",
+    "url": "https://github.com/brissonjo-sudo"
+  },
+  "description": "Recherche juridique en droit français : skill méthodologique anti-hallucination et serveur MCP Légifrance/Judilibre.",
+  "plugins": [
+    {
+      "name": "droit-francais-skill",
+      "source": "./",
+      "displayName": "Droit français",
+      "description": "Méthodologie rigoureuse de recherche en droit français : sources primaires Légifrance et Judilibre, vérification de vigueur, citations traçables. Skill + serveur MCP local.",
+      "version": "0.7.0",
+      "license": "CC-BY-SA-4.0",
+      "repository": "https://github.com/brissonjo-sudo/droit-francais-skill"
+    }
+  ]
+}
