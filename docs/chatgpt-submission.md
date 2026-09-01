@@ -161,8 +161,17 @@ Ce que le service conserve malgré cet écart :
   en décide et la production refuse `disabled` ;
 - **audience contrôlée** — un jeton émis pour une autre API est refusé (RFC 8707),
   ce qui bloque la réutilisation d'un jeton obtenu ailleurs ;
-- **imputabilité et quota par sujet** — le quota glissant s'applique au sujet du
-  jeton, pas à l'instance ; c'est la fonction que la portée n'assure pas ici ;
+- **imputabilité par sujet** — chaque appel est journalisé avec une empreinte
+  tronquée du sujet du jeton : c'est sur lui, et non sur une portée, que repose
+  la traçabilité ;
+- **quota par sujet, à la portée limitée** — un quota glissant est indexé par
+  sujet, en plus du quota global de l'instance. Il est tenu **en mémoire du
+  processus** : il repart à zéro à chaque redémarrage et n'est pas partagé
+  entre réplicas. C'est un garde-fou de premier rang contre la consommation
+  des quotas PISTE par un seul compte, pas une garantie distribuée — d'où la
+  contrainte d'exploitation d'**un seul réplica** avec des plafonds inférieurs
+  aux quotas réels, tant qu'aucun limiteur global n'existe. Voir
+  [`audit-securite.md`](audit-securite.md) § 3 ;
 - **surface sans privilège à graduer** — six outils en lecture seule sur des
   données exclusivement publiques (Légifrance, Judilibre). Il n'existe aucune
   opération réservée qu'une portée viendrait distinguer d'une autre : le moindre
