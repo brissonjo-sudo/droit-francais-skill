@@ -13,7 +13,7 @@ Auth0 (#27 et compte de démonstration), puis les sondes, puis la vidéo.
 | # | Pièce | Bloque | Exige |
 |---|---|---|---|
 | 1 | [Identité vérifiée OpenAI Platform](#1-identité-vérifiée-openai-platform) | soumission | compte OpenAI, pièce d'identité |
-| 2 | [Auth0 — borner les permissions tierces (#27)](#2-auth0--borner-les-permissions-tierces-issue-27) | publication | ✅ fait le 1/9/2026 |
+| 2 | [Auth0 — borner les permissions tierces (#27)](#2-auth0--borner-les-permissions-tierces-issue-27) | publication | configuration faite ; preuve privée à archiver |
 | 3 | [Compte de démonstration sans MFA](#3-compte-de-démonstration-sans-mfa) | soumission | admin Auth0 |
 | 4 | [Sonde des six outils avec jeton (#34)](#4-sonde-des-six-outils-avec-jeton-issue-34) | registre E4 | application M2M Auth0 |
 | 5 | [Essai avec un second compte](#5-essai-avec-un-second-compte) | publication | deux comptes |
@@ -67,9 +67,16 @@ sans accorder `legal:read` ni une permission future.
    * cliquer **None** pour ne sélectionner aucune permission ;
    * **Client Access : `Unauthorized`** ;
    * enregistrer.
-3. Vérifier dans le journal Auth0 que le grant créé porte `scope: []`,
-   `allow_all_scopes: false`, `subject_type: user` et
-   `default_for: third_party_clients`.
+3. Vérifier le grant par l'une de ces deux voies :
+   * **tableau de bord** : *Monitoring → Logs*, événement **Create client
+     grant** ou **Update client grant**, puis **Raw Data** ;
+   * **Management API** : avec un jeton limité à la lecture des client grants,
+     appeler `GET /api/v2/client-grants` en filtrant `audience` sur l'URL MCP,
+     `subject_type=user` et `default_for=third_party_clients`.
+   Dans les deux cas, le résultat doit porter l'audience MCP exacte,
+   `scope: []`, `allow_all_scopes: false`, `subject_type: user` et
+   `default_for: third_party_clients`. Un grant par défaut n'a pas de
+   `client_id` : les deux champs sont mutuellement exclusifs.
 4. Dans ChatGPT → Paramètres → Plugins → *Droit français*, cliquer
    **Actualiser**. Les six outils doivent apparaître.
 5. Tester en mode **Chat** — le mode Work n'expose pas ce plugin — avec
@@ -78,10 +85,17 @@ sans accorder `legal:read` ni une permission future.
    `VIGUEUR`, version du 22 décembre 2014 et le lien Légifrance.
 
 **Exécuté le 1er septembre 2026** — configuration minimale enregistrée ; grant
-vérifié dans le journal Auth0 ; six outils actualisés ; appel réel réussi dans
-ChatGPT avec `search_articles` puis lecture de la source officielle. Le passage
-intermédiaire à « Unauthorized » a supprimé le grant et rendu le plugin
-inaccessible, ce qui confirme le rôle indispensable de « Authorized ».
+vérifié dans le journal Auth0 à `21:13:00Z` ; six outils actualisés ; appel réel
+réussi dans ChatGPT avec `search_articles` puis lecture de la source officielle.
+Le passage intermédiaire à « Unauthorized » a supprimé le grant et rendu le
+plugin inaccessible, ce qui confirme le rôle indispensable de « Authorized ».
+
+**Preuve durable restant à archiver** — conserver dans le dossier privé une
+capture expurgée de **Raw Data** ou l'export JSON de la Management API, avec la
+date, le locataire, l'audience et les quatre champs attendus. Masquer jeton,
+adresse IP, identité de l'administrateur et tout identifiant client. Reporter
+seulement la date et l'emplacement privé dans la checklist ; ne jamais verser
+l'artefact au dépôt.
 
 ## 3. Compte de démonstration sans MFA
 
