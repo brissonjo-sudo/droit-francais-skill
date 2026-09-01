@@ -81,7 +81,7 @@ procédure de configuration de l'émetteur figure dans [`oauth.md`](oauth.md).
 | `MCP_OAUTH_AUDIENCE` | `MCP_PUBLIC_URL` + `/mcp` | Audience exigée dans le jeton (RFC 8707) |
 | `MCP_OAUTH_JWKS_URL` | `MCP_OAUTH_ISSUER` sans barre finale + `/.well-known/jwks.json` | Clés publiques de vérification |
 | `MCP_OAUTH_REQUIRED_SCOPES` | `legal:read` | Portées exigées, séparées par des virgules ; `-` désactive le contrôle de portée sans désactiver l'authentification |
-| `MCP_JUDILIBRE_SUPPRESSED_IDS` | vide | Identifiants Judilibre retirés temporairement, séparés par des virgules ; voir `incident-response.md` |
+| `MCP_JUDILIBRE_SUPPRESSED_IDS` | vide | Identifiants Judilibre retirés temporairement, séparés par des virgules (24 caractères hexadécimaux chacun, casse indifférente). Une entrée malformée refuse le démarrage ; le nombre d'identifiants chargés est journalisé, jamais leur valeur. Voir `incident-response.md` |
 
 Le conteneur définit déjà `MCP_ENV=production`, `MCP_HOST=0.0.0.0` et
 `PORT=8000`. La commande suivante permet de contrôler la configuration sans

@@ -37,8 +37,15 @@ accès restreint, jamais dans une issue GitHub publique.
 
 1. Identifier la décision sans reproduire publiquement le passage.
 2. Ajouter l'identifiant exact à la variable Render
-   `MCP_JUDILIBRE_SUPPRESSED_IDS` (liste séparée par des virgules).
+   `MCP_JUDILIBRE_SUPPRESSED_IDS` (liste séparée par des virgules). Un
+   identifiant Judilibre fait 24 caractères hexadécimaux ; la casse est
+   indifférente, les espaces autour des virgules sont ignorés.
 3. Redémarrer le service et vérifier :
+   - le journal de démarrage porte `judilibre_suppression_list count=N`, où
+     `N` est le nombre d'identifiants attendus — jamais les identifiants
+     eux-mêmes. **Une entrée malformée empêche le service de démarrer**, avec
+     un message qui nomme la position fautive dans la liste : corriger la
+     variable, ne pas contourner ;
    - la décision est filtrée des résultats de recherche ;
    - sa lecture directe renvoie « temporairement indisponible ».
 4. Transmettre **sans délai** la demande portant sur un défaut d'occultation à
