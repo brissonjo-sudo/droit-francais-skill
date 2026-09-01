@@ -213,8 +213,8 @@ def cmd_ping(args) -> int:
 
     # Sonde Judilibre — non bloquante : l'application PISTE peut n'être
     # abonnée qu'à Légifrance. Le fond jurisprudence est alors indisponible,
-    # ce qui doit être visible sans faire échouer le ping.
-    _TOKEN_CACHE["token"] = token
+    # ce qui doit être visible sans faire échouer le ping. Le jeton obtenu
+    # ci-dessus est déjà en cache : Judilibre le réutilise en repli OAuth.
     print(f"   Judilibre : {_judilibre_base()}")
     try:
         judilibre_get("/taxonomy", {"id": "jurisdiction"})

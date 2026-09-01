@@ -7,22 +7,17 @@ import urllib.parse
 
 from .config import judilibre_base
 from .errors import LegifranceError
-from .legifrance import get_token
+from .legifrance import _TOKEN_CACHE, clear_token_cache, get_token  # noqa: F401
 from .transport import http_get_json
-
-_TOKEN_CACHE: dict = {}
-
-
-def clear_token_cache() -> None:
-    """Vide le cache OAuth de l'exécution courante."""
-    _TOKEN_CACHE.clear()
 
 
 def get_token_cached() -> str:
-    """Évite de redemander un jeton à chaque appel d'une même exécution."""
-    if "token" not in _TOKEN_CACHE:
-        _TOKEN_CACHE["token"] = get_token()
-    return _TOKEN_CACHE["token"]
+    """Nom historique : le cache vit désormais dans ``legifrance.get_token``."""
+    return get_token()
+
+
+def _bearer(token: str) -> dict:
+    return {"Authorization": f"Bearer {token}", "Accept": "application/json"}
 
 
 def auth_modes() -> list:
@@ -50,14 +45,18 @@ def judilibre_get(path: str, params: dict) -> dict:
 
     last: LegifranceError | None = None
     for label, headers in auth_modes():
-        if headers is None:
-            headers = {
-                "Authorization": f"Bearer {get_token_cached()}",
-                "Accept": "application/json",
-            }
         try:
+            if headers is None:
+                headers = _bearer(get_token())
             return http_get_json(url, headers)
         except LegifranceError as exc:
+            if label == "OAuth" and exc.http_status == 401:
+                # Jeton périmé ou révoqué entre-temps : un seul renouvellement,
+                # jamais une boucle. Le cache est remplacé, pas laissé mort.
+                try:
+                    return http_get_json(url, _bearer(get_token(force_refresh=True)))
+                except LegifranceError as retried:
+                    exc = retried
             if exc.http_status in (401, 403):
                 last = LegifranceError(
                     f"Authentification Judilibre refusée en mode {label} : {exc}",
