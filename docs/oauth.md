@@ -72,8 +72,11 @@ valeur que le serveur exige dans la revendication `aud`.
 
 ### 2. Portée, RBAC et autorisation de l'application
 
-Dans l'onglet **Permissions** de l'API, ajouter `legal:read`
-(« Consultation des sources juridiques officielles »).
+Dans l'onglet **Permissions** de l'API, `legal:read` (« Consultation des
+sources juridiques officielles ») peut rester défini, mais sa présence ne
+signifie pas que le client le demande ni que le serveur doit l'exiger. La
+production conserve `MCP_OAUTH_REQUIRED_SCOPES=-` tant que les appels ChatGPT
+arrivent sans cette portée ; voir « Portée vide annoncée » plus bas.
 
 **Laisser le RBAC désactivé.** Activé, Auth0 ne place dans le jeton que les
 permissions assignées à chaque utilisateur par un rôle ; sur une application
@@ -81,10 +84,24 @@ ouverte au public, aucun utilisateur n'a de rôle, le jeton arrive sans
 `legal:read` et le serveur répond `403` à tout le monde. Sans RBAC, Auth0
 accorde la portée demandée dès lors qu'elle est définie sur l'API.
 
-La politique d'accès de l'API reste **Per-app authorization** : chaque
-application doit être autorisée explicitement. Dans l'onglet **Application
-Access** de l'API, ouvrir la ligne de l'application cliente, cliquer
-**Grant Access**, cocher `legal:read` et enregistrer.
+La politique générale d'accès de l'API reste **Per-app authorization**. Deux
+voies d'autorisation coexistent selon le type de client :
+
+* **client prédéfini** : dans **Application Access**, ouvrir sa ligne, cliquer
+  **Grant Access** et n'accorder que les permissions effectivement exigées par
+  le serveur (`legal:read` si son contrôle est réactivé) ;
+* **client tiers créé par DCR** : il ne peut pas être autorisé à l'avance par
+  son identifiant. Dans **Default Permissions for third-party applications**,
+  régler **User-delegated Access** sur **Authorized**, cliquer **None** pour
+  conserver une liste vide, et laisser **Client Access** sur **Unauthorized**.
+  Le grant résultant doit porter `scope: []`, `allow_all_scopes: false`,
+  `subject_type: user` et `default_for: third_party_clients`.
+
+Ce grant tiers vide autorise l'audience, pas une permission métier. Il reste
+indispensable à la DCR même lorsque `MCP_OAUTH_REQUIRED_SCOPES=-` : passer
+**User-delegated Access** à **Unauthorized** supprime le grant et rend les
+outils ChatGPT inaccessibles. Un grant individuel pour la même audience prime
+sur ce défaut tiers.
 
 ### 3. Réglages avancés du locataire
 
