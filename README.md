@@ -343,7 +343,9 @@ Procédure détaillée → [`skill/references/maintenance.md`](skill/references/
 
 > **Note de synchronisation :** à chaque release, mettre à jour `README.md`
 > (version, arborescence) et `skill/CHANGELOG.md` (entrée Ajouté/Modifié/Conservé)
-> avant de pousser le tag.
+> avant de pousser le tag, préfixé selon sa série : `skill-v*` (méthodologie)
+> ou `plugin-v*` (empaquetage OpenAI et Claude Code, dont les notes de
+> soumission ChatGPT référencent le tag).
 
 ---
 

@@ -324,6 +324,10 @@ longueurs de champs, liste des catégories, nombre et longueur des prompts et
 des capacités, quatre URL, URL de schéma, présence des notes de version et des
 justifications — ainsi que la règle de version retenue : **le manifeste du
 plugin suit le serveur MCP**, le skill gardant sa propre ligne éditoriale.
+Depuis le 1ᵉʳ septembre 2026, chaque série porte son préfixe de tag Git :
+`plugin-v*` pour le manifeste et le serveur (première application :
+`plugin-v0.7.0`), `skill-v*` pour la méthodologie — voir
+[architecture-plugin.md](architecture-plugin.md).
 
 Les huit défauts correspondants ont été réintroduits un à un et sont tous
 détectés, avec un message nommant la limite dépassée.
