@@ -70,6 +70,7 @@ jobs:
           python -m py_compile tests/test_deployment.py
           python -m py_compile tests/test_tools.py
           python -m py_compile tests/test_mcp_app.py
+          python -m py_compile tests/test_affirmations.py
           python -m py_compile tests/test_auth.py
           python -m py_compile tests/test_skills.py
           python -m py_compile tests/test_oauth_end_to_end.py
