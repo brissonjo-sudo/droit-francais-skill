@@ -376,7 +376,7 @@ def main() -> int:
                     annotations = descriptor.get("annotations", {})
                     expected = {
                         "readOnlyHint": True,
-                        "openWorldHint": True,
+                        "openWorldHint": False,
                         "destructiveHint": False,
                     }
                     if annotations != expected:

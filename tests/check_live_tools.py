@@ -158,11 +158,11 @@ async def sonder(url: str, token: str) -> None:
                     destructif = _attribut(
                         annotations, "destructiveHint", "destructive_hint"
                     )
-                    if (lecture, ouvert, destructif) != (True, True, False):
+                    if (lecture, ouvert, destructif) != (True, False, False):
                         raise SondeError(
                             f"annotations de sécurité invalides pour {outil.name}"
                         )
-                print("✅ Six outils de lecture découverts, tous ouverts sur des API externes.")
+                print("✅ Six outils découverts, tous annotés en lecture seule.")
 
                 # ---- 2. Appel Légifrance réel -----------------------------
                 resultat = await session.call_tool(
