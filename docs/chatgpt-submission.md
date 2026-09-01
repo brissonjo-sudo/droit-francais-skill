@@ -137,6 +137,41 @@ Lorsque le portail fournit son jeton temporaire :
 
 Le jeton ne doit jamais être ajouté au dépôt ou à un fichier de documentation.
 
+## Portées OAuth : exception argumentée
+
+À porter explicitement à la connaissance du relecteur, car le service s'écarte
+sur ce point d'une consigne écrite d'OpenAI.
+
+La [documentation sécurité](https://developers.openai.com/apps-sdk/guides/security-privacy)
+demande de *« verify and enforce scopes on every tool call »*. Ce service tourne
+en production avec `MCP_OAUTH_REQUIRED_SCOPES=-` : il exige un jeton valide à
+chaque appel, mais n'exige aucune portée particulière.
+
+La cause est technique et documentée en détail dans
+[`conformite.md`](conformite.md) § 5 : le SDK MCP construit la métadonnée avec
+`scopes_supported=auth.required_scopes` et remet la même liste au middleware
+d'autorisation. Annoncer et exiger sont indissociables. Or une portée d'API
+personnalisée n'apparaît pas dans le document de découverte OIDC de l'émetteur :
+un client qui ne demande que ce qui y est annoncé obtient un jeton sans
+`legal:read`. Exiger la portée reviendrait donc à répondre `403` à tout le monde.
+
+Ce que le service conserve malgré cet écart :
+
+- **authentification obligatoire** — aucun accès anonyme, `MCP_AUTH_MODE` seul
+  en décide et la production refuse `disabled` ;
+- **audience contrôlée** — un jeton émis pour une autre API est refusé (RFC 8707),
+  ce qui bloque la réutilisation d'un jeton obtenu ailleurs ;
+- **imputabilité et quota par sujet** — le quota glissant s'applique au sujet du
+  jeton, pas à l'instance ; c'est la fonction que la portée n'assure pas ici ;
+- **surface sans privilège à graduer** — six outils en lecture seule sur des
+  données exclusivement publiques (Légifrance, Judilibre). Il n'existe aucune
+  opération réservée qu'une portée viendrait distinguer d'une autre : le moindre
+  privilège est déjà le seul privilège.
+
+Le contrôle n'est pas abandonné. Le journal métier porte les portées reçues
+(`scopes=`) : la réactivation devient possible dès que les appels réels montrent
+`legal:read`. Voir [`exploitation.md`](exploitation.md), incident n° 4.
+
 ## Conditions préalables humaines
 
 Avant l'envoi final, le soumissionnaire doit :
@@ -153,10 +188,12 @@ Avant l'envoi final, le soumissionnaire doit :
 
 ## Risque d'exploitation restant
 
-L'instance Render gratuite peut se mettre en veille et retarder le premier
-appel de plus de 50 secondes. Le protocole fonctionne, mais une instance sans
-mise en veille est recommandée avant une revue publique afin de satisfaire les
-exigences de stabilité et de réactivité.
+L'instance Render gratuite se met en veille et retarde le premier appel. Le
+seul réveil chronométré à ce jour est de **22,8 s** sur `/health`, contre 0,15
+à 0,60 s à chaud (31/08/2026, voir [`exploitation.md`](exploitation.md),
+incident n° 4). Le protocole fonctionne, mais une instance sans mise en veille
+est recommandée avant une revue publique afin de satisfaire les exigences de
+stabilité et de réactivité.
 
 ## Documentation officielle OpenAI
 
