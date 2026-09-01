@@ -103,12 +103,15 @@ def get_token(*, force_refresh: bool = False) -> str:
         raise LegifranceError(
             f"Authentification PISTE échouée : {exc}",
             exit_code=3,
+            http_status=exc.http_status,
+            detail=exc.detail,
         ) from exc
     token = data.get("access_token")
     if not token:
         raise LegifranceError(
-            f"Réponse OAuth sans access_token : {data}",
+            "Réponse OAuth sans access_token : authentification PISTE à vérifier.",
             exit_code=3,
+            detail=f"Réponse du serveur de jetons : {str(data)[:300]}",
         )
     _remember_token(token, data.get("expires_in"))
     return token

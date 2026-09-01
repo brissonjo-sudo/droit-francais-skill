@@ -26,6 +26,7 @@ from droit_francais.config import (  # noqa: E402
     load_dotenv,
 )
 from droit_francais.errors import LegifranceError  # noqa: E402
+import droit_francais.transport as transport  # noqa: E402
 from droit_francais.transport import http_get_json, http_post_json  # noqa: E402
 
 
@@ -125,6 +126,109 @@ class TransportTests(unittest.TestCase):
         with self.assertRaises(LegifranceError) as caught:
             http_get_json("https://example.test/data", {})
         self.assertEqual(4, caught.exception.exit_code)
+        self.assertNotIn("not-json", str(caught.exception))
+        self.assertIn("not-json", caught.exception.detail)
+
+
+def _http_error(code: int, body: bytes = b"", headers: dict | None = None):
+    return urllib.error.HTTPError(
+        "https://api.example.test/dila/search?q=secret-param",
+        code,
+        "Error",
+        headers if headers is not None else {},
+        io.BytesIO(body),
+    )
+
+
+@mock.patch("droit_francais.transport._sleep")
+@mock.patch("droit_francais.transport.urllib.request.urlopen")
+class TransportRetryTests(unittest.TestCase):
+    """Reprise bornée sur erreur transitoire, et message public sans détail amont."""
+
+    URL = "https://api.example.test/dila/search?q=secret-param"
+
+    def test_429_is_retried_after_the_announced_delay(self, urlopen, sleep):
+        urlopen.side_effect = [
+            _http_error(429, b"slow down", {"Retry-After": "1"}),
+            FakeResponse(b'{"ok": true}'),
+        ]
+        self.assertTrue(http_get_json(self.URL, {})["ok"])
+        self.assertEqual(2, urlopen.call_count)
+        sleep.assert_called_once_with(1.0)
+
+    def test_5xx_is_retried_at_most_twice_then_reported_publicly(self, urlopen, sleep):
+        # Un objet par tentative : le corps d'une HTTPError ne se lit qu'une fois.
+        urlopen.side_effect = [_http_error(503, b"trace interne 42") for _ in range(5)]
+        with self.assertRaises(LegifranceError) as caught:
+            http_get_json(self.URL, {})
+        exc = caught.exception
+        self.assertEqual(transport.MAX_ATTEMPTS, urlopen.call_count)
+        self.assertEqual(transport.MAX_ATTEMPTS - 1, sleep.call_count)
+        # Recul exponentiel avec aléa : la seconde attente dépasse la première.
+        first, second = (call.args[0] for call in sleep.call_args_list)
+        self.assertLess(first, second)
+        self.assertEqual(503, exc.http_status)
+        message = str(exc)
+        self.assertIn("réessayer", message)
+        self.assertIn("api.example.test", message)
+        for hidden in ("secret-param", "trace interne 42", "/dila/search"):
+            self.assertNotIn(hidden, message)
+            self.assertIn(hidden, exc.detail)
+
+    def test_other_4xx_are_never_retried(self, urlopen, sleep):
+        for code in (400, 401, 403, 404):
+            urlopen.reset_mock()
+            urlopen.side_effect = [_http_error(code, b"nope")]
+            with self.assertRaises(LegifranceError) as caught:
+                http_get_json(self.URL, {})
+            self.assertEqual(code, caught.exception.http_status)
+            urlopen.assert_called_once()
+        sleep.assert_not_called()
+
+    def test_retry_after_beyond_the_budget_means_giving_up_now(self, urlopen, sleep):
+        urlopen.side_effect = [
+            _http_error(429, b"", {"Retry-After": str(int(transport.RETRY_BUDGET_SECONDS) + 5)})
+        ]
+        with self.assertRaises(LegifranceError):
+            http_get_json(self.URL, {})
+        urlopen.assert_called_once()
+        sleep.assert_not_called()
+
+    def test_network_failure_is_retried_but_a_timeout_is_not(self, urlopen, sleep):
+        urlopen.side_effect = [
+            urllib.error.URLError(ConnectionResetError("reset")),
+            FakeResponse(b'{"ok": true}'),
+        ]
+        self.assertTrue(http_post_json(self.URL, b"{}", {})["ok"])
+        self.assertEqual(2, urlopen.call_count)
+
+        urlopen.reset_mock()
+        sleep.reset_mock()
+        urlopen.side_effect = [urllib.error.URLError(TimeoutError("timed out"))]
+        with self.assertRaises(LegifranceError) as caught:
+            http_post_json(self.URL, b"{}", {})
+        urlopen.assert_called_once()
+        sleep.assert_not_called()
+        self.assertNotIn("secret-param", str(caught.exception))
+
+    def test_a_bare_timeout_becomes_a_public_error(self, urlopen, sleep):
+        urlopen.side_effect = TimeoutError("timed out")
+        with self.assertRaises(LegifranceError) as caught:
+            http_get_json(self.URL, {}, timeout=3)
+        self.assertEqual(4, caught.exception.exit_code)
+        self.assertIn("Délai dépassé", str(caught.exception))
+        self.assertIn("3 s", caught.exception.detail)
+        sleep.assert_not_called()
+
+    def test_wrapped_authentication_errors_keep_the_detail(self, urlopen, sleep):
+        urlopen.side_effect = [_http_error(401, b'{"error":"invalid_client"}')]
+        with mock.patch.dict(os.environ, PISTE_ENV, clear=True):
+            legifrance_client.clear_token_cache()
+            with self.assertRaises(LegifranceError) as caught:
+                legifrance_client.get_token()
+        self.assertEqual(3, caught.exception.exit_code)
+        self.assertNotIn("invalid_client", str(caught.exception))
+        self.assertIn("invalid_client", caught.exception.detail)
 
 
 PISTE_ENV = {

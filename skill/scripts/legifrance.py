@@ -996,6 +996,11 @@ def main(argv=None) -> int:
         # sans le registre d'erreur qui pousserait à interrompre l'analyse.
         prefix = "⚠️" if exc.exit_code == 2 else "❌"
         print(f"{prefix} {exc}", file=sys.stderr)
+        # Usage local, par le titulaire des clés : le détail amont (URL,
+        # fragment de réponse) aide à dépanner et n'a ici aucun destinataire
+        # tiers. Le serveur MCP, lui, le réserve au journal.
+        if getattr(exc, "detail", None):
+            print(f"   Détail : {exc.detail}", file=sys.stderr)
         return exc.exit_code
     except KeyboardInterrupt:
         return 130
