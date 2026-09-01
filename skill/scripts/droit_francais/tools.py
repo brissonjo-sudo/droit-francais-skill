@@ -21,6 +21,11 @@ ARTICLE_URL = "https://www.legifrance.gouv.fr/codes/article_lc/{id}"
 DECISION_URL = "https://www.courdecassation.fr/decision/{id}"
 JUDILIBRE_SOURCE = "base Open Data de la Cour de cassation"
 JUDILIBRE_SUPPRESSION_ENV = "MCP_JUDILIBRE_SUPPRESSED_IDS"
+#: Forme canonique d'un identifiant de décision Judilibre : 24 caractères
+#: hexadécimaux, en minuscules dans la base Open Data. Une valeur qui n'a pas
+#: cette forme ne peut désigner aucune décision : la charger en silence
+#: reviendrait à croire retirée une décision toujours servie.
+_JUDILIBRE_ID = re.compile(r"^[0-9a-f]{24}$")
 #: Qualification portée par toute provenance : le texte d'un article comme
 #: celui d'une décision est une donnée amont à analyser et à citer, jamais une
 #: instruction à exécuter. La marque vaut donc pour les deux sources.
@@ -99,6 +104,32 @@ def _judilibre_sort(value: str) -> tuple[str, str]:
     return SORT_MODES[mode]
 
 
+def parse_suppressed_ids(raw: str | None) -> frozenset[str]:
+    """Analyse la liste d'urgence et refuse toute entrée manifestement malformée.
+
+    Chaque identifiant est normalisé en minuscules : la comparaison ne dépend
+    plus de la casse recopiée sous pression. Une entrée qui n'a pas la forme
+    canonique — caractère en trop, virgule oubliée qui colle deux identifiants
+    — lève une erreur nommant sa **position**, jamais sa valeur : la liste reste
+    une donnée de configuration non publique. Sur un contrôle dont l'objet est
+    de cesser une diffusion signalée fautive, un refus bruyant vaut mieux
+    qu'un chargement silencieux qui laisse la décision servie.
+    """
+    items = [item.strip().lower() for item in (raw or "").split(",")]
+    items = [item for item in items if item]
+    malformed = [
+        str(rank) for rank, item in enumerate(items, 1) if not _JUDILIBRE_ID.match(item)
+    ]
+    if malformed:
+        raise LegifranceError(
+            f"{JUDILIBRE_SUPPRESSION_ENV} : entrée(s) n° {', '.join(malformed)} "
+            "malformée(s). Attendu : 24 caractères hexadécimaux par identifiant, "
+            "séparés par des virgules.",
+            exit_code=2,
+        )
+    return frozenset(items)
+
+
 def _suppressed_decision_ids() -> frozenset[str]:
     """Liste d'urgence des décisions à ne plus redistribuer temporairement.
 
@@ -107,12 +138,16 @@ def _suppressed_decision_ids() -> frozenset[str]:
     identifiants restent des données de configuration et ne sont jamais
     ajoutés aux réponses publiques.
     """
-    raw = os.environ.get(JUDILIBRE_SUPPRESSION_ENV, "")
-    return frozenset(item.strip() for item in raw.split(",") if item.strip())
+    return parse_suppressed_ids(os.environ.get(JUDILIBRE_SUPPRESSION_ENV))
+
+
+def _is_suppressed(decision_id: str, suppressed: frozenset[str]) -> bool:
+    """Compare sur la forme normalisée : la casse de l'amont n'entre pas en jeu."""
+    return decision_id.strip().lower() in suppressed
 
 
 def _ensure_decision_available(decision_id: str) -> None:
-    if decision_id in _suppressed_decision_ids():
+    if _is_suppressed(decision_id, _suppressed_decision_ids()):
         raise LegifranceError(
             "Décision temporairement indisponible pendant le traitement "
             "d'un signalement d'occultation.",
@@ -381,7 +416,7 @@ def search_case_law(
     source_results = payload.get("results") or []
     for decision in source_results:
         decision_id = str(decision.get("id") or "").strip()
-        if not decision_id or decision_id in suppressed:
+        if not decision_id or _is_suppressed(decision_id, suppressed):
             continue
         jurisdiction_name = decision.get("jurisdiction") or "Juridiction inconnue"
         date = decision.get("decision_date") or "date inconnue"
@@ -413,7 +448,7 @@ def search_case_law(
         "temporarily_suppressed_results": sum(
             1
             for item in source_results
-            if str(item.get("id") or "").strip() in suppressed
+            if _is_suppressed(str(item.get("id") or ""), suppressed)
         ),
     }
 

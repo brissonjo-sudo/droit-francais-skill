@@ -64,6 +64,26 @@ USER_LIMITER = PrincipalRateLimiter(SETTINGS.user_calls_per_minute)
 SERVER_VERSION = "0.7.0"
 
 
+def _load_suppression_list() -> int:
+    """Charge la liste de retrait d'urgence Judilibre et en rend le nombre.
+
+    Le mécanisme est une mesure conservatoire jouée sous pression : un
+    identifiant mal recopié ne doit pas être accepté en silence. La liste est
+    donc analysée au démarrage — une entrée malformée empêche le service de
+    partir, avec un message qui nomme la position fautive — et son **nombre**
+    d'entrées est journalisé. Jamais les identifiants eux-mêmes, qui restent
+    des données de configuration non publiques.
+    """
+    try:
+        loaded = legal_tools.parse_suppressed_ids(
+            os.environ.get(legal_tools.JUDILIBRE_SUPPRESSION_ENV)
+        )
+    except LegifranceError as exc:
+        raise RuntimeConfigurationError(str(exc)) from exc
+    LOGGER.info("judilibre_suppression_list count=%d", len(loaded))
+    return len(loaded)
+
+
 def _build_auth_options() -> dict[str, Any]:
     """Configure le serveur en Resource Server OAuth 2.1, si demandé.
 
@@ -429,6 +449,7 @@ def main() -> None:
     args = parser.parse_args()
     try:
         SETTINGS.validate_public()
+        suppressed = _load_suppression_list()
     except RuntimeConfigurationError as exc:
         parser.error(str(exc))
     if args.check_issuer:
@@ -439,6 +460,7 @@ def main() -> None:
         return
     if args.check_config:
         print("Configuration MCP valide.")
+        print(f"Retrait d'urgence Judilibre : {suppressed} identifiant(s) chargé(s).")
         return
     if args.transport == "streamable-http" and MCP_V2:
         server.run(
