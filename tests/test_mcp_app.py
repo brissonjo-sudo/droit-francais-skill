@@ -374,6 +374,19 @@ class LegalToolsTests(unittest.TestCase):
 
 
 class RuntimeSafetyTests(unittest.TestCase):
+    def test_instructions_fit_the_openai_budget_and_carry_the_three_rules(self):
+        """Le texte servi au client tient dans les 512 caractères d'OpenAI.
+
+        Et il porte ses trois règles : pas de mémoire, vigueur vérifiée,
+        refus explicite. Une reformulation qui perdrait l'une d'elles, ou qui
+        déborderait le budget, se verrait ici avant le déploiement.
+        """
+        texte = mcp_app.server_options["instructions"]
+        self.assertIs(texte, mcp_app.INSTRUCTIONS)
+        self.assertLessEqual(len(texte), mcp_app.INSTRUCTIONS_MAX_CHARS)
+        for regle in ("de mémoire", "en vigueur", "ne concluez pas"):
+            self.assertIn(regle, texte)
+
     def test_production_requires_server_side_credentials(self):
         settings = RuntimeSettings.from_env({"MCP_ENV": "production"})
         with self.assertRaises(RuntimeConfigurationError) as caught:
