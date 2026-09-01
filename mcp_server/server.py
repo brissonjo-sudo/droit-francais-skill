@@ -10,7 +10,7 @@ import os
 import sys
 import time
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any, Callable, Literal
 
 ROOT = Path(__file__).resolve().parent.parent
 SCRIPTS = ROOT / "skill" / "scripts"
@@ -332,18 +332,24 @@ def get_article(id: str, date: str | None = None) -> dict[str, Any]:
     title="Rechercher une décision judiciaire",
     description=(
         "Recherche la jurisprudence judiciaire officielle dans Judilibre, avec "
-        "filtres facultatifs de juridiction et de dates ISO."
+        "filtres facultatifs de juridiction et de dates ISO. jurisdiction "
+        "attend un code : cc (Cour de cassation), ca (Cour d'appel), tj "
+        "(Tribunal judiciaire) ou tcom (Tribunal de commerce) — omettre pour "
+        "ne pas filtrer. sort choisit le classement : relevance pour la "
+        "pertinence (défaut), date pour les décisions les plus récentes "
+        "d'abord."
     ),
     annotations=READ_ONLY,
 )
 def search_case_law(
     query: str,
-    jurisdiction: str | None = None,
+    jurisdiction: Literal["cc", "ca", "tj", "tcom"] | None = None,
     date_start: str | None = None,
     date_end: str | None = None,
     limit: int = 10,
+    sort: Literal["relevance", "date"] = "relevance",
 ) -> dict[str, Any]:
-    """Search Judilibre decisions with optional filters."""
+    """Search Judilibre decisions with optional filters and sort order."""
     return _safe_call(
         legal_tools.search_case_law,
         query,
@@ -351,6 +357,7 @@ def search_case_law(
         date_start,
         date_end,
         limit,
+        sort,
     )
 
 

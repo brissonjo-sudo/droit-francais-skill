@@ -25,6 +25,24 @@ JUDILIBRE_SUPPRESSION_ENV = "MCP_JUDILIBRE_SUPPRESSED_IDS"
 #: celui d'une décision est une donnée amont à analyser et à citer, jamais une
 #: instruction à exécuter. La marque vaut donc pour les deux sources.
 UNTRUSTED_CONTENT = "untrusted_source_data"
+#: Codes de juridiction acceptés par Judilibre, avec leur nom en clair. Reprend
+#: la table du CLI historique (``skill/scripts/legifrance.py``) pour que les
+#: deux voies parlent le même langage. L'API connaît aussi ``cph`` (conseils de
+#: prud'hommes) : l'ajouter ici et dans le type de l'outil suffirait à l'ouvrir.
+JURISDICTIONS: dict[str, str] = {
+    "cc": "Cour de cassation",
+    "ca": "Cour d'appel",
+    "tj": "Tribunal judiciaire",
+    "tcom": "Tribunal de commerce",
+}
+#: Tri exposé par l'outil → couple (``sort``, ``order``) réellement compris par
+#: ``/search``. « relevance » reproduit exactement l'ancien comportement figé
+#: (``score``, et non le défaut ``scorepub`` de l'API). Source : spécification
+#: OpenAPI JUDILIBRE-public, dépôt Cour-de-cassation/judilibre-search.
+SORT_MODES: dict[str, tuple[str, str]] = {
+    "relevance": ("score", "desc"),
+    "date": ("date", "desc"),
+}
 _HTML_TAG = re.compile(r"<[^>]+>")
 _ARTICLE_QUERY = re.compile(
     r"\b(?:article|art\.?)\s+([LRDA]?\.?\s*\d[\w.-]*)",
@@ -38,6 +56,45 @@ def _clean_text(value: Any) -> str:
         return ""
     text = unescape(_HTML_TAG.sub(" ", str(value)))
     return " ".join(text.split())
+
+
+def _validate_jurisdiction(value: str | None) -> str | None:
+    """Vérifie le code de juridiction et le normalise, ou refuse explicitement.
+
+    Judilibre n'accepte que des codes courts. Les transmettre sans contrôle
+    faisait remonter un ``HTTP 400`` opaque dès qu'un appelant écrivait le nom
+    de la juridiction en clair. Le refus se fait donc ici, avec la liste des
+    valeurs attendues et leur signification.
+
+    Aucune correspondance approchée n'est tentée depuis un nom en clair : le
+    schéma de l'outil MCP contraint déjà l'appelant à l'énumération, et deviner
+    à partir d'une graphie libre introduirait une ambiguïté silencieuse là où
+    un refus lisible suffit.
+    """
+    if value is None:
+        return None
+    code = value.strip().lower()
+    if not code:
+        return None
+    if code not in JURISDICTIONS:
+        attendus = ", ".join(f"{c} ({nom})" for c, nom in JURISDICTIONS.items())
+        raise LegifranceError(
+            f"Juridiction inconnue : {value!r}. Valeurs acceptées : {attendus}.",
+            exit_code=2,
+        )
+    return code
+
+
+def _judilibre_sort(value: str) -> tuple[str, str]:
+    """Traduit le tri exposé par l'outil en paramètres Judilibre."""
+    mode = (value or "").strip().lower()
+    if mode not in SORT_MODES:
+        attendus = ", ".join(SORT_MODES)
+        raise LegifranceError(
+            f"Tri inconnu : {value!r}. Valeurs acceptées : {attendus}.",
+            exit_code=2,
+        )
+    return SORT_MODES[mode]
 
 
 def _suppressed_decision_ids() -> frozenset[str]:
@@ -287,8 +344,13 @@ def search_case_law(
     date_start: str | None = None,
     date_end: str | None = None,
     limit: int = 10,
+    sort: str = "relevance",
 ) -> dict[str, Any]:
-    """Recherche la jurisprudence judiciaire dans Judilibre."""
+    """Recherche la jurisprudence judiciaire dans Judilibre.
+
+    ``sort`` est ajouté en dernier, avec le mode qui reproduit le tri
+    historique : les appels positionnels existants gardent leur comportement.
+    """
     query = query.strip()
     if not query:
         raise LegifranceError("La requête de jurisprudence est obligatoire.", exit_code=2)
@@ -296,18 +358,20 @@ def search_case_law(
         _iso_date(date_start)
     if date_end:
         _iso_date(date_end)
+    jurisdiction_code = _validate_jurisdiction(jurisdiction)
+    sort_field, sort_order = _judilibre_sort(sort)
     safe_limit = max(1, min(int(limit), 50))
     payload = judilibre_get(
         "/search",
         {
             "query": query,
-            "jurisdiction": jurisdiction,
+            "jurisdiction": jurisdiction_code,
             "date_start": date_start,
             "date_end": date_end,
             "page": 0,
             "page_size": safe_limit,
-            "sort": "score",
-            "order": "desc",
+            "sort": sort_field,
+            "order": sort_order,
         },
     )
     results: list[dict[str, Any]] = []

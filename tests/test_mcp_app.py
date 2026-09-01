@@ -29,6 +29,21 @@ from mcp_server.runtime import (  # noqa: E402
 )
 
 
+def _schema_enum(node: dict) -> list[str]:
+    """Relève l'énumération d'un champ, facultatif ou non.
+
+    Un paramètre ``Literal[...] | None`` est publié dans un ``anyOf`` où seule
+    une branche porte l'énumération ; un paramètre obligatoire la porte à plat.
+    Les deux formes doivent satisfaire le même contrôle.
+    """
+    if "enum" in node:
+        return list(node["enum"])
+    for branch in node.get("anyOf", []):
+        if "enum" in branch:
+            return list(branch["enum"])
+    raise AssertionError(f"aucune énumération publiée dans {node!r}")
+
+
 class LegalToolsTests(unittest.TestCase):
     @mock.patch("droit_francais.tools.get_token", return_value="token")
     @mock.patch("droit_francais.tools.api_call")
@@ -137,6 +152,52 @@ class LegalToolsTests(unittest.TestCase):
         )
         self.assertEqual("untrusted_source_data", decision["metadata"]["content_trust"])
         self.assertEqual("https://www.courdecassation.fr/decision/abc123", decision["url"])
+
+    @mock.patch("droit_francais.tools.judilibre_get")
+    def test_case_law_search_refuses_a_jurisdiction_name(self, judilibre_get):
+        # Le nom en clair produisait un HTTP 400 opaque venu de Judilibre.
+        with self.assertRaises(LegifranceError) as caught:
+            legal_tools.search_case_law("responsabilité", jurisdiction="Cour de cassation")
+        message = str(caught.exception)
+        self.assertIn("cc", message)
+        self.assertIn("Cour de cassation", message)
+        judilibre_get.assert_not_called()
+
+    @mock.patch("droit_francais.tools.judilibre_get")
+    def test_case_law_search_normalises_the_jurisdiction_code(self, judilibre_get):
+        judilibre_get.return_value = {"total": 0, "results": []}
+        legal_tools.search_case_law("responsabilité", jurisdiction="  CC ")
+        self.assertEqual("cc", judilibre_get.call_args.args[1]["jurisdiction"])
+
+    @mock.patch("droit_francais.tools.judilibre_get")
+    def test_case_law_search_keeps_the_historic_sort_by_default(self, judilibre_get):
+        judilibre_get.return_value = {"total": 0, "results": []}
+        legal_tools.search_case_law("responsabilité")
+        params = judilibre_get.call_args.args[1]
+        self.assertEqual("score", params["sort"])
+        self.assertEqual("desc", params["order"])
+
+    @mock.patch("droit_francais.tools.judilibre_get")
+    def test_case_law_search_maps_the_date_sort(self, judilibre_get):
+        judilibre_get.return_value = {"total": 0, "results": []}
+        legal_tools.search_case_law("responsabilité", sort="date")
+        params = judilibre_get.call_args.args[1]
+        self.assertEqual("date", params["sort"])
+        self.assertEqual("desc", params["order"])
+
+    @mock.patch("droit_francais.tools.judilibre_get")
+    def test_case_law_search_refuses_an_unknown_sort(self, judilibre_get):
+        with self.assertRaises(LegifranceError):
+            legal_tools.search_case_law("responsabilité", sort="popularité")
+        judilibre_get.assert_not_called()
+
+    @mock.patch("droit_francais.tools.search_case_law")
+    def test_standard_search_leaves_case_law_defaults_untouched(self, search_case_law):
+        # Garde-fou : le routeur générique ne doit jamais imposer de juridiction
+        # ni de tri. Une dérive des défauts se verrait ici.
+        search_case_law.return_value = {"results": []}
+        legal_tools.search("responsabilité contractuelle")
+        search_case_law.assert_called_once_with("responsabilité contractuelle")
 
     @mock.patch("droit_francais.tools.judilibre_get")
     def test_temporarily_suppressed_decision_is_never_redistributed(self, judilibre_get):
@@ -322,6 +383,32 @@ class McpProtocolTests(unittest.TestCase):
                             for tool in listed.tools
                         )
                     )
+                    case_law = next(
+                        tool for tool in listed.tools if tool.name == "search_case_law"
+                    )
+                    schema = getattr(
+                        case_law, "inputSchema", getattr(case_law, "input_schema", None)
+                    )
+                    properties = schema["properties"]
+                    self.assertEqual(
+                        sorted(legal_tools.JURISDICTIONS),
+                        sorted(_schema_enum(properties["jurisdiction"])),
+                    )
+                    self.assertEqual(
+                        sorted(legal_tools.SORT_MODES),
+                        sorted(_schema_enum(properties["sort"])),
+                    )
+                    refused = await session.call_tool(
+                        "search_case_law",
+                        {"query": "responsabilité", "jurisdiction": "Cour de cassation"},
+                    )
+                    # Le SDK rejette sur le schéma avant d'atteindre l'outil :
+                    # le message vient de pydantic, en anglais. On n'assertionne
+                    # donc que l'échec et la présence des codes attendus.
+                    self.assertTrue(
+                        getattr(refused, "isError", getattr(refused, "is_error", False))
+                    )
+                    self.assertIn("cc", refused.content[0].text)
                     result = await session.call_tool("search", {"query": ""})
                     self.assertTrue(
                         getattr(result, "isError", getattr(result, "is_error", False))

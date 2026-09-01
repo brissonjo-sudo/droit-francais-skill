@@ -20,7 +20,7 @@ distant fictif n'est placé dans le dépôt.
 | `fetch(id)` | Légifrance ou Judilibre | Lit un résultat renvoyé par `search` |
 | `search_articles(number, code?, date?, limit?)` | Légifrance | Recherche ciblée d'un article applicable à une date |
 | `get_article(id, date?)` | Légifrance | Lit une version `LEGIARTI` et son statut |
-| `search_case_law(query, jurisdiction?, date_start?, date_end?, limit?)` | Judilibre | Recherche la jurisprudence judiciaire |
+| `search_case_law(query, jurisdiction?, date_start?, date_end?, limit?, sort?)` | Judilibre | Recherche la jurisprudence judiciaire. `jurisdiction` ∈ `cc`, `ca`, `tj`, `tcom` ; `sort` ∈ `relevance` (défaut), `date` |
 | `get_decision(id)` | Judilibre | Lit le texte intégral et les métadonnées d'une décision |
 
 Tous les outils sont annotés en lecture seule. Les outils de lecture indiquent
