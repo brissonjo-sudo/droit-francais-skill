@@ -2,7 +2,34 @@
 
 Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/).
 
+Deux séries de versions cohabitent depuis la distribution en plugin : le
+**skill** (méthodologie, série 3.x) et le **plugin** (empaquetage OpenAI et
+Claude Code, série 0.x). Les tags Git portent désormais le préfixe de leur
+série — `skill-v*` et `plugin-v*`. Les tags historiques non préfixés
+(`v2.0.0`, `v2.4.0`, `v3.0.0`) désignent des versions du skill et sont
+conservés tels quels pour ne pas casser les liens publiés.
+
 ---
+
+### [plugin-v0.7.0] — 2026-09-01
+
+Première release de la série *plugin*, taguée séparément du skill. Le noyau
+méthodologique (v3.2.0) est inchangé.
+
+#### Ajouté
+- **`.claude-plugin/plugin.json`** : manifeste plugin Claude Code, aligné sur
+  le manifeste OpenAI (nom, version, licence) ; serveur MCP déclaré en ligne
+  avec `${CLAUDE_PLUGIN_ROOT}` pour des chemins portables après installation.
+- **`.claude-plugin/marketplace.json`** : le dépôt sert de marketplace
+  Claude Code (`claude plugin marketplace add brissonjo-sudo/droit-francais-skill`
+  puis `claude plugin install droit-francais-skill@droit-francais`).
+- **README** : section « Comme plugin Claude Code », prérequis (Python avec
+  `requirements-mcp.txt`, identifiants PISTE hors du paquet) et arborescence.
+- **Convention de tags préfixés** `skill-v*` / `plugin-v*` (voir en-tête).
+
+#### Conservé
+- Skill v3.2.0, plugin OpenAI `.codex-plugin/plugin.json` et serveur MCP
+  inchangés : cette release ne modifie que la distribution.
 
 ### [3.2.0] — 2026-08-27
 
