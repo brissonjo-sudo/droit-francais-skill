@@ -12,8 +12,9 @@ modifiés par aucune de ces phases.
 | 4 | Retirer les artefacts de développement | `chore/remove-patch-artifacts` | Terminée (PR #15 fusionnée) |
 | 5 | Validation OAuth et MCP de bout en bout | `test/oauth-end-to-end` | **Terminée** — connecteur éprouvé dans ChatGPT le 31/08/2026 |
 | 6 | Sécurité et conformité | `docs/conformite` | Terminée — voir [conformite.md](conformite.md) |
-| 7 | Dossier de soumission | `release/chatgpt-submission` | Dépôt conforme — reste trois pièces humaines |
-| 8 | Publication progressive | `ops/exploitation-surveillance` | Outillage livré — observation et pièces humaines à mener |
+| 7 | Dossier de soumission | `release/chatgpt-submission` | Dépôt conforme — reste les pièces humaines ([pieces-humaines.md](pieces-humaines.md)) |
+| 8 | Publication progressive | `ops/exploitation-surveillance` | Surveillance automatique en place le 1/9/2026 — observation de sept jours en cours |
+| 9 | Durcissement post-audit | une branche par issue | En cours — voir « Suite du 1er septembre 2026 » |
 
 ---
 
@@ -349,12 +350,18 @@ temporaire à placer dans la variable Render `OPENAI_APPS_CHALLENGE`, puis à
 retirer aussitôt après validation. Le serveur expose déjà la route
 `/.well-known/openai-apps-challenge`.
 
-### Point ouvert avant soumission
+### Point tranché le 1er septembre 2026 — portées
 
-`MCP_OAUTH_REQUIRED_SCOPES=-` reste actif : `scopes_supported` est vide en
-production. C'est documenté comme configuration de compatibilité
-([conformite.md](conformite.md) §5) et réversible par un simple changement de
-variable. À trancher avant le dépôt du dossier.
+`MCP_OAUTH_REQUIRED_SCOPES=-` **reste en place**, et ce n'est plus un point
+ouvert. Le SDK couple annonce et exigence de portée ; une portée d'API
+personnalisée n'apparaît jamais dans le document de découverte OIDC de
+l'émetteur ; réactiver le contrôle répondrait donc `403` à tout le monde. Le
+critère de retour est mesurable, pas discrétionnaire : le journal métier porte
+`scopes=` sur chaque appel, et le contrôle sera réactivé le jour où les appels
+réels venus de ChatGPT montreront `legal:read`. Argumentaire complet dans
+[exploitation.md](exploitation.md) (incident n° 4), [conformite.md](conformite.md)
+§ 5, et [chatgpt-submission.md](chatgpt-submission.md) (« Portées OAuth :
+exception argumentée », à porter à la connaissance du relecteur).
 
 ---
 
@@ -398,14 +405,44 @@ automatisée.
 
 ### Reste à faire
 
-| Condition | État |
+| Condition | État au 1er septembre 2026 |
 |---|---|
 | Parcours OAuth éprouvé dans ChatGPT | ✅ |
 | Dossier conforme au schéma officiel | ✅ |
-| Instance sans mise en veille | ⚠️ à trancher |
-| Essai avec un second compte | ☐ |
-| Période d'observation sans défaut | ☐ |
-| Identité vérifiée, identifiants de démo, vidéo | ☐ humain |
+| Instance sans mise en veille | Tranché : plan gratuit conservé, instance maintenue hors veille par la surveillance toutes les 10 min ; à revoir si la série montre des réveils |
+| Essai avec un second compte | ☐ — [pieces-humaines.md](pieces-humaines.md) § 5 |
+| Période d'observation sans défaut | ⏳ sept jours à compter de l'activation de `surveillance.yml` |
+| Identité vérifiée, identifiants de démo, vidéo | ☐ humain — [pieces-humaines.md](pieces-humaines.md) § 1, 3, 7 |
 
 La publication n'est pas une étape de code : elle attend une période
-d'observation stable et trois pièces que le dépôt ne peut pas porter.
+d'observation stable et des pièces que le dépôt ne peut pas porter.
+
+---
+
+## Suite du 1er septembre 2026 — durcissement et pièces humaines
+
+Un audit externe du 1er septembre a ouvert quatre issues de code, qui
+s'ajoutent à deux issues laissées par les revues de merge. Décisions prises
+le même jour, avec Jo :
+
+* **Mise en veille** — plan Render gratuit conservé, instance maintenue hors
+  veille par la sonde de surveillance (toutes les dix minutes). Mesure du jour
+  qui pesait dans la balance : 32,6 s au réveil, au-delà du seuil d'alerte.
+* **Portées** — `-` conservé et tranché (voir phase 7).
+* **Instructions MCP** — texte de 218 caractères validé tel quel.
+* **Observation** — sept jours par workflow GitHub Actions, journal sur la
+  branche `surveillance`, verdict par `summarize_surveillance.py --exiger-sans-defaut`.
+
+| Sujet | PR | État |
+|---|---|---|
+| #33 — retrait d'urgence Judilibre visible et normalisé | #46 | Livrée ; exercice du runbook (E10) à jouer sur Render |
+| #39 — cache de jeton commun sensible à `expires_in`, un seul renouvellement sur 401 | #47 | Livrée |
+| #28 — instructions MCP servies au client | #48 | Livrée ; actualiser le connecteur dans ChatGPT après déploiement |
+| Surveillance planifiée et maintien hors veille | #49 | Livrée ; déclencher une fois à la main après fusion |
+| #40 — reprise bornée sur erreur transitoire, message public sans détail amont | à venir | Après fusion de #46 et #47, qui touchent les mêmes fichiers |
+| #34 — sonde live sur l'image Alpine | — | Routes publiques rejouées le 1/9 sans défaut ; six outils avec jeton : humain, § 4 de [pieces-humaines.md](pieces-humaines.md) |
+| #27 — Auth0, permissions par défaut des applications tierces | — | Humain, § 2 de [pieces-humaines.md](pieces-humaines.md) |
+
+Avant l'envoi du dossier, ces correctifs imposent d'incrémenter la version du
+serveur et des manifestes et de poser un nouveau tag `plugin-v*`
+([pieces-humaines.md](pieces-humaines.md) § 10).

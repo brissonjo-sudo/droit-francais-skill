@@ -186,7 +186,9 @@ Le contrôle n'est pas abandonné. Le journal métier porte les portées reçues
 
 ## Conditions préalables humaines
 
-Avant l'envoi final, le soumissionnaire doit :
+Procédures détaillées, pièce par pièce, dans
+[`pieces-humaines.md`](pieces-humaines.md). Avant l'envoi final, le
+soumissionnaire doit :
 
 - disposer du droit **Apps Management: Write** dans l'organisation OpenAI ;
 - sélectionner une identité individuelle ou commerciale vérifiée ;
@@ -200,12 +202,15 @@ Avant l'envoi final, le soumissionnaire doit :
 
 ## Risque d'exploitation restant
 
-L'instance Render gratuite se met en veille et retarde le premier appel. Le
-seul réveil chronométré à ce jour est de **22,8 s** sur `/health`, contre 0,15
-à 0,60 s à chaud (31/08/2026, voir [`exploitation.md`](exploitation.md),
-incident n° 4). Le protocole fonctionne, mais une instance sans mise en veille
-est recommandée avant une revue publique afin de satisfaire les exigences de
-stabilité et de réactivité.
+L'instance Render gratuite se met en veille et retarde le premier appel :
+**22,8 s** mesurées au réveil le 31 août 2026, **32,6 s** le 1er septembre,
+contre 0,15 à 0,60 s à chaud (voir [`exploitation.md`](exploitation.md),
+incident n° 2). Décision du 1er septembre 2026 : le plan gratuit est conservé
+et l'instance est maintenue hors veille par la surveillance automatique, qui
+l'appelle toutes les dix minutes. C'est un contournement : si la série de
+mesures montre encore des réveils, passer à une instance sans mise en veille
+avant la revue — un relecteur qui attend trente secondes conclut que le
+service ne fonctionne pas.
 
 ## Documentation officielle OpenAI
 

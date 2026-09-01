@@ -179,7 +179,9 @@ rattacher.
 - alignement du moyen de contact privé avec l'identité publiée ;
 - validation finale et téléversement du logo `assets/logo.png` ;
 - vérification du domaine dans le portail OpenAI ;
-- passage recommandé à une instance Render sans mise en veille.
+- surveillance de l'instance : plan gratuit conservé le 1er septembre 2026,
+  maintenue hors veille par `surveillance.yml` — voir [exploitation.md](exploitation.md) ;
+  passer à une instance sans mise en veille si la série montre des réveils.
 
 Les descriptions, les politiques publiques, l'URL MCP et les cinq cas de test
 positifs et trois négatifs sont préparés dans
