@@ -163,9 +163,10 @@ et chaque PR par `.github/workflows/ci.yml`, aux côtés des sondes HTTP
 le dépôt de se contredire lui-même.
 
 ```bash
-python tests/check_links.py      # liens Markdown relatifs
-python tests/check_commands.py   # sous-commandes doc ↔ CLI
-python tests/check_plugin.py     # manifeste et adaptateur plugin
+python tests/check_links.py         # liens Markdown relatifs
+python tests/check_commands.py      # sous-commandes doc ↔ CLI
+python tests/check_affirmations.py  # affirmations de la doc ↔ code
+python tests/check_plugin.py        # manifeste et adaptateur plugin
 ```
 
 **`check_links.py`** — vérifie que chaque lien relatif Markdown (`[libellé]`
@@ -182,6 +183,23 @@ de code (blocs clôturés et spans `` `…` ``), la prose étant hors champ.
 
 Exclusions : `vault/` (notes historiques) et `skill/CHANGELOG.md` (journal
 immuable, qui cite légitimement des commandes retirées depuis).
+
+**`check_affirmations.py`** — même principe que `check_commands.py`, appliqué
+aux affirmations chiffrées de la prose. Il confronte au code, qui fait foi :
+les versions de plugin citées (`v0.x.y`), les valeurs d'annotations d'outils
+citées (`openWorldHint`, `readOnlyHint`, `destructiveHint`) et les variables
+d'environnement `MCP_*` mentionnées. Il vérifie aussi que le dossier de
+soumission annonce les mêmes annotations que le serveur.
+
+Il vise une classe d'erreur constatée trois fois lors de l'audit du 1er
+septembre 2026 : *un document affirme une propriété que le code contredit*,
+chaque affirmation restant plausible isolément faute de recoupement. Le
+contrôle se déclenche dans les deux sens — documentation périmée comme dérive
+du serveur.
+
+Exclusion : `docs/roadmap-chatgpt-plugin.md`, journal daté qui doit pouvoir
+citer une valeur d'époque. Une entrée devenue fausse y reçoit une mention de
+péremption, à la main — même logique que `skill/CHANGELOG.md` ci-dessus.
 
 **`check_plugin.py`** — vérifie le manifeste, son identité, son interface, le
 point de découverte `skills/recherche-juridique/` et la présence intacte du
