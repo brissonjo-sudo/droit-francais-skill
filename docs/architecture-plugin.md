@@ -48,6 +48,9 @@ La méthode juridique, l'interface du CLI et les variables d'environnement exist
 
 ```text
 droit-francais-skill/
+├── .claude-plugin/
+│   ├── plugin.json                 # manifeste Claude Code (MCP via ${CLAUDE_PLUGIN_ROOT})
+│   └── marketplace.json            # le dépôt sert de marketplace Claude Code
 ├── .codex-plugin/
 │   └── plugin.json                 # identité et capacités réellement livrées
 ├── skills/
@@ -146,6 +149,30 @@ de distribution de l'étape 4 : aucune URL distante n'est inventée dans le dép
   l'identité OpenAI vérifiée.
 - Tester ensuite l'installation, la mise à jour et la reprise dans une nouvelle
   conversation ChatGPT.
+
+#### Distribution Claude Code (implémentée, 1ᵉʳ septembre 2026)
+
+- `.claude-plugin/plugin.json` réutilise les mêmes briques que le plugin
+  OpenAI — adaptateur `skills/recherche-juridique/` et serveur MCP local —
+  sans dupliquer le noyau. Le serveur est déclaré en ligne dans le manifeste
+  avec `${CLAUDE_PLUGIN_ROOT}/mcp_server/server.py` ; ce manifeste prime sur
+  le `.mcp.json` racine copié dans le paquet, vérifié par installation locale
+  réelle (un seul serveur enregistré, connecté).
+- `.claude-plugin/marketplace.json` (source `./`) fait du dépôt son propre
+  marketplace : l'installation copie le dépôt entier, donc l'adaptateur
+  retrouve `skill/SKILL.md`.
+- Validé par `claude plugin validate --strict` et un cycle complet
+  installation/désinstallation ; les secrets restent hors du paquet publié
+  (`.env` ignoré par Git, identifiants PISTE fournis par l'environnement ou
+  `LEGIFRANCE_DOTENV`).
+
+#### Convention de versions et de tags
+
+Deux séries cohabitent : **skill** (3.x, méthodologie) et **plugin** (0.x,
+empaquetage OpenAI et Claude Code). Les tags Git portent le préfixe de leur
+série — `skill-v*` et `plugin-v*` ; première application : `plugin-v0.7.0`.
+Les tags historiques non préfixés (`v2.0.0`, `v2.4.0`, `v3.0.0`) désignent
+des versions du skill et sont conservés tels quels.
 
 ## Invariants de non-régression
 
