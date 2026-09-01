@@ -240,11 +240,16 @@ C'est cet en-tête qui déclenche la découverte automatique par ChatGPT.
 * `aud` contenant l'audience configurée — un jeton émis pour une autre API est
   refusé, ce qui bloque la réutilisation d'un jeton dérobé ailleurs ;
 * `exp` et `nbf` contrôlés, avec 30 secondes de tolérance d'horloge ;
-* portées requises vérifiées avant l'exécution de l'outil ;
+* portées requises vérifiées avant l'exécution de l'outil — **contrôle
+  configurable, désactivé en production** : `MCP_OAUTH_REQUIRED_SCOPES=-` y
+  supprime l'exigence de portée, sans jamais rendre le jeton facultatif. Motif
+  et conditions de réactivation : [`conformite.md`](conformite.md) § 5 ;
 * quota glissant par sujet authentifié, distinct du quota global d'instance.
 
-Un échec renvoie `401` sans détail exploitable. Le motif technique est
-journalisé sous forme de nom de classe d'erreur, jamais avec le jeton.
+Un jeton invalide — signature, `iss`, `aud` ou expiration — renvoie `401` sans
+détail exploitable. Un jeton valide auquel manque une portée exigée renvoie
+`403`. Le motif technique est journalisé sous forme de nom de classe d'erreur,
+jamais avec le jeton.
 
 Le journal métier (`droit_francais.mcp`) reste en `INFO` même lorsque l'image
 tourne en `WARNING` : c'est la seule trace permettant de rattacher un appel
