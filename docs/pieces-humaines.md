@@ -2,18 +2,19 @@
 
 Dernière mise à jour : 1er septembre 2026
 
-Tout ce qui reste à faire pour soumettre le plugin et que le dépôt **ne peut
+Inventaire des pièces humaines, restantes ou achevées, que le dépôt **ne peut
 pas porter** : comptes, captures, enregistrement, réglages de consoles. Chaque
 pièce dit pourquoi elle est exigée, comment la produire, et où consigner le
 résultat. Aucun secret ne doit atterrir ici ni dans une issue publique.
 
-Ordre conseillé : commencer par l'identité OpenAI (délai le plus long), puis
-Auth0 (#27 et compte de démonstration), puis les sondes, puis la vidéo.
+Ordre conseillé pour les pièces restantes : commencer par l'identité OpenAI
+(délai le plus long), puis le compte de démonstration Auth0, les sondes et la
+vidéo. Le contrôle Auth0 #27 est terminé.
 
 | # | Pièce | Bloque | Exige |
 |---|---|---|---|
 | 1 | [Identité vérifiée OpenAI Platform](#1-identité-vérifiée-openai-platform) | soumission | compte OpenAI, pièce d'identité |
-| 2 | [Auth0 — borner les permissions tierces (#27)](#2-auth0--borner-les-permissions-tierces-issue-27) | publication | configuration faite ; preuve privée à archiver |
+| 2 | [Auth0 — borner les permissions tierces (#27)](#2-auth0--borner-les-permissions-tierces-issue-27) | publication | ✅ configuration et preuve privée terminées le 1/9/2026 |
 | 3 | [Compte de démonstration sans MFA](#3-compte-de-démonstration-sans-mfa) | soumission | admin Auth0 |
 | 4 | [Sonde des six outils avec jeton (#34)](#4-sonde-des-six-outils-avec-jeton-issue-34) | registre E4 | application M2M Auth0 |
 | 5 | [Essai avec un second compte](#5-essai-avec-un-second-compte) | publication | deux comptes |
@@ -77,9 +78,14 @@ sans accorder `legal:read` ni une permission future.
    `scope: []`, `allow_all_scopes: false`, `subject_type: user` et
    `default_for: third_party_clients`. Un grant par défaut n'a pas de
    `client_id` : les deux champs sont mutuellement exclusifs.
-4. Dans ChatGPT → Paramètres → Plugins → *Droit français*, cliquer
+4. Vérifier séparément **Client Access** dans *Applications → APIs → Droit
+   français MCP → Settings → Application Access Policy → Default Permissions
+   for third-party applications*. La valeur doit être **Unauthorized — No
+   permissions allowed**. Archiver une capture limitée à cette section : le
+   grant utilisateur de l'étape 3 ne prouve pas ce réglage distinct.
+5. Dans ChatGPT → Paramètres → Plugins → *Droit français*, cliquer
    **Actualiser**. Les six outils doivent apparaître.
-5. Tester en mode **Chat** — le mode Work n'expose pas ce plugin — avec
+6. Tester en mode **Chat** — le mode Work n'expose pas ce plugin — avec
    « Recherche l'article L. 2212-2 du Code général des collectivités
    territoriales ». L'appel doit rendre `LEGIARTI000029946370`, statut
    `VIGUEUR`, version du 22 décembre 2014 et le lien Légifrance.
@@ -90,12 +96,14 @@ réussi dans ChatGPT avec `search_articles` puis lecture de la source officielle
 Le passage intermédiaire à « Unauthorized » a supprimé le grant et rendu le
 plugin inaccessible, ce qui confirme le rôle indispensable de « Authorized ».
 
-**Preuve durable restant à archiver** — conserver dans le dossier privé une
-capture expurgée de **Raw Data** ou l'export JSON de la Management API, avec la
-date, le locataire, l'audience et les quatre champs attendus. Masquer jeton,
-adresse IP, identité de l'administrateur et tout identifiant client. Reporter
-seulement la date et l'emplacement privé dans la checklist ; ne jamais verser
-l'artefact au dépôt.
+**Preuve durable archivée le 1er septembre 2026** — deux pièces sont
+conservées hors dépôt dans le dossier privé : le grant expurgé
+`Auth0/auth0-dcr-client-grant-2026-09-01.redacted.json` et la capture limitée
+aux réglages `Auth0/auth0-third-party-defaults-2026-09-01.png`. La première
+porte la date, le locataire, l'audience et les quatre champs attendus du grant ;
+la seconde montre séparément `Client Access: Unauthorized`. Jeton, adresse IP,
+identité de l'administrateur, identifiants client et de corrélation en sont
+exclus. Ces artefacts ne doivent jamais être versés au dépôt.
 
 ## 3. Compte de démonstration sans MFA
 
