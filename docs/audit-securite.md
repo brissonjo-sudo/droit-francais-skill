@@ -80,13 +80,13 @@ Statuts : `PROUVÉ`, `À REJOUER`, `ACTION HUMAINE`, `BLOQUANT`, `ACCEPTÉ`.
 | E1 | CI métadonnées OAuth et refus anonyme | PROUVÉ | PR #17, tests `check_oauth_metadata.py` | mainteneur | 31/08/2026 |
 | E2 | Parcours OAuth automatisé serveur | PROUVÉ | PR #18, `test_oauth_end_to_end.py` | mainteneur | 31/08/2026 |
 | E3 | Émetteur de production exact | PROUVÉ techniquement | PR #20 + `--check-issuer`; capture tenant à conserver | mainteneur | 31/08/2026 |
-| E4 | Six outils sur service déployé | PROUVÉ M2M | PR #21, sonde live ; **ne prouve pas** le parcours utilisateur ChatGPT | mainteneur | 31/08/2026 |
+| E4 | Six outils sur service déployé | À REJOUER (image Alpine) | PR #21 établie sur l'image Debian ; routes publiques rejouées sur l'image Alpine le 1/9/2026 sans défaut ; six outils avec jeton : [pieces-humaines.md](pieces-humaines.md) § 4 (issue #34) | mainteneur | 01/09/2026 |
 | E5 | Parcours OAuth utilisateur ChatGPT | ACTION HUMAINE | capture connexion, appel réussi, déconnexion/révocation | mainteneur | — |
 | E6 | CGU Légifrance 2022 intégrales | BLOQUANT | PDF exporté du compte PISTE + SHA-256 + date + diff | titulaire PISTE | — |
 | E7 | CGU Judilibre 06/01/2022 | PROUVÉ pour le texte public | URL officielle + empreinte archivée lors de l'audit | mainteneur | 31/08/2026 |
-| E8 | Paramètres tenant Auth0 | ACTION HUMAINE | checklist `auth0-security-checklist.md` signée/capturée | admin Auth0 | — |
+| E8 | Paramètres tenant Auth0 | ACTION HUMAINE (partiel) | `auth0-security-checklist.md` : 3 lignes prouvées et 6 partielles depuis le code et le document de découverte (1/9/2026) ; captures du tableau de bord à archiver | admin Auth0 | 01/09/2026 |
 | E9 | Quotas réels et nombre de réplicas | ACTION HUMAINE | capture PISTE + configuration Render | titulaire PISTE | — |
-| E10 | Retrait d'urgence Judilibre | À REJOUER | test unitaire + exercice du runbook | mainteneur | 31/08/2026 |
+| E10 | Retrait d'urgence Judilibre | À REJOUER | tests unitaires PROUVÉS (PR #46 : casse, liste malformée refusée, nombre journalisé) ; exercice chronométré du runbook sur Render : [pieces-humaines.md](pieces-humaines.md) § 6 | mainteneur | 01/09/2026 |
 | E11 | CVE système sans correctif éditeur | BLOQUANT | rapport Trivy CI + analyse d'exploitabilité et acceptation datée | mainteneur sécurité | à chaque build |
 
 ## 5. Programme de contrôles
