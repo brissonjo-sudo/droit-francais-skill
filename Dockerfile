@@ -21,7 +21,14 @@ RUN apk upgrade --no-cache
 RUN addgroup -S app && adduser -S -G app app
 
 COPY requirements-mcp.txt ./
-RUN python -m pip install --no-cache-dir --requirement requirements-mcp.txt
+# pip et setuptools ne servent qu'à cette étape : l'image lancée n'exécute que
+# `python mcp_server/server.py`, jamais pip. Les laisser en place laisse dans
+# l'image un outillage que Trivy analyse — pip embarque ses propres dépendances
+# vendorées — pour du code qui n'est jamais sur le chemin d'exécution. Les
+# retirer supprime cette surface plutôt que d'avoir à en suivre les CVE. Pour
+# déboguer dans le conteneur, reconstruire sans cette désinstallation.
+RUN python -m pip install --no-cache-dir --requirement requirements-mcp.txt \
+    && python -m pip uninstall --yes pip setuptools
 
 COPY mcp_server/ ./mcp_server/
 COPY skill/scripts/ ./skill/scripts/
