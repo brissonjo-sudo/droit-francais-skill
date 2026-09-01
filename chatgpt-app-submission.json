@@ -12,72 +12,72 @@
     "search": {
       "annotations": {
         "readOnlyHint": true,
-        "openWorldHint": true,
+        "openWorldHint": false,
         "destructiveHint": false
       },
       "justifications": {
         "read_only_justification": "Interroge uniquement des sources juridiques officielles et retourne des résultats sans modifier de donnée.",
-        "open_world_justification": "Interroge des API PISTE externes et consomme leurs quotas, sans modifier les données consultées.",
+        "open_world_justification": "Ne peut modifier aucun état publiquement visible d'internet : l'outil lit des sources officielles et n'écrit nulle part.",
         "destructive_justification": "Ne supprime, n'écrase et ne révoque aucune donnée ou autorisation."
       }
     },
     "fetch": {
       "annotations": {
         "readOnlyHint": true,
-        "openWorldHint": true,
+        "openWorldHint": false,
         "destructiveHint": false
       },
       "justifications": {
         "read_only_justification": "Lit une source officielle identifiée précédemment et en restitue le texte et les métadonnées.",
-        "open_world_justification": "Lit une ressource sur une API PISTE externe et consomme le quota associé, sans publier ni modifier de contenu.",
+        "open_world_justification": "Ne peut modifier aucun état publiquement visible d'internet : l'outil lit une source officielle et ne publie ni ne modifie aucun contenu.",
         "destructive_justification": "L'opération est une consultation qui ne peut supprimer ou altérer la source."
       }
     },
     "search_articles": {
       "annotations": {
         "readOnlyHint": true,
-        "openWorldHint": true,
+        "openWorldHint": false,
         "destructiveHint": false
       },
       "justifications": {
         "read_only_justification": "Effectue une recherche bornée d'articles dans Légifrance sans écrire dans la source.",
-        "open_world_justification": "Effectue une requête vers l'API Légifrance externe et consomme le quota PISTE du service.",
+        "open_world_justification": "Ne peut modifier aucun état publiquement visible d'internet : l'outil lit la source officielle Légifrance et n'écrit nulle part.",
         "destructive_justification": "Ne réalise aucune suppression, modification ou action irréversible."
       }
     },
     "get_article": {
       "annotations": {
         "readOnlyHint": true,
-        "openWorldHint": true,
+        "openWorldHint": false,
         "destructiveHint": false
       },
       "justifications": {
         "read_only_justification": "Récupère une version d'article Légifrance et ses métadonnées de vigueur en lecture seule.",
-        "open_world_justification": "Récupère un article depuis l'API Légifrance externe et consomme le quota PISTE du service.",
+        "open_world_justification": "Ne peut modifier aucun état publiquement visible d'internet : l'outil lit un article depuis la source officielle Légifrance et n'écrit nulle part.",
         "destructive_justification": "La récupération ne supprime, n'écrase et ne révoque rien."
       }
     },
     "search_case_law": {
       "annotations": {
         "readOnlyHint": true,
-        "openWorldHint": true,
+        "openWorldHint": false,
         "destructiveHint": false
       },
       "justifications": {
         "read_only_justification": "Recherche des décisions judiciaires publiées par Judilibre sans changer la base officielle.",
-        "open_world_justification": "Effectue une recherche sur l'API Judilibre externe et consomme le quota PISTE du service.",
+        "open_world_justification": "Ne peut modifier aucun état publiquement visible d'internet : l'outil lit la source officielle Judilibre et n'écrit nulle part.",
         "destructive_justification": "Ne supprime, ne remplace et n'altère aucune décision ou métadonnée."
       }
     },
     "get_decision": {
       "annotations": {
         "readOnlyHint": true,
-        "openWorldHint": true,
+        "openWorldHint": false,
         "destructiveHint": false
       },
       "justifications": {
         "read_only_justification": "Lit le texte et les métadonnées d'une décision Judilibre existante en lecture seule.",
-        "open_world_justification": "Récupère une décision depuis l'API Judilibre externe et consomme le quota PISTE du service.",
+        "open_world_justification": "Ne peut modifier aucun état publiquement visible d'internet : l'outil lit une décision depuis la source officielle Judilibre et n'écrit nulle part.",
         "destructive_justification": "La lecture d'une décision n'entraîne aucune action irréversible."
       }
     }

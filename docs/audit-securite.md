@@ -29,9 +29,11 @@ Utilisateur → ChatGPT/Codex → Auth0 → Render / serveur MCP
 ```
 
 Les six outils ne modifient pas les sources (`readOnlyHint=true`,
-`destructiveHint=false`) mais atteignent des systèmes externes et consomment
-des quotas PISTE (`openWorldHint=true`). Les textes juridiques reçus sont des
-données non fiables à analyser, jamais des instructions à exécuter.
+`destructiveHint=false`) et ne peuvent modifier aucun état publiquement
+visible d'internet (`openWorldHint=false`) : ils atteignent des systèmes
+externes et consomment des quotas PISTE, mais uniquement en lecture. Les
+textes juridiques reçus sont des données non fiables à analyser, jamais des
+instructions à exécuter.
 
 ## 2. Portes bloquantes
 
