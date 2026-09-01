@@ -334,10 +334,11 @@ def get_article(id: str, date: str | None = None) -> dict[str, Any]:
         "Recherche la jurisprudence judiciaire officielle dans Judilibre, avec "
         "filtres facultatifs de juridiction et de dates ISO. jurisdiction "
         "attend un code : cc (Cour de cassation), ca (Cour d'appel), tj "
-        "(Tribunal judiciaire) ou tcom (Tribunal de commerce) — omettre pour "
-        "ne pas filtrer. sort choisit le classement : relevance pour la "
-        "pertinence (défaut), date pour les décisions les plus récentes "
-        "d'abord."
+        "(Tribunal judiciaire) ou tcom (Tribunal de commerce). Omettre ce "
+        "paramètre ne recherche pas dans toutes les juridictions : Judilibre "
+        "retombe alors sur la Cour de cassation. sort choisit le classement : "
+        "relevance pour la pertinence (défaut), date pour les décisions les "
+        "plus récentes d'abord."
     ),
     annotations=READ_ONLY,
 )

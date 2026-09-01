@@ -27,8 +27,10 @@ JUDILIBRE_SUPPRESSION_ENV = "MCP_JUDILIBRE_SUPPRESSED_IDS"
 UNTRUSTED_CONTENT = "untrusted_source_data"
 #: Codes de juridiction acceptés par Judilibre, avec leur nom en clair. Reprend
 #: la table du CLI historique (``skill/scripts/legifrance.py``) pour que les
-#: deux voies parlent le même langage. L'API connaît aussi ``cph`` (conseils de
-#: prud'hommes) : l'ajouter ici et dans le type de l'outil suffirait à l'ouvrir.
+#: deux voies parlent le même langage. La liste qui fait foi pour ``/search``
+#: est servie par ``GET /taxonomy?id=jurisdiction`` : l'élargir suppose de l'y
+#: vérifier d'abord. En particulier ``cph`` (conseils de prud'hommes) n'est
+#: documenté que pour ``/stats``, jamais pour ``/search``.
 JURISDICTIONS: dict[str, str] = {
     "cc": "Cour de cassation",
     "ca": "Cour d'appel",
