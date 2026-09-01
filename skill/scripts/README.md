@@ -140,6 +140,13 @@ le jeton OAuth en cas de 401/403. Aucune configuration supplémentaire n'est
 nécessaire si l'application est abonnée à Judilibre avec les mêmes
 identifiants que Légifrance.
 
+**Jeton PISTE — un seul cache, sensible à l'expiration.** Le jeton OAuth est
+conservé en mémoire jusqu'à `expires_in` moins une marge de sécurité, et
+partagé par Légifrance et Judilibre : une exécution n'en redemande pas un à
+chaque appel, et une indisponibilité passagère du serveur d'authentification
+ne casse pas une session dont le jeton reste valide. Un `401` amont déclenche
+**un seul** renouvellement puis une seconde tentative — jamais une boucle.
+
 `JUDILIBRE_ENV` permet de viser un environnement différent pour chaque API —
 par exemple Légifrance en production et Judilibre en bac à sable. Laissée
 vide, elle reprend `LEGIFRANCE_ENV`.
