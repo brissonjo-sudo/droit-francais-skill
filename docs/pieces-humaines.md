@@ -13,7 +13,7 @@ Auth0 (#27 et compte de démonstration), puis les sondes, puis la vidéo.
 | # | Pièce | Bloque | Exige |
 |---|---|---|---|
 | 1 | [Identité vérifiée OpenAI Platform](#1-identité-vérifiée-openai-platform) | soumission | compte OpenAI, pièce d'identité |
-| 2 | [Auth0 — refermer les permissions par défaut (#27)](#2-auth0--refermer-les-permissions-par-défaut-issue-27) | publication | admin Auth0 |
+| 2 | [Auth0 — borner les permissions tierces (#27)](#2-auth0--borner-les-permissions-tierces-issue-27) | publication | ✅ fait le 1/9/2026 |
 | 3 | [Compte de démonstration sans MFA](#3-compte-de-démonstration-sans-mfa) | soumission | admin Auth0 |
 | 4 | [Sonde des six outils avec jeton (#34)](#4-sonde-des-six-outils-avec-jeton-issue-34) | registre E4 | application M2M Auth0 |
 | 5 | [Essai avec un second compte](#5-essai-avec-un-second-compte) | publication | deux comptes |
@@ -46,29 +46,42 @@ peut pas être envoyé.
 **Consigner** — la date et le type d'identité dans la feuille de route ; rien
 d'autre.
 
-## 2. Auth0 — refermer les permissions par défaut (issue #27)
+## 2. Auth0 — borner les permissions tierces (issue #27)
 
 **Pourquoi** — pendant le diagnostic des 30–31 août, *Default Permissions for
-third-party applications → User-delegated Access* a été passé de « Unauthorized »
-à « All ». Ce réglage n'a jamais servi : la cause du `403` était ailleurs, et
-la correction retenue est `MCP_OAUTH_REQUIRED_SCOPES=-` côté serveur. Laissé
-à « All », il accorde par défaut toutes les permissions présentes et futures de
-l'API à toute application tierce du locataire — théorique tant que
-l'enregistrement dynamique reste maîtrisé, réel dès qu'il ne l'est plus.
+third-party applications → User-delegated Access* a été passé à « All ». Ce
+réglage accorde toutes les permissions présentes et futures de l'API à toute
+application tierce du locataire. Il est trop large. Le remplacer par
+« Unauthorized » est toutefois incorrect : un client tiers créé par DCR exige
+un *client grant* explicite pour obtenir un jeton destiné à l'API, même lorsque
+le serveur accepte un jeton sans portée particulière. Le réglage minimal est
+donc « Authorized » avec une liste de permissions vide ; il autorise l'audience
+sans accorder `legal:read` ni une permission future.
 
 **Faire**
 
 1. Auth0 → *Applications → APIs → Droit français MCP → Settings*.
 2. Section *Access Settings* (ou *Default Permissions for third-party
-   applications* selon la version du tableau de bord) → **User-delegated
-   Access** : repasser de « All » à **« Unauthorized »**. Enregistrer.
-3. Dans ChatGPT, ouvrir le connecteur *Droit français* et rafraîchir la
-   découverte : les six outils doivent toujours apparaître, et un appel réel
-   (« Recherche l'article L. 2212-2 du Code général des collectivités
-   territoriales ») doit aboutir. L'accès ne dépend plus de la portée.
+   applications* selon la version du tableau de bord) :
+   * **User-delegated Access : `Authorized`** ;
+   * cliquer **None** pour ne sélectionner aucune permission ;
+   * **Client Access : `Unauthorized`** ;
+   * enregistrer.
+3. Vérifier dans le journal Auth0 que le grant créé porte `scope: []`,
+   `allow_all_scopes: false`, `subject_type: user` et
+   `default_for: third_party_clients`.
+4. Dans ChatGPT → Paramètres → Plugins → *Droit français*, cliquer
+   **Actualiser**. Les six outils doivent apparaître.
+5. Tester en mode **Chat** — le mode Work n'expose pas ce plugin — avec
+   « Recherche l'article L. 2212-2 du Code général des collectivités
+   territoriales ». L'appel doit rendre `LEGIARTI000029946370`, statut
+   `VIGUEUR`, version du 22 décembre 2014 et le lien Légifrance.
 
-**Consigner** — fermer l'issue #27 avec la date ; cocher la ligne « DCR » de
-[`auth0-security-checklist.md`](auth0-security-checklist.md).
+**Exécuté le 1er septembre 2026** — configuration minimale enregistrée ; grant
+vérifié dans le journal Auth0 ; six outils actualisés ; appel réel réussi dans
+ChatGPT avec `search_articles` puis lecture de la source officielle. Le passage
+intermédiaire à « Unauthorized » a supprimé le grant et rendu le plugin
+inaccessible, ce qui confirme le rôle indispensable de « Authorized ».
 
 ## 3. Compte de démonstration sans MFA
 
