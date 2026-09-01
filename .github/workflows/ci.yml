@@ -148,6 +148,26 @@ jobs:
       - name: Construire l'image de déploiement
         run: docker build --tag droit-francais-mcp:test .
 
+      - name: Démarrer l'image et interroger /health
+        run: |
+          # L'image porte MCP_ENV=production, qui exige OAuth et refuse de
+          # démarrer sans émetteur. On bascule en development le temps de la
+          # sonde : le but est de prouver que l'environnement Python de l'image
+          # est intact et que le serveur répond, pas de rejouer la production.
+          docker run -d --name mcp-sonde -e MCP_ENV=development -p 8000:8000 droit-francais-mcp:test
+          for _ in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:8000/health; then
+              echo "" && echo "OK : l'image démarre et répond."
+              docker rm -f mcp-sonde >/dev/null
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "L'image n'a pas répondu sur /health :"
+          docker logs mcp-sonde
+          docker rm -f mcp-sonde >/dev/null
+          exit 1
+
       - name: Inventorier toutes les CVE élevées et critiques de l'image
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
