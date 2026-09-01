@@ -1,0 +1,27 @@
+{
+  "name": "droit-francais-skill",
+  "displayName": "Droit français",
+  "version": "0.7.0",
+  "description": "Méthodologie rigoureuse de recherche en droit français, distribuée comme plugin Claude Code : sources primaires Légifrance et Judilibre, vérification de vigueur, citations traçables.",
+  "author": {
+    "name": "brissonjo-sudo",
+    "url": "https://github.com/brissonjo-sudo"
+  },
+  "homepage": "https://github.com/brissonjo-sudo/droit-francais-skill",
+  "repository": "https://github.com/brissonjo-sudo/droit-francais-skill",
+  "license": "CC-BY-SA-4.0",
+  "keywords": [
+    "droit-français",
+    "recherche-juridique",
+    "légifrance",
+    "jurisprudence"
+  ],
+  "mcpServers": {
+    "droit-francais": {
+      "command": "python",
+      "args": [
+        "${CLAUDE_PLUGIN_ROOT}/mcp_server/server.py"
+      ]
+    }
+  }
+}
