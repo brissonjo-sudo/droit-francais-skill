@@ -29,6 +29,11 @@ from mcp_server.runtime import (  # noqa: E402
 )
 
 
+#: Identifiants de décision à la forme canonique Judilibre (24 hexadécimaux).
+A_RETIRER = "5fca896542d4057b05893539"
+VISIBLE = "62aac965470d8205e5d40438"
+
+
 def _schema_enum(node: dict) -> list[str]:
     """Relève l'énumération d'un champ, facultatif ou non.
 
@@ -204,22 +209,78 @@ class LegalToolsTests(unittest.TestCase):
         judilibre_get.return_value = {
             "total": 2,
             "results": [
-                {"id": "a-retirer", "jurisdiction": "cc"},
-                {"id": "visible", "jurisdiction": "cc"},
+                {"id": A_RETIRER, "jurisdiction": "cc"},
+                {"id": VISIBLE, "jurisdiction": "cc"},
             ],
         }
         with mock.patch.dict(
             os.environ,
-            {"MCP_JUDILIBRE_SUPPRESSED_IDS": "a-retirer"},
+            {"MCP_JUDILIBRE_SUPPRESSED_IDS": A_RETIRER},
             clear=False,
         ):
             results = legal_tools.search_case_law("occultation")
-            self.assertEqual(["visible"], [item["id"] for item in results["results"]])
+            self.assertEqual([VISIBLE], [item["id"] for item in results["results"]])
             self.assertEqual(1, results["temporarily_suppressed_results"])
             with self.assertRaises(LegifranceError) as caught:
-                legal_tools.get_decision("a-retirer")
+                legal_tools.get_decision(A_RETIRER)
         self.assertIn("temporairement indisponible", str(caught.exception))
         judilibre_get.assert_called_once()
+
+    @mock.patch("droit_francais.tools.judilibre_get")
+    def test_suppression_ignores_the_case_copied_into_the_variable(self, judilibre_get):
+        """Un identifiant recopié en majuscules doit retirer la décision quand même.
+
+        La comparaison exacte laissait passer une casse différente sans aucun
+        signal : la décision restait servie alors que l'exploitant croyait
+        avoir agi.
+        """
+        judilibre_get.return_value = {
+            "total": 1,
+            "results": [{"id": A_RETIRER, "jurisdiction": "cc"}],
+        }
+        with mock.patch.dict(
+            os.environ,
+            {"MCP_JUDILIBRE_SUPPRESSED_IDS": f" {A_RETIRER.upper()} , "},
+            clear=False,
+        ):
+            results = legal_tools.search_case_law("occultation")
+            self.assertEqual([], results["results"])
+            self.assertEqual(1, results["temporarily_suppressed_results"])
+            with self.assertRaises(LegifranceError):
+                legal_tools.get_decision(A_RETIRER.upper())
+
+    def test_malformed_suppression_list_is_refused_without_echoing_values(self):
+        # Deux identifiants collés par une virgule oubliée : c'est la faute de
+        # frappe la plus probable sous pression, et la plus silencieuse.
+        glued = A_RETIRER + VISIBLE
+        with self.assertRaises(LegifranceError) as caught:
+            legal_tools.parse_suppressed_ids(f"{VISIBLE},{glued},{A_RETIRER}")
+        message = str(caught.exception)
+        self.assertEqual(2, caught.exception.exit_code)
+        self.assertIn("MCP_JUDILIBRE_SUPPRESSED_IDS", message)
+        self.assertIn("n° 2", message)
+        self.assertNotIn(glued, message)
+        self.assertNotIn(A_RETIRER, message)
+        # Une liste vide ou absente reste une liste vide, pas une erreur.
+        self.assertEqual(frozenset(), legal_tools.parse_suppressed_ids(None))
+        self.assertEqual(frozenset(), legal_tools.parse_suppressed_ids(" , "))
+
+    def test_server_logs_the_size_of_the_suppression_list_never_its_content(self):
+        with mock.patch.dict(
+            os.environ,
+            {"MCP_JUDILIBRE_SUPPRESSED_IDS": f"{A_RETIRER},{VISIBLE}"},
+            clear=False,
+        ):
+            with self.assertLogs("droit_francais.mcp", level="INFO") as journal:
+                self.assertEqual(2, mcp_app._load_suppression_list())
+        rendu = " | ".join(journal.output)
+        self.assertIn("judilibre_suppression_list count=2", rendu)
+        self.assertNotIn(A_RETIRER, rendu)
+        with mock.patch.dict(
+            os.environ, {"MCP_JUDILIBRE_SUPPRESSED_IDS": "pas-un-identifiant"}, clear=False
+        ):
+            with self.assertRaises(RuntimeConfigurationError):
+                mcp_app._load_suppression_list()
 
     @mock.patch("droit_francais.tools.judilibre_get")
     def test_upstream_prompt_injection_remains_untrusted_text(self, judilibre_get):
