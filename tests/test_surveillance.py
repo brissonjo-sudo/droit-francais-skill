@@ -2,7 +2,7 @@
 """Tests hors réseau de la sonde de surveillance et du résumé de série.
 
 Ce que ces tests protègent : la distinction entre un **réveil d'instance** et
-une **panne**. Les 1er et 2 septembre 2026, quatre réveils de 32,4 à 32,7 s ont
+une **panne**. Les 1er et 2 septembre 2026, cinq réveils de 32,4 à 32,7 s ont
 été consignés comme « service indisponible en pratique » alors que le service
 répondait en 0,2 s à la requête suivante. Les deux appellent des décisions
 opposées — changer d'hébergement, ou ouvrir un incident — et les confondre
@@ -12,8 +12,10 @@ rendait la période d'observation illisible.
 from __future__ import annotations
 
 import datetime as dt
+import json
 import sys
 import unittest
+import urllib.error
 from pathlib import Path
 from unittest import mock
 
@@ -30,7 +32,7 @@ SANTE = {"version": "0.7.0", "auth": "oauth"}
 
 def _mesures(*couples):
     """Programme les retours successifs de ``_mesurer`` : (code, durée)."""
-    return [(code, duree, dict(SANTE)) for code, duree in couples]
+    return [(code, duree, dict(SANTE), None) for code, duree in couples]
 
 
 class SondeTests(unittest.TestCase):
@@ -76,20 +78,71 @@ class SondeTests(unittest.TestCase):
         self.assertEqual([], rapport["avertissements"])
         self.assertEqual("0.7.0", rapport["version"])
 
+    def test_un_hote_injoignable_est_un_defaut_et_non_un_plantage(self):
+        """Une panne de connexion doit produire une mesure, pas une trace de pile.
+
+        Elle faisait planter la sonde : sortie standard vide, donc aucune
+        ligne au journal, donc l'indisponibilité disparaissait de la série au
+        lieu d'y être la mesure la plus visible.
+        """
+        with mock.patch.object(
+            sonde.urllib.request,
+            "urlopen",
+            side_effect=urllib.error.URLError("nom de domaine introuvable"),
+        ):
+            rapport = sonde.sonder(BASE)
+        self.assertEqual(sonde.CODE_INJOIGNABLE, rapport["health_code"])
+        self.assertEqual(sonde.CODE_INJOIGNABLE, rapport["health_code_chaud"])
+        self.assertFalse(rapport["reveil"])
+        self.assertEqual(2, len(rapport["defauts"]))
+        self.assertIn("/health injoignable : ", rapport["defauts"][0])
+        self.assertIn("nom de domaine introuvable", rapport["defauts"][0])
+        self.assertIn("au second appel", rapport["defauts"][1])
+        # La mesure doit rester sérialisable en une ligne de journal.
+        ligne = json.dumps(rapport, ensure_ascii=False, sort_keys=True)
+        self.assertNotIn("\n", ligne)
+
+    def test_un_delai_depasse_est_capture_comme_une_panne(self):
+        with mock.patch.object(
+            sonde.urllib.request, "urlopen", side_effect=TimeoutError("timed out")
+        ):
+            rapport = sonde.sonder(BASE)
+        self.assertEqual(sonde.CODE_INJOIGNABLE, rapport["health_code"])
+        self.assertTrue(rapport["defauts"])
+
+    def test_un_second_appel_qui_echoue_vite_n_est_jamais_un_reveil(self):
+        """Un refus de connexion revient en quelques millisecondes.
+
+        Sans garde sur le code du second appel, le service le plus franchement
+        mort passerait pour une instance qui vient de se réveiller.
+        """
+        with mock.patch.object(
+            sonde,
+            "_mesurer",
+            side_effect=[
+                (200, 32.4, dict(SANTE), None),
+                (sonde.CODE_INJOIGNABLE, 0.02, None, "connexion refusée"),
+            ],
+        ):
+            rapport = sonde.sonder(BASE)
+        self.assertFalse(rapport["reveil"])
+        self.assertIsNone(rapport["reveil_s"])
+        self.assertTrue(any("injoignable" in d for d in rapport["defauts"]))
+
     def test_un_echec_au_second_appel_est_signale_a_part(self):
         # Le premier appel réussit, le second non : sans lui, une instance qui
         # meurt juste après son réveil passerait pour un simple réveil.
         with mock.patch.object(
             sonde,
             "_mesurer",
-            side_effect=[(200, 32.4, dict(SANTE)), (503, 0.10, None)],
+            side_effect=[(200, 32.4, dict(SANTE), None), (503, 0.10, None, None)],
         ):
             rapport = sonde.sonder(BASE)
         self.assertIn("/health répond 503 au second appel", rapport["defauts"])
 
     def test_la_charge_du_second_appel_est_celle_qui_fait_foi(self):
-        premier = (200, 32.4, {"version": "0.7.0", "auth": "oauth"})
-        second = (200, 0.20, {"version": "0.7.0", "auth": "disabled"})
+        premier = (200, 32.4, {"version": "0.7.0", "auth": "oauth"}, None)
+        second = (200, 0.20, {"version": "0.7.0", "auth": "disabled"}, None)
         with mock.patch.object(sonde, "_mesurer", side_effect=[premier, second]):
             rapport = sonde.sonder(BASE)
         self.assertEqual("disabled", rapport["auth"])
@@ -98,16 +151,16 @@ class SondeTests(unittest.TestCase):
         )
 
     def test_une_premiere_charge_transitoire_ne_cree_pas_de_faux_defaut(self):
-        premier = (200, 32.4, None)
-        second = (200, 0.20, dict(SANTE))
+        premier = (200, 32.4, None, None)
+        second = (200, 0.20, dict(SANTE), None)
         with mock.patch.object(sonde, "_mesurer", side_effect=[premier, second]):
             rapport = sonde.sonder(BASE)
         self.assertEqual([], rapport["defauts"])
         self.assertEqual("oauth", rapport["auth"])
 
     def test_une_charge_chaude_incomplete_est_un_defaut(self):
-        premier = (200, 0.2, dict(SANTE))
-        second = (200, 0.2, None)
+        premier = (200, 0.2, dict(SANTE), None)
+        second = (200, 0.2, None, None)
         with mock.patch.object(sonde, "_mesurer", side_effect=[premier, second]):
             rapport = sonde.sonder(BASE)
         self.assertTrue(any("version absente" in d for d in rapport["defauts"]))
@@ -178,6 +231,27 @@ class ResumeTests(unittest.TestCase):
         # relecteur que le service ne fonctionne pas.
         propre_sauf_reveil = [self._serie()[1], self._serie()[2]]
         _, bloquantes = resume.resumer(propre_sauf_reveil, None)
+        self.assertEqual(1, bloquantes)
+
+    def test_une_mesure_sans_reponse_ne_compte_pas_comme_latence(self):
+        """Un appel qui n'aboutit pas mesure la vitesse d'un refus.
+
+        L'inclure ferait baisser la médiane pendant une panne, c'est-à-dire
+        exactement quand elle doit monter.
+        """
+        panne = {
+            "horodatage": "2026-09-02T19:00:00Z",
+            "health_code": 0,
+            "health_latence_s": 0.02,
+            "health_code_chaud": 0,
+            "health_latence_chaud_s": 0.02,
+            "reveil": False,
+            "defauts": ["/health injoignable : connexion refusée"],
+        }
+        self.assertIsNone(resume._latence_chaud(panne))
+        texte, bloquantes = resume.resumer([panne, self._serie()[2]], None)
+        self.assertIn("Latence `/health` à chaud (1 mesures)", texte)
+        self.assertIn("médiane 0.12 s", texte)
         self.assertEqual(1, bloquantes)
 
     def test_une_serie_saine_ne_bloque_rien(self):

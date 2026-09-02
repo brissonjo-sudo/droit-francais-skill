@@ -26,8 +26,26 @@ class SurveillanceWorkflowTests(unittest.TestCase):
 
     def test_un_defaut_de_sonde_fait_toujours_echouer_le_job(self) -> None:
         texte = WORKFLOW.read_text(encoding="utf-8")
-        self.assertIn("if: steps.sonde.outputs.code != '0'", texte)
+        self.assertRegex(texte, r"steps\.sonde\.outputs\.code != '0'")
         self.assertRegex(texte, r"Signaler le défaut[\s\S]+?exit 1")
+
+    def test_une_mesure_vide_fait_echouer_le_job_sans_le_faire_derailler(self) -> None:
+        """Une sortie de sonde vide doit être signalée, pas silencieusement subie.
+
+        Elle survenait quand une panne de connexion faisait planter la sonde :
+        `git commit` sortait alors en 1 faute d'avoir quelque chose à indexer,
+        et le job mourait à l'étape de journalisation — avant le résumé de
+        série et avant l'étape prévue pour porter le message d'échec.
+        """
+        texte = WORKFLOW.read_text(encoding="utf-8")
+        # L'échec est porté par l'étape dédiée, qui couvre les deux causes.
+        self.assertRegex(
+            texte, r"steps\.sonde\.outputs\.vide == 'true'[\s\S]+?exit 1"
+        )
+        # La journalisation ne peut plus être ce qui arrête le job.
+        self.assertRegex(texte, r"git diff --cached --quiet")
+        # Le résumé de série reste publié même quand la sonde a relevé un défaut.
+        self.assertRegex(texte, r"Résumer la série\n\s+if: always\(\)")
 
 
 if __name__ == "__main__":

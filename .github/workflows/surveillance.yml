@@ -41,7 +41,13 @@ concurrency:
 jobs:
   sonde:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    # La sonde attend au pire 2 × 90 s sur /health, plus environ quatre
+    # requêtes à 15 s pour les métadonnées : près de quatre minutes d'attente
+    # réseau sur un service joignable mais très dégradé, auxquelles s'ajoutent
+    # les deux checkout et l'installation de Python. Un job annulé pour
+    # dépassement ne consigne rien — il perdrait justement la mesure d'une
+    # dégradation réelle. Le budget est donc pris large.
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
@@ -68,25 +74,51 @@ jobs:
           code=$?
           set -e
           echo "code=$code" >> "$GITHUB_OUTPUT"
+          # La sonde ne doit plus jamais rendre une sortie vide : depuis
+          # qu'elle intercepte les pannes de connexion, une indisponibilité
+          # produit une mesure au lieu d'une trace de pile. Le cas est tout de
+          # même signalé, parce qu'il ferait disparaître un incident de la
+          # série sans que rien ne le dise.
+          if [ -s mesure.json ]; then
+            echo "vide=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "vide=true" >> "$GITHUB_OUTPUT"
+            echo "::error::la sonde n'a produit aucune mesure"
+          fi
           cat mesure.json
 
+      # Journaliser d'abord, juger ensuite : cette étape ne doit pas être ce
+      # qui fait échouer le job, sans quoi le résumé de série ne serait jamais
+      # publié et l'échec ne porterait pas son message explicite.
       - name: Consigner la mesure
+        if: steps.sonde.outputs.vide != 'true'
         run: |
           cat mesure.json >> journal/surveillance.jsonl
           cd journal
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add surveillance.jsonl
-          git commit --quiet -m "mesure $(date -u +%Y-%m-%dT%H:%M:%SZ)"
-          # Un run précédent a pu pousser entre notre checkout et maintenant.
-          git pull --rebase --quiet origin surveillance
-          git push --quiet origin HEAD:surveillance
+          # « git commit » sort en 1 quand rien n'est indexé : sans ce garde,
+          # une mesure vide arrêtait le job ici même.
+          if git diff --cached --quiet; then
+            echo "rien à consigner : le journal est inchangé"
+          else
+            git commit --quiet -m "mesure $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            # Un run précédent a pu pousser entre notre checkout et maintenant.
+            git pull --rebase --quiet origin surveillance
+            git push --quiet origin HEAD:surveillance
+          fi
 
       - name: Résumer la série
+        if: always()
         run: python tests/summarize_surveillance.py journal/surveillance.jsonl --jours 7 >> "$GITHUB_STEP_SUMMARY"
 
       - name: Signaler le défaut
-        if: steps.sonde.outputs.code != '0'
+        if: always() && (steps.sonde.outputs.code != '0' || steps.sonde.outputs.vide == 'true')
         run: |
-          echo "La sonde a relevé un défaut (voir la mesure ci-dessus)."
+          if [ "${{ steps.sonde.outputs.vide }}" = "true" ]; then
+            echo "La sonde n'a produit aucune mesure : incident non journalisé."
+          else
+            echo "La sonde a relevé un défaut (voir la mesure ci-dessus)."
+          fi
           exit 1
