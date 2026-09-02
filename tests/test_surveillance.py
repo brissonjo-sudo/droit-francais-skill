@@ -86,6 +86,34 @@ class SondeTests(unittest.TestCase):
             rapport = sonde.sonder(BASE)
         self.assertIn("/health répond 503 au second appel", rapport["defauts"])
 
+    def test_la_charge_du_second_appel_est_celle_qui_fait_foi(self):
+        premier = (200, 32.4, {"version": "0.7.0", "auth": "oauth"})
+        second = (200, 0.20, {"version": "0.7.0", "auth": "disabled"})
+        with mock.patch.object(sonde, "_mesurer", side_effect=[premier, second]):
+            rapport = sonde.sonder(BASE)
+        self.assertEqual("disabled", rapport["auth"])
+        self.assertTrue(
+            any("au second appel" in d and "disabled" in d for d in rapport["defauts"])
+        )
+
+    def test_une_premiere_charge_transitoire_ne_cree_pas_de_faux_defaut(self):
+        premier = (200, 32.4, None)
+        second = (200, 0.20, dict(SANTE))
+        with mock.patch.object(sonde, "_mesurer", side_effect=[premier, second]):
+            rapport = sonde.sonder(BASE)
+        self.assertEqual([], rapport["defauts"])
+        self.assertEqual("oauth", rapport["auth"])
+
+    def test_une_charge_chaude_incomplete_est_un_defaut(self):
+        premier = (200, 0.2, dict(SANTE))
+        second = (200, 0.2, None)
+        with mock.patch.object(sonde, "_mesurer", side_effect=[premier, second]):
+            rapport = sonde.sonder(BASE)
+        self.assertTrue(any("version absente" in d for d in rapport["defauts"]))
+        self.assertTrue(
+            any("authentification au second appel" in d for d in rapport["defauts"])
+        )
+
 
 class ResumeTests(unittest.TestCase):
     def _serie(self):
@@ -134,8 +162,9 @@ class ResumeTests(unittest.TestCase):
         self.assertIn("Réveils d'instance : 1", texte)
         self.assertNotIn("Latence `/health` à chaud", texte)
         self.assertIn("| — | 1 | 32.5 |", texte)
-        # Un défaut consigné plus un réveil grave : les deux comptent.
-        self.assertEqual(2, bloquantes)
+        # L'ancien faux défaut de latence est requalifié, sans double comptage.
+        self.assertNotIn("service indisponible en pratique", texte)
+        self.assertEqual(1, bloquantes)
 
     def test_les_reveils_sont_comptes_et_leur_gravite_dite(self):
         texte, _ = resume.resumer(self._serie(), None)
@@ -155,10 +184,32 @@ class ResumeTests(unittest.TestCase):
         self.assertEqual(0, bloquantes)
         self.assertIn("Réveils d'instance : aucun", texte)
 
+    def test_une_derive_du_p95_a_chaud_bloque_le_verdict(self):
+        serie = [
+            {
+                "horodatage": "2026-09-02T18:00:00Z",
+                "health_latence_s": 0.2,
+                "health_latence_chaud_s": 10.0,
+                "reveil": False,
+                "defauts": [],
+            }
+        ]
+        texte, bloquantes = resume.resumer(serie, None)
+        self.assertEqual(1, bloquantes)
+        self.assertIn("Dérive bloquante", texte)
+
+    def test_requalification_ancienne_conserve_les_autres_defauts(self):
+        ancienne = self._serie()[0]
+        ancienne["defauts"].append("métadonnées OAuth invalides")
+        texte, bloquantes = resume.resumer([ancienne], None)
+        self.assertIn("métadonnées OAuth invalides", texte)
+        self.assertNotIn("service indisponible en pratique", texte)
+        self.assertEqual(2, bloquantes)
+
     def test_le_tableau_par_jour_porte_le_pire_reveil(self):
         texte, _ = resume.resumer(self._serie(), None)
         self.assertIn("| Jour | Mesures | Défauts | p95 à chaud (s) | Réveils | Réveil max (s) |", texte)
-        self.assertIn("| 2026-09-02 | 3 | 1 | 0.21 | 2 | 32.5 |", texte)
+        self.assertIn("| 2026-09-02 | 3 | 0 | 0.21 | 2 | 32.5 |", texte)
 
 
 if __name__ == "__main__":

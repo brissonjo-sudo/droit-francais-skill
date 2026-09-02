@@ -85,26 +85,33 @@ def sonder(base_url: str) -> dict:
     rapport: dict = {"base_url": base_url, "defauts": [], "avertissements": []}
 
     sante = f"{base_url}/health"
-    code, duree, charge = _mesurer(sante)
+    code, duree, _charge = _mesurer(sante)
     rapport["health_code"] = code
     rapport["health_latence_s"] = round(duree, 3)
     if code != 200:
         rapport["defauts"].append(f"/health répond {code}")
-    else:
-        rapport["version"] = (charge or {}).get("version")
-        rapport["auth"] = (charge or {}).get("auth")
-        if rapport["auth"] != "oauth":
-            rapport["defauts"].append(
-                f"authentification en mode {rapport['auth']!r} au lieu de « oauth »"
-            )
 
     # Second appel immédiat : c'est lui qui porte l'état réel du service, la
     # première mesure ayant pu ne mesurer qu'un démarrage d'instance.
-    code_chaud, duree_chaud, _ = _mesurer(sante)
+    code_chaud, duree_chaud, charge_chaud = _mesurer(sante)
     rapport["health_code_chaud"] = code_chaud
     rapport["health_latence_chaud_s"] = round(duree_chaud, 3)
     if code_chaud != 200:
         rapport["defauts"].append(f"/health répond {code_chaud} au second appel")
+    else:
+        # Le second appel décrit l'instance réellement disponible. Valider sa
+        # charge — et non celle du réveil — évite à la fois un faux négatif si
+        # la configuration chaude est mauvaise, et un faux positif si la
+        # première réponse transitoire est incomplète.
+        rapport["version"] = (charge_chaud or {}).get("version")
+        rapport["auth"] = (charge_chaud or {}).get("auth")
+        if not rapport["version"]:
+            rapport["defauts"].append("version absente de /health au second appel")
+        if rapport["auth"] != "oauth":
+            rapport["defauts"].append(
+                "authentification au second appel en mode "
+                f"{rapport['auth']!r} au lieu de « oauth »"
+            )
 
     reveil = duree > SEUIL_REVEIL_S and duree_chaud <= SEUIL_REVEIL_S
     rapport["reveil"] = reveil

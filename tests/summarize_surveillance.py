@@ -37,6 +37,7 @@ if hasattr(sys.stdout, "reconfigure"):
 #: référence à chaud ; au-delà du second, un client MCP a renoncé.
 SEUIL_REVEIL_S = 2.0
 SEUIL_ALERTE_S = 30.0
+SEUIL_DERIVE_P95_S = 2.0
 
 
 def _reveil_s(mesure: dict) -> float | None:
@@ -70,6 +71,24 @@ def _latence_chaud(mesure: dict) -> float | None:
     if isinstance(latence, (int, float)) and _reveil_s(mesure) is None:
         return float(latence)
     return None
+
+
+def _defauts_effectifs(mesure: dict) -> list[str]:
+    """Retire seulement l'ancien faux défaut de latence requalifié en réveil.
+
+    Avant le double appel, une latence lente était toujours enregistrée comme
+    panne. Si cette ancienne mesure est maintenant reconnaissable comme réveil,
+    ce diagnostic historique devient caduc ; tout autre défaut (HTTP, OAuth,
+    charge invalide…) reste bloquant.
+    """
+    defauts = [str(d) for d in (mesure.get("defauts") or [])]
+    if "reveil" in mesure or _reveil_s(mesure) is None:
+        return defauts
+    return [
+        d
+        for d in defauts
+        if not (d.startswith("latence de ") and "service indisponible" in d)
+    ]
 
 
 def lire(source: str) -> list[dict]:
@@ -135,12 +154,11 @@ def centile(valeurs: list[float], fraction: float) -> float:
 
 
 def resumer(mesures: list[dict], jours: int | None) -> tuple[str, int]:
-    """Rend le résumé Markdown et le nombre de mesures bloquantes.
+    """Rend le résumé Markdown et le nombre de conditions bloquantes.
 
-    Est bloquante une mesure en défaut, **et** un réveil d'instance au-delà du
-    seuil d'alerte : le critère de publication écrit dans `exploitation.md`
-    exige les deux, et un réveil de trente secondes suffit à faire conclure à
-    un relecteur que le service ne fonctionne pas.
+    Sont bloquants : au moins un défaut, un réveil d'instance au-delà du seuil
+    d'alerte, ou un p95 à chaud au-delà de la référence. Le résultat ne cherche
+    pas à compter deux fois une même mesure ; le CLI n'utilise que zéro/non-zéro.
     """
     fenetre = f"{jours} derniers jours" if jours else "toute la série"
     if not mesures:
@@ -149,7 +167,7 @@ def resumer(mesures: list[dict], jours: int | None) -> tuple[str, int]:
     # La latence qui décrit le service est celle à chaud : la première mesure
     # peut n'être qu'un démarrage d'instance.
     latences = [v for v in (_latence_chaud(m) for m in mesures) if v is not None]
-    en_defaut = [m for m in mesures if m.get("defauts")]
+    en_defaut = [(m, _defauts_effectifs(m)) for m in mesures if _defauts_effectifs(m)]
     duree_reveils = [d for d in (_reveil_s(m) for m in mesures) if d is not None]
     reveils = len(duree_reveils)
     reveils_graves = [d for d in duree_reveils if d > SEUIL_ALERTE_S]
@@ -169,15 +187,21 @@ def resumer(mesures: list[dict], jours: int | None) -> tuple[str, int]:
         f"- Défauts : **{len(en_defaut)}**"
         + ("" if not en_defaut else " — voir ci-dessous")
     )
+    p95 = centile(latences, 0.95) if latences else None
+    derive_p95 = p95 is not None and p95 > SEUIL_DERIVE_P95_S
     if latences:
         lignes.append(
             f"- Latence `/health` à chaud ({len(latences)} mesures) : "
             f"médiane {centile(latences, 0.5):.2f} s, "
-            f"p95 {centile(latences, 0.95):.2f} s, max {max(latences):.2f} s"
+            f"p95 {p95:.2f} s, max {max(latences):.2f} s"
         )
         lignes.append(
             f"- Indisponibilités à chaud (> {SEUIL_ALERTE_S:g} s) : {indisponibles}"
         )
+        if derive_p95:
+            lignes.append(
+                f"- **Dérive bloquante : p95 à chaud > {SEUIL_DERIVE_P95_S:g} s**"
+            )
     if duree_reveils:
         lignes.append(
             f"- **Réveils d'instance : {reveils}**, de {min(duree_reveils):.1f} à "
@@ -204,17 +228,18 @@ def resumer(mesures: list[dict], jours: int | None) -> tuple[str, int]:
         p95 = f"{centile(lat, 0.95):.2f}" if lat else "—"
         lignes.append(
             f"| {jour} | {len(du_jour)} | "
-            f"{sum(1 for m in du_jour if m.get('defauts'))} | "
+            f"{sum(1 for m in du_jour if _defauts_effectifs(m))} | "
             f"{p95} | {len(eveils)} | {pire} |"
         )
 
     if en_defaut:
         lignes += ["", "### Défauts relevés (les 10 derniers)", ""]
-        for mesure in en_defaut[-10:]:
+        for mesure, defauts in en_defaut[-10:]:
             quand = mesure.get("horodatage", "?")
-            lignes.append(f"- `{quand}` — " + " ; ".join(str(d) for d in mesure["defauts"]))
+            lignes.append(f"- `{quand}` — " + " ; ".join(defauts))
 
-    return "\n".join(lignes) + "\n", len(en_defaut) + len(reveils_graves)
+    conditions_bloquantes = sum((bool(en_defaut), bool(reveils_graves), derive_p95))
+    return "\n".join(lignes) + "\n", conditions_bloquantes
 
 
 def main() -> int:
@@ -227,8 +252,8 @@ def main() -> int:
         "--exiger-sans-defaut",
         action="store_true",
         help=(
-            "Code de sortie 1 si la fenêtre porte un défaut ou un réveil "
-            "au-delà du seuil d'alerte."
+            "Code de sortie 1 si la fenêtre porte un défaut, un réveil "
+            "au-delà du seuil d'alerte ou une dérive du p95 à chaud."
         ),
     )
     args = parser.parse_args()
