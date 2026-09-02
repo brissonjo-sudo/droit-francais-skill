@@ -439,8 +439,8 @@ le même jour, avec Jo :
 | #39 — cache de jeton commun sensible à `expires_in`, un seul renouvellement sur 401 | #47 | Livrée |
 | #28 — instructions MCP servies au client | #48 | Livrée ; actualiser le connecteur dans ChatGPT après déploiement |
 | Surveillance planifiée et maintien hors veille | #49 | Livrée ; déclencher une fois à la main après fusion |
-| #40 — reprise bornée sur erreur transitoire, message public sans détail amont | à venir | Après fusion de #46 et #47, qui touchent les mêmes fichiers |
-| #34 — sonde live sur l'image Alpine | — | Routes publiques rejouées le 1/9 sans défaut ; six outils avec jeton : humain, § 4 de [pieces-humaines.md](pieces-humaines.md) |
+| #40 — reprise bornée sur erreur transitoire, message public sans détail amont | #51 | **Terminée** le 1/9 : reprise bornée et message public expurgé, issue fermée |
+| #34 — sonde live sur l'image Alpine | — | Routes publiques rejouées le 2/9 sans défaut ; six outils avec jeton : humain, § 4 de [pieces-humaines.md](pieces-humaines.md) |
 | #27 — Auth0, permissions par défaut des applications tierces | — | **Terminée** le 1/9 : grant utilisateur `Authorized` sans permission, accès client `Unauthorized` ; six outils et appel Légifrance vérifiés ; preuve JSON expurgée archivée hors dépôt, § 2 de [pieces-humaines.md](pieces-humaines.md) |
 
 Avant l'envoi du dossier, ces correctifs imposent d'incrémenter la version du

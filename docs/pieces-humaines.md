@@ -7,6 +7,9 @@ pas porter** : comptes, captures, enregistrement, réglages de consoles. Chaque
 pièce dit pourquoi elle est exigée, comment la produire, et où consigner le
 résultat. Aucun secret ne doit atterrir ici ni dans une issue publique.
 
+Les critères mesurables, contre-contrôles et états consolidés sont suivis dans
+[`finalisation-checklist.md`](finalisation-checklist.md).
+
 Ordre conseillé pour les pièces restantes : commencer par l'identité OpenAI
 (délai le plus long), puis le compte de démonstration Auth0, les sondes et la
 vidéo. Le contrôle Auth0 #27 est terminé.
@@ -144,10 +147,10 @@ fait aucun appel sortant depuis le conteneur ; or le métier du service est
 l'appel HTTPS sortant. La ligne E4 du registre d'audit a été établie sur
 l'image Debian et ne couvre plus l'image déployée.
 
-**Déjà rejoué le 1er septembre 2026, sans jeton** : métadonnées OAuth
-conformes sur les deux routes, refus anonyme `401` correct, `/health` à
-0,415 s à chaud puis 0,09–0,15 s sur trois appels successifs. Aucun signe de
-résolution dégradée sur les routes publiques.
+**Rejoué le 2 septembre 2026, sans jeton** : métadonnées OAuth conformes sur
+les deux routes, refus anonyme `401` correct, `/health` conforme en 1,399 s,
+version `0.7.0`. La suite locale complète compte 145 tests verts. Aucun signe
+de résolution dégradée sur les routes publiques.
 
 **Reste à faire, avec jeton** — les six outils, dont un appel Légifrance et un
 appel Judilibre réels depuis le conteneur Alpine :
