@@ -47,7 +47,12 @@ ENV_EXAMPLE = ROOT / "skill" / "scripts" / ".env.example"
 #: Journaux datés : ils consignent un état d'époque et doivent pouvoir citer une
 #: valeur périmée. Les y corriger effacerait l'historique au lieu de le tenir.
 #: Toute entrée devenue fausse y porte une mention de péremption, à la main.
-JOURNAUX = {"docs/roadmap-chatgpt-plugin.md"}
+#:
+#: Le CHANGELOG en fait partie depuis la montée en 0.8.0, première montée de
+#: version du plugin : un fichier « Keep a Changelog » n'existe que pour porter
+#: les entrées des versions passées, et leur exiger la version courante rendait
+#: toute montée impossible. Chacune de ses lignes est datée par construction.
+JOURNAUX = {"docs/roadmap-chatgpt-plugin.md", "skill/CHANGELOG.md"}
 
 #: Répertoires sans prose opposable : wikilinks Obsidian, copies de travail.
 EXCLUDE_DIRS = {".git", ".claude", ".venv", "vault", "__pycache__"}

@@ -1,6 +1,6 @@
 {
   "name": "droit-francais-skill",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "Méthodologie rigoureuse de recherche en droit français, distribuée comme plugin OpenAI.",
   "author": {
     "name": "brissonjo-sudo",

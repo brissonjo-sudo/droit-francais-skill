@@ -7,7 +7,7 @@
     "description": "Droit français recherche et lit des articles et décisions dans les sources officielles Légifrance et Judilibre, avec des identifiants, des liens canoniques et des métadonnées de provenance utiles à une citation vérifiable. Méthodologie complète et code source ouverts : github.com/brissonjo-sudo/droit-francais-skill",
     "category": "PRODUCTIVITY"
   },
-  "release_notes": "Première soumission. Serveur MCP en lecture seule exposant six outils sur les sources officielles Légifrance et Judilibre, protégé par OAuth 2.1 avec quota par utilisateur authentifié. Les clés d'accès aux API publiques restent côté serveur et ne sont jamais transmises au client. Le code source de cette version est figé par le tag plugin-v0.7.0 du dépôt GitHub.",
+  "release_notes": "Première soumission. Serveur MCP en lecture seule exposant six outils sur les sources officielles Légifrance et Judilibre, protégé par OAuth 2.1 avec quota par utilisateur authentifié. Les clés d'accès aux API publiques restent côté serveur et ne sont jamais transmises au client. Le code source de cette version est figé par le tag plugin-v0.8.0 du dépôt GitHub. Depuis la 0.7.0 : reprise bornée sur erreur transitoire des sources amont et messages d'erreur sans détail technique, cache de jeton respectant l'expiration, règles de méthode servies au client, et retrait conservatoire de décision vérifiable au démarrage.",
   "tools": {
     "search": {
       "annotations": {

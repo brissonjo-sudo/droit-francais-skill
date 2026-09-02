@@ -11,6 +11,36 @@ conservés tels quels pour ne pas casser les liens publiés.
 
 ---
 
+### [plugin-v0.8.0] — 2026-09-02
+
+Durcissement du serveur MCP après l'audit externe du 1er septembre 2026 et la
+revue de fusion du 2. Le noyau méthodologique (v3.2.0) est inchangé ; seul
+l'empaquetage et le serveur bougent.
+
+#### Ajouté
+- **Reprise bornée sur erreur transitoire** — un `429` ou un `5xx` ponctuel des
+  API amont est rejoué deux fois au plus, avec recul exponentiel et respect de
+  `Retry-After`, sous un budget de 8 s inférieur au délai d'une seule requête.
+  Aucun autre `4xx` n'est rejoué.
+- **Identifiant de corrélation** sur les erreurs amont : le client reçoit un
+  message public stable, le journal porte le détail sous la même référence.
+- **Instructions MCP** servies au client à la connexion : trois règles de
+  méthode — rien de mémoire, vigueur vérifiée, refus explicite.
+- **Surveillance de production** — sonde de disponibilité séparant un réveil
+  d'instance d'une panne, résumé de série avec verdict d'observation, et
+  workflow planifié tenant le registre.
+
+#### Corrigé
+- **Cache de jeton PISTE** commun à Légifrance et Judilibre, respectant
+  `expires_in` avec une marge, et renouvelé **une seule fois** sur `401`. Le
+  jeton Judilibre n'expirait jamais et cassait la voie OAuth jusqu'au
+  redémarrage ; Légifrance en redemandait un à chaque opération.
+- **Détail amont** (URL complète, fragment de réponse) retiré des messages
+  rendus au client et réservé au journal.
+- **Retrait conservatoire Judilibre** : identifiants normalisés, liste
+  malformée refusée au démarrage, nombre d'entrées journalisé. Une valeur mal
+  recopiée était acceptée en silence et la décision restait servie.
+
 ### [plugin-v0.7.0] — 2026-09-01
 
 Première release de la série *plugin*, taguée séparément du skill. Le noyau
