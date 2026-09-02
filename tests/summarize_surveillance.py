@@ -14,9 +14,11 @@ Options :
 * ``--jours N`` ne retient que les mesures des N derniers jours (d'après leur
   horodatage) ;
 * ``--exiger-sans-defaut`` rend un code de sortie 1 si la fenêtre retenue
-  porte au moins un défaut **ou un réveil d'instance au-delà du seuil
-  d'alerte** — c'est le verdict de la période d'observation, et il reprend les
-  deux conditions écrites dans ``docs/exploitation.md``.
+  porte au moins un défaut, **un réveil d'instance au-delà du seuil d'alerte
+  ou un p95 à chaud supérieur à 2 s**, ou si sa couverture est insuffisante —
+  c'est le verdict de la période d'observation, et il reprend les quatre
+  conditions écrites dans
+  ``docs/exploitation.md``.
 
 Sans dépendance externe.
 """
@@ -38,6 +40,7 @@ if hasattr(sys.stdout, "reconfigure"):
 SEUIL_REVEIL_S = 2.0
 SEUIL_ALERTE_S = 30.0
 SEUIL_DERIVE_P95_S = 2.0
+ECART_MAX_COUVERTURE = dt.timedelta(hours=6)
 
 
 def _reveil_s(mesure: dict) -> float | None:
@@ -153,16 +156,58 @@ def centile(valeurs: list[float], fraction: float) -> float:
     return ordonnees[rang]
 
 
+def _defauts_couverture(
+    moments: list[dt.datetime],
+    jours: int | None,
+    maintenant: dt.datetime | None = None,
+) -> list[str]:
+    """Refuse qu'une fenêtre vide ou trouée soit présentée comme observée.
+
+    Le cron GitHub est en meilleur effort. Une tolérance de six heures couvre
+    ses retards mesurés (deux à quatre heures) sans permettre qu'une poignée de
+    mesures fasse artificiellement foi pour sept jours.
+    """
+    if jours is None:
+        return []
+    if not moments:
+        return [f"aucune mesure exploitable sur les {jours} derniers jours"]
+    maintenant = maintenant or dt.datetime.now(dt.timezone.utc)
+    ordonnes = sorted(moments)
+    defauts = []
+    debut_attendu = maintenant - dt.timedelta(days=jours)
+    if ordonnes[0] > debut_attendu + ECART_MAX_COUVERTURE:
+        defauts.append(
+            f"début de fenêtre trop récent ({ordonnes[0]:%Y-%m-%d %H:%M} UTC)"
+        )
+    if maintenant - ordonnes[-1] > ECART_MAX_COUVERTURE:
+        defauts.append(
+            f"dernière mesure trop ancienne ({ordonnes[-1]:%Y-%m-%d %H:%M} UTC)"
+        )
+    for precedent, suivant in zip(ordonnes, ordonnes[1:]):
+        ecart = suivant - precedent
+        if ecart > ECART_MAX_COUVERTURE:
+            defauts.append(
+                f"trou de {ecart.total_seconds() / 3600:.1f} h entre "
+                f"{precedent:%Y-%m-%d %H:%M} et {suivant:%Y-%m-%d %H:%M} UTC"
+            )
+    return defauts
+
+
 def resumer(mesures: list[dict], jours: int | None) -> tuple[str, int]:
     """Rend le résumé Markdown et le nombre de conditions bloquantes.
 
-    Sont bloquants : au moins un défaut, un réveil d'instance au-delà du seuil
-    d'alerte, ou un p95 à chaud au-delà de la référence. Le résultat ne cherche
-    pas à compter deux fois une même mesure ; le CLI n'utilise que zéro/non-zéro.
+    Sont bloquants : une couverture insuffisante, au moins un défaut, un réveil
+    d'instance au-delà du seuil d'alerte, ou un p95 à chaud au-delà de la
+    référence. Le résultat ne cherche pas à compter deux fois une même mesure ;
+    le CLI n'utilise que zéro/non-zéro.
     """
     fenetre = f"{jours} derniers jours" if jours else "toute la série"
     if not mesures:
-        return f"## Surveillance — {fenetre}\n\nAucune mesure.\n", 0
+        couverture = _defauts_couverture([], jours)
+        lignes = [f"## Surveillance — {fenetre}", "", "Aucune mesure."]
+        if couverture:
+            lignes += ["", "- **Couverture insuffisante** : " + couverture[0]]
+        return "\n".join(lignes) + "\n", int(bool(couverture))
 
     # La latence qui décrit le service est celle à chaud : la première mesure
     # peut n'être qu'un démarrage d'instance.
@@ -173,6 +218,7 @@ def resumer(mesures: list[dict], jours: int | None) -> tuple[str, int]:
     reveils_graves = [d for d in duree_reveils if d > SEUIL_ALERTE_S]
     indisponibles = sum(1 for v in latences if v > SEUIL_ALERTE_S)
     moments = [m for m in (_horodatage(x) for x in mesures) if m is not None]
+    defauts_couverture = _defauts_couverture(moments, jours)
     versions = sorted({str(m.get("version")) for m in mesures if m.get("version")})
 
     lignes = [f"## Surveillance — {fenetre}", ""]
@@ -182,6 +228,11 @@ def resumer(mesures: list[dict], jours: int | None) -> tuple[str, int]:
             f"{max(moments):%Y-%m-%d %H:%M} UTC"
         )
     lignes.append(f"- Mesures : {len(mesures)}")
+    if defauts_couverture:
+        lignes.append("- **Couverture : INSUFFISANTE**")
+        lignes.extend(f"  - {d}" for d in defauts_couverture)
+    elif jours is not None:
+        lignes.append("- Couverture : complète (aucun trou supérieur à 6 h)")
     lignes.append(f"- Versions vues : {', '.join(versions) or '?'}")
     lignes.append(
         f"- Défauts : **{len(en_defaut)}**"
@@ -238,7 +289,9 @@ def resumer(mesures: list[dict], jours: int | None) -> tuple[str, int]:
             quand = mesure.get("horodatage", "?")
             lignes.append(f"- `{quand}` — " + " ; ".join(defauts))
 
-    conditions_bloquantes = sum((bool(en_defaut), bool(reveils_graves), derive_p95))
+    conditions_bloquantes = sum(
+        (bool(en_defaut), bool(reveils_graves), derive_p95, bool(defauts_couverture))
+    )
     return "\n".join(lignes) + "\n", conditions_bloquantes
 
 
@@ -252,8 +305,8 @@ def main() -> int:
         "--exiger-sans-defaut",
         action="store_true",
         help=(
-            "Code de sortie 1 si la fenêtre porte un défaut, un réveil "
-            "au-delà du seuil d'alerte ou une dérive du p95 à chaud."
+            "Code de sortie 1 si la couverture est insuffisante ou si la fenêtre "
+            "porte un défaut, un réveil grave ou une dérive du p95 à chaud."
         ),
     )
     args = parser.parse_args()

@@ -153,9 +153,11 @@ python tests/check_service_health.py --json >> surveillance.jsonl
 
 `summarize_surveillance.py` résume une telle série (défauts, latence médiane
 et p95, réveils d'instance, ventilation par jour) ; `--jours N` borne la
-fenêtre, `--exiger-sans-defaut` rend 1 si elle porte un défaut. Le workflow
-`surveillance.yml` alimente le journal toutes les dix minutes sur la branche
-`surveillance` — voir `docs/exploitation.md`.
+fenêtre, `--exiger-sans-defaut` rend 1 si sa couverture est insuffisante ou si
+elle porte un défaut, une dérive du p95 à chaud ou un réveil grave. Le workflow
+`surveillance.yml` alimente le journal une fois par heure sur la branche
+`surveillance` — voir
+`docs/exploitation.md`.
 
 ```bash
 git show origin/surveillance:surveillance.jsonl | python tests/summarize_surveillance.py - --jours 7

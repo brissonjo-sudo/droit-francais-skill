@@ -1,6 +1,6 @@
 # Pièces humaines avant soumission
 
-Dernière mise à jour : 1er septembre 2026
+Dernière mise à jour : 2 septembre 2026
 
 Inventaire des pièces humaines, restantes ou achevées, que le dépôt **ne peut
 pas porter** : comptes, captures, enregistrement, réglages de consoles. Chaque
@@ -293,16 +293,22 @@ Sans ce ping, la période d'observation ne peut pas être propre : le critère
    publique et ne rend que `status`, `version` et le mode d'authentification —
    ni secret, ni donnée personnelle. Le tiers n'apprend donc qu'une URL déjà
    publique et des temps de réponse.
-3. Attendre **24 heures**, puis vérifier que les réveils ont disparu :
+3. Attendre **24 heures**, puis croiser deux preuves :
+
+   * l'historique du service de ping ne montre **aucun échec ni trou supérieur
+     à 10 minutes** sur les 24 heures ; exporter cet historique ou en faire une
+     capture sans donnée de compte ;
+   * le journal GitHub ne montre aucun réveil :
 
    ```bash
    git fetch origin surveillance
    git show origin/surveillance:surveillance.jsonl | python tests/summarize_surveillance.py - --jours 1
    ```
 
-   Attendu : « Réveils d'instance : aucun » et une latence à chaud du même
-   ordre que la référence (0,15 à 0,60 s). Tant que des réveils subsistent,
-   resserrer la cadence à 3 minutes avant de conclure.
+   Attendu : historique externe continu, « Réveils d'instance : aucun » et une
+   latence à chaud du même ordre que la référence (0,15 à 0,60 s). Tant qu'un
+   trou ou un réveil subsiste, resserrer la cadence à 3 minutes avant de
+   conclure.
 4. **Vérifier le quota d'heures d'instance** sur le tableau de bord Render.
    Une instance éveillée en permanence consomme des heures en continu, là où
    une instance endormie les économise. Le plan gratuit borne ce total par
@@ -311,8 +317,8 @@ Sans ce ping, la période d'observation ne peut pas être propre : le critère
    visible qu'un réveil. Si la marge est trop mince, la seule issue propre est
    une instance sans mise en veille.
 
-**Consigner** — le service retenu, la cadence et la date de mise en service
-dans le tableau des conditions de publication de
+**Consigner** — le service retenu, la cadence, la date de mise en service et la
+preuve d'historique continu sur 24 h dans le tableau des conditions de publication de
 [`exploitation.md`](exploitation.md) ; le résultat de la vérification à 24 h
 dans [`finalisation-checklist.md`](finalisation-checklist.md). Ni identifiants,
 ni clé d'API du service de ping dans le dépôt.

@@ -11,6 +11,7 @@ rendait la période d'observation illisible.
 
 from __future__ import annotations
 
+import datetime as dt
 import sys
 import unittest
 from pathlib import Path
@@ -205,6 +206,41 @@ class ResumeTests(unittest.TestCase):
         self.assertIn("métadonnées OAuth invalides", texte)
         self.assertNotIn("service indisponible en pratique", texte)
         self.assertEqual(2, bloquantes)
+
+    def test_une_fenetre_vide_ne_peut_pas_valider_sept_jours(self):
+        texte, bloquantes = resume.resumer([], 7)
+        self.assertEqual(1, bloquantes)
+        self.assertIn("Couverture insuffisante", texte)
+
+    def test_une_mesure_unique_ne_peut_pas_valider_sept_jours(self):
+        maintenant = dt.datetime.now(dt.timezone.utc)
+        mesure = {
+            "horodatage": maintenant.isoformat(),
+            "health_latence_s": 0.2,
+            "health_latence_chaud_s": 0.1,
+            "reveil": False,
+            "defauts": [],
+        }
+        texte, bloquantes = resume.resumer([mesure], 7)
+        self.assertEqual(1, bloquantes)
+        self.assertIn("début de fenêtre trop récent", texte)
+
+    def test_une_fenetre_complete_et_sans_trou_peut_passer(self):
+        maintenant = dt.datetime.now(dt.timezone.utc)
+        mesures = []
+        for heures in range(7 * 24 - 1, -1, -1):
+            mesures.append(
+                {
+                    "horodatage": (maintenant - dt.timedelta(hours=heures)).isoformat(),
+                    "health_latence_s": 0.2,
+                    "health_latence_chaud_s": 0.1,
+                    "reveil": False,
+                    "defauts": [],
+                }
+            )
+        texte, bloquantes = resume.resumer(mesures, 7)
+        self.assertEqual(0, bloquantes)
+        self.assertIn("Couverture : complète", texte)
 
     def test_le_tableau_par_jour_porte_le_pire_reveil(self):
         texte, _ = resume.resumer(self._serie(), None)

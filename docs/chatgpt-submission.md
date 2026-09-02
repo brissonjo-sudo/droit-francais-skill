@@ -205,12 +205,12 @@ soumissionnaire doit :
 L'instance Render gratuite se met en veille et retarde le premier appel :
 **22,8 s** mesurées au réveil le 31 août 2026, **32,6 s** le 1er septembre,
 contre 0,15 à 0,60 s à chaud (voir [`exploitation.md`](exploitation.md),
-incident n° 2). Décision du 1er septembre 2026 : le plan gratuit est conservé
-et l'instance est maintenue hors veille par la surveillance automatique, qui
-l'appelle toutes les dix minutes. C'est un contournement : si la série de
-mesures montre encore des réveils, passer à une instance sans mise en veille
-avant la revue — un relecteur qui attend trente secondes conclut que le
-service ne fonctionne pas.
+incident n° 2). Le cron GitHub essayé les 1er et 2 septembre n'a pas tenu sa
+cadence : cinq réveils sur cinq runs planifiés. Décision du 2 septembre 2026 :
+le plan gratuit est conservé et un service de ping externe appelle `/health`
+toutes les cinq minutes. La période d'observation ne commence qu'après sa mise
+en place et sa vérification sur 24 h ; si des réveils subsistent, passer à une
+instance sans mise en veille avant la revue.
 
 ## Documentation officielle OpenAI
 

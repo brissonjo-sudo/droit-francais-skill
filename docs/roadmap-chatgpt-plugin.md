@@ -425,9 +425,10 @@ Un audit externe du 1er septembre a ouvert quatre issues de code, qui
 s'ajoutent à deux issues laissées par les revues de merge. Décisions prises
 le même jour, avec Jo :
 
-* **Mise en veille** — plan Render gratuit conservé, instance maintenue hors
-  veille par la sonde de surveillance (toutes les dix minutes). Mesure du jour
-  qui pesait dans la balance : 32,6 s au réveil, au-delà du seuil d'alerte.
+* **Mise en veille** — le maintien par cron GitHub décidé le 1er septembre a
+  été réfuté le 2 septembre (cinq réveils sur cinq runs, 32,4 à 32,7 s). Le
+  plan Render gratuit reste conservé, avec un ping externe toutes les cinq
+  minutes à mettre en place puis à vérifier sur 24 h.
 * **Portées** — `-` conservé et tranché (voir phase 7).
 * **Instructions MCP** — texte de 218 caractères validé tel quel.
 * **Observation** — sept jours par workflow GitHub Actions, journal sur la
