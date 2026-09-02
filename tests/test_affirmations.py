@@ -78,6 +78,9 @@ class DepotFactice:
     def ecrire_doc(self, texte: str) -> None:
         (self.racine / "docs" / "guide.md").write_text(texte, encoding="utf-8")
 
+    def ecrire_changelog(self, texte: str) -> None:
+        (self.racine / "skill" / "CHANGELOG.md").write_text(texte, encoding="utf-8")
+
     def problemes(self) -> list[str]:
         """Exécute les trois contrôles contre ce dépôt factice."""
         racine = self.racine
@@ -112,6 +115,27 @@ class ControleAffirmationsTests(unittest.TestCase):
         self.assertEqual(1, len(problemes))
         self.assertIn("v0.5.0", problemes[0])
         self.assertIn("0.7.0", problemes[0])
+
+    def test_le_changelog_peut_porter_les_versions_passees(self) -> None:
+        """Un « Keep a Changelog » n'existe que pour citer les versions passées.
+
+        Leur exiger la version courante rendait toute montée de version
+        impossible : le constat a été fait en montant le plugin en 0.8.0, sa
+        première montée. Le CHANGELOG rejoint donc les journaux datés.
+        """
+        self.depot.ecrire_changelog(
+            "### [plugin-v0.7.0] — 2026-09-01\n\nPremière release.\n"
+        )
+        self.assertEqual([], self.depot.problemes())
+
+    def test_une_version_perimee_hors_journal_reste_refusee(self) -> None:
+        # Le garde-fou ne doit pas se relâcher ailleurs : c'est la prose
+        # courante, pas l'historique, que le contrôle vise.
+        self.depot.ecrire_changelog("### [plugin-v0.7.0] — 2026-09-01\n")
+        self.depot.ecrire_doc("Le plugin est en v0.5.0.\n")
+        problemes = self.depot.problemes()
+        self.assertEqual(1, len(problemes))
+        self.assertIn("guide.md", problemes[0])
 
     def test_annotation_contredite_par_le_serveur(self) -> None:
         # Le défaut de deployment.md : la doc promet une valeur que le code a changée.

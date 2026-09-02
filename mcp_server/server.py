@@ -62,7 +62,7 @@ GOVERNOR = RequestGovernor(
 )
 USER_LIMITER = PrincipalRateLimiter(SETTINGS.user_calls_per_minute)
 
-SERVER_VERSION = "0.7.0"
+SERVER_VERSION = "0.8.0"
 
 
 def _load_suppression_list() -> int:

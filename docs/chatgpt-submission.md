@@ -111,9 +111,9 @@ Le fichier `chatgpt-app-submission.json` porte les informations d'app, les
 justifications des annotations, les notes de version et les huit cas de test
 importables. Il est **validé contre le schéma officiel** par
 `python tests/check_plugin.py`, à chaque PR. Les notes de version renvoient
-au tag Git `plugin-v*` qui fige le code source soumis (première application :
-`plugin-v0.7.0`) ; à chaque nouvelle soumission, mettre à jour ce tag dans
-les notes en même temps que la version du manifeste.
+au tag Git `plugin-v*` qui fige le code source soumis ; à chaque nouvelle
+soumission, mettre à jour ce tag dans les notes en même temps que la version du
+manifeste. L'historique des tags est tenu dans `skill/CHANGELOG.md`.
 
 > Attention à deux vocabulaires distincts : `app_info.category` du fichier de
 > soumission utilise l'énumération en majuscules du schéma (`PRODUCTIVITY`),

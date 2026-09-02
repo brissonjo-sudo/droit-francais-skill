@@ -170,7 +170,8 @@ de distribution de l'étape 4 : aucune URL distante n'est inventée dans le dép
 
 Deux séries cohabitent : **skill** (3.x, méthodologie) et **plugin** (0.x,
 empaquetage OpenAI et Claude Code). Les tags Git portent le préfixe de leur
-série — `skill-v*` et `plugin-v*` ; première application : `plugin-v0.7.0`.
+série — `skill-v*` et `plugin-v*`, appliqués pour la première fois le
+1er septembre 2026 (voir `skill/CHANGELOG.md`).
 Les tags historiques non préfixés (`v2.0.0`, `v2.4.0`, `v3.0.0`) désignent
 des versions du skill et sont conservés tels quels.
 
