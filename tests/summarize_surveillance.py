@@ -67,6 +67,13 @@ def _latence_chaud(mesure: dict) -> float | None:
     réveil d'une lenteur réelle : la mesure est écartée des statistiques plutôt
     que comptée deux fois, en réveil et en indisponibilité.
     """
+    if "health_code_chaud" in mesure:
+        # Un appel qui n'a pas abouti mesure la vitesse d'un refus, pas celle
+        # du service : l'inclure ferait baisser la médiane pendant une panne.
+        if mesure.get("health_code_chaud") != 200:
+            return None
+        chaud = mesure.get("health_latence_chaud_s")
+        return float(chaud) if isinstance(chaud, (int, float)) else None
     chaud = mesure.get("health_latence_chaud_s")
     if isinstance(chaud, (int, float)):
         return float(chaud)
@@ -276,11 +283,13 @@ def resumer(mesures: list[dict], jours: int | None) -> tuple[str, int]:
         lat = [v for v in (_latence_chaud(m) for m in du_jour) if v is not None]
         eveils = [d for d in (_reveil_s(m) for m in du_jour) if d is not None]
         pire = f"{max(eveils):.1f}" if eveils else "—"
-        p95 = f"{centile(lat, 0.95):.2f}" if lat else "—"
+        # Nom distinct de « p95 » : celui de la fenêtre est un float déjà
+        # calculé, et le réutiliser ici en ferait silencieusement une chaîne.
+        p95_jour = f"{centile(lat, 0.95):.2f}" if lat else "—"
         lignes.append(
             f"| {jour} | {len(du_jour)} | "
             f"{sum(1 for m in du_jour if _defauts_effectifs(m))} | "
-            f"{p95} | {len(eveils)} | {pire} |"
+            f"{p95_jour} | {len(eveils)} | {pire} |"
         )
 
     if en_defaut:
