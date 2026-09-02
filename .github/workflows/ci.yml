@@ -68,6 +68,7 @@ jobs:
           python -m py_compile tests/check_live_tools.py
           python -m py_compile tests/check_service_health.py
           python -m py_compile tests/summarize_surveillance.py
+          python -m py_compile tests/test_surveillance.py
           python -m py_compile tests/test_deployment.py
           python -m py_compile tests/test_tools.py
           python -m py_compile tests/test_mcp_app.py
