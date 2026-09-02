@@ -1,6 +1,6 @@
 # Pièces humaines avant soumission
 
-Dernière mise à jour : 1er septembre 2026
+Dernière mise à jour : 2 septembre 2026
 
 Inventaire des pièces humaines, restantes ou achevées, que le dépôt **ne peut
 pas porter** : comptes, captures, enregistrement, réglages de consoles. Chaque
@@ -10,9 +10,10 @@ résultat. Aucun secret ne doit atterrir ici ni dans une issue publique.
 Les critères mesurables, contre-contrôles et états consolidés sont suivis dans
 [`finalisation-checklist.md`](finalisation-checklist.md).
 
-Ordre conseillé pour les pièces restantes : commencer par l'identité OpenAI
-(délai le plus long), puis le compte de démonstration Auth0, les sondes et la
-vidéo. Le contrôle Auth0 #27 est terminé.
+Ordre conseillé pour les pièces restantes : commencer par le ping externe
+(§ 11), qui conditionne le départ de la période d'observation, et par
+l'identité OpenAI (délai le plus long) ; puis le compte de démonstration Auth0,
+les sondes et la vidéo. Le contrôle Auth0 #27 est terminé.
 
 | # | Pièce | Bloque | Exige |
 |---|---|---|---|
@@ -26,6 +27,7 @@ vidéo. Le contrôle Auth0 #27 est terminé.
 | 8 | [Vérification de domaine](#8-vérification-de-domaine) | soumission | jeton du portail, accès Render |
 | 9 | [Captures Auth0 de la check-list](#9-captures-auth0-de-la-check-list) | audit | admin Auth0 |
 | 10 | [Version et tag de soumission](#10-version-et-tag-de-soumission) | soumission | une PR |
+| 11 | [Ping externe de maintien hors veille](#11-ping-externe-de-maintien-hors-veille) | observation | compte sur un service de ping |
 
 ---
 
@@ -263,3 +265,60 @@ version du fichier de soumission et le `CHANGELOG`, puis poser le tag sur le
 commit fusionné. `python tests/check_plugin.py` et
 `python tests/check_affirmations.py` refusent toute incohérence entre ces
 sources. Convention des tags : [`architecture-plugin.md`](architecture-plugin.md).
+
+## 11. Ping externe de maintien hors veille
+
+**Pourquoi** — l'instance Render gratuite s'endort après quinze minutes sans
+trafic, et son réveil coûte 32,4 à 32,7 s sur les cinq mesures relevées les
+1er et 2 septembre 2026. Le maintien hors veille par le planificateur GitHub a
+été essayé et **réfuté par la mesure** : quatre exécutions pour environ
+soixante-dix-huit attendues en treize heures avec `*/10`, une seule après le
+resserrement à `3/5`. GitHub n'exécute les workflows planifiés qu'en « meilleur
+effort ». Un service de ping est fait pour cela, lui.
+
+Sans ce ping, la période d'observation ne peut pas être propre : le critère
+« aucun réveil au-delà de 30 s » est violé à chaque exécution planifiée.
+
+**Faire**
+
+1. Créer un compte sur un service de ping. Deux conviennent, tous deux
+   gratuits :
+   * **UptimeRobot** — moniteur HTTP(s) toutes les 5 minutes, avec en prime une
+     alerte par courriel quand le service ne répond plus. C'est le choix le
+     plus utile : il rend aussi le service de surveillance externe ;
+   * **cron-job.org** — plus léger, cadence configurable jusqu'à la minute,
+     avec un historique d'exécutions consultable.
+2. Créer un moniteur sur **`https://droit-francais-skill.onrender.com/health`**,
+   en `GET`, toutes les **5 minutes**. Aucune authentification : la route est
+   publique et ne rend que `status`, `version` et le mode d'authentification —
+   ni secret, ni donnée personnelle. Le tiers n'apprend donc qu'une URL déjà
+   publique et des temps de réponse.
+3. Attendre **24 heures**, puis croiser deux preuves :
+
+   * l'historique du service de ping ne montre **aucun échec ni trou supérieur
+     à 10 minutes** sur les 24 heures ; exporter cet historique ou en faire une
+     capture sans donnée de compte ;
+   * le journal GitHub ne montre aucun réveil :
+
+   ```bash
+   git fetch origin surveillance
+   git show origin/surveillance:surveillance.jsonl | python tests/summarize_surveillance.py - --jours 1
+   ```
+
+   Attendu : historique externe continu, « Réveils d'instance : aucun » et une
+   latence à chaud du même ordre que la référence (0,15 à 0,60 s). Tant qu'un
+   trou ou un réveil subsiste, resserrer la cadence à 3 minutes avant de
+   conclure.
+4. **Vérifier le quota d'heures d'instance** sur le tableau de bord Render.
+   Une instance éveillée en permanence consomme des heures en continu, là où
+   une instance endormie les économise. Le plan gratuit borne ce total par
+   mois, et le quota est partagé si d'autres services gratuits vivent sur le
+   même compte : une suspension en fin de mois serait un défaut bien plus
+   visible qu'un réveil. Si la marge est trop mince, la seule issue propre est
+   une instance sans mise en veille.
+
+**Consigner** — le service retenu, la cadence, la date de mise en service et la
+preuve d'historique continu sur 24 h dans le tableau des conditions de publication de
+[`exploitation.md`](exploitation.md) ; le résultat de la vérification à 24 h
+dans [`finalisation-checklist.md`](finalisation-checklist.md). Ni identifiants,
+ni clé d'API du service de ping dans le dépôt.

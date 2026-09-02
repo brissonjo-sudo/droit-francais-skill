@@ -1,18 +1,22 @@
 name: Surveillance
 
-# Sonde le service déployé toutes les dix minutes, sans jeton et sans quota,
-# et consigne chaque mesure sur la branche « surveillance ». Deux rôles :
+# Sonde le service déployé sans jeton et sans quota, et consigne chaque mesure
+# sur la branche « surveillance ». Un seul rôle : tenir le registre de la
+# période d'observation avant publication — la série de mesures, pas une mesure
+# isolée, dit si le service tient sans défaut ni dérive de latence.
+# Lecture : docs/exploitation.md, § « Surveillance automatique ».
 #
-# 1. Période d'observation avant publication : la série de mesures — pas une
-#    mesure isolée — dit si le service tient sans défaut ni dérive de latence.
-#    Lecture : docs/exploitation.md, § « Surveillance automatique ».
-# 2. Maintien hors veille de l'instance Render gratuite, qui s'endort après
-#    quinze minutes sans trafic (32,4–32,7 s sur quatre réveils mesurés les
-#    1er–2 septembre 2026). GitHub n'a exécuté que cinq occurrences du premier
-#    cron en treize heures : son planificateur peut retarder ou supprimer des
-#    runs sous charge. Le pas minimal de cinq minutes et le décalage à la 3e
-#    minute réduisent le risque ; ils ne remplacent pas une instance sans
-#    veille pour la publication.
+# Ce workflow a d'abord porté un second rôle, maintenir l'instance Render
+# gratuite hors veille, et il en a été retiré le 2 septembre 2026 : la mesure
+# l'a réfuté. GitHub n'exécute les workflows planifiés qu'en « meilleur
+# effort » et en supprime sous charge — quatre runs pour environ
+# soixante-dix-huit attendus en treize heures avec « */10 », un seul après le
+# resserrement à « 3/5 ». Toutes les exécutions planifiées sont tombées sur une
+# instance endormie (réveils de 32,4 à 32,7 s). Le maintien hors veille est
+# donc confié à un service de ping externe : docs/pieces-humaines.md § 11.
+#
+# Le cron est en conséquence ramené à une exécution horaire, qui correspond à
+# ce que le planificateur peut réellement rendre pour ce seul registre.
 #
 # La branche « surveillance » est orpheline et hors protection : elle ne porte
 # que le journal. Le jeton par défaut suffit à y pousser, et un push de ce
@@ -22,7 +26,7 @@ on:
   schedule:
     # Éviter le début d'heure, explicitement signalé comme période chargée par
     # GitHub : https://docs.github.com/actions/using-workflows/events-that-trigger-workflows#schedule
-    - cron: "3/5 * * * *"
+    - cron: "3 * * * *"
   workflow_dispatch:
 
 permissions:
