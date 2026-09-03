@@ -1,6 +1,6 @@
 # Pièces humaines avant soumission
 
-Dernière mise à jour : 2 septembre 2026
+Dernière mise à jour : 3 septembre 2026
 
 Inventaire des pièces humaines, restantes ou achevées, que le dépôt **ne peut
 pas porter** : comptes, captures, enregistrement, réglages de consoles. Chaque
@@ -151,15 +151,21 @@ l'image Debian et ne couvre plus l'image déployée.
 
 **Rejoué le 2 septembre 2026, sans jeton** : métadonnées OAuth conformes sur
 les deux routes, refus anonyme `401` correct, `/health` conforme en 1,399 s,
-version `0.7.0`. La suite locale complète compte 145 tests verts. Aucun signe
-de résolution dégradée sur les routes publiques.
+version `0.7.0`. La suite locale complète était verte. Aucun signe de
+résolution dégradée sur les routes publiques.
 
-**✅ Fait le 3 septembre 2026, avec jeton M2M** — six outils rejoués contre le
-conteneur Alpine en production, `/health` version `0.8.0` : découverte
-annotée, Légifrance réel en 1,429 s, datation explicite, Judilibre réel en
-0,487 s, `get_decision`, `search`→`fetch`, article inexistant signalé sans
-invention. Aucun signe de résolution DNS dégradée. Consigné en E4 de
-[`audit-securite.md`](audit-securite.md) ; issue #34 fermée.
+**✅ Fait le 3 septembre 2026, avec jeton M2M** — six outils découverts,
+annotés en lecture seule et chacun réellement appelé contre le conteneur
+Alpine en production, `/health` version `0.8.0` : Légifrance réel en 1,429 s,
+datation explicite, Judilibre réel en 0,487 s, lectures avec texte, identifiant
+et URL officielle, puis `search` → `fetch`. L'article inexistant n'a produit
+aucune référence inventée. Aucun signe de résolution DNS dégradée.
+
+La sonde durcie refuse désormais de confondre une erreur distante, notamment
+un quota `429` ou une erreur `5xx`, avec une absence réussie. Elle masque les
+détails distants et contrôle aussi le bearer contre toute réapparition dans
+les réponses. Consigné en E4 de [`audit-securite.md`](audit-securite.md) ;
+issue #34 fermée.
 
 ## 5. Essai avec un second compte
 

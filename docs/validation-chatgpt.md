@@ -37,11 +37,13 @@ export MCP_ACCESS_TOKEN=$(curl -s --request POST   --url https://dev-7soa32jfmxp
 python tests/check_live_tools.py
 ```
 
-Elle vérifie la découverte des six outils et leurs annotations, un appel
-Légifrance réel, la datation explicite de la réponse, un appel Judilibre réel,
-le comportement face à un article inexistant, et l'absence de toute valeur de
-clé fournisseur dans ce qui est renvoyé. Le jeton est lu dans l'environnement,
-jamais affiché ni écrit.
+Elle vérifie la découverte et les annotations, puis appelle réellement chacun
+des six outils. Elle mesure les premiers appels Légifrance et Judilibre,
+contrôle les lectures avec texte, identifiant et provenance officielle, la datation, le parcours
+`search → fetch` et l'absence non inventée. Si les valeurs des clés fournisseur
+existent localement, elle vérifie qu'elles ne sont pas renvoyées ; sinon elle
+signale honnêtement que cette comparaison n'a pas pu être faite. Le jeton est
+lu dans l'environnement, jamais affiché ni écrit.
 
 Cette sonde consomme le quota PISTE du titulaire, comme n'importe quel appel
 réel.
