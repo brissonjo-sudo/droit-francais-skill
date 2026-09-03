@@ -1,6 +1,6 @@
 # Pièces humaines avant soumission
 
-Dernière mise à jour : 2 septembre 2026
+Dernière mise à jour : 3 septembre 2026
 
 Inventaire des pièces humaines, restantes ou achevées, que le dépôt **ne peut
 pas porter** : comptes, captures, enregistrement, réglages de consoles. Chaque
@@ -20,7 +20,7 @@ les sondes et la vidéo. Le contrôle Auth0 #27 est terminé.
 | 1 | [Identité vérifiée OpenAI Platform](#1-identité-vérifiée-openai-platform) | soumission | compte OpenAI, pièce d'identité |
 | 2 | [Auth0 — borner les permissions tierces (#27)](#2-auth0--borner-les-permissions-tierces-issue-27) | publication | ✅ configuration et preuve privée terminées le 1/9/2026 |
 | 3 | [Compte de démonstration sans MFA](#3-compte-de-démonstration-sans-mfa) | soumission | admin Auth0 |
-| 4 | [Sonde des six outils avec jeton (#34)](#4-sonde-des-six-outils-avec-jeton-issue-34) | registre E4 | application M2M Auth0 |
+| 4 | [Sonde des six outils avec jeton (#34)](#4-sonde-des-six-outils-avec-jeton-issue-34) | registre E4 | ✅ rejouée le 3/9/2026, cinq ✅, issue fermée |
 | 5 | [Essai avec un second compte](#5-essai-avec-un-second-compte) | publication | deux comptes |
 | 6 | [Exercice du retrait d'urgence (E10)](#6-exercice-du-retrait-durgence-judilibre-e10) | audit | accès Render |
 | 7 | [Enregistrement vidéo](#7-enregistrement-vidéo) | soumission | écran, 5 minutes |
@@ -151,36 +151,21 @@ l'image Debian et ne couvre plus l'image déployée.
 
 **Rejoué le 2 septembre 2026, sans jeton** : métadonnées OAuth conformes sur
 les deux routes, refus anonyme `401` correct, `/health` conforme en 1,399 s,
-version `0.7.0`. Après durcissement de la sonde authentifiée, la suite locale
-complète compte 171 tests verts. Aucun signe
-de résolution dégradée sur les routes publiques.
+version `0.7.0`. La suite locale complète était verte. Aucun signe de
+résolution dégradée sur les routes publiques.
 
-**Rejoué le 2 septembre 2026, avec jeton M2M éphémère** :
+**✅ Fait le 3 septembre 2026, avec jeton M2M** — six outils découverts,
+annotés en lecture seule et chacun réellement appelé contre le conteneur
+Alpine en production, `/health` version `0.8.0` : Légifrance réel en 1,429 s,
+datation explicite, Judilibre réel en 0,487 s, lectures avec texte, identifiant
+et URL officielle, puis `search` → `fetch`. L'article inexistant n'a produit
+aucune référence inventée. Aucun signe de résolution DNS dégradée.
 
-1. le JWT était signé en `RS256`, destiné à l'audience exacte du MCP et émis
-   par le tenant attendu ; il a transité par mémoire et variable
-   d'environnement uniquement, puis a été effacé ;
-2. les six outils ont été découverts, annotés en lecture seule et **chacun
-   réellement appelé** : `search`, `fetch`, `search_articles`, `get_article`,
-   `search_case_law`, `get_decision` ;
-3. le premier appel Légifrance a répondu en **1,000 s** avec
-   `LEGIARTI000029946370`, statut `VIGUEUR` et datation explicite au 02/09/2026 ;
-4. le premier appel Judilibre a répondu en **0,461 s** ; la lecture de la
-   décision portait texte non vide, identifiant exact, date et URL officielle ;
-5. le parcours standard `search → fetch` a abouti et l'article inexistant
-   `L9999-1` n'a produit aucune référence inventée ; durée totale : **8,72 s**.
-
-Commande reproductible :
-
-```bash
-python tests/check_live_tools.py
-```
-
-La comparaison directe avec les valeurs des clés fournisseur n'était pas
-possible, celles-ci n'étant volontairement pas présentes sur le poste. La
-sonde l'a signalé au lieu de produire un faux vert ; le masquage par valeur
-reste couvert par les tests serveur et OAuth de bout en bout. Version annoncée
-par `/health` : `0.7.0`. La ligne E4 du registre est désormais `PROUVÉ`.
+La sonde durcie refuse désormais de confondre une erreur distante, notamment
+un quota `429` ou une erreur `5xx`, avec une absence réussie. Elle masque les
+détails distants et contrôle aussi le bearer contre toute réapparition dans
+les réponses. Consigné en E4 de [`audit-securite.md`](audit-securite.md) ;
+issue #34 fermée.
 
 ## 5. Essai avec un second compte
 

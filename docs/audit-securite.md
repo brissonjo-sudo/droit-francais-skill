@@ -75,12 +75,12 @@ garantie. Tant qu'aucun limiteur global n'existe, la production doit rester à
 
 Statuts : `PROUVÉ`, `À REJOUER`, `ACTION HUMAINE`, `BLOQUANT`, `ACCEPTÉ`.
 
-| ID | Contrôle | Statut au 02/09/2026 | Preuve attendue / existante | Responsable | Dernière revue |
+| ID | Contrôle | Statut au 03/09/2026 | Preuve attendue / existante | Responsable | Dernière revue |
 |---|---|---|---|---|---|
 | E1 | CI métadonnées OAuth et refus anonyme | PROUVÉ | PR #17, tests `check_oauth_metadata.py` | mainteneur | 31/08/2026 |
 | E2 | Parcours OAuth automatisé serveur | PROUVÉ | PR #18, `test_oauth_end_to_end.py` | mainteneur | 31/08/2026 |
 | E3 | Émetteur de production exact | PROUVÉ techniquement | PR #20 + `--check-issuer`; capture tenant à conserver | mainteneur | 31/08/2026 |
-| E4 | Six outils sur service déployé | PROUVÉ (image Alpine) | Rejoué le 02/09/2026 avec jeton M2M éphémère : six outils découverts et réellement appelés ; Légifrance 1,000 s, Judilibre 0,461 s ; lectures avec texte, identifiant, provenance officielle, datation et absence non inventée conformes. Détail : [pieces-humaines.md](pieces-humaines.md) § 4 (issue #34) | mainteneur | 02/09/2026 |
+| E4 | Six outils sur service déployé | PROUVÉ (image Alpine) | Rejoué le 03/09/2026 avec jeton M2M contre `/health` version `0.8.0` : six outils découverts et chacun réellement appelé ; Légifrance 1,429 s, Judilibre 0,487 s ; lectures avec texte, identifiant, provenance officielle, datation, parcours `search` → `fetch` et absence non inventée conformes. Détail : [pieces-humaines.md](pieces-humaines.md) § 4 ; issue #34 fermée | mainteneur | 03/09/2026 |
 | E5 | Parcours OAuth utilisateur ChatGPT | ACTION HUMAINE | capture connexion, appel réussi, déconnexion/révocation | mainteneur | — |
 | E6 | CGU Légifrance 2022 intégrales | BLOQUANT | PDF exporté du compte PISTE + SHA-256 + date + diff | titulaire PISTE | — |
 | E7 | CGU Judilibre 06/01/2022 | PROUVÉ pour le texte public | URL officielle + empreinte archivée lors de l'audit | mainteneur | 31/08/2026 |

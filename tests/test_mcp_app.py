@@ -428,9 +428,13 @@ class RuntimeSafetyTests(unittest.TestCase):
     def test_health_and_domain_challenge_expose_no_configuration(self):
         health = asyncio.run(mcp_app.health(mock.Mock()))
         self.assertEqual(200, health.status_code)
-        self.assertEqual(
-            b'{"status":"ok","version":"0.7.0","auth":"disabled"}', health.body
-        )
+        # La version est lue du serveur : figée ici, elle aurait cassé le test
+        # à chaque montée de version sans rien prouver de plus. Ce qui compte
+        # est la forme de la charge et l'absence de toute autre information.
+        attendu = (
+            '{"status":"ok","version":"%s","auth":"disabled"}' % mcp_app.SERVER_VERSION
+        ).encode()
+        self.assertEqual(attendu, health.body)
 
         with mock.patch.dict(
             os.environ, {"OPENAI_APPS_CHALLENGE": "challenge-token"}, clear=False

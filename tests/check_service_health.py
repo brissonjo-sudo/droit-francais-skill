@@ -15,7 +15,7 @@ isolée ne dit rien.
 
 ``/health`` est mesuré **deux fois de suite**, et c'est le second appel qui dit
 si le service va bien. Une instance qui dort rend la première mesure sans
-rapport avec son état : les 1er et 2 septembre 2026, quatre réveils de 32,4 à
+rapport avec son état : les 1er et 2 septembre 2026, cinq réveils de 32,4 à
 32,7 s ont été consignés comme « service indisponible en pratique » alors que
 le service répondait en 0,2 s à la requête suivante. Un réveil et une panne
 demandent des décisions opposées — changer d'hébergement dans un cas, ouvrir un
@@ -31,6 +31,7 @@ import argparse
 import contextlib
 import io
 import json
+import socket
 import sys
 import time
 import urllib.error
@@ -62,9 +63,22 @@ SEUIL_ALERTE_S = 30.0
 
 TIMEOUT = 90
 
+#: Code rendu quand aucune réponse HTTP n'a été obtenue — DNS, connexion
+#: refusée, TLS, délai dépassé. Distinct de tout code HTTP réel.
+CODE_INJOIGNABLE = 0
 
-def _mesurer(url: str) -> tuple[int, float, dict | None]:
-    """Retourne (code HTTP, durée en secondes, charge JSON si lisible)."""
+
+def _mesurer(url: str) -> tuple[int, float, dict | None, str | None]:
+    """Retourne (code HTTP, durée, charge JSON si lisible, raison d'échec).
+
+    Aucune exception ne sort d'ici. Une panne au niveau connexion — nom qui ne
+    résout pas, connexion refusée, erreur TLS, délai dépassé — ne rend pas de
+    code HTTP : elle rend ``CODE_INJOIGNABLE`` et sa raison, que l'appelant
+    consigne comme défaut. La laisser remonter faisait planter la sonde, donc
+    n'écrivait **aucune** ligne au journal, précisément lors de l'incident le
+    plus grave : l'indisponibilité disparaissait de la série au lieu d'y être
+    la mesure la plus visible.
+    """
     debut = time.monotonic()
     try:
         with urllib.request.urlopen(url, timeout=TIMEOUT) as reponse:
@@ -72,11 +86,20 @@ def _mesurer(url: str) -> tuple[int, float, dict | None]:
             duree = time.monotonic() - debut
             code = reponse.status
     except urllib.error.HTTPError as erreur:
-        return erreur.code, time.monotonic() - debut, None
+        return erreur.code, time.monotonic() - debut, None, None
+    except urllib.error.URLError as erreur:
+        return CODE_INJOIGNABLE, time.monotonic() - debut, None, _raison(erreur.reason)
+    except (TimeoutError, socket.timeout, OSError) as erreur:
+        return CODE_INJOIGNABLE, time.monotonic() - debut, None, _raison(erreur)
     try:
-        return code, duree, json.loads(brut)
+        return code, duree, json.loads(brut), None
     except ValueError:
-        return code, duree, None
+        return code, duree, None, None
+
+
+def _raison(erreur: object) -> str:
+    """Raison d'échec sur une seule ligne : le journal est en JSON par ligne."""
+    return " ".join(str(erreur).split())[:200] or type(erreur).__name__
 
 
 def sonder(base_url: str) -> dict:
@@ -85,18 +108,24 @@ def sonder(base_url: str) -> dict:
     rapport: dict = {"base_url": base_url, "defauts": [], "avertissements": []}
 
     sante = f"{base_url}/health"
-    code, duree, _charge = _mesurer(sante)
+    code, duree, _charge, injoignable = _mesurer(sante)
     rapport["health_code"] = code
     rapport["health_latence_s"] = round(duree, 3)
-    if code != 200:
+    if injoignable:
+        rapport["defauts"].append(f"/health injoignable : {injoignable}")
+    elif code != 200:
         rapport["defauts"].append(f"/health répond {code}")
 
     # Second appel immédiat : c'est lui qui porte l'état réel du service, la
     # première mesure ayant pu ne mesurer qu'un démarrage d'instance.
-    code_chaud, duree_chaud, charge_chaud = _mesurer(sante)
+    code_chaud, duree_chaud, charge_chaud, injoignable_chaud = _mesurer(sante)
     rapport["health_code_chaud"] = code_chaud
     rapport["health_latence_chaud_s"] = round(duree_chaud, 3)
-    if code_chaud != 200:
+    if injoignable_chaud:
+        rapport["defauts"].append(
+            f"/health injoignable au second appel : {injoignable_chaud}"
+        )
+    elif code_chaud != 200:
         rapport["defauts"].append(f"/health répond {code_chaud} au second appel")
     else:
         # Le second appel décrit l'instance réellement disponible. Valider sa
@@ -113,7 +142,14 @@ def sonder(base_url: str) -> dict:
                 f"{rapport['auth']!r} au lieu de « oauth »"
             )
 
-    reveil = duree > SEUIL_REVEIL_S and duree_chaud <= SEUIL_REVEIL_S
+    # Le second appel ne vaut confirmation que s'il a réellement abouti : un
+    # refus de connexion revient en quelques millisecondes, et sans ce garde le
+    # service le plus franchement mort passerait pour une instance réveillée.
+    reveil = (
+        code_chaud == 200
+        and duree > SEUIL_REVEIL_S
+        and duree_chaud <= SEUIL_REVEIL_S
+    )
     rapport["reveil"] = reveil
     rapport["reveil_s"] = round(duree, 3) if reveil else None
     if reveil:
