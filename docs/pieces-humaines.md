@@ -151,28 +151,36 @@ l'image Debian et ne couvre plus l'image déployée.
 
 **Rejoué le 2 septembre 2026, sans jeton** : métadonnées OAuth conformes sur
 les deux routes, refus anonyme `401` correct, `/health` conforme en 1,399 s,
-version `0.7.0`. La suite locale complète compte 145 tests verts. Aucun signe
+version `0.7.0`. Après durcissement de la sonde authentifiée, la suite locale
+complète compte 171 tests verts. Aucun signe
 de résolution dégradée sur les routes publiques.
 
-**Reste à faire, avec jeton** — les six outils, dont un appel Légifrance et un
-appel Judilibre réels depuis le conteneur Alpine :
+**Rejoué le 2 septembre 2026, avec jeton M2M éphémère** :
 
-1. Obtenir un jeton par le flux *client credentials* de l'application
-   machine-à-machine Auth0 — procédure dans
-   [`validation-chatgpt.md`](validation-chatgpt.md), section « Raccourci ».
-   Le jeton va dans `MCP_ACCESS_TOKEN`, jamais en argument ni dans un fichier.
-2. Lancer :
+1. le JWT était signé en `RS256`, destiné à l'audience exacte du MCP et émis
+   par le tenant attendu ; il a transité par mémoire et variable
+   d'environnement uniquement, puis a été effacé ;
+2. les six outils ont été découverts, annotés en lecture seule et **chacun
+   réellement appelé** : `search`, `fetch`, `search_articles`, `get_article`,
+   `search_case_law`, `get_decision` ;
+3. le premier appel Légifrance a répondu en **1,000 s** avec
+   `LEGIARTI000029946370`, statut `VIGUEUR` et datation explicite au 02/09/2026 ;
+4. le premier appel Judilibre a répondu en **0,461 s** ; la lecture de la
+   décision portait texte non vide, identifiant exact, date et URL officielle ;
+5. le parcours standard `search → fetch` a abouti et l'article inexistant
+   `L9999-1` n'a produit aucune référence inventée ; durée totale : **8,72 s**.
 
-   ```bash
-   python tests/check_live_tools.py
-   ```
+Commande reproductible :
 
-3. Relever la latence du premier appel Légifrance et du premier appel
-   Judilibre : une résolution DNS dégradée se verrait d'abord là.
+```bash
+python tests/check_live_tools.py
+```
 
-**Consigner** — la date, la version annoncée par `/health`, et les cinq ✅ de
-la sonde dans la ligne E4 de [`audit-securite.md`](audit-securite.md) ; fermer
-l'issue #34.
+La comparaison directe avec les valeurs des clés fournisseur n'était pas
+possible, celles-ci n'étant volontairement pas présentes sur le poste. La
+sonde l'a signalé au lieu de produire un faux vert ; le masquage par valeur
+reste couvert par les tests serveur et OAuth de bout en bout. Version annoncée
+par `/health` : `0.7.0`. La ligne E4 du registre est désormais `PROUVÉ`.
 
 ## 5. Essai avec un second compte
 

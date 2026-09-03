@@ -128,12 +128,13 @@ python tests/check_oauth_metadata.py https://domaine.example --discover
 ```
 
 `check_live_tools.py` valide les **six outils contre le service déployé**, avec
-un vrai jeton : découverte et annotations, appel Légifrance réel, datation
-explicite de la réponse, appel Judilibre réel, comportement face à un article
-inexistant, et absence de toute valeur de clé fournisseur dans ce qui est
-renvoyé au client. Le jeton est lu dans `MCP_ACCESS_TOKEN` — jamais en
-argument, qui serait visible dans l'historique du shell et la liste des
-processus — et n'est ni affiché ni écrit.
+un vrai jeton : découverte et annotations, appel effectif de chacun des six,
+latence des premiers appels Légifrance et Judilibre, lectures avec texte,
+datation, provenance, parcours `search → fetch` et article inexistant. Lorsque
+les valeurs des clés fournisseur existent localement, la sonde vérifie aussi
+qu'elles ne sont pas renvoyées ; sinon elle avertit explicitement que cette
+comparaison n'a pas pu être faite. Le jeton est lu dans `MCP_ACCESS_TOKEN` —
+jamais en argument — et n'est ni affiché ni écrit.
 
 ```bash
 export MCP_ACCESS_TOKEN="…"
