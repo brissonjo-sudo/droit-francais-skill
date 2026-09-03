@@ -1,6 +1,6 @@
 # Critères de réussite — finalisation du plugin
 
-Dernière mise à jour : 2 septembre 2026.
+Dernière mise à jour : 3 septembre 2026.
 
 Cette grille applique la même boucle à chaque étape : **critère mesurable →
 exécution → contre-contrôle → preuve datée**. Un contrôle partiel reste `◐` ;
