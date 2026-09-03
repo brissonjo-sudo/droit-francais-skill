@@ -7,7 +7,12 @@ Thumbs.db
 .idea/
 
 # Worktrees et état local des agents Claude Code (copies complètes du dépôt).
-.claude/
+# Exception : le hook de démarrage de session et sa déclaration, qui doivent
+# être versionnés pour s'appliquer aux futures sessions Claude Code sur le web.
+.claude/*
+!.claude/settings.json
+!.claude/hooks/
+!.claude/hooks/session-start.sh
 
 # Correctifs exportes pendant le developpement (git format-patch, git diff >).
 # Ce sont des artefacts de travail : le contenu vit dans l'historique, pas a la
