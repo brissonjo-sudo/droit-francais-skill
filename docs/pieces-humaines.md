@@ -20,7 +20,7 @@ les sondes et la vidéo. Le contrôle Auth0 #27 est terminé.
 | 1 | [Identité vérifiée OpenAI Platform](#1-identité-vérifiée-openai-platform) | soumission | compte OpenAI, pièce d'identité |
 | 2 | [Auth0 — borner les permissions tierces (#27)](#2-auth0--borner-les-permissions-tierces-issue-27) | publication | ✅ configuration et preuve privée terminées le 1/9/2026 |
 | 3 | [Compte de démonstration sans MFA](#3-compte-de-démonstration-sans-mfa) | soumission | admin Auth0 |
-| 4 | [Sonde des six outils avec jeton (#34)](#4-sonde-des-six-outils-avec-jeton-issue-34) | registre E4 | application M2M Auth0 |
+| 4 | [Sonde des six outils avec jeton (#34)](#4-sonde-des-six-outils-avec-jeton-issue-34) | registre E4 | ✅ rejouée le 3/9/2026, cinq ✅, issue fermée |
 | 5 | [Essai avec un second compte](#5-essai-avec-un-second-compte) | publication | deux comptes |
 | 6 | [Exercice du retrait d'urgence (E10)](#6-exercice-du-retrait-durgence-judilibre-e10) | audit | accès Render |
 | 7 | [Enregistrement vidéo](#7-enregistrement-vidéo) | soumission | écran, 5 minutes |
@@ -154,25 +154,12 @@ les deux routes, refus anonyme `401` correct, `/health` conforme en 1,399 s,
 version `0.7.0`. La suite locale complète compte 145 tests verts. Aucun signe
 de résolution dégradée sur les routes publiques.
 
-**Reste à faire, avec jeton** — les six outils, dont un appel Légifrance et un
-appel Judilibre réels depuis le conteneur Alpine :
-
-1. Obtenir un jeton par le flux *client credentials* de l'application
-   machine-à-machine Auth0 — procédure dans
-   [`validation-chatgpt.md`](validation-chatgpt.md), section « Raccourci ».
-   Le jeton va dans `MCP_ACCESS_TOKEN`, jamais en argument ni dans un fichier.
-2. Lancer :
-
-   ```bash
-   python tests/check_live_tools.py
-   ```
-
-3. Relever la latence du premier appel Légifrance et du premier appel
-   Judilibre : une résolution DNS dégradée se verrait d'abord là.
-
-**Consigner** — la date, la version annoncée par `/health`, et les cinq ✅ de
-la sonde dans la ligne E4 de [`audit-securite.md`](audit-securite.md) ; fermer
-l'issue #34.
+**✅ Fait le 3 septembre 2026, avec jeton M2M** — six outils rejoués contre le
+conteneur Alpine en production, `/health` version `0.8.0` : découverte
+annotée, Légifrance réel en 1,429 s, datation explicite, Judilibre réel en
+0,487 s, `get_decision`, `search`→`fetch`, article inexistant signalé sans
+invention. Aucun signe de résolution DNS dégradée. Consigné en E4 de
+[`audit-securite.md`](audit-securite.md) ; issue #34 fermée.
 
 ## 5. Essai avec un second compte
 

@@ -80,7 +80,7 @@ Statuts : `PROUVÉ`, `À REJOUER`, `ACTION HUMAINE`, `BLOQUANT`, `ACCEPTÉ`.
 | E1 | CI métadonnées OAuth et refus anonyme | PROUVÉ | PR #17, tests `check_oauth_metadata.py` | mainteneur | 31/08/2026 |
 | E2 | Parcours OAuth automatisé serveur | PROUVÉ | PR #18, `test_oauth_end_to_end.py` | mainteneur | 31/08/2026 |
 | E3 | Émetteur de production exact | PROUVÉ techniquement | PR #20 + `--check-issuer`; capture tenant à conserver | mainteneur | 31/08/2026 |
-| E4 | Six outils sur service déployé | À REJOUER (image Alpine) | PR #21 établie sur l'image Debian ; routes publiques rejouées sur l'image Alpine le 1/9/2026 sans défaut ; six outils avec jeton : [pieces-humaines.md](pieces-humaines.md) § 4 (issue #34) | mainteneur | 01/09/2026 |
+| E4 | Six outils sur service déployé | PROUVÉ (image Alpine) | PR #21 établie sur l'image Debian ; routes publiques rejouées le 1/9/2026 sans défaut ; six outils avec jeton M2M rejoués le 3/9/2026 contre `/health` version `0.8.0` — `check_live_tools.py` : cinq ✅ (découverte, Légifrance 1,429 s, datation explicite, Judilibre 0,487 s, `get_decision`, `search`→`fetch`, article inexistant signalé sans invention), aucun signe de résolution DNS dégradée ; issue #34 fermée | mainteneur | 03/09/2026 |
 | E5 | Parcours OAuth utilisateur ChatGPT | ACTION HUMAINE | capture connexion, appel réussi, déconnexion/révocation | mainteneur | — |
 | E6 | CGU Légifrance 2022 intégrales | BLOQUANT | PDF exporté du compte PISTE + SHA-256 + date + diff | titulaire PISTE | — |
 | E7 | CGU Judilibre 06/01/2022 | PROUVÉ pour le texte public | URL officielle + empreinte archivée lors de l'audit | mainteneur | 31/08/2026 |
