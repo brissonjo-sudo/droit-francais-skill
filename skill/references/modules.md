@@ -47,7 +47,9 @@ module s'active.** Le mode B force l'activation de tous les modules.
     - **proportionnée stricto sensu** : l'atteinte aux libertés
       est-elle en équilibre raisonnable avec le bénéfice attendu pour
       l'ordre public ?
-  - **contrôle de motivation** (loi du 11 juillet 1979, lorsqu'applicable),
+  - **contrôle de motivation** (CRPA, art. L.211-2 et s. — anciennement loi
+    n° 79-587 du 11 juillet 1979, recodifiée par l'ordonnance n° 2015-1341
+    du 23 octobre 2015, en vigueur depuis le 1er janvier 2016 —, lorsqu'applicable),
   - **contrôle d'opposabilité** (publication, affichage, signalisation),
   - **contrôle des éléments de preuve** justifiant la mesure,
   - **triangulation obligatoire si l'acte fait grief**.

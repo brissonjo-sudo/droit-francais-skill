@@ -1,6 +1,6 @@
 # droit-francais-skill
 
-**Skill LLM — méthodologie de recherche en droit français (v3.2.0)**
+**Skill LLM — méthodologie de recherche en droit français (v3.2.1)**
 
 **Distribution autonome + plugins OpenAI et Claude Code avec outils MCP (plugin v0.8.0)**
 
@@ -258,7 +258,7 @@ Le skill s'active automatiquement quand vous :
 
 ---
 
-## Arborescence (skill v3.2.0 / plugin v0.8.0)
+## Arborescence (skill v3.2.1 / plugin v0.8.0)
 
 ```
 droit-francais-skill/
