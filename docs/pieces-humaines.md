@@ -276,9 +276,12 @@ service n'avait pas été consignée ; elle se lit sans ambiguïté dans le jour
 | 5 sondes, du 2/09 22:08 au 3/09 14:24 UTC | **5 réveils sur 5** | 22,4 à 32,5 s |
 | 6 sondes, du 3/09 18:32 au 4/09 14:14 UTC | **aucun** | 0,27 à 0,37 s |
 
-Les sondes restent espacées de trois à cinq heures de part et d'autre. Sans
-maintien hors veille, chacune serait un démarrage à froid : les six dernières
-prouvent donc qu'un tiers sollicite l'instance entre elles. La mise en service
+Les écarts entre sondes sont du même ordre de part et d'autre de la bascule :
+de 1 h 06 à 5 h 25 avant, de 2 h 18 à 5 h 11 après. Or l'instance s'endort au
+bout de quinze minutes — le plus court de ces écarts en vaut neuf fois plus.
+Sans maintien hors veille, chaque sonde serait donc un démarrage à froid, comme
+l'étaient les cinq premières ; les six dernières prouvent qu'un tiers sollicite
+l'instance entre elles. La mise en service
 se situe **le 3 septembre 2026 entre 14:24 et 18:32 UTC**, et c'est cette borne
 haute qui fait courir les délais d'observation :
 
