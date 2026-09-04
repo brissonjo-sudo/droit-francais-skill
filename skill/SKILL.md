@@ -11,12 +11,12 @@ description: Méthodologie rigoureuse de recherche en droit français (sources
   un écrit ou oral de concours avec références juridiques. Ne pas activer pour
   le droit étranger non européen ni les questions doctrinales sans citation.
 metadata:
-  version: 3.2.0
+  version: 3.2.1
   date_derniere_revue_methodologique: 2026-08-27
-  date_derniere_verification_sources: 2026-05-19
+  date_derniere_verification_sources: 2026-09-04
   langue: français
 ---
-# Skill : recherche-juridique (v3.2.0)
+# Skill : recherche-juridique (v3.2.1)
 
 > **Objet** : encoder la méthodologie rigoureuse de recherche en droit
 > français applicable à tout usage professionnel — avocat, juriste,
@@ -187,8 +187,10 @@ date de référence.
 
 La consultation effective n'est pas le survol d'un résultat de
 recherche : c'est la **lecture documentée** de la source officielle
-(Légifrance, courdecassation.fr, conseil-etat.fr,
-conseil-constitutionnel.fr, circulaires.legifrance.gouv.fr, JORF).
+(Légifrance — dont sa rubrique Circulaires, le sous-domaine
+`circulaires.legifrance.gouv.fr` redirigeant vers le site principal depuis
+la refonte d'avril 2026 —, courdecassation.fr, conseil-etat.fr,
+conseil-constitutionnel.fr, JORF).
 
 **Règle de provenance (impérative, v2.3.0).** Tout **identifiant
 officiel** figurant dans une sortie — `LEGIARTI…`, `JORFTEXT…`,
@@ -234,7 +236,8 @@ applicable à chaque volet**.
 Hiérarchie stricte :
 1. **Texte officiel publié** (Légifrance / JORF).
 2. **Décision juridictionnelle officielle** (Cass., CE, CC, CJUE, CEDH).
-3. **Circulaires et instructions officielles** (circulaires.legifrance.gouv.fr).
+3. **Circulaires et instructions officielles** (rubrique Circulaires de
+   legifrance.gouv.fr).
 4. **Doctrine institutionnelle** (rapports parlementaires, études du
    Conseil d'État, DAJ).
 

@@ -11,6 +11,40 @@ conservés tels quels pour ne pas casser les liens publiés.
 
 ---
 
+### [3.2.1] — 2026-09-04
+
+Issue d'un audit de fraîcheur juridique portant sur ce skill et sur
+`drh-fpt`, mené par des agents indépendants vérifiant chaque source et
+identifiant citée contre l'état réel en ligne. Aucune évolution
+méthodologique ; correction de sources devenues fausses ou périmées.
+
+#### Corrigé
+- **`references/sources-autorisees.md`** : trois adresses erronées —
+  `journal-officiel.gouv.fr` (site DILA des annonces légales, pas le JORF —
+  remplacé par `legifrance.gouv.fr/jorf/jo`, seule adresse qui répond
+  effectivement), `judilibre.fr` (domaine inexistant — Judilibre n'est
+  accessible que via `courdecassation.fr/recherche-judilibre`),
+  `arianeweb.conseil-etat.fr` (URL périmée — remplacée par
+  `conseil-etat.fr/arianeweb/`). `circulaires.legifrance.gouv.fr` redirige
+  désormais vers le site principal (refonte Légifrance d'avril 2026) ;
+  corrigé également dans `SKILL.md` (P1, P3) et dans les deux gabarits de
+  requête `site:circulaires.legifrance.gouv.fr` de
+  `references/gabarits-requetes.md`, repérés lors de la revue de merge.
+- **`references/modules.md`** (module ACTE-ADMIN) : le contrôle de
+  motivation visait encore la loi du 11 juillet 1979, recodifiée au CRPA
+  (art. L.211-2 et s.) par l'ordonnance n° 2015-1341 depuis le 1/01/2016 —
+  dix ans de retard sur ce point précis.
+- **`references/sources-autorisees.md`** : ajout de vie-publique.fr comme
+  source des dossiers législatifs/travaux parlementaires postérieurs au
+  1/04/2026, migrés hors Légifrance.
+- `date_derniere_verification_sources` portée à 2026-09-04.
+
+#### Vérifié sans changement
+Domaines Légifrance, Cour de cassation, Conseil d'État, Conseil
+constitutionnel, EUR-Lex ; formats d'identifiants (LEGIARTI, JORFTEXT,
+CETATEXT, CONSTEXT) ; formats de citation (Bull./inédit, Lebon/Tables) ;
+architecture PISTE (API Légifrance + Judilibre).
+
 ### [plugin-v0.8.0] — 2026-09-02
 
 Durcissement du serveur MCP après l'audit externe du 1er septembre 2026 et la
