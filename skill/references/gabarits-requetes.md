@@ -173,12 +173,15 @@ web_fetch("https://www.conseil-constitutionnel.fr/decision/[année]/[numéro com
 
 ### Par NOR (identifiant normalisation)
 ```
-web_search("site:circulaires.legifrance.gouv.fr NOR INTB2300001C")
+web_search("site:legifrance.gouv.fr circulaire NOR INTB2300001C")
 ```
+> Le sous-domaine `circulaires.legifrance.gouv.fr` redirige vers le site
+> principal depuis la refonte Légifrance d'avril 2026 : un `site:` ciblant
+> encore ce sous-domaine risque de ne plus renvoyer de résultats indexés.
 
 ### Recherche thématique
 ```
-web_search("site:circulaires.legifrance.gouv.fr \"police municipale\" armement 2023")
+web_search("site:legifrance.gouv.fr circulaire \"police municipale\" armement 2023")
 ```
 
 ---

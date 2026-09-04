@@ -12,7 +12,7 @@ d'autorité et les conditions d'usage pour chaque catégorie.
 | Source | URL | Usage |
 |--------|-----|-------|
 | Légifrance | legifrance.gouv.fr | Codes, lois, décrets, arrêtés, ordonnances — **source de référence obligatoire** |
-| JORF (Journal Officiel) | legifrance.gouv.fr/jorf | Textes non codifiés, avis, décisions publiées. `journal-officiel.gouv.fr` est un site distinct (DILA, annonces légales — associations, BALO), **pas** la source des lois/décrets |
+| JORF (Journal Officiel) | legifrance.gouv.fr/jorf/jo | Textes non codifiés, avis, décisions publiées. `journal-officiel.gouv.fr` est un site distinct (DILA, annonces légales — associations, BALO), **pas** la source des lois/décrets |
 | EUR-Lex | eur-lex.europa.eu | Droit de l'UE (règlements, directives) — vérifier transposition FR séparément |
 | CEDH (arrêts et décisions) | echr.coe.int | Convention EDH et protocoles |
 

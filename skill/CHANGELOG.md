@@ -21,13 +21,15 @@ méthodologique ; correction de sources devenues fausses ou périmées.
 #### Corrigé
 - **`references/sources-autorisees.md`** : trois adresses erronées —
   `journal-officiel.gouv.fr` (site DILA des annonces légales, pas le JORF —
-  remplacé par `legifrance.gouv.fr/jorf`), `judilibre.fr` (domaine
-  inexistant — Judilibre n'est accessible que via
-  `courdecassation.fr/recherche-judilibre`), `arianeweb.conseil-etat.fr`
-  (URL périmée — remplacée par `conseil-etat.fr/arianeweb/`).
-  `circulaires.legifrance.gouv.fr` redirige désormais vers le site
-  principal (refonte Légifrance d'avril 2026) ; corrigé également dans
-  `SKILL.md` (P1, P3).
+  remplacé par `legifrance.gouv.fr/jorf/jo`, seule adresse qui répond
+  effectivement), `judilibre.fr` (domaine inexistant — Judilibre n'est
+  accessible que via `courdecassation.fr/recherche-judilibre`),
+  `arianeweb.conseil-etat.fr` (URL périmée — remplacée par
+  `conseil-etat.fr/arianeweb/`). `circulaires.legifrance.gouv.fr` redirige
+  désormais vers le site principal (refonte Légifrance d'avril 2026) ;
+  corrigé également dans `SKILL.md` (P1, P3) et dans les deux gabarits de
+  requête `site:circulaires.legifrance.gouv.fr` de
+  `references/gabarits-requetes.md`, repérés lors de la revue de merge.
 - **`references/modules.md`** (module ACTE-ADMIN) : le contrôle de
   motivation visait encore la loi du 11 juillet 1979, recodifiée au CRPA
   (art. L.211-2 et s.) par l'ordonnance n° 2015-1341 depuis le 1/01/2016 —
