@@ -21,6 +21,7 @@ import jwt  # noqa: E402
 from cryptography.hazmat.primitives.asymmetric import rsa  # noqa: E402
 
 from mcp_server.auth import (  # noqa: E402
+    JWKS_FORCED_REFRESH_INTERVAL_SECONDS,
     JwksTokenVerifier,
     LegalAccessToken,
     _normalise_scopes,
@@ -255,8 +256,39 @@ class PrincipalRateLimiterTests(unittest.TestCase):
         self.assertEqual(limiter.tracked_principals, 1)
 
 
-def _sign(payload: dict[str, object], key) -> str:
-    return jwt.encode(payload, key, algorithm="RS256")
+#: Identifiant de clé par défaut : celui que le jeu de clés simulé (voir
+#: ``JwksTokenVerifierTests._verifier``) sait déjà résoudre sans réseau.
+KID = "clef-actuelle"
+
+
+def _sign(payload: dict[str, object], key, *, kid: str | None = KID) -> str:
+    headers = {"kid": kid} if kid else None
+    return jwt.encode(payload, key, algorithm="RS256", headers=headers)
+
+
+class _FrozenClock:
+    """Horloge monotone injectable, avancée sur demande — ne dort jamais.
+
+    ``test_window_expiry_frees_the_quota_and_purges_the_bucket`` ci-dessus
+    dort 60 ms pour observer une expiration : fragilité connue, à ne pas
+    reproduire (voir la revue qui a introduit ce commentaire). Les tests du
+    bridage JWKS avancent cette horloge au lieu de dormir.
+    """
+
+    def __init__(self, start: float = 1_000_000.0) -> None:
+        self._now = start
+
+    def __call__(self) -> float:
+        return self._now
+
+    def advance(self, seconds: float) -> None:
+        self._now += seconds
+
+
+def _key_stub(kid: str, private_key) -> mock.Mock:
+    """Imite un ``jwt.PyJWK`` : seuls ``key_id`` et ``key`` sont lus, par le
+    vrai ``PyJWKClient.match_kid`` et par ``JwksTokenVerifier._decode``."""
+    return mock.Mock(key_id=kid, key=private_key.public_key())
 
 
 class JwksTokenVerifierTests(unittest.TestCase):
@@ -264,18 +296,33 @@ class JwksTokenVerifierTests(unittest.TestCase):
     def setUpClass(cls):
         cls.key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
 
-    def _verifier(self) -> JwksTokenVerifier:
-        with mock.patch("mcp_server.auth.PyJWKClient"):
-            verifier = JwksTokenVerifier(
-                issuer=ISSUER, jwks_url=f"{ISSUER}/jwks", audience=RESOURCE
-            )
-        signing_key = mock.Mock()
-        signing_key.key = self.key.public_key()
-        verifier._jwks_client.get_signing_key_from_jwt.return_value = signing_key
+    def _verifier(self, *, clock=None) -> JwksTokenVerifier:
+        """Vérificateur construit avec un vrai ``PyJWKClient``.
+
+        Construire ``PyJWKClient`` ne fait aucun appel réseau (voir sa
+        source) : seul ``get_signing_keys`` — la frontière réseau — est
+        remplacé ci-dessous. ``match_kid`` reste la véritable
+        ``staticmethod`` de PyJWT, non simulée : les tests exercent la même
+        logique de correspondance qu'en production, pas une réimplémentation
+        de complaisance dans le test.
+        """
+        kwargs = {"clock": clock} if clock is not None else {}
+        verifier = JwksTokenVerifier(
+            issuer=ISSUER, jwks_url=f"{ISSUER}/jwks", audience=RESOURCE, **kwargs
+        )
+        # Jeu de clés par défaut : seule KID y figure. Les tests qui veulent
+        # un kid inconnu, une panne réseau ou une rotation remplacent
+        # get_signing_keys explicitement après construction.
+        verifier._jwks_client.get_signing_keys = mock.Mock(
+            return_value=[_key_stub(KID, self.key)]
+        )
         return verifier
 
     def _verify(self, token: str):
         return asyncio.run(self._verifier().verify_token(token))
+
+    def _verify_with(self, verifier: JwksTokenVerifier, token: str):
+        return asyncio.run(verifier.verify_token(token))
 
     def _payload(self, **overrides) -> dict[str, object]:
         now = int(time.time())
@@ -327,15 +374,172 @@ class JwksTokenVerifierTests(unittest.TestCase):
         self.assertIsNone(self._verify(_sign(self._payload(), other)))
 
     def test_symmetric_algorithm_is_never_accepted(self):
-        token = jwt.encode(self._payload(), "secret-partage", algorithm="HS256")
+        # kid=KID explicite : sans lui, le jeton serait déjà refusé faute de
+        # kid avant même d'atteindre le contrôle d'algorithme visé ici.
+        token = jwt.encode(
+            self._payload(), "secret-partage", algorithm="HS256", headers={"kid": KID}
+        )
         self.assertIsNone(self._verify(token))
 
     def test_unconfigured_asymmetric_algorithm_is_refused(self):
-        token = jwt.encode(self._payload(), self.key, algorithm="RS384")
+        token = jwt.encode(
+            self._payload(), self.key, algorithm="RS384", headers={"kid": KID}
+        )
         self.assertIsNone(self._verify(token))
 
     def test_missing_token_gives_the_anonymous_principal(self):
         self.assertEqual(principal_of(None), "anonyme")
+
+    # ------------------------------------------------------------------
+    # Bridage du rafraîchissement forcé JWKS (SEC-01 / SEC-03).
+    #
+    # PyJWKClient.get_signing_key(kid), quand le kid ne figure pas dans le
+    # jeu de clés en cache, rappelle l'émetteur avec refresh=True — sans
+    # aucune authentification préalable, puisque ce vérificateur EST le point
+    # d'authentification. Les tests ci-dessous prouvent que
+    # JwksTokenVerifier borne ce rappel au lieu de se contenter de le
+    # documenter.
+
+    def test_unknown_kid_is_refused(self):
+        """T1 — comble TEST-02 : un kid absent du JWKS n'authentifie jamais,
+        même après le rafraîchissement forcé (lui aussi sans le kid)."""
+        verifier = self._verifier()
+        verifier._jwks_client.get_signing_keys = mock.Mock(return_value=[])
+        token = _sign(self._payload(), self.key, kid="kid-inconnu")
+        self.assertIsNone(self._verify_with(verifier, token))
+
+    def test_unreachable_jwks_is_reported_as_unavailable(self):
+        """T2 — une panne réseau générique doit emprunter la branche
+        ``auth_unavailable``, pas ``auth_rejected`` (qui, elle, suppose un
+        JWKS joignable mais un jeton non conforme)."""
+        verifier = self._verifier()
+        verifier._jwks_client.get_signing_keys = mock.Mock(
+            side_effect=OSError("résolution DNS impossible")
+        )
+        token = _sign(self._payload(), self.key, kid=KID)
+        with self.assertLogs("droit_francais.mcp.auth", level="WARNING") as journal:
+            access = self._verify_with(verifier, token)
+        self.assertIsNone(access)
+        self.assertTrue(
+            any("auth_unavailable" in ligne for ligne in journal.output),
+            journal.output,
+        )
+
+    def test_unknown_kid_flood_triggers_a_single_forced_refresh(self):
+        """T3 — LE TEST CENTRAL : garantie anti-amplification de SEC-01.
+
+        Sans bridage, 20 requêtes à kid inconnu déclenchent 20
+        rafraîchissements forcés (un aller-retour réseau non authentifié
+        chacun) ; avec, un seul. C'est mesuré ici en comptant les appels
+        réels de ``get_signing_keys(refresh=True)``, pas supposé.
+        """
+        clock = _FrozenClock()
+        verifier = self._verifier(clock=clock)
+        verifier._jwks_client.get_signing_keys = mock.Mock(return_value=[])
+        token = _sign(self._payload(), self.key, kid="kid-inconnu")
+
+        for _ in range(20):
+            self.assertIsNone(self._verify_with(verifier, token))
+
+        appels = verifier._jwks_client.get_signing_keys.call_args_list
+        appels_forces = [c for c in appels if c.kwargs.get("refresh") is True]
+        self.assertEqual(
+            1,
+            len(appels_forces),
+            "le bridage doit plafonner les rafraîchissements forcés à un "
+            f"seul pour 20 requêtes à kid inconnu ; observé : {len(appels_forces)}",
+        )
+
+    def test_legitimate_rotation_is_still_honoured_after_the_interval(self):
+        """T4 — non-régression : passé l'intervalle de bridage, un kid
+        nouvellement publié par l'émetteur est résolu et le jeton accepté.
+        Le bridage retarde une rotation légitime d'au plus un intervalle ;
+        il ne doit jamais l'empêcher.
+        """
+        clock = _FrozenClock()
+        verifier = self._verifier(clock=clock)
+        nouvelle_cle = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+        nouveau_kid = "kid-apres-rotation"
+        # Le rafraîchissement forcé ne « voit » la clé tournée qu'une fois le
+        # délai suivant écoulé — ce qui isole ce que le test vérifie
+        # réellement : que c'est l'horloge injectée, pas l'horloge système,
+        # qui gouverne le bridage.
+        seuil = clock() + JWKS_FORCED_REFRESH_INTERVAL_SECONDS + 1
+
+        def lookup(refresh: bool = False):
+            if refresh and clock() >= seuil:
+                return [_key_stub(nouveau_kid, nouvelle_cle)]
+            return []
+
+        verifier._jwks_client.get_signing_keys = mock.Mock(side_effect=lookup)
+        token = _sign(self._payload(), nouvelle_cle, kid=nouveau_kid)
+
+        # Consomme le budget de rafraîchissement forcé de cet intervalle ;
+        # l'émetteur simulé ne sert pas encore la nouvelle clé.
+        self.assertIsNone(self._verify_with(verifier, token))
+
+        # Toujours dans le même intervalle : bridé sans même retourner au
+        # réseau, quand bien même la clé serait déjà disponible côté
+        # émetteur.
+        self.assertIsNone(self._verify_with(verifier, token))
+
+        clock.advance(JWKS_FORCED_REFRESH_INTERVAL_SECONDS + 1)
+        access = self._verify_with(verifier, token)
+        self.assertIsInstance(
+            access, LegalAccessToken, "la rotation légitime doit finir par aboutir"
+        )
+
+    def test_known_kid_never_triggers_a_forced_refresh(self):
+        """T5 — un kid déjà présent dans le cache n'appelle jamais
+        ``refresh=True`` : le bridage ne doit pas coûter au cas nominal."""
+        verifier = self._verifier()  # jeu par défaut : contient déjà KID
+        token = _sign(self._payload(), self.key, kid=KID)
+
+        access = self._verify_with(verifier, token)
+
+        self.assertIsInstance(access, LegalAccessToken)
+        appels = verifier._jwks_client.get_signing_keys.call_args_list
+        self.assertFalse(
+            any(c.kwargs.get("refresh") for c in appels),
+            f"aucun appel ne doit passer refresh=True ; observé : {appels}",
+        )
+
+    def test_token_without_kid_is_refused_without_any_network_call(self):
+        """T6 — un en-tête sans kid est un cas dégénéré : rejet immédiat,
+        sans consommer le budget de rafraîchissement forcé ni faire de
+        distinction réseau."""
+        verifier = self._verifier()
+        lookup = mock.Mock(return_value=[_key_stub(KID, self.key)])
+        verifier._jwks_client.get_signing_keys = lookup
+        token = _sign(self._payload(), self.key, kid=None)
+
+        self.assertIsNone(self._verify_with(verifier, token))
+        lookup.assert_not_called()
+
+    def test_jwks_client_is_configured_defensively(self):
+        """T7 — garde-fou de configuration : cache_keys=False et un timeout
+        borné. Empêche quiconque de remettre cache_keys=True sans s'en
+        apercevoir (c'est précisément SEC-03)."""
+        with mock.patch("mcp_server.auth.PyJWKClient") as jwks_cls:
+            JwksTokenVerifier(
+                issuer=ISSUER, jwks_url=f"{ISSUER}/jwks", audience=RESOURCE
+            )
+
+        self.assertEqual(1, jwks_cls.call_count)
+        _, kwargs = jwks_cls.call_args
+        self.assertIs(
+            kwargs.get("cache_keys"),
+            False,
+            "cache_keys=True installerait un lru_cache sans expiration (SEC-03)",
+        )
+        self.assertIsNotNone(kwargs.get("timeout"))
+        self.assertLessEqual(
+            kwargs["timeout"],
+            5,
+            "un timeout non borné expose le pool de threads anyio à un "
+            "émetteur lent (SEC-01)",
+        )
+        self.assertGreater(kwargs.get("lifespan", 0), 0)
 
 
 class DatingTests(unittest.TestCase):

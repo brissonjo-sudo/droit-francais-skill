@@ -26,7 +26,9 @@ Aucun jeton, aucune charge utile et aucun secret n'est journalisé.
 from __future__ import annotations
 
 import logging
-from typing import Any, Iterable
+import threading
+import time
+from typing import Any, Callable, Iterable
 
 import anyio
 import jwt
@@ -39,6 +41,37 @@ LOGGER = logging.getLogger("droit_francais.mcp.auth")
 #: générique d'algorithmes asymétriques élargirait inutilement la politique de
 #: validation des jetons.
 ALLOWED_ALGORITHMS: tuple[str, ...] = ("RS256",)
+
+#: Durée de vie du cache « tier 1 » (jeu de clés complet) de ``PyJWKClient``.
+#: Une clé révoquée chez l'émetteur reste donc acceptée au plus ce délai après
+#: la rotation — jamais jusqu'au redémarrage du processus (SEC-03).
+JWKS_CACHE_LIFESPAN_SECONDS = 300
+
+#: Le cache « tier 2 » de ``PyJWKClient`` (``cache_keys=True``) est un
+#: ``lru_cache`` SANS expiration temporelle : avec les deux clés du JWKS de
+#: production, la LRU n'évince jamais rien et une clé révoquée resterait
+#: acceptée jusqu'au redémarrage du processus. Il reste désactivé ; seul le
+#: cache à expiration ci-dessus fait foi (SEC-03).
+JWKS_CACHE_KEYS = False
+
+#: ``PyJWKClient`` attend 30 s par défaut. ``_decode`` tourne dans un thread du
+#: pool anyio (voir ``verify_token``) : sans borne, un émetteur qui ralentit
+#: laisserait un attaquant non authentifié immobiliser tout le pool 30 s par
+#: requête, jusqu'à épuiser les threads disponibles pour les requêtes
+#: légitimes (SEC-01).
+JWKS_HTTP_TIMEOUT_SECONDS = 5
+
+#: Intervalle minimal entre deux rafraîchissements forcés du JWKS provoqués
+#: par un ``kid`` absent du cache. Le vérificateur de jeton EST le point
+#: d'authentification : avant tout contrôle, le ``kid`` est un texte
+#: entièrement choisi par l'appelant. Sans ce bridage, un ``kid`` inconnu (au
+#: hasard ou non) déclenche un aller-retour réseau vers l'émetteur à CHAQUE
+#: requête anonyme (mesuré en production : +0,054 s par requête, facteur 1,8)
+#: et peut épuiser le quota du locataire Auth0 (SEC-01). Contrepartie
+#: acceptée : un attaquant qui inonde de ``kid`` aléatoires consomme ce budget
+#: et peut retarder l'adoption d'une clé légitimement tournée d'au plus un
+#: intervalle. C'est délibéré et borné.
+JWKS_FORCED_REFRESH_INTERVAL_SECONDS = 60
 
 
 class LegalAccessToken(AccessToken):
@@ -75,8 +108,20 @@ def _client_identifier(payload: dict[str, Any]) -> str:
 class JwksTokenVerifier:
     """Implémente le protocole ``TokenVerifier`` du SDK MCP.
 
-    Le client JWKS met les clés publiques en cache et ne rappelle l'émetteur
-    qu'en cas de rotation, ce qui évite un appel réseau par requête.
+    Le jeu de clés JWKS est mis en cache avec expiration
+    (``JWKS_CACHE_LIFESPAN_SECONDS``) : une rotation ou une révocation chez
+    l'émetteur est reconnue au plus tard à l'expiration de ce délai, jamais
+    seulement au redémarrage du processus.
+
+    Un ``kid`` absent du jeu de clés en cache déclencherait normalement, côté
+    ``PyJWKClient``, un rafraîchissement forcé immédiat auprès de l'émetteur.
+    Comme ce jeton n'est pas encore authentifié à ce stade, le ``kid`` est une
+    valeur que l'appelant contrôle entièrement : sans bridage, il pourrait
+    provoquer un aller-retour réseau vers l'émetteur à chaque requête, avant
+    toute authentification. Ce rafraîchissement forcé est donc limité à un
+    appel au plus par ``JWKS_FORCED_REFRESH_INTERVAL_SECONDS``, quel que soit
+    le nombre de ``kid`` distincts présentés — voir ``_forced_refresh_allowed``
+    et ``_resolve_signing_key``.
     """
 
     def __init__(
@@ -86,16 +131,94 @@ class JwksTokenVerifier:
         audience: str,
         *,
         leeway_seconds: int = 30,
+        clock: Callable[[], float] = time.monotonic,
     ) -> None:
         self._issuer = issuer
         self._audience = audience
         self._leeway_seconds = leeway_seconds
         self._algorithms = ALLOWED_ALGORITHMS
-        self._jwks_client = PyJWKClient(jwks_url, cache_keys=True, lifespan=3600)
+        self._jwks_client = PyJWKClient(
+            jwks_url,
+            cache_keys=JWKS_CACHE_KEYS,
+            lifespan=JWKS_CACHE_LIFESPAN_SECONDS,
+            timeout=JWKS_HTTP_TIMEOUT_SECONDS,
+        )
+        #: Horloge injectable (monotone, insensible aux ajustements de
+        #: l'horloge système) : les tests figent ou avancent le temps sans
+        #: jamais avoir à dormir pour observer le bridage ci-dessous.
+        self._clock = clock
+        #: Protège ``_last_forced_refresh`` : ``_decode`` s'exécute dans un
+        #: thread du pool anyio, et des requêtes concurrentes portant un
+        #: ``kid`` inconnu ne doivent consommer qu'un seul rafraîchissement.
+        self._refresh_lock = threading.Lock()
+        #: Horodatage du dernier rafraîchissement forcé, ou ``None`` avant le
+        #: premier. Un unique horodatage suffit à plafonner les appels
+        #: sortants : accumuler les ``kid`` déjà vus dans un dictionnaire
+        #: donnerait à un attaquant un moyen de faire croître la mémoire du
+        #: processus sans limite, au gré des ``kid`` aléatoires envoyés.
+        self._last_forced_refresh: float | None = None
+
+    def _resolve_signing_key(self, token: str) -> jwt.PyJWK:
+        """Trouve la clé de signature sans jamais amplifier un ``kid`` inconnu.
+
+        1. Le ``kid`` est lu dans l'en-tête *non vérifié* du jeton : un simple
+           décodage base64, jamais une preuve d'authenticité. Il ne sert qu'à
+           indexer la recherche de clé ci-dessous, jamais à autoriser quoi que
+           ce soit.
+        2. La recherche part du jeu de clés en cache (``get_signing_keys()``,
+           sans appel réseau si le cache est encore frais). Si le ``kid`` y
+           figure, la clé correspondante est retournée immédiatement.
+        3. Sinon, un rafraîchissement forcé (``get_signing_keys(refresh=True)``,
+           qui contacte l'émetteur) n'est tenté que si ``_forced_refresh_allowed``
+           l'autorise. À défaut, échec immédiat, sans aucun appel réseau.
+        """
+        header = jwt.get_unverified_header(token)
+        kid = header.get("kid")
+        if not kid:
+            raise jwt.PyJWKClientError("Jeton sans identifiant de clé exploitable.")
+
+        keys = self._jwks_client.get_signing_keys()
+        key = self._jwks_client.match_kid(keys, kid)
+        if key is not None:
+            return key
+
+        if not self._forced_refresh_allowed():
+            raise jwt.PyJWKClientError(
+                "Clé introuvable dans le cache ; rafraîchissement forcé bridé."
+            )
+
+        keys = self._jwks_client.get_signing_keys(refresh=True)
+        key = self._jwks_client.match_kid(keys, kid)
+        if key is None:
+            raise jwt.PyJWKClientError("Aucune clé ne correspond au jeton présenté.")
+        return key
+
+    def _forced_refresh_allowed(self) -> bool:
+        """Autorise au plus un rafraîchissement forcé par intervalle.
+
+        Verrouillé parce que ``_decode`` tourne dans un thread du pool anyio :
+        plusieurs requêtes concurrentes portant un ``kid`` inconnu ne doivent
+        déclencher qu'un seul aller-retour réseau, quelle que soit la forme de
+        l'attaque (un seul ``kid`` répété ou une rafale de ``kid`` distincts).
+        L'appel réseau lui-même a lieu hors du verrou, dans
+        ``_resolve_signing_key`` : le tenir pendant l'attente réseau
+        sérialiserait aussi les requêtes qui n'ont, elles, pas besoin
+        d'attendre — il suffit qu'elles constatent le budget déjà consommé.
+        """
+        now = self._clock()
+        with self._refresh_lock:
+            allowed = (
+                self._last_forced_refresh is None
+                or now - self._last_forced_refresh
+                >= JWKS_FORCED_REFRESH_INTERVAL_SECONDS
+            )
+            if allowed:
+                self._last_forced_refresh = now
+            return allowed
 
     def _decode(self, token: str) -> dict[str, Any]:
         """Décodage bloquant, exécuté hors de la boucle d'événements."""
-        signing_key = self._jwks_client.get_signing_key_from_jwt(token)
+        signing_key = self._resolve_signing_key(token)
         return jwt.decode(
             token,
             signing_key.key,
