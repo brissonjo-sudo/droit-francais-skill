@@ -1,6 +1,6 @@
 # Conditions d'utilisation — Droit français
 
-Dernière mise à jour : 31 août 2026
+Dernière mise à jour : 4 septembre 2026
 
 ## 1. Objet
 
@@ -36,6 +36,10 @@ Le service est fourni sans garantie de disponibilité continue. Des limites de
 débit, une mise en veille de l'hébergeur ou une indisponibilité de PISTE peuvent
 retarder ou empêcher une recherche.
 
+La copie d'un texte ou d'une décision restituée par le plugin n'a pas de valeur
+officielle ; seule la publication sur Légifrance ou sur le site de la Cour de
+cassation fait foi.
+
 ## 4. Utilisations interdites
 
 L'utilisateur s'engage à ne pas utiliser le service :
@@ -46,7 +50,7 @@ L'utilisateur s'engage à ne pas utiliser le service :
 - pour harceler, discriminer ou porter atteinte à une personne citée dans une
   décision ;
 - pour contourner les quotas, mécanismes de sécurité ou conditions d'accès de
-  PISTE, Légifrance, Judilibre, OpenAI ou Render ;
+  PISTE, Légifrance, Judilibre, OpenAI, Render ou Auth0 ;
 - pour publier une conclusion juridique comme certaine lorsque le plugin a
   signalé une source non vérifiée ou une limite.
 
