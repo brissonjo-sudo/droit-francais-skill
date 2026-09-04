@@ -18,7 +18,9 @@ une réussite sans preuve durable ne passe pas à `✅`.
 | Isolation entre deux sujets | le quota du premier sujet n'empêche pas le second ; deux pseudonymes distincts dans les journaux | test chronométré avec deux comptes, sans identifiant brut | ☐ dépend du compte de démonstration |
 | Retrait d'urgence Judilibre (E10) | décision masquée, valeur invalide refusée au démarrage, restauration réussie | exercice Render chronométré et journaux `count=1`, refus, puis `count=0` | ☐ accès Render requis |
 | Check-list Auth0 complète | chaque ligne `◐`/`☐` dispose d'une preuve datée et expurgée | seconde lecture indépendante des captures et comparaison aux réglages actifs | ◐ DCR terminé ; autres lignes restantes |
-| Dossier de soumission | schéma officiel courant, six outils cohérents, 5 cas positifs et 3 négatifs ; identité et domaine vérifiés | validation locale + schéma officiel téléchargé + essai du formulaire | ◐ partie automatisable conforme le 02/09 |
+| Findings de sécurité | aucun finding élevé ouvert et non accepté ; chaque correction adossée à une contre-épreuve | audit adversarial du 04/09/2026, § 8 de [`audit-securite.md`](audit-securite.md) | ◐ 14 findings ; SEC-03 et SEC-14 corrigés, SEC-01 atténué de 2 à 3 ordres de grandeur et reclassé MOYEN sans être refermé, SEC-05 corrigé. **SEC-02 reste le seul verrou** : sa gravité dépend de l'ouverture de l'inscription sur le locataire Auth0, invisible depuis l'extérieur |
+| Déploiement du correctif de sécurité | `/health` annonce la version qui porte le correctif JWKS | montée en `0.8.1`, fusion, redéploiement Render, puis relecture de `/health` | ☐ **dépend de la fusion des PR #64 et #65** ; la production sert encore `0.8.0`, donc sans le correctif |
+| Dossier de soumission | schéma officiel courant, six outils cohérents, 5 cas positifs et 3 négatifs ; identité et domaine vérifiés ; **chaque identifiant cité résout réellement** | validation locale + schéma officiel téléchargé + essai du formulaire + appel réel sur les identifiants des scénarios | ◐ partie automatisable conforme ; identifiant mort du 4ᵉ cas positif corrigé le 04/09/2026 après appel réel. **Lacune connue** : `check_plugin.py` ne vérifie que la cohérence interne du dossier, jamais la résolution des identifiants — c'est par là qu'une fixture de test s'y était glissée |
 | Vidéo | six outils visibles, deux parcours positifs et un refus sans invention, aucune donnée personnelle à l'écran | relecture intégrale du MP4 avant dépôt | ☐ dépend du compte de démonstration |
 | Release finale | version identique serveur/manifeste/notes, tag `plugin-v*` sur le commit fusionné, CI verte | suite complète, contrôles documentaires, PR revue, CI post-fusion | ☐ seulement après toutes les portes précédentes |
 
@@ -36,6 +38,12 @@ une réussite sans preuve durable ne passe pas à `✅`.
   une mesure de quelques minutes qui décide seule du sort de la portée
   `legal:read` ([`exploitation.md`](exploitation.md), incident n° 4) ;
 - **échéance de l'essai Auth0 vers le 21 septembre 2026** — 17 jours restants
-  au 04/09/2026. À arbitrer avant cette date : voir si les réglages dont
-  dépend le service survivent à l'offre gratuite ;
+  au 04/09/2026. Le locataire n'est pas suspendu, l'offre gratuite s'active
+  d'elle-même ; la seule régression établie est la **rétention des journaux
+  ramenée à un jour**, or ce sont les preuves d'audit de ce dossier. Les
+  exporter avant l'échéance ;
+- **l'inscription libre est-elle ouverte sur le locataire Auth0 ?** C'est la
+  question qui décide de la gravité de SEC-02, et aucune sonde externe ne peut
+  y répondre. Si elle est ouverte, n'importe qui peut obtenir un jeton valide
+  et consommer les clés PISTE du titulaire ;
 - validation visuelle et dépôt final de la vidéo.
