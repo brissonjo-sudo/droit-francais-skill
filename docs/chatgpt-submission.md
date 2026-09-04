@@ -1,6 +1,6 @@
 # Connexion et soumission du plugin dans ChatGPT
 
-État vérifié le 30 août 2026.
+État vérifié le 30 août 2026, révisé le 4 septembre 2026.
 
 ## Endpoint de production
 

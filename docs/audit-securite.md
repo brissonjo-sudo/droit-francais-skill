@@ -88,7 +88,7 @@ Statuts : `PROUVÉ`, `À REJOUER`, `ACTION HUMAINE`, `BLOQUANT`, `ACCEPTÉ`.
 | E9 | Quotas réels et nombre de réplicas | ACTION HUMAINE | capture PISTE + configuration Render | titulaire PISTE | — |
 | E10 | Retrait d'urgence Judilibre | À REJOUER | tests unitaires PROUVÉS (PR #46 : casse, liste malformée refusée, nombre journalisé) ; exercice chronométré du runbook sur Render : [pieces-humaines.md](pieces-humaines.md) § 6 | mainteneur | 01/09/2026 |
 | E11 | CVE système sans correctif éditeur | BLOQUANT | rapport Trivy CI + analyse d'exploitabilité et acceptation datée | mainteneur sécurité | à chaque build |
-| E12 | Audit adversarial du chemin d'authentification | PROUVÉ (13 findings, voir § 8) | sondes publiques datées du 4/9/2026 + banc d'attaque local contre le vrai `JwksTokenVerifier` : treize attaques cryptographiques, treize refus | mainteneur | 04/09/2026 |
+| E12 | Audit adversarial du chemin d'authentification | PROUVÉ **pour la part rejouable** ; banc complet non archivé | les sondes publiques du 4/9/2026 sont reproductibles telles quelles (§ 8), et les refus d'algorithme, d'émetteur, d'audience et d'expiration sont couverts par des tests commis (`tests/test_auth.py`). En revanche le banc d'attaque ayant produit le 13/13 — confusion HS256 forgée à la main, `nbf` futur, injection de journal par le `sub` — était un script jetable : **il n'est pas archivé, et un tiers ne peut pas le rejouer en l'état**. La ligne ne passera à PROUVÉ que lorsqu'il le sera | mainteneur | 04/09/2026 |
 
 ## 5. Programme de contrôles
 

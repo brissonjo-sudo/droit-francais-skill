@@ -87,18 +87,29 @@ Ce réglage existe pour un cas réel : un client qui n'annonce pas la portée
 personnalisée dans sa requête d'autorisation alors que l'authentification, elle,
 aboutit. Le refus se manifeste par un `403` après une authentification réussie.
 
-C'est une **configuration de compatibilité**, et l'arbitrage a été tranché :
-elle reste en place. Le SDK construit la métadonnée avec
-`scopes_supported=auth.required_scopes` et remet **la même liste** au middleware
-d'autorisation : annoncer et exiger sont indissociables. Or une portée d'API
-personnalisée n'apparaît jamais dans le document de découverte OIDC de
-l'émetteur, donc un client qui ne demande que ce qui y est annoncé obtiendrait
-un jeton sans `legal:read`. Réactiver le contrôle reviendrait à répondre `403`
-à tout le monde.
+C'est une **configuration de compatibilité**, toujours en place — mais ce n'est
+plus un point clos. Des deux motifs qui le fermaient, un seul tient.
 
-Le journal métier porte désormais les portées reçues (`scopes=`) : la
-réactivation deviendra possible le jour où les appels réels montreront
-`legal:read`. Voir [exploitation.md](exploitation.md), incident n° 4.
+*Il tient* : le SDK construit la métadonnée avec
+`scopes_supported=auth.required_scopes` et remet **la même liste** au middleware
+d'autorisation (`mcp/server/lowlevel/server.py:817`). Annoncer et exiger sont
+indissociables, si bien qu'une bascule serait un jour de bascule et non une
+migration progressive.
+
+*Il est tombé le 4 septembre 2026* : il était écrit qu'une portée d'API
+personnalisée, absente du document de découverte de l'émetteur, ne serait jamais
+demandée. Or un client MCP ne consulte ce document qu'**en troisième position**,
+après l'en-tête `WWW-Authenticate` et après `scopes_supported` des métadonnées
+de ressource protégée que ce serveur publie lui-même
+(`mcp/client/auth/utils.py:109-119`). Y poser `legal:read` la ferait donc
+demander.
+
+**Le raisonnement complet et à jour, avec le chemin de bascule ordonné, son
+contrôle négatif et son retour arrière, tient dans un seul document :
+[exploitation.md](exploitation.md), incident n° 4.** La présente section n'en
+est qu'un renvoi, afin qu'une révision future n'ait qu'un endroit à corriger.
+Le journal métier porte les portées reçues (`scopes=`) : c'est cette mesure,
+non une préférence, qui tranchera.
 
 Aucune valeur de cette variable ne peut désactiver l'authentification :
 `MCP_AUTH_MODE` seul en décide, et la production refuse `disabled`.

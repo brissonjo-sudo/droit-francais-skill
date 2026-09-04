@@ -1,6 +1,6 @@
 # Authentification OAuth 2.1 du serveur MCP public
 
-État vérifié le 30 août 2026.
+État vérifié le 30 août 2026, révisé le 4 septembre 2026.
 
 ## Pourquoi une authentification
 
@@ -76,7 +76,8 @@ Dans l'onglet **Permissions** de l'API, `legal:read` (« Consultation des
 sources juridiques officielles ») peut rester défini, mais sa présence ne
 signifie pas que le client le demande ni que le serveur doit l'exiger. La
 production conserve `MCP_OAUTH_REQUIRED_SCOPES=-` tant que les appels ChatGPT
-arrivent sans cette portée ; voir « Portée vide annoncée » plus bas.
+arrivent sans cette portée ; voir l'incident n° 4 de
+[exploitation.md](exploitation.md), qui porte l'arbitrage complet et à jour.
 
 **Laisser le RBAC désactivé.** Activé, Auth0 ne place dans le jeton que les
 permissions assignées à chaque utilisateur par un rôle ; sur une application
@@ -165,11 +166,19 @@ Un client antérieur, `dRsmaHYVujnQft3RtXOynPj7qeK3rAWg`, a été **supprimé** 
 4 septembre 2026 (journal Auth0 *Delete a client*). Il n'est pas réutilisable :
 aucune procédure ni aucun réglage ne doit y renvoyer.
 
-ChatGPT lit `/.well-known/openid-configuration` et demande l'ensemble des
-portées qui y sont annoncées. Si l'autorisation échoue en
-`OAUTH_SCOPES_MISMATCH`, ajouter une *Post-Login Action* accordant
-explicitement les portées OIDC demandées (`openid`, `profile`, `email`,
-`offline_access`).
+ChatGPT lit `/.well-known/openid-configuration` et demande les portées qui y
+sont annoncées. Si l'autorisation échoue en `OAUTH_SCOPES_MISMATCH`, ajouter
+une *Post-Login Action* accordant explicitement les portées OIDC demandées
+(`openid`, `profile`, `email`, `offline_access`).
+
+**Cette phrase ne dit pas tout, et il faut le savoir.** Le document de
+l'émetteur n'est que la **troisième** source qu'un client MCP consulte pour
+choisir ses portées : viennent d'abord l'en-tête `WWW-Authenticate`, puis
+`scopes_supported` des métadonnées de ressource protégée que ce serveur publie
+lui-même (`mcp/client/auth/utils.py:109-119`). Pour les portées OIDC
+standard, le raccourci ci-dessus reste opérant. Pour une portée d'API
+personnalisée comme `legal:read`, il est trompeur : voir
+[exploitation.md](exploitation.md), incident n° 4.
 
 ### 5. Valeurs à relever
 

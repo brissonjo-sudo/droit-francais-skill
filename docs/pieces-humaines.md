@@ -267,14 +267,19 @@ sources. Convention des tags : [`architecture-plugin.md`](architecture-plugin.md
 
 ## 11. Ping externe de maintien hors veille
 
-**✅ En service depuis le 3 septembre 2026, établi par la mesure.** La mise en
-service n'avait pas été consignée ; elle se lit sans ambiguïté dans le journal
-`surveillance`, où la bascule est nette :
+**◐ En service depuis le 3 septembre 2026, établi par la mesure ; deux
+vérifications restent dues.** La mise en service n'avait pas été consignée ;
+elle se lit sans ambiguïté dans le journal `surveillance`, où la bascule est
+nette :
 
 | Sondes | Réveil | Latence du premier appel |
 |---|---|---|
 | 5 sondes, du 2/09 22:08 au 3/09 14:24 UTC | **5 réveils sur 5** | 22,4 à 32,5 s |
 | 6 sondes, du 3/09 18:32 au 4/09 14:14 UTC | **aucun** | 0,27 à 0,37 s |
+
+Cette première série est distincte de celle des 1er et 2 septembre citée plus
+bas, qui documentait la réfutation du planificateur GitHub : ce sont deux
+séries de cinq réveils, aux valeurs voisines mais aux dates différentes.
 
 Les écarts entre sondes sont du même ordre de part et d'autre de la bascule :
 de 1 h 06 à 5 h 25 avant, de 2 h 18 à 5 h 11 après. Or l'instance s'endort au
@@ -288,10 +293,23 @@ haute qui fait courir les délais d'observation :
 * les 24 h s'achèvent le **4 septembre 2026 à 18:32 UTC** ;
 * les sept jours s'achèvent le **10 septembre 2026 à 18:32 UTC**.
 
+**Ce que la mesure prouve, et ce qu'elle ne prouve pas.** Elle établit qu'un
+tiers sollicite l'instance entre les sondes ; elle n'établit pas *lequel*. Deux
+explications concurrentes ont été examinées :
+
+* *le trafic d'audit du 4 septembre* — écarté par la chronologie : les sondes
+  d'audit ont eu lieu entre 14:29 et 14:39 UTC, alors que les six mesures sans
+  réveil s'échelonnent de 18:32 le 3 septembre à 14:14 le 4. Toutes lui sont
+  antérieures ;
+* *un changement de forfait Render* vers une instance sans mise en veille, dans
+  la même fenêtre — produirait exactement le même signal. Seul le tableau de
+  bord peut l'écarter, et c'est l'une des deux vérifications ci-dessous.
+
 **Restent dus sur cette pièce**, et eux seuls : l'export de l'historique du
 service de ping sur 24 h, sans donnée de compte, et la **vérification du quota
-d'heures d'instance Render** décrite au point 4 ci-dessous. Le journal GitHub,
-lui, a déjà rendu son verdict — « Réveils d'instance : aucun ».
+d'heures d'instance Render** décrite au point 4 ci-dessous — laquelle lèvera du
+même geste la seconde explication concurrente. Le journal GitHub, lui, a déjà
+rendu son verdict : « Réveils d'instance : aucun ».
 
 Reproduire la mesure :
 
