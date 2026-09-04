@@ -179,9 +179,19 @@ rattacher.
 - alignement du moyen de contact privé avec l'identité publiée ;
 - validation finale et téléversement du logo `assets/logo.png` ;
 - vérification du domaine dans le portail OpenAI ;
-- surveillance de l'instance : plan gratuit conservé le 1er septembre 2026,
-  maintenue hors veille par `surveillance.yml` — voir [exploitation.md](exploitation.md) ;
-  passer à une instance sans mise en veille si la série montre des réveils.
+- surveillance de l'instance : plan gratuit conservé le 1er septembre 2026.
+  Le maintien hors veille **ne repose pas** sur `surveillance.yml` — cette voie
+  a été essayée puis réfutée par la mesure, GitHub n'exécutant les workflows
+  planifiés qu'en « meilleur effort ». `surveillance.yml` ne fait que
+  *constater* l'état ; c'est un **ping externe toutes les cinq minutes** qui
+  maintient l'instance éveillée, en service depuis le 3 septembre 2026 entre
+  14:24 et 18:32 UTC. Voir [exploitation.md](exploitation.md) et
+  [pieces-humaines.md](pieces-humaines.md) § 11 ;
+- **quota d'heures d'instance Render** : une instance maintenue éveillée en
+  permanence consomme des heures en continu, là où une instance endormie les
+  économise. Le plan gratuit borne ce total par mois et le partage entre les
+  services gratuits du compte. À vérifier au tableau de bord avant publication :
+  une suspension en fin de mois serait plus visible qu'un réveil.
 
 Les descriptions, les politiques publiques, l'URL MCP et les cinq cas de test
 positifs et trois négatifs sont préparés dans

@@ -1,6 +1,6 @@
 # Pièces humaines avant soumission
 
-Dernière mise à jour : 3 septembre 2026
+Dernière mise à jour : 4 septembre 2026
 
 Inventaire des pièces humaines, restantes ou achevées, que le dépôt **ne peut
 pas porter** : comptes, captures, enregistrement, réglages de consoles. Chaque
@@ -10,10 +10,16 @@ résultat. Aucun secret ne doit atterrir ici ni dans une issue publique.
 Les critères mesurables, contre-contrôles et états consolidés sont suivis dans
 [`finalisation-checklist.md`](finalisation-checklist.md).
 
-Ordre conseillé pour les pièces restantes : commencer par le ping externe
-(§ 11), qui conditionne le départ de la période d'observation, et par
-l'identité OpenAI (délai le plus long) ; puis le compte de démonstration Auth0,
-les sondes et la vidéo. Le contrôle Auth0 #27 est terminé.
+Ordre conseillé pour les pièces restantes : le ping externe (§ 11) est **en
+service depuis le 3 septembre 2026**, la période d'observation court donc déjà
+et s'achève le 10 septembre. Commencer désormais par l'identité OpenAI (délai
+le plus long), puis le compte de démonstration Auth0, les sondes et la vidéo.
+Le contrôle Auth0 #27 est terminé.
+
+Deux relevés courts, à faire au tableau de bord et qui ne dépendent d'aucune
+autre pièce, conditionnent des décisions déjà rédigées ailleurs : le **quota
+d'heures Render** (§ 11) et la valeur de `scopes=` dans les journaux Render
+([exploitation.md](exploitation.md), incident n° 4).
 
 | # | Pièce | Bloque | Exige |
 |---|---|---|---|
@@ -260,6 +266,36 @@ commit fusionné. `python tests/check_plugin.py` et
 sources. Convention des tags : [`architecture-plugin.md`](architecture-plugin.md).
 
 ## 11. Ping externe de maintien hors veille
+
+**✅ En service depuis le 3 septembre 2026, établi par la mesure.** La mise en
+service n'avait pas été consignée ; elle se lit sans ambiguïté dans le journal
+`surveillance`, où la bascule est nette :
+
+| Sondes | Réveil | Latence du premier appel |
+|---|---|---|
+| 5 sondes, du 2/09 22:08 au 3/09 14:24 UTC | **5 réveils sur 5** | 22,4 à 32,5 s |
+| 6 sondes, du 3/09 18:32 au 4/09 14:14 UTC | **aucun** | 0,27 à 0,37 s |
+
+Les sondes restent espacées de trois à cinq heures de part et d'autre. Sans
+maintien hors veille, chacune serait un démarrage à froid : les six dernières
+prouvent donc qu'un tiers sollicite l'instance entre elles. La mise en service
+se situe **le 3 septembre 2026 entre 14:24 et 18:32 UTC**, et c'est cette borne
+haute qui fait courir les délais d'observation :
+
+* les 24 h s'achèvent le **4 septembre 2026 à 18:32 UTC** ;
+* les sept jours s'achèvent le **10 septembre 2026 à 18:32 UTC**.
+
+**Restent dus sur cette pièce**, et eux seuls : l'export de l'historique du
+service de ping sur 24 h, sans donnée de compte, et la **vérification du quota
+d'heures d'instance Render** décrite au point 4 ci-dessous. Le journal GitHub,
+lui, a déjà rendu son verdict — « Réveils d'instance : aucun ».
+
+Reproduire la mesure :
+
+```bash
+git fetch origin surveillance
+git show origin/surveillance:surveillance.jsonl | python tests/summarize_surveillance.py - --jours 1
+```
 
 **Pourquoi** — l'instance Render gratuite s'endort après quinze minutes sans
 trafic, et son réveil coûte 32,4 à 32,7 s sur les cinq mesures relevées les
