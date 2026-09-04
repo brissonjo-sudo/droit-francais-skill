@@ -1,8 +1,8 @@
 # Plan d'audit sécurité v1.1 — serveur MCP « Droit français »
 
 ─────────────────────────────────────────────
-Date d'analyse           : 31/08/2026
-Date(s) de référence     : 31/08/2026
+Date d'analyse           : 31/08/2026, révisé le 04/09/2026
+Date(s) de référence     : 04/09/2026
 Date des faits           : sans objet
 Date d'action / analyse  : 31/08/2026
 Champ territorial        : France / service internet
@@ -88,6 +88,7 @@ Statuts : `PROUVÉ`, `À REJOUER`, `ACTION HUMAINE`, `BLOQUANT`, `ACCEPTÉ`.
 | E9 | Quotas réels et nombre de réplicas | ACTION HUMAINE | capture PISTE + configuration Render | titulaire PISTE | — |
 | E10 | Retrait d'urgence Judilibre | À REJOUER | tests unitaires PROUVÉS (PR #46 : casse, liste malformée refusée, nombre journalisé) ; exercice chronométré du runbook sur Render : [pieces-humaines.md](pieces-humaines.md) § 6 | mainteneur | 01/09/2026 |
 | E11 | CVE système sans correctif éditeur | BLOQUANT | rapport Trivy CI + analyse d'exploitabilité et acceptation datée | mainteneur sécurité | à chaque build |
+| E12 | Audit adversarial du chemin d'authentification | PROUVÉ (13 findings, voir § 8) | sondes publiques datées du 4/9/2026 + banc d'attaque local contre le vrai `JwksTokenVerifier` : treize attaques cryptographiques, treize refus | mainteneur | 04/09/2026 |
 
 ## 5. Programme de contrôles
 
@@ -203,6 +204,59 @@ Auth0/PISTE/Render.
   et doit rester temporaire jusqu'à correction par la Cour de cassation.
 - Les obligations Légifrance restent ouvertes tant que le document 2022 accepté
   par le titulaire n'a pas été obtenu et contrôlé.
+- Une sonde unique peut mentir dans les deux sens. L'essai d'enregistrement
+  dynamique du 4/9/2026 renvoyait d'abord une erreur de *schéma*, qu'une lecture
+  pressée aurait classée « DCR ouverte, finding critique ». Il a fallu faire
+  varier le corps trois fois pour atteindre la vraie porte, qui répond
+  « dynamic client registration is disabled ». Toute conclusion tirée d'une
+  seule requête doit être tenue pour suspecte.
+
+## 8. Findings de l'audit adversarial du 4 septembre 2026
+
+Méthode : sondes publiques en lecture seule contre la production, puis banc
+d'attaque local exerçant le vrai vérificateur de jetons avec des jetons forgés
+(clés engendrées à la volée, aucun secret réel). Aucune modification de
+production, aucun client créé, aucun jeton réel manipulé.
+
+| ID | Gravité | Objet | État |
+|---|---|---|---|
+| SEC-01 | **ÉLEVÉE** | Amplification JWKS non authentifiée : un `kid` inconnu force un appel réseau vers Auth0 à **chaque** requête, sans cache négatif ni limitation avant authentification. Aggravé par `timeout` à 30 s sur un pool de 40 threads, dans un processus unique | correctif en cours |
+| SEC-02 | **ÉLEVÉE** | L'authentification est la seule autorisation : aucune portée exigée, aucune liste de sujets autorisés. Tout jeton du locataire portant la bonne audience ouvre les six outils et consomme les quotas PISTE du titulaire | dépend d'un réglage non observable de l'extérieur, voir ci-dessous |
+| SEC-03 | MOYENNE | La révocation d'une clé de signature n'est pas honorée : `cache_keys=True` installe un cache sans expiration, et le JWKS ne comptant que deux clés, rien n'est jamais évincé. Une clé révoquée reste acceptée jusqu'au redémarrage | même correctif que SEC-01 |
+| SEC-04 | MOYENNE | HSTS, `nosniff` et `Referrer-Policy` absents ; `x-render-origin-server: uvicorn` divulgue la pile amont. Sans HSTS, la **première** requête d'un client reste interceptable — or c'est celle qui porte un jeton | ouvert |
+| SEC-05 | MOYENNE | La documentation contredisait l'état réel de la DCR | **corrigé le 4/9/2026**, et la correction est corroborée par une mesure indépendante |
+| SEC-06 | MOYENNE | Le locataire annonce `plain` pour PKCE, et les grants `password`, `implicit` et `token-exchange` | à refermer au tableau de bord, sur le client |
+| SEC-07 | FAIBLE | Locataire `dev-*` en production : plafonds de débit bas, ce qui aggrave SEC-01, et aucun engagement de service | à acter ou à migrer |
+| SEC-08 | FAIBLE | `POST /mcp/` répond `307` **avant** authentification, sans `WWW-Authenticate` : un client qui aborde le serveur par la barre finale ne peut pas découvrir les métadonnées. Même classe de défaut que la rupture historique du connecteur | ouvert |
+| SEC-09 | FAIBLE | `/.well-known/openai-apps-challenge` publie sans authentification le contenu littéral d'une variable d'environnement. Aujourd'hui sans effet — la variable n'est pas posée, la route répond `404` — mais une erreur de saisie au tableau de bord la publierait aussitôt | à retirer après la vérification de domaine |
+| SEC-10 à SEC-13 | INFO | Audience multi-valuée acceptée (sémantique RFC 7519 normale) ; pseudonyme SHA-256 non salé (point RGPD, pas de sécurité) ; quotas en mémoire volatils et autoritaires sur un seul processus ; hôte amont volontairement divulgué dans les messages d'erreur | consignés |
+
+**Conséquence sur les portes bloquantes du § 2** — SEC-01 et SEC-02 étant de
+gravité élevée, la première porte reste fermée tant qu'ils ne sont pas corrigés
+ou explicitement acceptés et datés par le mainteneur.
+
+**La question qui décide de SEC-02** — sa gravité dépend d'un réglage
+invisible depuis l'extérieur : **l'inscription libre est-elle ouverte sur le
+locataire Auth0 ?** Si elle l'est, n'importe quel internaute peut créer une
+identité, obtenir un jeton valide et consommer les clés PISTE du titulaire, à
+qui la consommation est imputée. Si elle est fermée, la surface se réduit aux
+comptes existants et le finding retombe à MOYENNE. Ce réglage doit être relevé
+au tableau de bord avant toute publication.
+
+**Ce que l'audit n'a pas pu vérifier**, et sur quoi aucun ✅ ne doit être posé
+sans une pièce du tableau de bord : le mode d'authentification réel du client
+`tpc_tTMV…`, l'ouverture de l'inscription, le MFA administrateur, les
+protections anti-force-brute, les connexions actives, la liste exacte des URI
+de redirection, le journal Auth0, les variables d'environnement effectives sur
+Render, et le lien entre la version `0.8.0` annoncée par `/health` et un commit
+précis — `/health` ne publie aucune empreinte de révision.
+
+**Ce qui a résisté** — treize attaques, treize refus : `alg: none`, confusion
+HS256 forgée à la main, RS384, PS256, `kid` inconnu, émetteur à une barre
+oblique près, audience étrangère, audience absente, `exp` dépassé, `nbf`
+futur, `exp` absent, `sub` vide, et injection de journal par un `sub` contenant
+un saut de ligne — neutralisée par le pseudonyme. S'y ajoutent l'absence de
+SSRF, l'étanchéité des identifiants PISTE et la constance du corps de refus.
 
 ─────────────────────────────────────────────
 Modules activés                       : [DOC-AUDIT]
