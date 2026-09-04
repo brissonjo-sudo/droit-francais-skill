@@ -109,10 +109,10 @@
     },
     {
       "description": "Lire une version d'article par son identifiant officiel.",
-      "user_prompt": "Récupère l'article LEGIARTI000042193463 et indique son statut juridique.",
+      "user_prompt": "Récupère l'article LEGIARTI000032041571 et indique son statut juridique.",
       "file_attachment_urls": null,
       "tools_triggered": "get_article",
-      "expected_output": "Retourne le texte de l'article et ses métadonnées officielles, ou une erreur explicite si l'identifiant n'est pas disponible.",
+      "expected_output": "Retourne le texte de l'article 1240 du code civil, son statut juridique VIGUEUR, sa date de version et l'URL canonique Légifrance, sans inventer de contenu absent.",
       "expected_output_url": null
     },
     {

@@ -60,3 +60,49 @@ La checklist terminée doit porter la date, le tenant, l'administrateur et le
 commit/image du serveur testés. Elle ne remplace pas le parcours manuel dans
 ChatGPT : connexion, appel d'outil, déconnexion et révocation.
 
+## Fin de l'essai — échéance vers le 21 septembre 2026
+
+Le tableau de bord annonçait 17 jours d'essai restants le 4 septembre 2026.
+Relevé le même jour sur les pages officielles Auth0, **sans souscrire à quoi
+que ce soit** :
+
+* **le locataire n'est pas suspendu.** La FAQ de tarification indique que
+  l'offre gratuite s'active automatiquement à l'issue de l'essai. Il n'y a
+  donc pas d'interruption de service à redouter à cette date ;
+* l'offre gratuite couvre largement le volume attendu ici : 25 000
+  utilisateurs actifs mensuels, connexions sociales sans limite, 3
+  administrateurs ;
+* **la perte concrète est la rétention des journaux, qui tombe à un jour.**
+  C'est la seule régression clairement établie, et elle porte précisément sur
+  ce qui sert de preuve d'audit dans ce dossier ;
+* les facteurs MFA avancés et la gestion des rôles ne sont pas inclus. Le
+  service n'utilise ni l'un ni l'autre aujourd'hui — il ne repose pas sur le
+  RBAC.
+
+**Ce qui reste indéterminé**, faute de mention explicite dans la table de
+comparaison officielle : les applications tierces et leur réglage de
+permissions par défaut, l'enregistrement dynamique, les API personnalisées
+signées en RS256, et la promotion d'une connexion au niveau du domaine.
+L'absence d'une fonctionnalité de cette table signifie le plus souvent qu'elle
+n'est pas un critère de segmentation, donc qu'elle est disponible partout —
+mais c'est une déduction, pas une source. Seul le tableau de bord tranchera
+après la bascule.
+
+**Deux conséquences pratiques, avant l'échéance :**
+
+1. **Exporter les preuves de journal maintenant.** Les événements qui servent
+   de preuve dans ce dossier — *Success Login*, *Success Exchange*,
+   *Delete a client*, *Create client grant* — deviendront irrécupérables une
+   fois la rétention ramenée à un jour. Captures expurgées, datées, hors
+   dépôt.
+2. **Jouer la bascule `legal:read` avant l'échéance si elle est retenue.**
+   Elle passe par *Default Permissions for third-party applications*, dont la
+   disponibilité en offre gratuite est indéterminée. La faire pendant l'essai
+   évite de découvrir trop tard qu'elle est devenue inaccessible.
+
+Aucun plan payant n'est nécessaire à ce stade au vu de ces éléments. Si l'un
+des réglages indéterminés venait à manquer après la bascule, l'offre
+*Essentials* est affichée à 35 USD par mois pour 500 utilisateurs actifs
+(page de tarification consultée le 4 septembre 2026, prix susceptible de
+changer). La décision appartient au mainteneur.
+

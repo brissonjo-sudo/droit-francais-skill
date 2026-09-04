@@ -80,7 +80,7 @@ procédure de configuration de l'émetteur figure dans [`oauth.md`](oauth.md).
 |---|---|---|
 | `MCP_OAUTH_AUDIENCE` | `MCP_PUBLIC_URL` + `/mcp` | Audience exigée dans le jeton (RFC 8707) |
 | `MCP_OAUTH_JWKS_URL` | `MCP_OAUTH_ISSUER` sans barre finale + `/.well-known/jwks.json` | Clés publiques de vérification |
-| `MCP_OAUTH_REQUIRED_SCOPES` | `legal:read` | Portées exigées, séparées par des virgules ; `-` désactive le contrôle de portée sans désactiver l'authentification |
+| `MCP_OAUTH_REQUIRED_SCOPES` | `legal:read` | Portées exigées, séparées par des virgules ou des espaces. Seules les valeurs `-`, `none` et `aucune` désactivent le contrôle de portée, sans jamais désactiver l'authentification. **Vider la variable ou la supprimer ne la désactive pas** : le repli est la valeur par défaut `legal:read`, et le service répondra `403` à tout jeton qui ne la porte pas. Le comportement est volontairement fermant (`mcp_server/runtime.py:73-89`) |
 | `MCP_JUDILIBRE_SUPPRESSED_IDS` | vide | Identifiants Judilibre retirés temporairement, séparés par des virgules (24 caractères hexadécimaux chacun, casse indifférente). Une entrée malformée refuse le démarrage ; le nombre d'identifiants chargés est journalisé, jamais leur valeur. Voir `incident-response.md` |
 
 Le conteneur définit déjà `MCP_ENV=production`, `MCP_HOST=0.0.0.0` et
