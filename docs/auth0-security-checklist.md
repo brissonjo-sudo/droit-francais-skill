@@ -53,7 +53,7 @@ créer un client sur le locataire.
 | Admins | MFA, moindre privilège, aucun compte dormant | revue des membres | ☐ |
 | Protections | brute force, suspicious IP et breached password activés si disponibles | capture Attack Protection | ☐ |
 | Journaux | accès restreint, rétention définie, alerte sur échecs/administration | capture logs/alertes | ☐ |
-| Rotation JWKS | ancien/nouveau `kid` testé sans assouplir issuer/audience | refus d'un `kid` inconnu prouvé (`test_oauth_end_to_end.py`) ; exercice de rotation réel à jouer | ◐ |
+| Rotation JWKS | ancien/nouveau `kid` testé sans assouplir issuer/audience | refus d'un `kid` inconnu **désormais réellement prouvé** (`tests/test_auth.py`, `test_unknown_kid_is_refused`). L'ancienne référence à `test_oauth_end_to_end.py` était trompeuse : le mock de ce fichier acceptait n'importe quel `kid`, si bien que le test ne prouvait pas ce qu'il annonçait. Une rotation légitime reste honorée après le bridage anti-amplification (`test_legitimate_rotation_is_still_honoured_after_the_interval`) ; exercice de rotation réel côté locataire à jouer | ◐ |
 | Révocation | déconnexion et blocage d'un sujet testés | compte rendu | ☐ |
 
 La checklist terminée doit porter la date, le tenant, l'administrateur et le
