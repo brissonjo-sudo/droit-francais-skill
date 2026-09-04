@@ -47,6 +47,19 @@ ALLOWED_ALGORITHMS: tuple[str, ...] = ("RS256",)
 #: la rotation — jamais jusqu'au redémarrage du processus (SEC-03).
 JWKS_CACHE_LIFESPAN_SECONDS = 300
 
+#: Plafond dur de la constante ci-dessus, vérifié par
+#: ``test_jwks_client_is_configured_defensively`` indépendamment de sa
+#: valeur : une relecture a mesuré qu'élever ``JWKS_CACHE_LIFESPAN_SECONDS``
+#: à 86400 (24 h — un simple zéro de trop) laissait la suite de tests
+#: entièrement verte tout en acceptant une clé révoquée 24 h durant, mot pour
+#: mot SEC-03 rouvert. Fixé à l'ancienne valeur de
+#: ``JWKS_CACHE_LIFESPAN_SECONDS`` d'avant le présent correctif (voir
+#: ``JWKS_FORCED_REFRESH_INTERVAL_SECONDS`` plus bas pour le contexte de ce
+#: resserrement) : quelle que soit la raison d'abaisser encore la valeur
+#: ci-dessus, elle ne doit jamais pouvoir remonter au-delà de ce qui était
+#: déjà le pire cas accepté avant cette revue.
+JWKS_CACHE_LIFESPAN_SECONDS_MAX = 3600
+
 #: Le cache « tier 2 » de ``PyJWKClient`` (``cache_keys=True``) est un
 #: ``lru_cache`` SANS expiration temporelle : avec les deux clés du JWKS de
 #: production, la LRU n'évince jamais rien et une clé révoquée resterait
@@ -122,6 +135,18 @@ class JwksTokenVerifier:
     appel au plus par ``JWKS_FORCED_REFRESH_INTERVAL_SECONDS``, quel que soit
     le nombre de ``kid`` distincts présentés — voir ``_forced_refresh_allowed``
     et ``_resolve_signing_key``.
+
+    Amplification résiduelle, distincte de la précédente : le cache « tier 1 »
+    de ``PyJWKClient`` (``JWKSetCache``) n'a lui-même aucun verrou. À
+    l'instant précis où son ``lifespan`` expire, chaque requête concurrente
+    qui atteint ``_resolve_signing_key`` constate un cache vide et déclenche
+    SA PROPRE requête réseau — mesuré sur un vrai serveur JWKS : 8 threads →
+    8 requêtes, 40 → 30, 80 → 76, atteignable sans le moindre jeton valide
+    puisque cette lecture précède toute vérification de signature.
+    ``_get_signing_keys`` sérialise donc tout appel à
+    ``PyJWKClient.get_signing_keys`` (avec ou sans rafraîchissement forcé)
+    sous ``_jwks_fetch_lock``, un verrou dédié et distinct de
+    ``_refresh_lock`` : voir son commentaire dans ``__init__``.
     """
 
     def __init__(
@@ -157,6 +182,28 @@ class JwksTokenVerifier:
         #: donnerait à un attaquant un moyen de faire croître la mémoire du
         #: processus sans limite, au gré des ``kid`` aléatoires envoyés.
         self._last_forced_refresh: float | None = None
+        #: Sérialise tout appel à ``PyJWKClient.get_signing_keys`` — avec ou
+        #: sans rafraîchissement forcé. ``JWKSetCache`` (le cache « tier 1 »
+        #: de PyJWKClient) n'a lui-même aucun verrou : à l'instant précis où
+        #: son ``lifespan`` expire, chaque requête concurrente constate un
+        #: cache vide et déclenche SA PROPRE requête réseau vers l'émetteur —
+        #: mesuré sur un vrai serveur JWKS : 8 threads → 8 requêtes, 40 → 30,
+        #: 80 → 76, sans le moindre jeton valide requis puisque cette lecture
+        #: précède toute vérification de signature. Ce verrou transforme la
+        #: ruée en single-flight : un seul thread contacte l'émetteur, les
+        #: autres attendent puis retrouvent le cache déjà rechargé par le
+        #: premier. Distinct de ``_refresh_lock`` ci-dessus, qui protège un
+        #: budget d'une tout autre nature — le nombre de rafraîchissements
+        #: forcés par intervalle, pas l'accès au cache lui-même — et n'est
+        #: donc jamais tenu en même temps que celui-ci (voir
+        #: ``_get_signing_keys`` et ``_resolve_signing_key`` : les deux
+        #: verrous s'acquièrent et se relâchent l'un après l'autre, jamais
+        #: imbriqués, ce qui exclut tout interblocage par ordre croisé).
+        #: Coût : le chemin nominal (cache déjà frais) tourne autour de 45 µs
+        #: sans le verrou ; le sérialiser ajoute au pire quelques
+        #: millisecondes sur quarante threads simultanés — sans commune
+        #: mesure avec quarante appels réseau concurrents vers Auth0.
+        self._jwks_fetch_lock = threading.Lock()
 
     def _resolve_signing_key(self, token: str) -> jwt.PyJWK:
         """Trouve la clé de signature sans jamais amplifier un ``kid`` inconnu.
@@ -165,19 +212,25 @@ class JwksTokenVerifier:
            décodage base64, jamais une preuve d'authenticité. Il ne sert qu'à
            indexer la recherche de clé ci-dessous, jamais à autoriser quoi que
            ce soit.
-        2. La recherche part du jeu de clés en cache (``get_signing_keys()``,
-           sans appel réseau si le cache est encore frais). Si le ``kid`` y
-           figure, la clé correspondante est retournée immédiatement.
-        3. Sinon, un rafraîchissement forcé (``get_signing_keys(refresh=True)``,
+        2. La recherche part du jeu de clés en cache (``_get_signing_keys``,
+           sans appel réseau si le cache est encore frais — voir
+           ``_jwks_fetch_lock``). Si le ``kid`` y figure, la clé
+           correspondante est retournée immédiatement.
+        3. Sinon, un rafraîchissement forcé (``_get_signing_keys(refresh=True)``,
            qui contacte l'émetteur) n'est tenté que si ``_forced_refresh_allowed``
            l'autorise. À défaut, échec immédiat, sans aucun appel réseau.
+
+        Chacun des deux appels à ``_get_signing_keys`` acquiert puis relâche
+        entièrement ``_jwks_fetch_lock`` avant que ``_forced_refresh_allowed``
+        n'acquière (séparément) ``_refresh_lock`` : les deux verrous ne sont
+        donc jamais imbriqués, quel que soit le chemin emprunté.
         """
         header = jwt.get_unverified_header(token)
         kid = header.get("kid")
         if not kid:
             raise jwt.PyJWKClientError("Jeton sans identifiant de clé exploitable.")
 
-        keys = self._jwks_client.get_signing_keys()
+        keys = self._get_signing_keys(refresh=False)
         key = self._jwks_client.match_kid(keys, kid)
         if key is not None:
             return key
@@ -187,11 +240,22 @@ class JwksTokenVerifier:
                 "Clé introuvable dans le cache ; rafraîchissement forcé bridé."
             )
 
-        keys = self._jwks_client.get_signing_keys(refresh=True)
+        keys = self._get_signing_keys(refresh=True)
         key = self._jwks_client.match_kid(keys, kid)
         if key is None:
             raise jwt.PyJWKClientError("Aucune clé ne correspond au jeton présenté.")
         return key
+
+    def _get_signing_keys(self, *, refresh: bool) -> list[jwt.PyJWK]:
+        """Point d'appel unique vers ``PyJWKClient.get_signing_keys``.
+
+        Sérialisé sous ``_jwks_fetch_lock`` (single-flight) : voir le
+        commentaire de ce verrou dans ``__init__`` pour la mesure qui motive
+        cette sérialisation et l'analyse d'absence d'interblocage avec
+        ``_refresh_lock``.
+        """
+        with self._jwks_fetch_lock:
+            return self._jwks_client.get_signing_keys(refresh=refresh)
 
     def _forced_refresh_allowed(self) -> bool:
         """Autorise au plus un rafraîchissement forcé par intervalle.
@@ -233,11 +297,24 @@ class JwksTokenVerifier:
         """Retourne le jeton validé, ou ``None`` si un contrôle échoue."""
         try:
             payload = await anyio.to_thread.run_sync(self._decode, token)
+        except jwt.PyJWKClientConnectionError as exc:
+            # PyJWKClientConnectionError hérite de PyJWTError (voir
+            # jwt.exceptions) : sans cette clause AVANT la suivante, la
+            # clause générique ``except jwt.PyJWTError`` l'intercepterait en
+            # premier. Une panne réelle de l'émetteur — DNS mort, port
+            # fermé, délai dépassé, les trois mesurés en production — serait
+            # alors journalisée comme un refus de jeton ordinaire
+            # (auth_rejected, INFO), noyant le signal « l'émetteur est
+            # tombé » dans le bruit des jetons invalides plutôt que de
+            # remonter comme une indisponibilité (WARNING). Le comportement
+            # observable ne change pas : verify_token rend toujours None.
+            LOGGER.warning("auth_unavailable reason=%s", type(exc).__name__)
+            return None
         except jwt.PyJWTError as exc:
             # Le motif est journalisé, jamais le jeton ni sa charge utile.
             LOGGER.info("auth_rejected reason=%s", type(exc).__name__)
             return None
-        except Exception as exc:  # réseau JWKS indisponible, etc.
+        except Exception as exc:  # panne inattendue (bug, etc.) : prudence
             LOGGER.warning("auth_unavailable reason=%s", type(exc).__name__)
             return None
 

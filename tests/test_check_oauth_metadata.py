@@ -111,6 +111,59 @@ class VerifyFailureBranchesTests(unittest.TestCase):
         )
         challenge_mock.assert_called_once()
 
+    # ------------------------------------------------------------------
+    # R5 — mutants de la comparaison d'émetteurs (branche 3) : une revue a
+    # mesuré qu'assouplir cette comparaison (``rstrip('/')`` + ``lower()``)
+    # survit à la suite ci-dessus, parce qu'elle n'oppose que deux hôtes
+    # grossièrement différents. Le défaut réel qu'OpenAI ne pardonne pas
+    # tient à une barre oblique finale ou à une casse — voir le docstring de
+    # ``verify`` : « OpenAI compare ces chaînes sans les normaliser ».
+
+    def test_issuer_differing_only_by_a_trailing_slash_is_rejected(self):
+        """Tue le mutant ``rstrip('/')`` : un émetteur attendu qui ne diffère
+        du publié que par une barre oblique finale doit être refusé, pas
+        silencieusement toléré."""
+        message, _json_mock, challenge_mock = self._verifier(
+            get_json_returns=[_metadonnees(), _metadonnees()],
+            expected_issuer=f"{EMETTEUR}/",
+        )
+        self.assertIn("diffère de celui attendu", message)
+        challenge_mock.assert_not_called()
+
+    def test_issuer_differing_only_by_case_is_rejected(self):
+        """Tue le mutant ``lower()`` : un émetteur attendu qui ne diffère du
+        publié que par la casse doit être refusé — OpenAI ne normalise
+        rien."""
+        message, _json_mock, challenge_mock = self._verifier(
+            get_json_returns=[_metadonnees(), _metadonnees()],
+            expected_issuer=EMETTEUR.upper(),
+        )
+        self.assertIn("diffère de celui attendu", message)
+        challenge_mock.assert_not_called()
+
+    def test_discover_mismatch_against_the_openid_configuration_is_rejected(self):
+        """Chemin ``--discover``, jamais emprunté par la suite jusqu'ici :
+        l'émetteur attendu est lu dans le document de découverte plutôt que
+        reçu en argument, et le rapprochement avec les deux routes RFC 9728
+        reste strict — jusqu'à la barre oblique ou la casse près, comme pour
+        ``--issuer`` explicite."""
+        message, json_mock, challenge_mock = self._verifier(
+            get_json_returns=[
+                _metadonnees(),
+                _metadonnees(),
+                {"issuer": f"{EMETTEUR}/"},
+            ],
+            discover=True,
+        )
+        self.assertIn("diffère de celui attendu", message)
+        self.assertEqual(
+            3,
+            json_mock.call_count,
+            "le document de découverte doit être lu (3e appel), pas seulement "
+            "les deux routes RFC 9728",
+        )
+        challenge_mock.assert_not_called()
+
 
 if __name__ == "__main__":
     unittest.main()
