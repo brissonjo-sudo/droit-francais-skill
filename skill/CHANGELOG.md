@@ -45,6 +45,64 @@ constitutionnel, EUR-Lex ; formats d'identifiants (LEGIARTI, JORFTEXT,
 CETATEXT, CONSTEXT) ; formats de citation (Bull./inédit, Lebon/Tables) ;
 architecture PISTE (API Légifrance + Judilibre).
 
+### [plugin-v0.8.1] — 2026-09-04
+
+Correctif de sécurité issu d'un audit adversarial du chemin d'authentification,
+mené le 4 septembre 2026 puis soumis au test de mutation par une relecture
+indépendante. Le noyau méthodologique est inchangé ; seul le vérificateur de
+jetons bouge. **Cette version doit être déployée avant toute soumission** : la
+production servait encore `0.8.0`, donc un serveur dépourvu de ces correctifs.
+
+#### Corrigé
+- **Amplification JWKS non authentifiée** — un jeton portant un identifiant de
+  clé inconnu forçait PyJWT à recharger le jeu de clés en contournant son
+  cache, et ce cache ne mémorise pas les échecs. Chaque requête anonyme coûtait
+  donc un aller-retour vers l'émetteur, indéfiniment : mesuré en production à
+  54 ms de surcoût par requête, facteur 1,8. Le délai d'attente valait trente
+  secondes par défaut, sur un pool de quarante threads et un processus unique.
+  Le rafraîchissement forcé est désormais plafonné à un par minute quel que
+  soit le nombre d'identifiants distincts présentés, et le délai ramené à cinq
+  secondes. Contre-épreuve : 20 rechargements réseau sur le code d'avant, 1 sur
+  celui-ci ; 200 contre 1 à plus forte charge.
+- **Ruée sur l'expiration du cache** — le cache de jeu de clés de PyJWT n'a
+  aucun verrou : à l'instant précis où il expire, quarante requêtes
+  concurrentes déclenchaient trente appels réseau, sans qu'aucun jeton valide
+  soit nécessaire. Les appels sont sérialisés en *single-flight* : un seul
+  thread contacte l'émetteur, les autres retrouvent le cache rechargé.
+- **Révocation de clé non honorée** — le cache de second niveau était un
+  `lru_cache` sans expiration ; le jeu de clés n'en comptant que deux, rien
+  n'était jamais évincé et une clé révoquée restait acceptée jusqu'au
+  redémarrage du processus. Tourner une clé compromise n'avait donc aucun effet
+  sur ce serveur. Elle cesse maintenant d'être acceptée en cinq minutes au pire.
+- **Panne de l'émetteur journalisée comme un refus de jeton** —
+  `PyJWKClientConnectionError` héritant de `PyJWTError`, un DNS mort, un port
+  fermé ou un délai dépassé produisaient `auth_rejected` en INFO au lieu
+  d'`auth_unavailable` en WARNING, noyant le signal « l'émetteur est tombé »
+  dans le bruit des jetons invalides.
+
+#### Tests
+- 178 → **196 tests**, aucun échec, aucun ignoré. Chaque correction porte sa
+  contre-épreuve, appliquée puis annulée, de sorte qu'aucun de ces tests ne
+  passe sur le code d'avant.
+- Comblé deux angles morts que la suite ne voyait pas : les jeux de clés
+  simulés n'en contenaient qu'**une seule**, si bien qu'une confusion de clé —
+  vérifier la signature avec la mauvaise clé du jeu — survivait à toute la
+  suite ; et les quatre branches d'erreur du contrôle de métadonnées OAuth,
+  qui protège le point de rupture historique du connecteur ChatGPT, n'étaient
+  exercées par aucun test.
+- Corrigé des mocks qui rendaient des tests aveugles : ils acceptaient
+  n'importe quel identifiant de clé, alors que la check-list Auth0 citait l'un
+  d'eux comme preuve du refus d'un identifiant inconnu. La preuve citée ne
+  prouvait rien ; elle est devenue vraie.
+
+#### Sécurité — ce qui reste ouvert
+- Aucune limitation de débit par IP **avant** l'authentification. L'atténuation
+  ci-dessus porte sur deux à trois ordres de grandeur, mais borner la durée
+  d'occupation d'un thread ne borne pas leur nombre : le finding est reclassé
+  de gravité élevée à moyenne, **non refermé**.
+- L'authentification reste la seule autorisation : aucune portée n'est exigée
+  et aucun sujet n'est comparé à une liste. Voir `docs/audit-securite.md` § 8.
+
 ### [plugin-v0.8.0] — 2026-09-02
 
 Durcissement du serveur MCP après l'audit externe du 1er septembre 2026 et la
