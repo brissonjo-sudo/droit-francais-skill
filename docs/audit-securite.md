@@ -232,9 +232,40 @@ production, aucun client créé, aucun jeton réel manipulé.
 | SEC-10 à SEC-13 | INFO | Audience multi-valuée acceptée (sémantique RFC 7519 normale) ; pseudonyme SHA-256 non salé (point RGPD, pas de sécurité) ; quotas en mémoire volatils et autoritaires sur un seul processus ; hôte amont volontairement divulgué dans les messages d'erreur | consignés |
 | SEC-14 | MOYENNE | **Une panne de l'émetteur se journalisait comme un refus de jeton.** `PyJWKClientConnectionError` hérite de `PyJWTError` : la clause générique l'interceptait d'abord, si bien qu'un DNS mort, un port fermé ou un délai dépassé — les trois mesurés — produisaient `auth_rejected` en INFO au lieu d'`auth_unavailable` en WARNING. Le signal « Auth0 est tombé » se perdait dans le bruit des jetons invalides, et un test affirmait le contraire | **corrigé** : clause dédiée placée avant la clause générique, et le test porte désormais sur le vrai type d'exception plutôt que sur une erreur système qui ne survient jamais en production |
 
-**Conséquence sur les portes bloquantes du § 2** — SEC-01 et SEC-02 étant de
-gravité élevée, la première porte reste fermée tant qu'ils ne sont pas corrigés
-ou explicitement acceptés et datés par le mainteneur.
+**Conséquence sur les portes bloquantes du § 2** — SEC-01 étant retombé à
+MOYENNE après atténuation, la première porte ne reste fermée que par **SEC-02**,
+tant qu'il n'est pas corrigé ou explicitement accepté et daté par le mainteneur.
+
+### Pourquoi SEC-04 et SEC-08 ne sont pas corrigés ici
+
+Les deux exigent un middleware ASGI, donc de maîtriser l'objet application. Or
+le point d'entrée de production appelle `server.run(transport=…)`
+(`mcp_server/server.py:498`), et le SDK construit l'application **à
+l'intérieur** de cet appel : `streamable_http_app()` n'accepte aucun paramètre
+de middleware et n'est jamais appelé par le dépôt en production. Les poser
+imposerait donc de remplacer `server.run` par une construction explicite suivie
+d'un lancement uvicorn — c'est-à-dire de réécrire le chemin de démarrage du
+service.
+
+Pour un finding MOYEN et un FAIBLE, à la veille d'une soumission, ce risque
+dépasse le gain : la décision est de **différer**, non d'ignorer. Le chemin est
+écrit pour que la reprise soit mécanique :
+
+1. remplacer `server.run(...)` par `app = server.streamable_http_app(...)` avec
+   les mêmes paramètres, puis `uvicorn.run(app, host=…, port=…)` ;
+2. `app.add_middleware(...)` pour poser `Strict-Transport-Security`,
+   `X-Content-Type-Options: nosniff` et `Referrer-Policy: no-referrer`
+   (SEC-04) ;
+3. normaliser la barre oblique finale **avant** le routage, pour que `/mcp/`
+   reçoive le même `401` et le même challenge que `/mcp` au lieu d'un `307`
+   muet (SEC-08) ;
+4. exiger un test qui rejoue le parcours MCP complet après ce changement :
+   c'est le chemin de démarrage du service, la régression y serait invisible
+   jusqu'en production.
+
+`x-render-origin-server: uvicorn` est posé par la bordure Render **après** la
+réponse de l'application : aucun middleware ne peut le retirer, seule une règle
+de transformation côté hébergeur le pourrait.
 
 **La question qui décide de SEC-02** — sa gravité dépend d'un réglage
 invisible depuis l'extérieur : **l'inscription libre est-elle ouverte sur le
