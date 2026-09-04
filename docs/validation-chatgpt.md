@@ -10,6 +10,16 @@ portées — mais il ne peut pas prouver qu'un utilisateur parvient à se connec
 Les deux volets sont complémentaires : le harnais empêche la régression et
 tourne en CI, cette check-list constate le résultat.
 
+**Provenance des constats.** La colonne « Constaté » distingue trois origines,
+parce qu'elles n'ont pas la même force :
+
+* **[M]** — constat du mainteneur depuis une console (ChatGPT, Auth0, Render).
+  Non rejouable par un tiers, non vérifiable depuis le dépôt.
+* **[D]** — vérifiable depuis le dépôt ou par une commande, donc rejouable.
+* **[P]** — mesuré contre le service en production, avec la date.
+
+Une case vide signifie « pas encore constaté », jamais « supposé bon ».
+
 ## Raccourci : valider les outils sans navigateur
 
 Les sections 3 à 6 ci-dessous n'ont pas besoin de ChatGPT. Elles ont besoin
@@ -85,7 +95,7 @@ anonyme. Un échec ici bloque tout : ChatGPT applique la même comparaison.
 |---|---|---|---|
 | 1.1 | `chatgpt.com` → **Settings → Security and login** → activer **Developer mode**, puis bouton **+** | Le formulaire de création s'ouvre | |
 | 1.2 | Sur `chatgpt.com/plugins`, bouton **+** : nom, description, puis sous **Connection** l'URL `https://droit-francais-skill.onrender.com/mcp`. Aucun champ d'authentification à remplir — elle est découverte | La connexion se crée sans réglage d'authentification | |
-| 1.3 | Valider | Les six outils apparaissent ; aucune erreur de métadonnée ni de PKCE | |
+| 1.3 | Valider | Les six outils apparaissent ; aucune erreur de métadonnée ni de PKCE | **[M] 4/9/2026** — six outils découverts, connecteur `Droit français` (`asdk_app_6a9a056c3c0481918d793e372374ca36`) |
 
 > Si ChatGPT réclame `code_challenge_methods_supported` avec `S256`, le
 > formulaire a été ouvert avant que le serveur ne passe en mode OAuth : fermer
@@ -96,16 +106,16 @@ anonyme. Un échec ici bloque tout : ChatGPT applique la même comparaison.
 
 | # | Étape | Attendu | Constaté |
 |---|---|---|---|
-| 2.1 | Lancer la connexion | Redirection vers l'écran Auth0 | |
-| 2.2 | S'authentifier | Retour à ChatGPT sans erreur | |
-| 2.3 | Vérifier l'état du connecteur | « Connecté » | |
+| 2.1 | Lancer la connexion | Redirection vers l'écran Auth0 | **[M] 4/9/2026** — via le client public `tpc_tTMV6uujD9aHwP8DoFfEMg`, DCR déjà refermée |
+| 2.2 | S'authentifier | Retour à ChatGPT sans erreur | **[M] 4/9/2026** — journal Auth0 : *Success Login* puis *Success Exchange* |
+| 2.3 | Vérifier l'état du connecteur | « Connecté » | **[M] 4/9/2026** |
 
 ## 3. Découverte des outils
 
 | # | Étape | Attendu | Constaté |
 |---|---|---|---|
-| 3.1 | Lister les outils exposés | **Six** outils : `search`, `fetch`, `search_articles`, `get_article`, `search_case_law`, `get_decision` | |
-| 3.2 | Vérifier les annotations | Tous en lecture seule, non destructifs | |
+| 3.1 | Lister les outils exposés | **Six** outils : `search`, `fetch`, `search_articles`, `get_article`, `search_case_law`, `get_decision` | **[M] 4/9/2026** dans ChatGPT ; **[P] 3/9/2026** les six découverts et chacun réellement appelé avec jeton M2M (E4) |
+| 3.2 | Vérifier les annotations | Tous en lecture seule, non destructifs | **[D]** `readOnlyHint=true`, `destructiveHint=false`, `openWorldHint=false` sur les six ; concordance code ↔ dossier de soumission contrôlée à chaque CI par `check_affirmations.py` |
 
 ## 4. Appel Légifrance réel
 
@@ -116,11 +126,11 @@ collectivités territoriales. »
 
 | # | Point de contrôle | Attendu | Constaté |
 |---|---|---|---|
-| 4.1 | Un outil Légifrance est appelé | `search_articles` ou `get_article` | |
-| 4.2 | La réponse cite un identifiant `LEGIARTI…` | Identifiant réel, non inventé | |
-| 4.3 | Le statut juridique est présent | `VIGUEUR` ou autre état explicite | |
-| 4.4 | La date de référence est explicite | `as_of_date` et `date_basis` présents | |
-| 4.5 | Aucune clé fournisseur n'apparaît | Aucun `LEGIFRANCE_*`, `JUDILIBRE_*`, `PISTE_*` | |
+| 4.1 | Un outil Légifrance est appelé | `search_articles` ou `get_article` | **[M] 4/9/2026** — `get_article` déclenché depuis ChatGPT |
+| 4.2 | La réponse cite un identifiant `LEGIARTI…` | Identifiant réel, non inventé | **[M] 4/9/2026** — `LEGIARTI000032041571`, article 1240 du code civil ; **[P]** identifiant revérifié par appel réel le 4/9/2026 |
+| 4.3 | Le statut juridique est présent | `VIGUEUR` ou autre état explicite | **[P] 4/9/2026** — `legal_status: VIGUEUR` rendu par l'outil |
+| 4.4 | La date de référence est explicite | `as_of_date` et `date_basis` présents | **[P] 4/9/2026** — les deux champs présents ; une date passée fait en outre apparaître un `caveat` explicite distinguant la version applicable du droit en vigueur |
+| 4.5 | Aucune clé fournisseur n'apparaît | Aucun `LEGIFRANCE_*`, `JUDILIBRE_*`, `PISTE_*` | **[D]** aucun de ces noms n'est joignable depuis une réponse (audit du 4/9/2026, § 2.9 de [audit-securite.md](audit-securite.md)) ; **[P] 3/9/2026** la sonde contrôle aussi la non-réapparition du jeton dans les réponses |
 
 ## 5. Appel JUDILIBRE réel
 
@@ -131,10 +141,11 @@ sur la responsabilité du fait des choses. »
 
 | # | Point de contrôle | Attendu | Constaté |
 |---|---|---|---|
-| 5.1 | Un outil Judilibre est appelé | `search_case_law` ou `get_decision` | |
-| 5.2 | La décision est identifiée | Juridiction, date, numéro | |
-| 5.3 | L'URL pointe vers une source officielle | `courdecassation.fr` | |
-| 5.4 | Aucune clé fournisseur n'apparaît | Aucun identifiant technique en clair | |
+| 5.1 | Un outil Judilibre est appelé | `search_case_law` ou `get_decision` | **[P] 4/9/2026** — `search_case_law` réellement appelé ; **[P] 3/9/2026** les deux outils appelés avec jeton M2M (E4) |
+| 5.2 | La décision est identifiée | Juridiction, date, numéro | **[P] 4/9/2026** — juridiction, date, numéro et ECLI rendus, décisions du 3/9/2026 |
+| 5.3 | L'URL pointe vers une source officielle | `courdecassation.fr` | **[P] 4/9/2026** — `https://www.courdecassation.fr/decision/…` |
+| 5.4 | Aucune clé fournisseur n'apparaît | Aucun identifiant technique en clair | **[D]/[P]** même preuve qu'en 4.5 |
+| 5.5 | Le retrait d'urgence est visible | `temporarily_suppressed_results` présent dans la réponse | **[P] 4/9/2026** — champ présent, valeur `0` : le compteur du retrait conservatoire (E10) est bien exposé au lecteur |
 
 ## 6. Comportement en cas d'échec
 

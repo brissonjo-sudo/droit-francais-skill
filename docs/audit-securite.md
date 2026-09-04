@@ -1,8 +1,8 @@
 # Plan d'audit sécurité v1.1 — serveur MCP « Droit français »
 
 ─────────────────────────────────────────────
-Date d'analyse           : 31/08/2026
-Date(s) de référence     : 31/08/2026
+Date d'analyse           : 31/08/2026, révisé le 04/09/2026
+Date(s) de référence     : 04/09/2026
 Date des faits           : sans objet
 Date d'action / analyse  : 31/08/2026
 Champ territorial        : France / service internet
@@ -88,6 +88,7 @@ Statuts : `PROUVÉ`, `À REJOUER`, `ACTION HUMAINE`, `BLOQUANT`, `ACCEPTÉ`.
 | E9 | Quotas réels et nombre de réplicas | ACTION HUMAINE | capture PISTE + configuration Render | titulaire PISTE | — |
 | E10 | Retrait d'urgence Judilibre | À REJOUER | tests unitaires PROUVÉS (PR #46 : casse, liste malformée refusée, nombre journalisé) ; exercice chronométré du runbook sur Render : [pieces-humaines.md](pieces-humaines.md) § 6 | mainteneur | 01/09/2026 |
 | E11 | CVE système sans correctif éditeur | BLOQUANT | rapport Trivy CI + analyse d'exploitabilité et acceptation datée | mainteneur sécurité | à chaque build |
+| E12 | Audit adversarial du chemin d'authentification | PROUVÉ **pour la part rejouable** ; banc complet non archivé | les sondes publiques du 4/9/2026 sont reproductibles telles quelles (§ 8), et les refus d'algorithme, d'émetteur, d'audience et d'expiration sont couverts par des tests commis (`tests/test_auth.py`). En revanche le banc d'attaque ayant produit le 13/13 — confusion HS256 forgée à la main, `nbf` futur, injection de journal par le `sub` — était un script jetable : **il n'est pas archivé, et un tiers ne peut pas le rejouer en l'état**. La ligne ne passera à PROUVÉ que lorsqu'il le sera | mainteneur | 04/09/2026 |
 
 ## 5. Programme de contrôles
 
@@ -203,6 +204,91 @@ Auth0/PISTE/Render.
   et doit rester temporaire jusqu'à correction par la Cour de cassation.
 - Les obligations Légifrance restent ouvertes tant que le document 2022 accepté
   par le titulaire n'a pas été obtenu et contrôlé.
+- Une sonde unique peut mentir dans les deux sens. L'essai d'enregistrement
+  dynamique du 4/9/2026 renvoyait d'abord une erreur de *schéma*, qu'une lecture
+  pressée aurait classée « DCR ouverte, finding critique ». Il a fallu faire
+  varier le corps trois fois pour atteindre la vraie porte, qui répond
+  « dynamic client registration is disabled ». Toute conclusion tirée d'une
+  seule requête doit être tenue pour suspecte.
+
+## 8. Findings de l'audit adversarial du 4 septembre 2026
+
+Méthode : sondes publiques en lecture seule contre la production, puis banc
+d'attaque local exerçant le vrai vérificateur de jetons avec des jetons forgés
+(clés engendrées à la volée, aucun secret réel). Aucune modification de
+production, aucun client créé, aucun jeton réel manipulé.
+
+| ID | Gravité | Objet | État |
+|---|---|---|---|
+| SEC-01 | **MOYENNE** (était ÉLEVÉE) | Amplification JWKS non authentifiée : un `kid` inconnu force un appel réseau vers Auth0 à **chaque** requête, sans cache négatif ni limitation avant authentification. Aggravé par `timeout` à 30 s sur un pool de 40 threads, dans un processus unique | **atténué de deux à trois ordres de grandeur, non refermé.** Le rafraîchissement forcé est bridé à un par minute quel que soit le nombre de `kid` distincts (mesuré : 20 appels réseau sur le code vulnérable, 1 sur le code corrigé ; 200 contre 1 à plus forte charge), le `timeout` est ramené à 5 s, et la ruée sur l'expiration du cache est sérialisée en *single-flight* — une relecture indépendante avait mesuré 30 appels réseau pour 40 threads concurrents à cet instant précis, et le resserrement du cache de 3600 à 300 s rendait cette fenêtre douze fois plus fréquente. **Reste ouvert, et c'est pourquoi la ligne n'est pas refermée** : aucune limitation de débit par IP avant authentification, et `timeout=5` borne la durée d'occupation d'un thread mais non leur nombre. À poser à la bordure, hors code |
+| SEC-02 | **ÉLEVÉE** | L'authentification est la seule autorisation : aucune portée exigée, aucune liste de sujets autorisés. Tout jeton du locataire portant la bonne audience ouvre les six outils et consomme les quotas PISTE du titulaire | dépend d'un réglage non observable de l'extérieur, voir ci-dessous |
+| SEC-03 | MOYENNE | La révocation d'une clé de signature n'est pas honorée : `cache_keys=True` installe un cache sans expiration, et le JWKS ne comptant que deux clés, rien n'est jamais évincé. Une clé révoquée reste acceptée jusqu'au redémarrage | **corrigé** : `cache_keys=False` et cache à expiration ramené de 3600 s à 300 s. Une clé révoquée cesse d'être acceptée en cinq minutes au pire, non plus au redémarrage du processus. Le contrôle est double, après qu'une relecture eut montré qu'on pouvait rouvrir ce finding en gardant la suite verte : un plafond dur sur la durée de vie du cache, indépendant de la valeur courante, et un **test de comportement** vérifiant qu'une clé retirée du jeu publié cesse effectivement d'être acceptée une fois ce délai écoulé |
+| SEC-04 | MOYENNE | HSTS, `nosniff` et `Referrer-Policy` absents ; `x-render-origin-server: uvicorn` divulgue la pile amont. Sans HSTS, la **première** requête d'un client reste interceptable — or c'est celle qui porte un jeton | ouvert |
+| SEC-05 | MOYENNE | La documentation contredisait l'état réel de la DCR | **corrigé le 4/9/2026**, et la correction est corroborée par une mesure indépendante |
+| SEC-06 | MOYENNE | Le locataire annonce `plain` pour PKCE, et les grants `password`, `implicit` et `token-exchange` | à refermer au tableau de bord, sur le client |
+| SEC-07 | FAIBLE | Locataire `dev-*` en production : plafonds de débit bas, ce qui aggrave SEC-01, et aucun engagement de service | à acter ou à migrer |
+| SEC-08 | FAIBLE | `POST /mcp/` répond `307` **avant** authentification, sans `WWW-Authenticate` : un client qui aborde le serveur par la barre finale ne peut pas découvrir les métadonnées. Même classe de défaut que la rupture historique du connecteur | ouvert |
+| SEC-09 | FAIBLE | `/.well-known/openai-apps-challenge` publie sans authentification le contenu littéral d'une variable d'environnement. Aujourd'hui sans effet — la variable n'est pas posée, la route répond `404` — mais une erreur de saisie au tableau de bord la publierait aussitôt | à retirer après la vérification de domaine |
+| SEC-10 à SEC-13 | INFO | Audience multi-valuée acceptée (sémantique RFC 7519 normale) ; pseudonyme SHA-256 non salé (point RGPD, pas de sécurité) ; quotas en mémoire volatils et autoritaires sur un seul processus ; hôte amont volontairement divulgué dans les messages d'erreur | consignés |
+| SEC-14 | MOYENNE | **Une panne de l'émetteur se journalisait comme un refus de jeton.** `PyJWKClientConnectionError` hérite de `PyJWTError` : la clause générique l'interceptait d'abord, si bien qu'un DNS mort, un port fermé ou un délai dépassé — les trois mesurés — produisaient `auth_rejected` en INFO au lieu d'`auth_unavailable` en WARNING. Le signal « Auth0 est tombé » se perdait dans le bruit des jetons invalides, et un test affirmait le contraire | **corrigé** : clause dédiée placée avant la clause générique, et le test porte désormais sur le vrai type d'exception plutôt que sur une erreur système qui ne survient jamais en production |
+
+**Conséquence sur les portes bloquantes du § 2** — SEC-01 étant retombé à
+MOYENNE après atténuation, la première porte ne reste fermée que par **SEC-02**,
+tant qu'il n'est pas corrigé ou explicitement accepté et daté par le mainteneur.
+
+### Pourquoi SEC-04 et SEC-08 ne sont pas corrigés ici
+
+Les deux exigent un middleware ASGI, donc de maîtriser l'objet application. Or
+le point d'entrée de production appelle `server.run(transport=…)`
+(`mcp_server/server.py:498`), et le SDK construit l'application **à
+l'intérieur** de cet appel : `streamable_http_app()` n'accepte aucun paramètre
+de middleware et n'est jamais appelé par le dépôt en production. Les poser
+imposerait donc de remplacer `server.run` par une construction explicite suivie
+d'un lancement uvicorn — c'est-à-dire de réécrire le chemin de démarrage du
+service.
+
+Pour un finding MOYEN et un FAIBLE, à la veille d'une soumission, ce risque
+dépasse le gain : la décision est de **différer**, non d'ignorer. Le chemin est
+écrit pour que la reprise soit mécanique :
+
+1. remplacer `server.run(...)` par `app = server.streamable_http_app(...)` avec
+   les mêmes paramètres, puis `uvicorn.run(app, host=…, port=…)` ;
+2. `app.add_middleware(...)` pour poser `Strict-Transport-Security`,
+   `X-Content-Type-Options: nosniff` et `Referrer-Policy: no-referrer`
+   (SEC-04) ;
+3. normaliser la barre oblique finale **avant** le routage, pour que `/mcp/`
+   reçoive le même `401` et le même challenge que `/mcp` au lieu d'un `307`
+   muet (SEC-08) ;
+4. exiger un test qui rejoue le parcours MCP complet après ce changement :
+   c'est le chemin de démarrage du service, la régression y serait invisible
+   jusqu'en production.
+
+`x-render-origin-server: uvicorn` est posé par la bordure Render **après** la
+réponse de l'application : aucun middleware ne peut le retirer, seule une règle
+de transformation côté hébergeur le pourrait.
+
+**La question qui décide de SEC-02** — sa gravité dépend d'un réglage
+invisible depuis l'extérieur : **l'inscription libre est-elle ouverte sur le
+locataire Auth0 ?** Si elle l'est, n'importe quel internaute peut créer une
+identité, obtenir un jeton valide et consommer les clés PISTE du titulaire, à
+qui la consommation est imputée. Si elle est fermée, la surface se réduit aux
+comptes existants et le finding retombe à MOYENNE. Ce réglage doit être relevé
+au tableau de bord avant toute publication.
+
+**Ce que l'audit n'a pas pu vérifier**, et sur quoi aucun ✅ ne doit être posé
+sans une pièce du tableau de bord : le mode d'authentification réel du client
+`tpc_tTMV…`, l'ouverture de l'inscription, le MFA administrateur, les
+protections anti-force-brute, les connexions actives, la liste exacte des URI
+de redirection, le journal Auth0, les variables d'environnement effectives sur
+Render, et le lien entre la version `0.8.0` annoncée par `/health` et un commit
+précis — `/health` ne publie aucune empreinte de révision.
+
+**Ce qui a résisté** — treize attaques, treize refus : `alg: none`, confusion
+HS256 forgée à la main, RS384, PS256, `kid` inconnu, émetteur à une barre
+oblique près, audience étrangère, audience absente, `exp` dépassé, `nbf`
+futur, `exp` absent, `sub` vide, et injection de journal par un `sub` contenant
+un saut de ligne — neutralisée par le pseudonyme. S'y ajoutent l'absence de
+SSRF, l'étanchéité des identifiants PISTE et la constance du corps de refus.
 
 ─────────────────────────────────────────────
 Modules activés                       : [DOC-AUDIT]

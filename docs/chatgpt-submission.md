@@ -1,6 +1,6 @@
 # Connexion et soumission du plugin dans ChatGPT
 
-État vérifié le 30 août 2026.
+État vérifié le 30 août 2026, révisé le 4 septembre 2026.
 
 ## Endpoint de production
 
@@ -49,11 +49,22 @@ connectors*.
    **Il n'y a aucun champ d'authentification à remplir.** L'authentification
    est *découverte*, pas déclarée : ChatGPT appelle `/mcp`, reçoit le `401`,
    lit l'adresse de la métadonnée de ressource dans l'en-tête
-   `WWW-Authenticate`, remonte jusqu'au serveur d'autorisation et s'enregistre
-   lui-même — l'enregistrement dynamique de client (RFC 7591) est actif sur le
-   locataire Auth0, vérifié le 31 août 2026. Un échec à cette étape est donc un
-   défaut de découverte côté serveur, jamais un réglage à corriger dans le
-   formulaire : le diagnostiquer avec `tests/check_oauth_metadata.py`.
+   `WWW-Authenticate` et remonte jusqu'au serveur d'autorisation. Un échec à
+   cette étape est donc un défaut de découverte côté serveur, jamais un réglage
+   à corriger dans le formulaire : le diagnostiquer avec
+   `tests/check_oauth_metadata.py`.
+
+   **Cas particulier de la première connexion.** ChatGPT s'enregistre lui-même
+   par enregistrement dynamique (RFC 7591), mais celui-ci **n'est pas laissé
+   ouvert** sur le locataire Auth0 : il a été activé le temps d'un
+   enregistrement le 4 septembre 2026, puis refermé aussitôt. Le client obtenu,
+   `tpc_tTMV6uujD9aHwP8DoFfEMg`, est durable — ChatGPT n'a plus à se
+   réenregistrer, et la connexion fonctionne DCR fermée. C'est un client
+   **public** (`token_endpoint_auth_method: none`) : il n'a pas de secret
+   client, et aucun champ du formulaire n'en demande. Si un jour un nouvel
+   enregistrement devenait nécessaire, rouvrir la DCR le temps de l'opération
+   et la refermer dans le même passage ; procédure détaillée dans
+   [`oauth.md`](oauth.md) § 4.
 
    Les protocoles acceptés sont SSE et *streaming HTTP* ; le transport du
    service est en Streamable HTTP.
