@@ -90,18 +90,26 @@ voies d'autorisation coexistent selon le type de client :
 * **client prédéfini** : dans **Application Access**, ouvrir sa ligne, cliquer
   **Grant Access** et n'accorder que les permissions effectivement exigées par
   le serveur (`legal:read` si son contrôle est réactivé) ;
-* **client tiers créé par DCR** : il ne peut pas être autorisé à l'avance par
-  son identifiant. Dans **Default Permissions for third-party applications**,
+* **client tiers** — c'est le cas ici, `tpc_tTMV6uujD9aHwP8DoFfEMg` : il ne
+  peut pas être autorisé à l'avance par son identifiant, et cela reste vrai
+  après la fermeture de la DCR, car c'est son statut de client *tiers*, non
+  son mode de création, qui l'exclut de **Application Access**. Dans
+  **Default Permissions for third-party applications**,
   régler **User-delegated Access** sur **Authorized**, cliquer **None** pour
   conserver une liste vide, et laisser **Client Access** sur **Unauthorized**.
   Le grant résultant doit porter `scope: []`, `allow_all_scopes: false`,
   `subject_type: user` et `default_for: third_party_clients`.
 
 Ce grant tiers vide autorise l'audience, pas une permission métier. Il reste
-indispensable à la DCR même lorsque `MCP_OAUTH_REQUIRED_SCOPES=-` : passer
-**User-delegated Access** à **Unauthorized** supprime le grant et rend les
-outils ChatGPT inaccessibles. Un grant individuel pour la même audience prime
-sur ce défaut tiers.
+indispensable au client tiers même lorsque `MCP_OAUTH_REQUIRED_SCOPES=-`, et
+la fermeture de la DCR n'y change rien : passer **User-delegated Access** à
+**Unauthorized** supprime le grant et rend les outils ChatGPT inaccessibles.
+Un grant individuel pour la même audience prime sur ce défaut tiers.
+
+C'est aussi ce grant vide qui explique pourquoi le jeton reçu de ChatGPT ne
+porte pas `legal:read` : la liste de permissions par défaut étant vide,
+Auth0 n'a aucune permission métier à déléguer. Exiger la portée côté serveur
+reviendrait donc à répondre `403` à tout le monde.
 
 ### 3. Réglages avancés du locataire
 
@@ -122,15 +130,40 @@ valeurs étant identiques ici, le résultat est stable.
 
 ### 4. Client OAuth
 
-Deux voies, au choix, toutes deux acceptées par OpenAI :
+**Voie retenue le 4 septembre 2026 — enregistrement dynamique bref, puis
+client durable.** Elle combine les deux approches : on laisse ChatGPT
+s'enregistrer lui-même, ce qui garantit une URI de redirection exacte sans
+recopie manuelle, puis on referme la porte derrière lui.
 
-* **Client prédéfini** (recommandé pour garder la main) : créer une
-  *Regular Web Application*, coller l'URI de redirection affichée par la page
-  de gestion de l'application ChatGPT dans **Allowed Callback URLs**, puis
-  reporter `client_id` et `client_secret` dans « Paramètres OAuth avancés ».
-* **Enregistrement dynamique** : activer la DCR dans **Settings → Advanced** ;
-  ChatGPT crée alors son client seul. Les URI de redirection sont gérées
-  automatiquement.
+1. **Ouvrir** la DCR dans **Settings → Advanced → OIDC Dynamic Application
+   Registration**.
+2. **Laisser ChatGPT s'enregistrer** : créer ou actualiser la connexion côté
+   ChatGPT, aller jusqu'à l'écran de consentement et le valider.
+3. **Refermer la DCR immédiatement**, dans le même passage sur le tableau de
+   bord. C'est l'étape que l'on oublie, et c'est la seule qui compte pour la
+   sécurité : tant que la DCR reste ouverte, n'importe qui peut créer un
+   client sur le locataire.
+4. **Relever l'identifiant du client obtenu** dans *Applications*, et le
+   consigner. Ici : `tpc_tTMV6uujD9aHwP8DoFfEMg`.
+
+Le client ainsi créé est **public** : `token_endpoint_auth_method: none`. Il
+n'a **pas de secret client**, et il ne faut donc ni en chercher un, ni en
+saisir un dans le formulaire OpenAI. Sa sécurité repose entièrement sur PKCE
+(S256) et sur l'exactitude de l'URI de redirection. Il survit à la fermeture
+de la DCR : ChatGPT n'a plus à se réenregistrer.
+
+Deux conséquences pratiques :
+
+* la **connexion Google doit être promue au niveau du domaine**, sans quoi une
+  application tierce ne peut pas authentifier l'utilisateur et l'autorisation
+  échoue avant même l'échange du code ;
+* si un jour l'URI de redirection d'OpenAI change, il faudra soit la corriger
+  à la main sur ce client, soit rouvrir brièvement la DCR pour un nouvel
+  enregistrement — et la refermer aussitôt.
+
+Un client antérieur, `dRsmaHYVujnQft3RtXOynPj7qeK3rAWg`, a été **supprimé** le
+4 septembre 2026 (journal Auth0 *Delete a client*). Il n'est pas réutilisable :
+aucune procédure ni aucun réglage ne doit y renvoyer.
 
 ChatGPT lit `/.well-known/openid-configuration` et demande l'ensemble des
 portées qui y sont annoncées. Si l'autorisation échoue en
