@@ -11,12 +11,12 @@ description: Méthodologie rigoureuse de recherche en droit français (sources
   un écrit ou oral de concours avec références juridiques. Ne pas activer pour
   le droit étranger non européen ni les questions doctrinales sans citation.
 metadata:
-  version: 3.2.1
-  date_derniere_revue_methodologique: 2026-08-27
+  version: 3.3.0
+  date_derniere_revue_methodologique: 2026-09-05
   date_derniere_verification_sources: 2026-09-04
   langue: français
 ---
-# Skill : recherche-juridique (v3.2.1)
+# Skill : recherche-juridique (v3.3.0)
 
 > **Objet** : encoder la méthodologie rigoureuse de recherche en droit
 > français applicable à tout usage professionnel — avocat, juriste,
@@ -138,14 +138,15 @@ notamment ne « compense » pas une information décisionnelle manquante
 par l'exhaustivité — il produirait alors une analyse complète sur une
 fondation non vérifiée (voir étape 0 bis).
 
-### Obligation de traçabilité
+### Traçabilité proportionnée
 
-Toute sortie du skill se termine par un **encart récapitulatif unique** :
-mode utilisé, modules activés, modules non activés, niveau de
-confiance global, sources informelles signalées, limites de la
-recherche (voir §7). **Seule exception : la voie rapide `[lookup]`**,
-dont la sortie minimale ne porte ni en-tête ni encart (la provenance
-de l'identifiant y reste néanmoins obligatoire).
+Les contrôles sont obligatoires ; leur affichage dépend du livrable. Une
+réponse courte expose les sources, la date applicable, les réserves utiles et
+la confiance sans réciter la procédure. Une note de fond, un audit ou une
+demande `[complet]` ajoute l'encart récapitulatif : mode, modules activés,
+confiance globale, sources informelles et limites. `[lookup]` conserve sa
+sortie minimale. La provenance des identifiants reste obligatoire dans tous
+les cas.
 
 ---
 
@@ -232,14 +233,21 @@ applicable à chaque volet**.
 
 → Bloque modes 2, 3, 11.
 
-### P3 — Hiérarchie et articulation des sources
-Hiérarchie stricte :
-1. **Texte officiel publié** (Légifrance / JORF).
-2. **Décision juridictionnelle officielle** (Cass., CE, CC, CJUE, CEDH).
-3. **Circulaires et instructions officielles** (rubrique Circulaires de
-   legifrance.gouv.fr).
-4. **Doctrine institutionnelle** (rapports parlementaires, études du
-   Conseil d'État, DAJ).
+### P3 — Autorité, authenticité et articulation des sources
+
+Ne pas confondre trois questions : la source est-elle authentique, quel est le
+rang de la norme, et quel effet une décision produit-elle sur son application ?
+
+Ordre de recherche :
+1. **Textes officiels publiés** (Légifrance / JORF).
+2. **Décisions juridictionnelles officielles** (Cass., CE, CC, CJUE, CEDH),
+   qui peuvent interpréter, écarter ou neutraliser l'application d'un texte
+   selon leur compétence et leur autorité.
+3. **Circulaires et instructions officielles**.
+4. **Doctrine institutionnelle**.
+
+Cet ordre organise la recherche ; il ne constitue pas une hiérarchie abstraite
+où un texte primerait toujours sur une décision qui en contrôle l'application.
 
 La **doctrine privée** (Dalloz, JCP, blogs spécialisés) ne peut fonder
 seule une affirmation normative, mais peut servir comme outil
@@ -386,12 +394,13 @@ signalée comme non vérifiable avec abstention ciblée.
 
 ## 3. La procédure en 9 étapes — 0, 0 bis, 1 à 7 (avec critères de sortie)
 
-Chaque étape a un **critère de sortie**. S'il n'est pas rempli, je
-recule ou je m'abstiens. **Les étapes 0, 0 bis et 7 sont visibles dans
-la réponse finale** — c'est là que l'utilisateur peut corriger avant
-qu'une erreur ne se propage dans un acte officiel.
+Chaque étape a un **critère de sortie**. S'il n'est pas rempli, je recule ou je
+m'abstiens. Les étapes sont exécutées en interne. L'étape 0 bis devient visible
+lorsqu'une question bloque réellement l'analyse. Les étapes 0 et 7 sont
+synthétisées dans les notes de fond, audits, sorties `[complet]`, ou lorsque
+leur résultat révèle une limite utile à l'utilisateur.
 
-### Étape 0 — Qualification de la demande et désambiguïsation factuelle (VISIBLE)
+### Étape 0 — Qualification de la demande et désambiguïsation factuelle
 
 Avant toute recherche, répondre par écrit à **six questions** :
 
@@ -514,26 +523,26 @@ sont-elles liées par « et » (cumulatives) ou par « ou » (alternatives) ?
 Existe-t-il des exceptions, des exemptions, des seuils ? Identification
 **explicite** dans la réponse.
 
-#### Échelle de récupération (v3.1.0) — ordre imposé, détection silencieuse
+#### Échelle de récupération — capacités disponibles, détection silencieuse
 
 La voie de récupération n'est pas un choix soumis à l'utilisateur : elle se
 **constate**, par le code de sortie de l'outil.
 
-1. **Voie outillée (privilégiée)** —
+1. **Outil officiel disponible dans l'environnement** — utiliser en priorité
+   le connecteur MCP Légifrance/Judilibre s'il est exposé. Sinon utiliser
    [`scripts/legifrance.py`](scripts/legifrance.py) : `article` / `search`
-   (textes), `ceta` / `constit` (Conseil d'État, Conseil constitutionnel —
-   fonds Légifrance), `juri` puis `decision` (Cour de cassation, cours
-   d'appel, tribunaux — Judilibre). **Sortie 0** → provenance acquise,
-   poursuivre.
-2. **Voie de repli web** — **sortie 2** (identifiants PISTE absents) :
+   (textes), `ceta` / `constit` (Conseil d'État, Conseil constitutionnel),
+   `juri` puis `decision` (jurisprudence judiciaire). Un résultat de recherche
+   identifie une ressource ; la lecture de cette ressource confirme son contenu.
+2. **Voie de repli web** — outil indisponible ou identifiants PISTE absents :
    basculer sur les gabarits `web_search` / `web_fetch`, domaines officiels
    exclusivement, **sans l'annoncer et sans poser de question**. Demander à
    l'utilisateur s'il dispose d'une clé API est une **question rituelle
    prohibée** (étape 0 bis, économie du questionnement) : l'information est
    constatable par l'outil, donc elle se constate. La clé est un confort,
    jamais une condition d'exercice.
-3. **Abstention** — les deux voies échouent (sortie **3**, **4** ou **5**
-   côté outil *et* source inaccessible ou illisible côté web) : aucune
+3. **Abstention** — les voies disponibles échouent (notamment sorties **3**,
+   **4** ou **5** du script et source inaccessible côté web) : aucune
    citation, déclencheur d'abstention §7.
 
 **Invariant de provenance.** La voie empruntée ne modifie **en rien**
@@ -591,8 +600,10 @@ Obligatoire dans les cas suivants :
   (élément constitutif discutable, qualification concurrente plausible,
   application analogique apparente, jurisprudence connue de divergence
   ou de revirement),
-- motivation d'acte administratif faisant grief,
-- citation destinée à figurer dans un acte officiel.
+- motivation d'un acte administratif faisant grief lorsqu'une interprétation,
+  une articulation de compétences ou une mesure de proportionnalité est en jeu,
+- citation destinée à un acte officiel lorsqu'elle porte une interprétation
+  discutable plutôt que la reproduction d'une règle claire.
 
 **Non requise** pour la simple constatation matérielle d'une infraction
 dont le texte d'incrimination s'applique sans ambiguïté aux faits
@@ -604,15 +615,17 @@ ainsi que pour la lecture-référence d'un article non controversé
 **Règle conservatrice** : en cas de doute sur le caractère
 interprétatif ou non de la qualification, la triangulation s'applique.
 
-**Exigence en triangulation obligatoire** : minimum deux sources
-primaires concordantes **et** au moins une décision juridictionnelle
-confirmant l'interprétation retenue, non infirmée à la date de
-référence.
+**Exigence en triangulation obligatoire** : vérifier la source primaire par
+deux chemins indépendants lorsque c'est possible et rechercher la jurisprudence
+qui confirme ou contredit l'interprétation. Une décision juridictionnelle est
+requise pour présenter comme établie une interprétation contentieuse. L'absence
+de jurisprudence localisable est signalée ; elle ne rend pas, à elle seule, un
+texte clair juridiquement incertain.
 
-**Critère de sortie** : chaque interprétation s'appuie sur une
-décision identifiée et non infirmée ; quand la triangulation est
-obligatoire, elle est documentée. Échec de triangulation → bascule
-en abstention informée sur le point concerné, avec sortie dégradée
+**Critère de sortie** : chaque interprétation contentieuse présentée comme
+établie s'appuie sur une décision identifiée et non infirmée ; quand la
+triangulation est obligatoire, elle est documentée. Échec de triangulation →
+bascule en abstention informée sur le point concerné, avec sortie dégradée
 balisée (P7).
 
 → Bloque modes 3, 5, 6, 7, 14.
@@ -694,7 +707,7 @@ provenance exécutés ; en audit, contrôle post-correction exécuté.
 
 → Bloque modes 1, 4, 5, 14.
 
-### Étape 7 — Auto-critique adversariale (VISIBLE)
+### Étape 7 — Auto-critique adversariale
 
 Relire la réponse en jouant trois rôles successifs :
 
@@ -727,9 +740,9 @@ les autres services ?
 Si l'un des rôles identifie un trou → retour à l'étape concernée
 **avant livraison**.
 
-**Critère de sortie** : les trois (ou quatre) rôles ont été joués
-explicitement ; le résultat synthétique apparaît en fin de réponse
-sous la rubrique **« Auto-critique adversariale »**.
+**Critère de sortie** : les trois rôles ont été joués. Leur résultat apparaît
+si une objection subsiste ou dans une note de fond, un audit ou une sortie
+`[complet]`. Une réponse simple ne porte pas une rubrique vide ou rituelle.
 
 → Bloque modes 4, 5, 6, 8, 14.
 

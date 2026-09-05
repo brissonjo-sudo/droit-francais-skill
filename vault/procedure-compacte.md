@@ -12,30 +12,31 @@ tags: [skill/recherche-juridique, reference]
 
 ## Étapes × actions × critères de sortie
 
-| Étape | Visible | Action clé | Critère de sortie | Modes bloqués |
+| Étape | Affichage | Action clé | Critère de sortie | Modes bloqués |
 |-------|:-------:|------------|-------------------|:-------------:|
-| **0** Qualification | ✓ | 6 questions : nature / dates / domaine+code / territorial / niveau exigence / test régime. Désambiguïsation : qui, quand, où, qualité, pouvoir, envers qui | 6 réponses + désambig complète. Ambiguïté ou info manquante → E0bis avant de chercher | 4, 7, 10, 14 |
-| **0bis** Arbitrage | ✓ | Test décisionnel par info manquante : conclusion/régime/qualification/procédure bascule ? → décisionnelle (question oblig) ou non décisionnelle (hypothèse déclarée) | Toute info classée. Décisionnelle → question posée + recherche suspendue. Non décisionnelle → hypothèse déclarée. Aucune analyse complète sur branche non confirmée | -(prévient 10, 14 en amont) |
+| **0** Qualification | synthèse si utile | 6 questions : nature / dates / domaine+code / territorial / niveau exigence / test régime. Désambiguïsation : qui, quand, où, qualité, pouvoir, envers qui | 6 réponses + désambig complète. Ambiguïté ou info manquante → E0bis avant de chercher | 4, 7, 10, 14 |
+| **0bis** Arbitrage | si blocage réel | Test décisionnel par info manquante : conclusion/régime/qualification/procédure bascule ? → décisionnelle (question oblig) ou non décisionnelle (hypothèse déclarée) | Toute info classée. Décisionnelle → question posée + recherche suspendue. Non décisionnelle → hypothèse déclarée. Aucune analyse complète sur branche non confirmée | -(prévient 10, 14 en amont) |
 | **1** Cartographie | — | Lister sources à consulter : article+code, juridiction, circulaire, décret de renvoi | Liste écrite, hiérarchisée selon P3 | — |
-| **2** Récupération | — | Lire source + capturer identifiant officiel **par appel d'outil** (`scripts/legifrance.py` / web officiel — règle de provenance P1) + date vigueur + suivre renvois normatifs jusqu'à source ultime + test cumulatif/alternatif (« et » vs « ou ») | ID et date notés pour chaque source. Renvois résolus ou marqués non résolus | 1, 12, 13 |
+| **2** Récupération | — | Lire source + capturer identifiant officiel **par appel d'outil** (connecteur MCP Légifrance/Judilibre s'il est exposé, sinon `scripts/legifrance.py`, sinon web officiel — règle de provenance P1) + date vigueur + suivre renvois normatifs jusqu'à source ultime + test cumulatif/alternatif (« et » vs « ou ») | ID et date notés pour chaque source. Renvois résolus ou marqués non résolus | 1, 12, 13 |
 | **3** Fraîcheur | — | Vérifier : Modifié par ? Abrogé par ? Version en vigueur depuis ? Vacatio legis ? Dispositions transitoires ? Décisions QPC ? | État d'application à date de référence confirmé, transitoires incluses. Sinon → abstention P7 ou sortie dégradée balisée | 2, 3, 11 |
-| **4** Jurisprudence | — | Arrêt de principe + vérif. revirement. Qualifier : Bulletin/inédit, Lebon/Tables/inédit, ratio/obiter. Triangulation si obligatoire (voir table ci-dessous) | Interprétation = décision identifiée + non infirmée. Si triangulation oblig : 2 sources primaires concordantes + 1 décision confirmant. Échec → abstention P7 sur ce point | 3, 5, 6, 7, 14 |
+| **4** Jurisprudence | — | Arrêt de principe + vérif. revirement. Qualifier : Bulletin/inédit, Lebon/Tables/inédit, ratio/obiter. Triangulation si obligatoire (voir table ci-dessous) | Interprétation contentieuse présentée comme établie = décision identifiée + non infirmée. Si triangulation oblig : 2 chemins de vérification indépendants + recherche de la jurisprudence confirmant ou contredisant. Échec → abstention P7 sur ce point | 3, 5, 6, 7, 14 |
 | **5** Articulation | — | 7 contrôles : ① décret(s) appli publié(s) ② conformité normes sup. (Constit., CEDH, UE) ③ lex generalis/specialis ④ champ territorial et personnel ⑤ compétence auteur (délégation, territ., temporelle) ⑥ opposabilité (publication, affichage, signalisation) ⑦ délais et prescriptions | Texte applicable ET opposable ET auteur compétent ET délai non expiré | 8, 9, 10, 12 |
 | **6** Rédaction | — | Citation granulaire (P4) + 4 registres visuellement distincts (P5) + niveau de confiance par affirmation + justification 1 ligne + contrôle texte-cible (le texte cité répond à la question précise, pas seulement au mot-clé) + **contrôle de provenance** (tout identifiant cité a été récupéré dans la session, sinon « non vérifié » + gabarit C interdit) | Chaque affirmation = citation + niveau confiance. Contrôles texte-cible **et** provenance exécutés | 1, 4, 5, 14 |
-| **7** Auto-critique | ✓ | 3 rôles : (a) contradicteur — qualification concurrente ? (b) cassation/légalité — faiblesse censurable ? (c) jury concours — question d'oral fatale ? (d) directeur opérationnel si `[opérationnel]`. Trou identifié → retour étape concernée avant livraison | 3 (ou 4) rôles joués. Résultat en rubrique « Auto-critique adversariale » | 4, 5, 6, 8, 14 |
+| **7** Auto-critique | si réserve subsiste | 3 rôles : (a) contradicteur — qualification concurrente ? (b) cassation/légalité — faiblesse censurable ? (c) jury concours — question d'oral fatale ? (d) directeur opérationnel si `[opérationnel]`. Trou identifié → retour étape concernée avant livraison | 3 (ou 4) rôles joués. Résultat affiché si une objection subsiste, ou en note de fond / audit / `[complet]` ; jamais de rubrique vide | 4, 5, 6, 8, 14 |
 
 ## Règle de triangulation (E4) — quand obligatoire
 
 | Situation | Triangulation |
 |-----------|:------------:|
 | Qualification pénale + interprétation en jeu (élt constitutif discutable, qualification concurrente, analogie, divergence) | Obligatoire |
-| Motivation d'acte administratif faisant grief | Obligatoire |
-| Citation pour acte officiel | Obligatoire |
+| Motivation d'acte administratif faisant grief, avec interprétation, articulation de compétences ou proportionnalité en jeu | Obligatoire |
+| Citation pour acte officiel portant une interprétation discutable | Obligatoire |
+| Citation pour acte officiel reproduisant une règle claire | Non requise |
 | Doute sur le caractère interprétatif → règle conservatrice | Obligatoire |
 | Constatation matérielle sans ambiguïté (PV stationnement, excès vitesse flagrant, infraction code route évidente) | Non requise |
 | Lecture-référence d'un article non controversé | Non requise |
 
-Exigence en triangulation obligatoire : **≥ 2 sources primaires concordantes + ≥ 1 décision confirmant l'interprétation, non infirmée.**
+Exigence en triangulation obligatoire : **vérifier la source primaire par 2 chemins indépendants quand c'est possible + rechercher la jurisprudence qui confirme ou contredit.** Une décision est requise pour présenter comme établie une interprétation contentieuse. L'absence de jurisprudence localisable se signale ; elle ne rend pas, à elle seule, un texte clair juridiquement incertain.
 
 ## Balises de bascule
 

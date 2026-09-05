@@ -254,6 +254,15 @@ async def sonder(url: str, token: str) -> None:
                         raise SondeError(
                             f"la réponse n'est pas datée explicitement : {champ} absent"
                         )
+                # Ce champ est un booléen à trois états : True, False (version
+                # historique, cas normal) et None (date de début manquante).
+                # Le contrôler par sa valeur de vérité rejetterait deux
+                # réponses correctes : seule sa présence fait foi.
+                if "applicable_at_as_of_date" not in metadonnees:
+                    raise SondeError(
+                        "la réponse n'évalue pas l'applicabilité de la version : "
+                        "applicable_at_as_of_date absent"
+                    )
                 print(
                     f"✅ Datation explicite : {metadonnees['as_of_date']} "
                     f"({metadonnees['date_basis']})"

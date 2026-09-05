@@ -1,7 +1,7 @@
 {
   "name": "droit-francais-skill",
   "displayName": "Droit français",
-  "version": "0.8.1",
+  "version": "0.8.2",
   "description": "Méthodologie rigoureuse de recherche en droit français, distribuée comme plugin Claude Code : sources primaires Légifrance et Judilibre, vérification de vigueur, citations traçables.",
   "author": {
     "name": "brissonjo-sudo",

@@ -11,6 +11,40 @@ conservés tels quels pour ne pas casser les liens publiés.
 
 ---
 
+### [3.3.0] — 2026-09-05
+
+#### Modifié
+- Les contrôles restent obligatoires, mais leur affichage devient proportionné
+  au livrable : les réponses simples ne récitent plus les étapes internes ni
+  une auto-critique vide.
+- L'ordre de recherche est distingué de la hiérarchie des normes et de l'effet
+  des décisions juridictionnelles.
+- L'échelle de récupération reconnaît désormais le connecteur MCP lorsqu'il est
+  disponible, avant le script local et le repli web.
+- La triangulation renforcée cible les interprétations discutables. L'absence
+  de jurisprudence ne rend plus automatiquement incertain un texte clair.
+- Le vault de navigation (`vault/`) est réaligné sur ces règles : P3, échelle de
+  récupération, affichage des étapes et exigence de triangulation.
+
+### [plugin-v0.8.2] — 2026-09-05
+
+#### Corrigé
+- `get_article` distingue la provenance officielle de l'applicabilité de la
+  version à la date évaluée et signale une version historique.
+- `search` vérifie un identifiant `LEGIARTI` fourni avant de le retourner.
+- Le routeur conserve le code et la date reconnus et accepte les références
+  usuelles telles que `L. 2212-2 CGCT`. Une date exprimée à côté d'un
+  identifiant `LEGIARTI` est transmise à la lecture de l'article, au lieu
+  d'évaluer la version à la date du serveur.
+- La sonde de production contrôle la **présence** de
+  `applicable_at_as_of_date` et non sa valeur de vérité : `False` (version
+  historique) et `None` (date de début manquante) sont des réponses correctes.
+
+#### Tests
+- Ajout de régressions sur la datation d'une version historique, la provenance
+  d'un identifiant fourni, la conservation du code et de la date et le routage
+  d'une référence préfixée sans le mot « article ».
+
 ### [3.2.1] — 2026-09-04
 
 Issue d'un audit de fraîcheur juridique portant sur ce skill et sur
