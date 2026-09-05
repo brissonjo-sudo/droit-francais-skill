@@ -58,6 +58,12 @@ lu dans l'environnement, jamais affiché ni écrit.
 Cette sonde consomme le quota PISTE du titulaire, comme n'importe quel appel
 réel.
 
+Le **Client ID** et le **Client Secret** de cette application sont aussi ce que
+le workflow manuel *Sonde fonctionnelle* attend en secrets de dépôt
+(`AUTH0_CLIENT_ID`, `AUTH0_CLIENT_SECRET`) : il refait cet échange lui-même, au
+lieu de stocker un jeton qui expirerait. Voir
+[exploitation.md](exploitation.md) § « Sonde fonctionnelle ».
+
 > **Ce raccourci ne remplace pas les sections 1 et 2.** Un jeton machine à
 > machine prouve que le serveur répond correctement à un porteur authentifié ;
 > il ne prouve pas qu'un utilisateur parvient à créer le connecteur et à
