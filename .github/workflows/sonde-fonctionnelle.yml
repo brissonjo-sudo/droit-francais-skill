@@ -11,19 +11,24 @@ name: Sonde fonctionnelle
 # qu'aucune décision n'en dépende. Elle se lance après un déploiement, après un
 # incident, ou avant une soumission.
 #
-# Le jeton vit dans le secret de dépôt MCP_ACCESS_TOKEN et n'est jamais rendu
-# en argument de ligne de commande — il apparaîtrait dans la liste des
-# processus du runner. La sonde le lit dans l'environnement et ne l'affiche
-# jamais ; elle masque aussi le détail technique des erreurs de transport, qui
-# peut porter des en-têtes.
+# Le workflow ne stocke pas de jeton d'accès : un jeton Auth0 expire (24 h par
+# défaut), donc un secret qui en porterait un marcherait le premier jour et
+# rendrait un 401 le lendemain. Il stocke les deux identifiants durables de
+# l'application machine à machine et demande un jeton neuf à chaque exécution.
+# Ni les identifiants ni le jeton ne passent par une ligne de commande, qui est
+# visible dans la liste des processus du runner.
 
 on:
   workflow_dispatch:
     inputs:
       url:
-        description: "URL complète du endpoint MCP à sonder"
+        description: "URL complète du endpoint MCP à sonder (sert aussi d'audience du jeton)"
         required: false
         default: "https://droit-francais-skill.onrender.com/mcp"
+      issuer:
+        description: "Émetteur OAuth qui délivre le jeton"
+        required: false
+        default: "https://dev-7soa32jfmxpejzhs.eu.auth0.com"
 
 permissions:
   contents: read
@@ -53,24 +58,101 @@ jobs:
       - name: Installer le SDK MCP
         run: python -m pip install -r requirements-mcp.txt
 
-      # Sans ce garde, un secret absent produirait l'échec de la sonde
-      # elle-même — message exact mais noyé après une installation complète.
-      # Le contrôle porte sur la présence, jamais sur la valeur.
-      - name: Vérifier que le jeton est configuré
+      # Sans ce garde, des secrets absents produiraient l'échec de l'échange de
+      # jeton — message exact mais noyé après une installation complète. Le
+      # contrôle porte sur la présence, jamais sur la valeur.
+      - name: Vérifier que les identifiants sont configurés
         env:
-          MCP_ACCESS_TOKEN: ${{ secrets.MCP_ACCESS_TOKEN }}
+          AUTH0_CLIENT_ID: ${{ secrets.AUTH0_CLIENT_ID }}
+          AUTH0_CLIENT_SECRET: ${{ secrets.AUTH0_CLIENT_SECRET }}
         run: |
-          if [ -z "$MCP_ACCESS_TOKEN" ]; then
-            echo "::error::le secret de dépôt MCP_ACCESS_TOKEN est absent ou vide."
-            echo "Le renseigner dans Settings → Secrets and variables → Actions."
-            echo "Obtention du jeton : docs/validation-chatgpt.md."
+          manquants=""
+          [ -z "$AUTH0_CLIENT_ID" ] && manquants="$manquants AUTH0_CLIENT_ID"
+          [ -z "$AUTH0_CLIENT_SECRET" ] && manquants="$manquants AUTH0_CLIENT_SECRET"
+          if [ -n "$manquants" ]; then
+            echo "::error::secrets de dépôt absents ou vides :$manquants"
+            echo "Les renseigner dans Settings → Secrets and variables → Actions."
+            echo "Ils viennent de l'application machine à machine Auth0 autorisée"
+            echo "sur l'audience du serveur : docs/validation-chatgpt.md."
             exit 1
           fi
-          echo "Jeton présent ; sa valeur n'est ni affichée ni journalisée."
+          echo "Identifiants présents ; leurs valeurs ne sont ni affichées ni journalisées."
+
+      # Le jeton est demandé à chaque exécution plutôt que stocké : il expire,
+      # les identifiants non. L'échange passe par la bibliothèque standard, sans
+      # curl : le corps de la requête porte le secret, et un corps passé en
+      # argument serait lisible dans la liste des processus du runner.
+      - name: Obtenir un jeton d'accès
+        env:
+          AUTH0_CLIENT_ID: ${{ secrets.AUTH0_CLIENT_ID }}
+          AUTH0_CLIENT_SECRET: ${{ secrets.AUTH0_CLIENT_SECRET }}
+          AUTH0_ISSUER: ${{ inputs.issuer }}
+          AUTH0_AUDIENCE: ${{ inputs.url }}
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          import sys
+          import urllib.error
+          import urllib.request
+
+          # L'émetteur est publié verbatim ailleurs dans ce dépôt, barre oblique
+          # finale comprise : la retirer ici évite un « //oauth/token » qui
+          # rendrait un 404 difficile à relier à sa cause.
+          issuer = os.environ["AUTH0_ISSUER"].strip().rstrip("/")
+          corps = json.dumps(
+              {
+                  "client_id": os.environ["AUTH0_CLIENT_ID"],
+                  "client_secret": os.environ["AUTH0_CLIENT_SECRET"],
+                  "audience": os.environ["AUTH0_AUDIENCE"].strip(),
+                  "grant_type": "client_credentials",
+              }
+          ).encode()
+          requete = urllib.request.Request(
+              f"{issuer}/oauth/token",
+              data=corps,
+              headers={"content-type": "application/json"},
+              method="POST",
+          )
+
+          try:
+              with urllib.request.urlopen(requete, timeout=30) as reponse:
+                  charge = json.load(reponse)
+          except urllib.error.HTTPError as exc:
+              # Auth0 rend un objet {error, error_description} : ces deux champs
+              # sont actionnables et ne portent aucun secret. Le corps complet
+              # n'est pas rendu, pour ne pas exposer ce qu'il porterait d'autre.
+              try:
+                  detail = json.load(exc)
+              except Exception:
+                  detail = {}
+              print(
+                  f"::error::l'émetteur a refusé la demande de jeton (HTTP {exc.code}) : "
+                  f"{detail.get('error', '?')} — {detail.get('error_description', 'sans détail')}"
+              )
+              sys.exit(1)
+          except Exception as exc:
+              # Le texte d'une exception de transport peut porter des en-têtes.
+              print(f"::error::échange de jeton impossible : {type(exc).__name__}")
+              sys.exit(1)
+
+          jeton = charge.get("access_token", "")
+          if not jeton:
+              print("::error::l'émetteur a répondu sans access_token")
+              sys.exit(1)
+
+          # Masquer avant toute autre écriture : à partir de cette ligne, GitHub
+          # remplace la valeur par des astérisques partout dans le journal.
+          print(f"::add-mask::{jeton}")
+          # GITHUB_ENV n'est pas journalisé. Le délimiteur protège d'une valeur
+          # qui contiendrait un retour à la ligne.
+          with open(os.environ["GITHUB_ENV"], "a", encoding="utf-8") as sortie:
+              sortie.write(f"MCP_ACCESS_TOKEN<<FIN_DU_JETON\n{jeton}\nFIN_DU_JETON\n")
+
+          print(f"Jeton obtenu ; expire dans {charge.get('expires_in', '?')} s.")
+          PY
 
       - name: Sonder les six outils
-        env:
-          # Le jeton passe par l'environnement, jamais en argument : la ligne
-          # de commande est visible dans la liste des processus du runner.
-          MCP_ACCESS_TOKEN: ${{ secrets.MCP_ACCESS_TOKEN }}
+        # MCP_ACCESS_TOKEN vient de l'étape précédente par GITHUB_ENV : la sonde
+        # le lit dans l'environnement et refuse de l'accepter en argument.
         run: python tests/check_live_tools.py "${{ inputs.url }}"

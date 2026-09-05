@@ -143,8 +143,10 @@ python tests/check_live_tools.py
 
 Sans jeton local, le workflow manuel **Sonde fonctionnelle**
 (`.github/workflows/sonde-fonctionnelle.yml`) exécute le même parcours depuis
-GitHub, en lisant le jeton dans le secret de dépôt `MCP_ACCESS_TOKEN`. Il n'est
-pas planifié : chaque exécution consomme le quota PISTE.
+GitHub. Il ne stocke pas de jeton — un jeton expire, les identifiants non : les
+secrets de dépôt `AUTH0_CLIENT_ID` et `AUTH0_CLIENT_SECRET` sont échangés contre
+un jeton neuf à chaque exécution. Il n'est pas planifié : chaque exécution
+consomme le quota PISTE.
 
 `check_service_health.py` est la sonde d'**exploitation courante** : latence
 de `/health`, version et mode d'authentification annoncés, plus les contrôles
