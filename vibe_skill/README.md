@@ -3,7 +3,7 @@
 **Méthodologie rigoureuse de recherche en droit français pour Vibe**
 
 > **Version** : 3.3.0-vibe (adapté du noyau 3.3.0)
-> **Licence** : [CC-BY-SA-4.0](../../LICENSE)
+> **Licence** : [CC-BY-SA-4.0](../LICENSE)
 > **Auteur** : Adapté depuis [brissonjo-sudo/droit-francais-skill](https://github.com/brissonjo-sudo/droit-francais-skill)
 
 ---
@@ -119,7 +119,7 @@ Le skill s'active **automatiquement** dès qu'une requête contient :
 
 ### 3. Profil utilisateur (optionnel)
 
-Pour adapter le skill à votre **métier**, copiez un profil depuis [`skill/profils/`](../../skill/profils/) :
+Pour adapter le skill à votre **métier**, copiez un profil depuis [`skill/profils/`](../skill/profils/) :
 
 ```bash
 cp vibe_skill/../skill/profils/avocat.md vibe_skill/profil.md
@@ -401,7 +401,7 @@ Je traite la suite dès que ce point est précisé.
 ### Comment synchroniser avec les mises à jour du noyau ?
 
 1. **Vérifier les versions** :
-   - Noyau : [`skill/SKILL.md`](../../skill/SKILL.md) (version dans les métadonnées YAML)
+   - Noyau : [`skill/SKILL.md`](../skill/SKILL.md) (version dans les métadonnées YAML)
    - Déclinaison Vibe : `vibe_skill/SKILL.md` (métadonnées `version`)
 
 2. **Mettre à jour** :
@@ -417,7 +417,7 @@ Je traite la suite dès que ce point est précisé.
    ```
 
 3. **Changelog** :
-   Consulter [`skill/CHANGELOG.md`](../../skill/CHANGELOG.md) pour connaître les modifications.
+   Consulter [`skill/CHANGELOG.md`](../skill/CHANGELOG.md) pour connaître les modifications.
 
 ### Règle de synchronisation
 
@@ -463,7 +463,7 @@ Avant de contribuer, vérifiez que :
 
 ## ⚖️ **Licence**
 
-Ce projet est sous **licence [CC-BY-SA-4.0](../../LICENSE)**.
+Ce projet est sous **licence [CC-BY-SA-4.0](../LICENSE)**.
 
 Vous êtes libre de :
 - **Partager** : copier, distribuer, exécuter le code
@@ -479,19 +479,19 @@ Vous êtes libre de :
 ## 📚 **Ressources**
 
 - **Dépôt principal** : [brissonjo-sudo/droit-francais-skill](https://github.com/brissonjo-sudo/droit-francais-skill)
-- **Noyau méthodologique** : [`skill/SKILL.md`](../../skill/SKILL.md)
-- **Profils métier** : [`skill/profils/`](../../skill/profils/)
-- **Références** : [`skill/references/`](../../skill/references/)
-- **Outils originaux** : [`skill/scripts/`](../../skill/scripts/)
-- **Déclinaison Grok** : [`grok_skill/`](../../grok_skill/) (pour comparaison)
-- **Déclinaison Gemini** : [`gemini_agent/`](../../gemini_agent/) (pour comparaison)
+- **Noyau méthodologique** : [`skill/SKILL.md`](../skill/SKILL.md)
+- **Profils métier** : [`skill/profils/`](../skill/profils/)
+- **Références** : [`skill/references/`](../skill/references/)
+- **Outils originaux** : [`skill/scripts/`](../skill/scripts/)
+- **Déclinaison Grok** : [`grok_skill/`](../grok_skill/) (pour comparaison)
+- **Déclinaison Gemini** : [`gemini_agent/`](../gemini_agent/) (pour comparaison)
 
 ---
 
 ## 💬 **Support**
 
 Pour toute question ou problème :
-1. Consulter la [FAQ](../../docs/) (si disponible)
+1. Consulter la [FAQ](../docs/) (si disponible)
 2. Ouvrir une **issue** sur [GitHub](https://github.com/brissonjo-sudo/droit-francais-skill/issues)
 3. Contacter l'auteur : [@brissonjo-sudo](https://github.com/brissonjo-sudo)
 
