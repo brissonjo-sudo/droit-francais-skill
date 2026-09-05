@@ -27,6 +27,8 @@ version: 3.3.0
 | Changelog v2.3.0 | `recherche-juridique v2.3.0.md` |
 | Découpage modulaire + outillage v2.3.0 (noyau ↔ références ↔ scripts) | `structure-v2.3.0.md` |
 | Noyau complet | `../skill/SKILL.md` |
+| Déclinaison Grok (outils web natifs, noyau condensé) | `../grok_skill/README.md` |
+| Déclinaison Gemini (agent générique non connecté) | `../gemini_agent/README.md` |
 | Gabarits de sortie détaillés | `../skill/references/gabarits-sortie.md` |
 | Modules activables détaillés | `../skill/references/modules.md` |
 

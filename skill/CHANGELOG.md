@@ -11,6 +11,26 @@ conservés tels quels pour ne pas casser les liens publiés.
 
 ---
 
+### [3.3.0-grok] — 2026-09-05
+
+Déclinaison **Grok** de la méthodologie, dans `grok_skill/`. Elle ne modifie
+pas le noyau `skill/`, qui reste la source de vérité.
+
+#### Ajouté
+- `grok_skill/SKILL.md` : noyau condensé reprenant les principes P1 à P7, la
+  procédure en interne, la traçabilité proportionnée et la triangulation
+  ciblée de la 3.3.0.
+- `grok_skill/references/{sources-autorisees,modules.md}` : ordre de recherche
+  et autorité des sources ; six modules activables.
+- `grok_skill/README.md` : ce que la déclinaison conserve, remplace et laisse
+  de côté par rapport au noyau.
+
+#### Modifié
+- L'échelle de récupération est remplacée par les outils natifs de la
+  plateforme — `web_search` restreint aux domaines officiels, `open_page`,
+  `browser_tab` — faute de connecteur MCP et d'accès PISTE. L'invariant de
+  provenance et le déclencheur d'abstention sont inchangés.
+
 ### [3.3.0] — 2026-09-05
 
 #### Modifié
