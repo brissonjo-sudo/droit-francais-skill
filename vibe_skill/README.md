@@ -44,43 +44,63 @@ Les LLM ont tendance à **inventer** des références juridiques (articles de lo
 
 ## 🔧 **Installation**
 
+Vibe découvre les skills sous forme d'un dossier par skill, nommé comme le
+champ `name:` de son frontmatter (ici `recherche-juridique`), placé dans l'un
+de ces emplacements :
+
+| Emplacement | Portée |
+|---|---|
+| `./.vibe/skills/` ou `./.agents/skills/` | Projet (répertoire de travail approuvé) |
+| `~/.vibe/skills/` | Utilisateur (tous les projets) |
+
+Le dossier de ce dépôt s'appelle `vibe_skill/` pour rester au même niveau que
+`grok_skill/` et `gemini_agent/` ; à l'installation, il doit être **renommé**
+`recherche-juridique/` pour correspondre au `name:` de son `SKILL.md` — sans
+quoi Vibe ne l'associera pas correctement à ce nom.
+
 ### Option 1 : Intégration directe (recommandé)
 
-Copier le dossier `vibe_skill/` à la racine de votre environnement Vibe :
-
 ```bash
-# Depuis ce dépôt
-cp -r vibe_skill/ /chemin/vers/votre/environnement/vibe/
+# Depuis ce dépôt, exemple pour un skill de projet
+mkdir -p /chemin/vers/votre/projet/.vibe/skills
+cp -r vibe_skill/ /chemin/vers/votre/projet/.vibe/skills/recherche-juridique
+cp -r skill/ /chemin/vers/votre/projet/.vibe/skills/skill
 ```
 
 **Structure attendue** :
 ```
-votre_environnement/
-├── vibe_skill/
-│   ├── SKILL.md          # Adaptateur principal
-│   ├── README.md         # Ce fichier
+votre_projet/.vibe/skills/
+├── recherche-juridique/        # anciennement vibe_skill/, renommé à l'installation
+│   ├── SKILL.md                 # Adaptateur principal
+│   ├── README.md                # Ce fichier
 │   └── tools/
 │       ├── __init__.py
-│       └── legifrance_vibe.py  # Wrapper Python (optionnel)
-└── skill/              # Noyau méthodologique (à copier depuis ce dépôt)
+│       └── legifrance_vibe.py   # Squelette non connecté (voir SKILL.md)
+└── skill/                       # Noyau méthodologique (copié depuis ce dépôt)
     ├── SKILL.md
     ├── CHANGELOG.md
     ├── profils/
     └── references/
 ```
 
-> ⚠️ **Important** : Le noyau (`skill/`) **doit être présent** à côté de `vibe_skill/` pour que les liens relatifs fonctionnent.
+> ⚠️ **Important** : `SKILL.md` référence le noyau par le chemin relatif
+> `../skill/SKILL.md`. Le dossier `skill/` doit donc être un **sibling direct**
+> de `recherche-juridique/` — les deux sous `.vibe/skills/`, pas ailleurs.
+
+Pour un skill utilisateur (disponible dans tous les projets), remplacer
+`.vibe/skills/` par `~/.vibe/skills/` dans les commandes ci-dessus.
 
 ### Option 2 : Symlink vers le noyau
 
-Si vous ne voulez pas dupliquer `skill/` :
+Si vous ne voulez pas dupliquer `skill/` (utile pour suivre les mises à jour
+du noyau sans repasser par `git pull` + copie) :
 
 ```bash
-# Créer un symlink vers le noyau
-ln -s /chemin/vers/droit-francais-skill/skill /chemin/vers/votre/vibe/skill
-
-# Copier la déclinaison Vibe
-cp -r /chemin/vers/droit-francais-skill/vibe_skill /chemin/vers/votre/vibe/
+mkdir -p /chemin/vers/votre/projet/.vibe/skills
+ln -s /chemin/vers/droit-francais-skill/skill \
+      /chemin/vers/votre/projet/.vibe/skills/skill
+cp -r /chemin/vers/droit-francais-skill/vibe_skill \
+      /chemin/vers/votre/projet/.vibe/skills/recherche-juridique
 ```
 
 ---
@@ -122,7 +142,8 @@ Le skill s'active **automatiquement** dès qu'une requête contient :
 Pour adapter le skill à votre **métier**, copiez un profil depuis [`skill/profils/`](../skill/profils/) :
 
 ```bash
-cp vibe_skill/../skill/profils/avocat.md vibe_skill/profil.md
+# Depuis .vibe/skills/ (voir Installation ci-dessus)
+cp skill/profils/avocat.md recherche-juridique/profil.md
 ```
 
 **Profils disponibles** :
@@ -149,10 +170,12 @@ vibe_skill/
 │
 └── tools/
     ├── __init__.py        # Package Python
-    └── legifrance_vibe.py # 🐍 Wrapper optionnel pour les outils Vibe
-                           #    - search_legifrance() → Recherche dans Légifrance
-                           #    - get_article() → Récupère un article complet
-                           #    - search_case_law() → Recherche de jurisprudence
+    └── legifrance_vibe.py # 🐍 Squelette non connecté (voir SKILL.md) :
+                           #    search_legifrance(), get_article(),
+                           #    search_case_law() ne contiennent aucun appel
+                           #    réel à web_search / web_fetch — à compléter
+                           #    avant tout usage, ou ignorer et appeler
+                           #    web_search / web_fetch directement
 ```
 
 **Flux de données** :
@@ -168,12 +191,9 @@ Déclenchement automatique (SKILL.md)
 [Étape 1] Cartographie des sources nécessaires
        ↓
 [Étape 2] Récupération via outils Vibe
-       │─────────────────────────────────────────┐
-       ↓                                         ↓
-   web_search_web_search()               tools/legifrance_vibe.py
-       ↓                                         ↓
-   Recherche sur Légifrance          Wrapper Python (optionnel)
-       ↓                                         ↓
+       ↓
+   web_search(query=…) → web_fetch(url=…)
+       ↓
    [Étape 3] Vérification de fraîcheur et vigueur
        ↓
 [Étape 4] Croisement jurisprudentiel
@@ -191,52 +211,39 @@ Réponse finale (format proportionné)
 
 ## 🔗 **Intégration avec les outils Vibe**
 
-Cette déclinaison utilise **exclusivement les outils MCP natifs de Vibe** :
+Cette déclinaison utilise **exclusivement les outils natifs de Vibe** —
+`web_search` et `web_fetch`, tels que publiés dans le registre d'outils
+intégrés de Vibe Code (`mistralai/mistral-vibe`,
+`vibe/core/tools/builtins/`, vérifié au 5 septembre 2026) :
 
-| Outil Vibe | Usage | Équivalent dans le noyau | Obligatoire ? |
-|------------|-------|--------------------------|---------------|
-| `web_search_web_search` | Recherche dans Légifrance ou jurisprudence | `scripts/legifrance.py:search()` | ✅ **Oui** |
-| `web_search_open_url` | Lecture complète d'une page officielle | `scripts/legifrance.py:article()` | ✅ **Oui** |
+| Outil Vibe | Paramètre(s) | Usage | Équivalent dans le noyau | Obligatoire ? |
+|------------|--------------|-------|--------------------------|---------------|
+| `web_search` | `query` | Recherche dans Légifrance ou jurisprudence | `scripts/legifrance.py:search()` | ✅ **Oui** |
+| `web_fetch` | `url` | Lecture complète d'une page officielle | `scripts/legifrance.py:article()` | ✅ **Oui** |
 
 ### Exemple d'utilisation directe des outils Vibe
 
-```python
-# Dans un workflow Vibe, vous pouvez appeler directement :
-
-# 1. Recherche d'un article
-search_results = web_search_web_search(
-    query="site:legifrance.gouv.fr article L2212-2 CGCT",
-    limit=5
-)
-
-# 2. Lecture de l'article
-for result in search_results:
-    if "legifrance.gouv.fr" in result["url"]:
-        article_html = web_search_open_url(url=result["url"])
-        # Extraire le texte, l'identifiant LEGIARTI, etc.
+```
+1. web_search(query="site:legifrance.gouv.fr article L2212-2 CGCT")
+2. Pour chaque résultat dont l'URL contient legifrance.gouv.fr :
+     web_fetch(url=result.url)
+     → extraire le texte, l'identifiant LEGIARTI, la date de version
 ```
 
-### Exemple avec le wrapper Python (optionnel)
+### Le wrapper Python (`tools/legifrance_vibe.py`) — squelette, pas un outil
 
-```python
-# Import depuis le package
-from vibe_skill.tools.legifrance_vibe import search_legifrance, get_article
+Ce module esquisse une couche de normalisation (dataclasses `Article`,
+`LegifranceResult`, extraction d'identifiant par expression régulière). **Il
+ne fonctionne pas tel quel** : `search_legifrance()` retourne toujours une
+liste vide, `get_article()` opère toujours sur un texte vide — aucun des deux
+n'appelle réellement `web_search` ou `web_fetch`. Aucune exception n'est levée
+dans ce cas, ce qui le rend dangereux à utiliser sans le compléter d'abord :
+un appelant pourrait prendre un résultat vide pour une absence de source,
+plutôt que pour un module non branché.
 
-# Recherche
-results = search_legifrance(
-    query="L2212-2 CGCT",
-    limit=5,
-    code="CGCT"
-)
-
-# Lecture du premier résultat
-if results:
-    article = get_article(results[0].url)
-    print(f"Article {article.article_number} du {article.code}")
-    print(f"Texte : {article.text[:200]}...")
-    print(f"En vigueur : {article.in_force}")
-    print(f"Identifiant : {article.legiarti_id or '⚠️ non récupéré'}")
-```
+Utiliser directement `web_search` et `web_fetch` comme ci-dessus. Ne pas
+importer `vibe_skill.tools.legifrance_vibe` en production sans avoir d'abord
+remplacé les appels commentés `# Dans Vibe : …` par de vrais appels d'outils.
 
 ---
 
@@ -305,7 +312,7 @@ Je traite la suite dès que ce point est précisé.
 ### Texte principal
 **Art. 311-1, Code pénal** (version en vigueur depuis le 01/03/1994)
 > Le vol est la soustraction frauduleuse de la chose d'autrui.
-> **Identifiant** : LEGIARTI000006665348 (récupéré via web_search_open_url)
+> **Identifiant** : LEGIARTI000006665348 (récupéré via web_fetch)
 > **En vigueur** : ✅ Oui (au 05/09/2026)
 > **Source** : [Légifrance](https://www.legifrance.gouv.fr/codes/article/cp/311-1/)
 
@@ -453,7 +460,7 @@ Ouvrir une issue sur [GitHub](https://github.com/brissonjo-sudo/droit-francais-s
 ### 3. Tester les modifications
 
 Avant de contribuer, vérifiez que :
-- [ ] Les outils Vibe (`web_search_web_search`, `web_search_open_url`) sont correctement utilisés
+- [ ] Les outils Vibe (`web_search`, `web_fetch`) sont correctement utilisés, avec leurs noms réels
 - [ ] La **règle de provenance** (P1) est respectée : tout identifiant cité provient d'un appel d'outil
 - [ ] Les **7 principes** (P1–P7) sont appliqués
 - [ ] Les **9 étapes** de la procédure sont suivies

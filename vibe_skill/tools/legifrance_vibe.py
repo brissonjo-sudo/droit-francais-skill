@@ -1,21 +1,20 @@
 """
-Outils de récupération Légifrance pour Vibe.
+Squelette non connecté — normalisation autour de web_search / web_fetch.
 
-Ce module fournit un wrapper autour des outils MCP natifs de Vibe
-(`web_search_web_search`, `web_search_open_url`) pour faciliter la récupération
-de textes juridiques depuis Légifrance et autres sources officielles.
+Ce module esquisse une couche de normalisation (dataclasses, extraction
+d'identifiant LEGIARTI) au-dessus des outils natifs de Vibe, web_search
+(paramètre query) et web_fetch (paramètre url).
 
-Ce module **n'est pas obligatoire** : les outils MCP natifs suffisent pour
-satisfaire toutes les exigences du noyau méthodologique (P1–P7).
+CE MODULE NE FONCTIONNE PAS TEL QUEL. search_legifrance() retourne toujours
+une liste vide, get_article() opère toujours sur un texte vide : aucune des
+deux fonctions n'appelle réellement web_search ou web_fetch — voir les
+emplacements commentés `# Dans Vibe : ...` à compléter. Aucune des deux ne
+lève d'exception dans ce cas : un résultat vide est indiscernable d'une
+absence de source, ce qui est dangereux pour un skill dont l'exigence
+centrale est de ne jamais présenter une donnée non vérifiée comme fiable.
 
-Exemple d'utilisation :
-    from vibe_skill.tools.legifrance_vibe import search_legifrance, get_article
-
-    # Recherche d'un article
-    results = search_legifrance("L2212-2 CGCT", limit=5)
-    
-    # Lecture d'un article
-    article = get_article(results[0]["url"])
+Utiliser directement web_search / web_fetch (voir SKILL.md) plutôt que ce
+module, sauf à l'avoir d'abord complété.
 
 Auteurs : Adapté depuis droit-francais-skill (brissonjo-sudo)
 Licence : CC-BY-SA-4.0
@@ -170,30 +169,12 @@ def search_legifrance(
     else:
         search_query = f"site:{domain} {query}"
     
-    # Appel à l'outil MCP natif de Vibe
-    # Note: Dans Vibe, cet appel est géré par l'environnement d'exécution
-    # Pour un usage direct en Python, utiliser les fonctions MCP disponibles
-    try:
-        from mcp import Client
-        # Initialisation du client MCP (si disponible)
-        # En pratique, dans Vibe, les outils sont appelés directement
-        pass
-    except ImportError:
-        # Mode fallback : utiliser les outils natifs de Vibe via leur API
-        pass
-    
-    # Simulation de l'appel à web_search_web_search
-    # Dans Vibe, cet appel serait : web_search_web_search(query=search_query, limit=limit)
-    # Pour ce module, on retourne une structure compatible
-    # En production Vibe, remplacer par l'appel réel
-    
-    # Pour l'instant, on simule avec une structure vide
-    # L'implémentation réelle dépend de l'intégration Vibe
+    # NON CONNECTÉ : le modèle appelle web_search directement (un seul
+    # paramètre, query) ; ce module ne peut pas invoquer cet outil lui-même,
+    # un skill n'a pas accès aux outils depuis son propre code Python.
+    # Appel réel, tel qu'exécuté par le modèle : web_search(query=search_query)
     raw_results = []
-    
-    # En mode réel Vibe, ce serait :
-    # raw_results = web_search_web_search(query=search_query, limit=limit)
-    
+
     # Traitement des résultats
     results = []
     for result in raw_results:
@@ -239,14 +220,11 @@ def get_article(url: str) -> Article:
                           CONSEIL_ETAT_DOMAIN, CONSEIL_CONSTITUTIONNEL_DOMAIN)):
         raise ValueError(f"URL non supportée : {url}. Domaines autorisés : Légifrance, Cour de cassation, Conseil d'État, Conseil constitutionnel")
     
-    # Appel à l'outil MCP natif de Vibe
-    # Dans Vibe : web_search_open_url(url=url)
+    # NON CONNECTÉ (voir docstring du module) : le modèle appelle web_fetch
+    # directement. Appel réel, tel qu'exécuté par le modèle : web_fetch(url=url)
     try:
-        # Simulation de l'appel
-        # En production Vibe, remplacer par :
-        # html_content = web_search_open_url(url=url)
         html_content = ""
-        
+
         # Extraction des données
         legiarti_id = _extract_legiarti_id(url)
         code_name, article_num = _parse_article_url(url)
@@ -313,8 +291,8 @@ def search_case_law(
     domain = domain_map.get(jurisdiction, LEGIFRANCE_DOMAIN)
     search_query = f"site:{domain} {query}"
     
-    # Appel à l'outil MCP natif
-    # Dans Vibe : raw_results = web_search_web_search(query=search_query, limit=limit)
+    # NON CONNECTÉ (voir docstring du module).
+    # Appel réel, tel qu'exécuté par le modèle : web_search(query=search_query)
     raw_results = []
     
     # Traitement des résultats
@@ -540,7 +518,7 @@ def build_legifrance_query(
         text: Texte de recherche (ex: "responsabilité civile")
     
     Returns:
-        Requête formatée pour web_search_web_search
+        Requête formatée pour l'outil Vibe web_search (paramètre query)
     """
     parts = [f"site:{LEGIFRANCE_DOMAIN}"]
     

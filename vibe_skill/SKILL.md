@@ -1,6 +1,13 @@
 ---
 name: recherche-juridique
 description: Méthodologie rigoureuse de recherche en droit français — sources primaires Légifrance et Judilibre, vérification de vigueur et d'applicabilité, citations traçables. Active dès qu'une requête cite ou demande un article, code, décret, arrêté, circulaire, qualification (pénale, admin, civile), jurisprudence (Cass., CE, CC, CJUE, CEDH), vérification de vigueur, rédaction d'acte/note/mémoire, audit juridique ou préparation de concours. Ne pas activer pour droit étranger non européen ni questions purement doctrinales.
+license: CC-BY-SA-4.0
+user-invocable: false
+allowed-tools:
+  - web_search
+  - web_fetch
+  - read_file
+  - ask_user_question
 metadata:
   version: 3.3.0-vibe
   date_derniere_revue_methodologique: 2026-09-05
@@ -98,8 +105,8 @@ Si une ambiguïté bloque réellement l'analyse → poser la question (étape 0 
 ### Étape 1 — Recherche des textes primaires
 
 Utiliser en priorité les **outils Vibe natifs** :
-- `web_search_web_search` avec `site:legifrance.gouv.fr` ou `site:courdecassation.fr`
-- `web_search_open_url` sur les URLs Légifrance pour lecture complète
+- `web_search` avec `site:legifrance.gouv.fr` ou `site:courdecassation.fr`
+- `web_fetch` sur les URLs Légifrance pour lecture complète
 
 **Exemples de requêtes optimisées** :
 ```
@@ -158,8 +165,8 @@ N'afficher le résultat que si une objection subsiste ou pour livrable complet.
 ## Échelle de récupération (Vibe)
 
 1. **Outils web officiels** (priorité) —
-   `web_search_web_search` avec `site:legifrance.gouv.fr` ou domaines juridictionnels,
-   `web_search_open_url` sur les pages articles / codes / décisions.
+   `web_search` avec `site:legifrance.gouv.fr` ou domaines juridictionnels,
+   `web_fetch` sur les pages articles / codes / décisions.
 2. **Sites juridictionnels** —
    `courdecassation.fr`, `conseil-etat.fr`, `conseil-constitutionnel.fr`, `eur-lex.europa.eu`, `echr.coe.int`.
 3. **Abstention** si sources inaccessibles ou illisibles → aucune citation inventée.
@@ -171,39 +178,37 @@ Un identifiant non récupéré via ces outils **doit être marqué** `⚠️ non
 
 ## Outils Vibe disponibles
 
-| Outil Vibe | Usage | Équivalent noyau | Obligatoire ? |
-|------------|-------|------------------|---------------|
-| `web_search_web_search` | Recherche dans Légifrance ou jurisprudence | `scripts/legifrance.py:search()` | ✅ Oui |
-| `web_search_open_url` | Lecture complète d'une page officielle | `scripts/legifrance.py:article()` | ✅ Oui |
+Noms vérifiés contre le registre public des outils intégrés de Vibe Code
+(`mistralai/mistral-vibe`, `vibe/core/tools/builtins/`, au 5 septembre 2026).
+Vérifier qu'ils correspondent à la version de Vibe effectivement installée.
+
+| Outil Vibe | Paramètre(s) | Usage | Équivalent noyau | Obligatoire ? |
+|------------|--------------|-------|------------------|---------------|
+| `web_search` | `query` | Recherche dans Légifrance ou jurisprudence | `scripts/legifrance.py:search()` | ✅ Oui |
+| `web_fetch` | `url` | Lecture complète d'une page officielle | `scripts/legifrance.py:article()` | ✅ Oui |
 
 **Exemple d'utilisation combinée** :
 ```
-1. web_search_web_search(query="site:legifrance.gouv.fr article L111-1 Code pénal", limit=5)
-2. Pour chaque résultat → web_search_open_url(url=result.url) pour extraire LEGIARTI, date, texte
+1. web_search(query="site:legifrance.gouv.fr article L111-1 Code pénal")
+2. Pour chaque résultat → web_fetch(url=result.url) pour extraire LEGIARTI, date, texte
 3. Si échec → abstention (P7)
 ```
 
 ---
 
-## Intégration Python optionnelle
+## Intégration Python optionnelle — squelette non connecté
 
-Pour un usage plus structuré, un **wrapper Python** est disponible dans [`tools/legifrance_vibe.py`](tools/legifrance_vibe.py).
-Ce module **n'est pas obligatoire** : les outils MCP natifs suffisent.
+[`tools/legifrance_vibe.py`](tools/legifrance_vibe.py) esquisse un wrapper structuré
+autour de `web_search` / `web_fetch` : extraction d'identifiant `LEGIARTI`,
+normalisation en dataclasses. **Ce module ne fonctionne pas tel quel** : ses
+fonctions ne contiennent aucun appel réel à `web_search` ou `web_fetch` — elles
+retournent une liste vide ou un texte vide, silencieusement, sans lever
+d'erreur. Rien ne doit s'y fier pour une citation réelle.
 
-**Quand l'utiliser ?**
-- Pour extraire automatiquement les identifiants `LEGIARTI` depuis le HTML
-- Pour normaliser les formats de réponse
-- Pour ajouter des validations supplémentaires
-
-**Exemple d'import** :
-```python
-from vibe_skill.tools.legifrance_vibe import search_legifrance, get_article
-
-# Recherche
-results = search_legifrance("L2212-2 CGCT", limit=5)
-# Lecture
-article = get_article(results[0]["url"])
-```
+Utiliser directement `web_search` et `web_fetch`, comme décrit ci-dessus.
+Ce squelette n'a d'intérêt que pour qui veut le compléter — brancher les
+appels réels aux emplacements commentés `# Dans Vibe : …` — avant de
+l'utiliser en production.
 
 ---
 
@@ -246,12 +251,12 @@ Démarches alternatives :
 
 ## Notes d'adaptation Vibe
 
-- **Pas de serveur MCP local supposé.** Les outils natifs (`web_search_web_search`, `web_search_open_url`) remplacent les appels PISTE/Judilibre directs.
+- **Pas de serveur MCP local supposé.** Les outils natifs (`web_search`, `web_fetch`) remplacent les appels PISTE/Judilibre directs.
 - **Préférer toujours les domaines officiels** `.gouv.fr` et sites des juridictions.
 - **Conserver le code et la date** dans les requêtes de recherche.
 - **Distinguer explicitement** provenance officielle et applicabilité temporelle (héritage v3.3.0).
 - **Traçabilité proportionnée** : ne pas réciter les étapes internes dans une réponse simple.
-- **Règle de provenance stricte** : tout identifiant cité doit provenir d'un appel à `web_search_web_search` **suivi** d'un `web_search_open_url` confirmant l'identifiant sur la page.
+- **Règle de provenance stricte** : tout identifiant cité doit provenir d'un appel à `web_search` **suivi** d'un `web_fetch` confirmant l'identifiant sur la page.
 
 ---
 
@@ -340,7 +345,7 @@ Sans `profil.md` → **profil neutre** : aucun contexte métier n'est présumé.
 
 - **Source de vérité** : [`../skill/SKILL.md`](../skill/SKILL.md) (version 3.3.0)
 - **Synchronisation** : Mettre à jour `metadata.version` dans ce fichier à chaque release du noyau (ex: `3.3.0-vibe` → `3.4.0-vibe`)
-- **Tests** : Vérifier que les outils Vibe (`web_search_web_search`, `web_search_open_url`) répondent aux exigences P1–P7
+- **Tests** : Vérifier que les outils Vibe (`web_search`, `web_fetch`) répondent aux exigences P1–P7
 
 ---
 

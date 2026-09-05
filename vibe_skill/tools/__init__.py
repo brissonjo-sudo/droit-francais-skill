@@ -1,15 +1,13 @@
 """
-Package vibe_skill.tools — Outils de récupération Légifrance pour Vibe.
+Package vibe_skill.tools — squelette non connecté (voir legifrance_vibe.py).
 
-Ce package fournit un wrapper optionnel autour des outils MCP natifs de Vibe
-(`web_search_web_search`, `web_search_open_url`) pour faciliter la récupération
-de textes juridiques depuis Légifrance et autres sources officielles.
+Esquisse une normalisation au-dessus des outils natifs de Vibe, web_search
+(paramètre query) et web_fetch (paramètre url). Les fonctions de ce package
+ne les appellent pas réellement : voir l'avertissement dans
+legifrance_vibe.py avant tout usage.
 
-Utilisation :
-    from vibe_skill.tools.legifrance_vibe import search_legifrance, get_article
-
-Note : Ce package est **optionnel**. Les outils MCP natifs de Vibe suffisent
-pour satisfaire toutes les exigences du noyau méthodologique (P1–P7).
+Utiliser directement web_search / web_fetch (voir SKILL.md) plutôt que ce
+package, sauf à l'avoir d'abord complété.
 """
 
 __version__ = "1.0.0"
