@@ -33,8 +33,9 @@ Voir [[structure-v2.2.0]] pour le détail complet du découpage.
 | `skill/references/maintenance.md` | `docs/maintenance.md` | Déplacé, inchangé |
 | `vault/structure-v2.2.0.md` | nouveau | Découpage modulaire + maillage |
 
-## Liens
+## Liens (maillage Graphify)
 
 - [[index-recherche-juridique]] — navigation principale
-- [[structure-v2.2.0]] — arborescence et flux
+- [[recherche-juridique v2.3.0]] — version suivante
 - [[recherche-juridique v2.1.0]] — version précédente
+- [[structure-v2.2.0]] — découpage de cette version

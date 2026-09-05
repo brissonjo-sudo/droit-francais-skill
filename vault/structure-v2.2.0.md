@@ -55,7 +55,7 @@ Livrable + encart récapitulatif
 
 ## Liens (maillage Graphify)
 
-- [[SKILL.md]] → [[structure-v2.2.0]] (ce fichier)
+- `skill/SKILL.md` → [[structure-v2.2.0]] (ce fichier)
 - [[structure-v2.2.0]] → [[recherche-juridique v2.2.0]] (changelog)
 - [[structure-v2.2.0]] → [[procedure-compacte]] (étapes en table)
 - [[structure-v2.2.0]] → [[matrice-modes]] (modes × garde-fous)

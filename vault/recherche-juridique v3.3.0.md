@@ -46,8 +46,9 @@ contrôles proportionné au livrable, sans en retirer aucun.
 - Manifestes `.claude-plugin/`, `.codex-plugin/`.
 - `vault/{index-recherche-juridique,procedure-compacte,matrice-modes}.md`.
 
-## Liens
+## Liens (maillage Graphify)
 
 - [[index-recherche-juridique]] — navigation principale
-- [[procedure-compacte]] — étapes, triangulation, balises
+- [[recherche-juridique v3.0.0]] — version précédente
+- [[procedure-compacte]] — étapes 2, 4 et 7 revues
 - [[matrice-modes]] — P3 revu

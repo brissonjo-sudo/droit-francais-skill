@@ -44,7 +44,8 @@ Aucun contenu méthodologique retiré.
 - `README.md`, `LICENSE`, `skill/CHANGELOG.md`, `.gitignore`.
 - `vault/{index-recherche-juridique,procedure-compacte}.md`.
 
-## Liens
+## Liens (maillage Graphify)
 
 - [[index-recherche-juridique]] — navigation principale
+- [[recherche-juridique v3.3.0]] — version suivante
 - [[recherche-juridique v2.4.0]] — version précédente
