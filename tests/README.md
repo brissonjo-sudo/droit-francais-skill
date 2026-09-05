@@ -141,6 +141,11 @@ export MCP_ACCESS_TOKEN="…"
 python tests/check_live_tools.py
 ```
 
+Sans jeton local, le workflow manuel **Sonde fonctionnelle**
+(`.github/workflows/sonde-fonctionnelle.yml`) exécute le même parcours depuis
+GitHub, en lisant le jeton dans le secret de dépôt `MCP_ACCESS_TOKEN`. Il n'est
+pas planifié : chaque exécution consomme le quota PISTE.
+
 `check_service_health.py` est la sonde d'**exploitation courante** : latence
 de `/health`, version et mode d'authentification annoncés, plus les contrôles
 de métadonnées rejoués. Elle n'appelle aucun outil, donc ne consomme aucun
