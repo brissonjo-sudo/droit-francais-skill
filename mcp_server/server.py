@@ -62,7 +62,7 @@ GOVERNOR = RequestGovernor(
 )
 USER_LIMITER = PrincipalRateLimiter(SETTINGS.user_calls_per_minute)
 
-SERVER_VERSION = "0.8.1"
+SERVER_VERSION = "0.8.2"
 
 
 def _load_suppression_list() -> int:
@@ -128,7 +128,8 @@ def _build_auth_options() -> dict[str, Any]:
 INSTRUCTIONS = (
     "Aucune référence juridique — article, décision, identifiant, date — ne se "
     "produit de mémoire : toutes viennent des outils. Vérifiez la version en "
-    "vigueur. Si une source n'est pas confirmée, dites-le et ne concluez pas."
+    "vigueur et son champ applicable_at_as_of_date : une source officielle peut "
+    "être historique. Si une source n'est pas confirmée, dites-le et ne concluez pas."
 )
 INSTRUCTIONS_MAX_CHARS = 512
 
@@ -314,9 +315,10 @@ if hasattr(server, "custom_route"):
     name="search",
     title="Rechercher dans les sources juridiques",
     description=(
-        "Recherche standard en lecture seule. Une requête contenant « article » "
-        "interroge Légifrance ; les autres requêtes interrogent Judilibre. "
-        "Retourne des identifiants à transmettre à fetch."
+        "Recherche standard en lecture seule. Une référence d'article, avec ou "
+        "sans le mot « article », interroge Légifrance en conservant le code et "
+        "la date reconnus ; les autres requêtes interrogent Judilibre. Un "
+        "identifiant LEGIARTI fourni est vérifié avant d'être retourné."
     ),
     annotations=READ_ONLY,
 )
@@ -367,11 +369,11 @@ def search_articles(
     name="get_article",
     title="Lire un article Légifrance",
     description=(
-        "Récupère le texte, le statut juridique et les dates d'une version "
-        "d'article à partir de son identifiant LEGIARTI. Ne renseigner date "
-        "QUE si l'utilisateur demande une date précise. Laisser ce paramètre "
-        "vide pour la version en vigueur aujourd'hui : le serveur utilise sa "
-        "propre horloge, plus fiable que la date supposée par le modèle."
+        "Récupère la version désignée par un identifiant LEGIARTI, puis indique "
+        "si sa période de validité couvre la date évaluée. Ne renseigner date "
+        "QUE si l'utilisateur demande une date précise ; sinon le serveur évalue "
+        "l'applicabilité à sa date du jour. Pour trouver la version applicable, "
+        "utiliser d'abord search_articles avec la date recherchée."
     ),
     annotations=READ_ONLY,
 )

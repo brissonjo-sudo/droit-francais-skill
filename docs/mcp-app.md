@@ -105,16 +105,21 @@ les six outils attendus.
 ## Datation des réponses
 
 Les outils `search_articles` et `get_article` acceptent un paramètre `date`
-facultatif. Laissé vide, le serveur utilise **sa propre horloge**.
+facultatif. Laissé vide, le serveur utilise **sa propre horloge**. `get_article`
+lit toutefois la version désignée par l'identifiant fourni : il ne remplace pas
+cet identifiant par celui de la version courante.
 
 Un modèle appelant l'outil fournit parfois une date qu'il croit être celle du
 jour, alors qu'elle vient de son corpus d'entraînement. La réponse serait
 exacte pour cette date, mais présentée comme « en vigueur ». Deux garde-fous :
 
-* la description des outils demande explicitement de laisser `date` vide pour
-  le droit en vigueur ;
-* la réponse porte un bloc `dating` indiquant `as_of_date`, `date_basis` et,
-  si la date reçue diffère de celle du serveur, un `caveat` qui nomme l'écart.
+* `search_articles` demande de laisser `date` vide pour chercher le droit en
+  vigueur ; `get_article` évalue alors à la date du serveur la version exacte
+  désignée par l'identifiant ;
+* la réponse porte `as_of_date`, `date_basis`, les bornes normalisées de la
+  version et `applicable_at_as_of_date` ; un `caveat` signale toute version qui
+  ne couvre pas la date évaluée. `verified: true` atteste seulement que la
+  source a répondu officiellement.
 
 ## Extension Skills — catalogue préparé, transport en attente
 

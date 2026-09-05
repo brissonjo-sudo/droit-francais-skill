@@ -51,10 +51,83 @@ SORT_MODES: dict[str, tuple[str, str]] = {
     "date": ("date", "desc"),
 }
 _HTML_TAG = re.compile(r"<[^>]+>")
+_ARTICLE_ID = re.compile(r"\bLEGIARTI\d{12}\b", flags=re.IGNORECASE)
 _ARTICLE_QUERY = re.compile(
     r"\b(?:article|art\.?)\s+([LRDA]?\.?\s*\d[\w.-]*)",
     flags=re.IGNORECASE,
 )
+_BARE_ARTICLE_QUERY = re.compile(
+    r"\b([LRDA]\.\s*\d[\w.-]*|[LRDA]\d[\w.-]*)\b",
+    flags=re.IGNORECASE,
+)
+_ISO_DATE_IN_QUERY = re.compile(r"\b(\d{4}-\d{2}-\d{2})\b")
+_FRENCH_NUMERIC_DATE_IN_QUERY = re.compile(
+    r"\b(?:au|à la date du|le)\s+(\d{1,2})/(\d{1,2})/(\d{4})\b",
+    flags=re.IGNORECASE,
+)
+_FRENCH_DATE_IN_QUERY = re.compile(
+    r"\b(?:au|à la date du|le)\s+(\d{1,2}|1er)\s+"
+    r"(janvier|février|fevrier|mars|avril|mai|juin|juillet|août|aout|"
+    r"septembre|octobre|novembre|décembre|decembre)\s+(\d{4})\b",
+    flags=re.IGNORECASE,
+)
+_FRENCH_MONTHS = {
+    "janvier": 1,
+    "février": 2,
+    "fevrier": 2,
+    "mars": 3,
+    "avril": 4,
+    "mai": 5,
+    "juin": 6,
+    "juillet": 7,
+    "août": 8,
+    "aout": 8,
+    "septembre": 9,
+    "octobre": 10,
+    "novembre": 11,
+    "décembre": 12,
+    "decembre": 12,
+}
+
+# Le moteur Légifrance exige le libellé officiel exact de la facette NOM_CODE.
+# Ces formes sont volontairement bornées aux codes usuels : une forme inconnue
+# reste non filtrée au lieu d'être transformée par approximation.
+_CODE_ALIASES = {
+    "code civil": "Code civil",
+    "cciv": "Code civil",
+    "code de procédure civile": "Code de procédure civile",
+    "code de procedure civile": "Code de procédure civile",
+    "cpc": "Code de procédure civile",
+    "code général des collectivités territoriales": (
+        "Code général des collectivités territoriales"
+    ),
+    "code general des collectivites territoriales": (
+        "Code général des collectivités territoriales"
+    ),
+    "cgct": "Code général des collectivités territoriales",
+    "code pénal": "Code pénal",
+    "code penal": "Code pénal",
+    "cp": "Code pénal",
+    "code de procédure pénale": "Code de procédure pénale",
+    "code de procedure penale": "Code de procédure pénale",
+    "cpp": "Code de procédure pénale",
+    "code de la sécurité intérieure": "Code de la sécurité intérieure",
+    "code de la securite interieure": "Code de la sécurité intérieure",
+    "csi": "Code de la sécurité intérieure",
+    "code de la route": "Code de la route",
+    "cdr": "Code de la route",
+    "code général de la fonction publique": "Code général de la fonction publique",
+    "code general de la fonction publique": "Code général de la fonction publique",
+    "cgfp": "Code général de la fonction publique",
+    "code des relations entre le public et l'administration": (
+        "Code des relations entre le public et l'administration"
+    ),
+    "crpa": "Code des relations entre le public et l'administration",
+    "code de l'environnement": "Code de l'environnement",
+    "code de la santé publique": "Code de la santé publique",
+    "code de la sante publique": "Code de la santé publique",
+    "code de l'urbanisme": "Code de l'urbanisme",
+}
 
 
 def _clean_text(value: Any) -> str:
@@ -213,6 +286,99 @@ def _dating(requested: str | None) -> dict[str, Any]:
     return info
 
 
+def _date_value(value: Any) -> dt.date | None:
+    """Normalise une date Légifrance (ISO ou époque en millisecondes)."""
+    if value in (None, ""):
+        return None
+    if isinstance(value, (int, float)):
+        return dt.datetime.fromtimestamp(value / 1000, tz=dt.timezone.utc).date()
+    text = str(value).strip()
+    if not text:
+        return None
+    if text.isdigit():
+        return dt.datetime.fromtimestamp(int(text) / 1000, tz=dt.timezone.utc).date()
+    try:
+        return dt.date.fromisoformat(text[:10])
+    except ValueError:
+        return None
+
+
+def _article_dating(
+    start: Any, end: Any, requested: str | None
+) -> dict[str, Any]:
+    """Distingue authenticité de la source et applicabilité de sa version."""
+    info = _dating(requested)
+    as_of = dt.date.fromisoformat(info["as_of_date"])
+    start_date = _date_value(start)
+    end_date = _date_value(end)
+    applicable = (start_date is None or start_date <= as_of) and (
+        end_date is None or as_of < end_date
+    )
+    info.update(
+        {
+            "version_start_date": start_date.isoformat() if start_date else None,
+            "version_end_date": end_date.isoformat() if end_date else None,
+            "applicable_at_as_of_date": applicable,
+        }
+    )
+    if not applicable:
+        interval = []
+        if start_date:
+            interval.append(f"depuis le {start_date.strftime('%d/%m/%Y')}")
+        if end_date:
+            interval.append(f"avant le {end_date.strftime('%d/%m/%Y')}")
+        validity = " et ".join(interval) or "sur une période non renseignée"
+        info["caveat"] = (
+            f"Cette version officielle est valide {validity} et n'est pas "
+            f"applicable au {as_of.strftime('%d/%m/%Y')}. Rechercher l'article "
+            "à cette date pour obtenir l'identifiant de la version applicable."
+        )
+    elif start_date is None:
+        info["applicable_at_as_of_date"] = None
+        info["caveat"] = (
+            "La source est officielle, mais sa date de début manque : "
+            "l'applicabilité de cette version ne peut pas être confirmée."
+        )
+    return info
+
+
+def _query_date(query: str) -> str | None:
+    match = _ISO_DATE_IN_QUERY.search(query)
+    if match:
+        return _iso_date(match.group(1))
+    match = _FRENCH_NUMERIC_DATE_IN_QUERY.search(query)
+    if match:
+        try:
+            return dt.date(
+                int(match.group(3)), int(match.group(2)), int(match.group(1))
+            ).isoformat()
+        except ValueError as exc:
+            raise LegifranceError(
+                f"Date invalide dans la requête : {match.group(0)!r}.", exit_code=2
+            ) from exc
+    match = _FRENCH_DATE_IN_QUERY.search(query)
+    if not match:
+        return None
+    day = 1 if match.group(1).lower() == "1er" else int(match.group(1))
+    month = _FRENCH_MONTHS[match.group(2).lower()]
+    try:
+        return dt.date(int(match.group(3)), month, day).isoformat()
+    except ValueError as exc:
+        raise LegifranceError(
+            f"Date invalide dans la requête : {match.group(0)!r}.", exit_code=2
+        ) from exc
+
+
+def _query_code(query: str) -> str | None:
+    lowered = " ".join(query.lower().split())
+    # Les libellés longs passent avant les sigles qui peuvent apparaître dans
+    # un autre mot. Les sigles exigent leurs propres limites de mot.
+    for alias in sorted(_CODE_ALIASES, key=len, reverse=True):
+        if re.search(rf"(?<!\w){re.escape(alias)}(?!\w)", lowered):
+            return _CODE_ALIASES[alias]
+    return None
+
+
 def _epoch_ms(value: str) -> int:
     date = dt.date.fromisoformat(value)
     moment = dt.datetime.combine(date, dt.time(), tzinfo=dt.timezone.utc)
@@ -340,11 +506,12 @@ def search_articles(
 
 
 def get_article(article_id: str, date: str | None = None) -> dict[str, Any]:
-    """Récupère une version d'article et sa provenance officielle."""
+    """Récupère une version d'article et évalue sa validité à la date visée."""
     article_id = article_id.strip().upper()
-    if not article_id.startswith(ARTICLE_ID_PREFIX):
+    if not _ARTICLE_ID.fullmatch(article_id):
         raise LegifranceError(
-            f"Identifiant attendu {ARTICLE_ID_PREFIX}… (reçu {article_id!r}).",
+            f"Identifiant attendu {ARTICLE_ID_PREFIX} suivi de 12 chiffres "
+            f"(reçu {article_id!r}).",
             exit_code=2,
         )
     body: dict[str, Any] = {"id": article_id}
@@ -357,6 +524,8 @@ def get_article(article_id: str, date: str | None = None) -> dict[str, Any]:
     canonical_id = article.get("id") or article_id
     number = _clean_text(article.get("num")) or "?"
     text = _clean_text(article.get("texte") or article.get("texteHtml"))
+    start_date = article.get("dateDebut")
+    end_date = article.get("dateFin")
     return {
         "id": canonical_id,
         "title": f"Article {number}",
@@ -365,12 +534,12 @@ def get_article(article_id: str, date: str | None = None) -> dict[str, Any]:
         "metadata": {
             "number": number,
             "legal_status": article.get("etat") or article.get("etatJuridique") or "UNKNOWN",
-            "start_date": article.get("dateDebut"),
-            "end_date": article.get("dateFin"),
+            "start_date": start_date,
+            "end_date": end_date,
             "source": "Légifrance API",
             "verified": True,
             "content_trust": UNTRUSTED_CONTENT,
-            **_dating(date),
+            **_article_dating(start_date, end_date, date),
         },
     }
 
@@ -496,29 +665,47 @@ def get_decision(decision_id: str) -> dict[str, Any]:
 
 
 def search(query: str) -> dict[str, Any]:
-    """Recherche standard : article explicite, sinon jurisprudence Judilibre."""
+    """Recherche standard en préservant le code et la date exprimés."""
     query = query.strip()
     if not query:
         raise LegifranceError("La requête est obligatoire.", exit_code=2)
-    if query.upper().startswith(ARTICLE_ID_PREFIX):
-        article_id = query.split()[0].upper()
+    article_id_match = _ARTICLE_ID.search(query)
+    if article_id_match:
+        article_id = article_id_match.group(0).upper()
+        article = get_article(article_id)
         return {
             "results": [
                 {
-                    "id": article_id,
-                    "title": f"Article Légifrance {article_id}",
-                    "url": ARTICLE_URL.format(id=article_id),
+                    "id": article["id"],
+                    "title": article["title"],
+                    "url": article["url"],
                 }
-            ]
+            ],
+            "provenance": {
+                "source": "Légifrance API",
+                "verified": True,
+                "content_trust": UNTRUSTED_CONTENT,
+            },
         }
-    match = _ARTICLE_QUERY.search(query)
+    if ARTICLE_ID_PREFIX in query.upper():
+        raise LegifranceError(
+            f"Identifiant {ARTICLE_ID_PREFIX} mal formé dans la requête.", exit_code=2
+        )
+    match = _ARTICLE_QUERY.search(query) or _BARE_ARTICLE_QUERY.search(query)
     if match:
-        found = search_articles(match.group(1))
+        found = search_articles(
+            match.group(1),
+            code=_query_code(query),
+            date=_query_date(query),
+        )
         return {
             "results": [
                 {"id": item["id"], "title": item["title"], "url": item["url"]}
                 for item in found["results"]
-            ]
+            ],
+            "query": found.get("query"),
+            "dating": found.get("dating"),
+            "provenance": found.get("provenance"),
         }
     found = search_case_law(query)
     return {

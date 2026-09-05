@@ -5,7 +5,12 @@ d'autorité et les conditions d'usage pour chaque catégorie.
 
 ---
 
-## Hiérarchie stricte
+## Ordre de recherche et autorité
+
+Les niveaux ci-dessous organisent la recherche et la qualité de provenance.
+Ils ne remplacent ni la hiérarchie des normes ni l'autorité propre des
+décisions juridictionnelles. Vérifier séparément l'authenticité de la source,
+le rang de la norme et l'effet de la décision sur son application.
 
 ### Niveau 1 — Textes officiels publiés
 

@@ -119,6 +119,30 @@ class LegalToolsTests(unittest.TestCase):
         self.assertEqual(
             "untrusted_source_data", article["metadata"]["content_trust"]
         )
+        self.assertTrue(article["metadata"]["applicable_at_as_of_date"])
+
+    @mock.patch("droit_francais.tools.get_token", return_value="token")
+    @mock.patch("droit_francais.tools.api_call")
+    def test_historical_article_is_not_presented_as_current(self, api_call, _get_token):
+        api_call.return_value = {
+            "article": {
+                "id": "LEGIARTI000019983190",
+                "num": "L2212-2",
+                "etat": "MODIFIE",
+                "dateDebut": 1229817600000,
+                "dateFin": 1419206400000,
+                "texte": "Version historique",
+            }
+        }
+
+        article = legal_tools.get_article("LEGIARTI000019983190")
+        metadata = article["metadata"]
+
+        self.assertTrue(metadata["verified"])
+        self.assertFalse(metadata["applicable_at_as_of_date"])
+        self.assertEqual("2008-12-21", metadata["version_start_date"])
+        self.assertEqual("2014-12-22", metadata["version_end_date"])
+        self.assertIn("n'est pas applicable", metadata["caveat"])
 
     @mock.patch("droit_francais.tools.judilibre_get")
     def test_case_law_search_and_fetch_are_traceable(self, judilibre_get):
@@ -312,7 +336,96 @@ class LegalToolsTests(unittest.TestCase):
             {"id", "title", "url"},
             set(result["results"][0]),
         )
-        search_articles.assert_called_once_with("L. 1")
+        search_articles.assert_called_once_with("L. 1", code=None, date=None)
+
+    @mock.patch("droit_francais.tools.search_articles")
+    def test_standard_search_preserves_known_code_and_french_date(self, search_articles):
+        search_articles.return_value = {
+            "results": [],
+            "query": {},
+            "dating": {},
+            "provenance": {},
+        }
+
+        legal_tools.search("article 1240 du Code civil au 1er janvier 2010")
+
+        search_articles.assert_called_once_with(
+            "1240", code="Code civil", date="2010-01-01"
+        )
+
+    @mock.patch("droit_francais.tools.search_articles")
+    def test_standard_search_filters_on_the_official_code_label(self, search_articles):
+        """« article 1240 du Code civil » ne doit pas ramener le 1240 du CPC."""
+        search_articles.return_value = {
+            "results": [],
+            "query": {},
+            "dating": {},
+            "provenance": {},
+        }
+
+        legal_tools.search("article 1240 du Code civil")
+
+        search_articles.assert_called_once_with("1240", code="Code civil", date=None)
+
+    @mock.patch("droit_francais.tools.search_articles")
+    def test_standard_search_does_not_guess_an_unknown_code(self, search_articles):
+        """Un code non répertorié reste non filtré plutôt qu'approximé."""
+        search_articles.return_value = {
+            "results": [],
+            "query": {},
+            "dating": {},
+            "provenance": {},
+        }
+
+        legal_tools.search("article 12 du Code de la voirie routière")
+
+        search_articles.assert_called_once_with("12", code=None, date=None)
+
+    @mock.patch("droit_francais.tools.search_articles")
+    def test_standard_search_routes_bare_prefixed_article(self, search_articles):
+        search_articles.return_value = {
+            "results": [],
+            "query": {},
+            "dating": {},
+            "provenance": {},
+        }
+
+        legal_tools.search("L. 2212-2 CGCT")
+
+        search_articles.assert_called_once_with(
+            "L. 2212-2", code="Code général des collectivités territoriales", date=None
+        )
+
+    @mock.patch("droit_francais.tools.get_article")
+    def test_standard_search_verifies_an_exact_article_identifier(self, get_article):
+        get_article.return_value = {
+            "id": "LEGIARTI000032041571",
+            "title": "Article 1240",
+            "url": "https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000032041571",
+        }
+
+        result = legal_tools.search("LEGIARTI000032041571")
+
+        get_article.assert_called_once_with("LEGIARTI000032041571")
+        self.assertTrue(result["provenance"]["verified"])
+
+    @mock.patch("droit_francais.tools.get_article")
+    def test_standard_search_verifies_an_identifier_embedded_in_text(self, get_article):
+        get_article.return_value = {
+            "id": "LEGIARTI000032041571",
+            "title": "Article 1240",
+            "url": "https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000032041571",
+        }
+
+        legal_tools.search("Vérifie LEGIARTI000032041571 aujourd'hui")
+
+        get_article.assert_called_once_with("LEGIARTI000032041571")
+
+    @mock.patch("droit_francais.tools.search_case_law")
+    def test_standard_search_refuses_a_malformed_article_identifier(self, search_case_law):
+        with self.assertRaises(LegifranceError):
+            legal_tools.search("Vérifie LEGIARTI0000")
+        search_case_law.assert_not_called()
 
     def test_invalid_date_stops_before_network(self):
         with self.assertRaises(LegifranceError) as caught:

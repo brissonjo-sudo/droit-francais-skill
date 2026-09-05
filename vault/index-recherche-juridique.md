@@ -1,6 +1,6 @@
 ---
 tags: [skill/recherche-juridique, index]
-version: 3.0.0
+version: 3.3.0
 ---
 
 # Index — skill recherche-juridique
@@ -21,7 +21,9 @@ version: 3.0.0
 | Profils configurables (métier de l'utilisateur) | `../skill/profils/` |
 | Récupération en source primaire (API PISTE, articles + jurisprudence) | `../skill/scripts/README.md` |
 | Détail des 14 modes d'erreur | `../skill/references/modes-erreur.md` |
-| Changelog v2.4.0 (dernier) | `recherche-juridique v2.4.0.md` |
+| Changelog v3.3.0 (dernier) | `recherche-juridique v3.3.0.md` |
+| Applicabilité d'une version d'article (outils MCP) | `recherche-juridique v3.3.0.md` |
+| Changelog v2.4.0 | `recherche-juridique v2.4.0.md` |
 | Changelog v2.3.0 | `recherche-juridique v2.3.0.md` |
 | Découpage modulaire + outillage v2.3.0 (noyau ↔ références ↔ scripts) | `structure-v2.3.0.md` |
 | Noyau complet | `../skill/SKILL.md` |

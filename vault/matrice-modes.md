@@ -29,18 +29,27 @@ tags: [skill/recherche-juridique, reference]
 |----------|------------------|-------|
 | P1 Primarité | Pas de mémoire seule | 1, 2, 3 |
 | P2 Date de référence | Date faits vs date analyse | 2, 3, 11 |
-| P3 Hiérarchie sources | Texte > jurisprud > circulaire > doctrine | 6, 7, 8 |
+| P3 Autorité et authenticité | Ordre de recherche ≠ hiérarchie des normes | 6, 7, 8 |
 | P4 Citation traçable + fonction juridique | Format + fonction pour chaque texte | 1, 4, 6, 7, 14 |
 | P5 Séparation registres | Texte / jurisprud / déduction / incertitude | 5, 6, 14 |
 | P6 Légalité criminelle | 111-3 et 111-4 CP, rétroactivité in mitius | 2, 3, 5, 11, 14 |
 | P7 Abstention informée | S'arrêter sur le point, pas tout | 1, 2, 3, 5, 6 |
 
-## Hiérarchie des sources (P3)
+## Ordre de recherche et autorité (P3)
+
+Trois questions distinctes : la source est-elle authentique, quel est le rang de
+la norme, quel effet une décision produit-elle sur son application ?
+
+Ordre de recherche :
 
 1. Texte officiel publié (Légifrance / JORF)
-2. Décision juridictionnelle officielle (Cass., CE, CC, CJUE, CEDH)
+2. Décision juridictionnelle officielle (Cass., CE, CC, CJUE, CEDH) — peut
+   interpréter, écarter ou neutraliser l'application d'un texte
 3. Circulaires et instructions officielles (circulaires.legifrance.gouv.fr)
 4. Doctrine institutionnelle (rapports parlementaires, études CE, DAJ)
+
+Cet ordre organise la recherche ; ce n'est pas une hiérarchie abstraite où un
+texte primerait toujours sur une décision qui en contrôle l'application.
 
 Doctrine privée (Dalloz, JCP, blogs) : identification et contextualisation seulement, jamais source normative en propre.
 

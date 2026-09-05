@@ -249,7 +249,7 @@ async def sonder(url: str, token: str) -> None:
                     "www.legifrance.gouv.fr",
                     "get_article",
                 )
-                for champ in ("as_of_date", "date_basis"):
+                for champ in ("as_of_date", "date_basis", "applicable_at_as_of_date"):
                     if not metadonnees.get(champ):
                         raise SondeError(
                             f"la réponse n'est pas datée explicitement : {champ} absent"
