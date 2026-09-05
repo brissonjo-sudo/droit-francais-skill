@@ -1,6 +1,6 @@
 # `tests/` — évaluation du skill
 
-Deux jeux d'éval complémentaires, des tests unitaires hors réseau, trois
+Deux jeux d'éval complémentaires, des tests unitaires hors réseau, quatre
 **contrôles statiques** et des vérifications de déploiement exécutés en CI.
 
 ## 1. `eval-modes-erreur.csv` — éval mappée sur les 18 modes d'erreur
@@ -177,7 +177,7 @@ quota PISTE du titulaire. Elle sert la validation de bout en bout décrite dans
 
 ## 4. Contrôles statiques (CI)
 
-Trois vérificateurs statiques sans dépendance externe, exécutés à chaque push
+Quatre vérificateurs statiques sans dépendance externe, exécutés à chaque push
 et chaque PR par `.github/workflows/ci.yml`, aux côtés des sondes HTTP
 `check_mcp_http.py` et `check_oauth_metadata.py`. Ils ne jugent pas le skill : ils empêchent
 le dépôt de se contredire lui-même.
@@ -187,11 +187,33 @@ python tests/check_links.py         # liens Markdown relatifs
 python tests/check_commands.py      # sous-commandes doc ↔ CLI
 python tests/check_affirmations.py  # affirmations de la doc ↔ code
 python tests/check_plugin.py        # manifeste et adaptateur plugin
+python tests/check_vault.py         # maillage du vault (vue graphe)
 ```
 
 **`check_links.py`** — vérifie que chaque lien relatif Markdown (`[libellé]`
 suivi de `(chemin)`) des `.md` pointe vers un fichier existant. Hors
 `vault/`, qui utilise des wikilinks Obsidian non résolus en chemins.
+
+**`check_vault.py`** — prend en charge ce que `check_links.py` laisse de côté :
+le maillage de wikiliens du vault, lu par la vue graphe. Quatre invariants —
+section `## Liens (maillage Graphify)` sur chaque note, aucune note orpheline
+(sans lien entrant), aucun cul-de-sac (sans lien sortant), aucun lien non
+résolu. Un auto-lien ne rend pas une note atteignable et ne compte pas comme
+lien entrant ; un wikilien écrit en `code` n'est pas un lien, Obsidian ne
+l'interprétant pas.
+
+La tolérance aux liens non résolus **n'est pas une liste dans le
+vérificateur** : elle est dérivée de la section « Fichiers supprimés (remplacés
+par agrégats) » de `index-recherche-juridique.md`, où ces notions sont écrites
+en `code`. Déclarer une notion agrégée dans l'index suffit à la faire accepter ;
+l'oublier fait échouer le contrôle. `tests/test_check_vault.py` éprouve chaque
+invariant sur un vault de test qui le viole — un vérificateur qui passe toujours
+ne vérifie rien.
+
+Il vise une dérive constatée le 5 septembre 2026 : deux notes sur treize
+portaient une section de liens, trois agrégats n'avaient aucun lien sortant, et
+deux notes de version aucun lien entrant. Une note isolée existe mais aucun
+chemin de lecture n'y mène.
 
 **`check_commands.py`** — compare les sous-commandes citées dans la
 documentation à celles réellement exposées par `build_parser()` de
