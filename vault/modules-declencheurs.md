@@ -90,3 +90,10 @@ Je traite la suite dès que ce point est précisé.
 | Arrêté municipal hors champ | Illégal, attaquable devant TA Montreuil |
 | Conventions collectives | Identifier IDCC + vérifier version convention + accord entreprise |
 | Jurisprudence cardinale police admin | CE 19/05/1933 Benjamin (proportionnalité) ; CE 26/10/2011 Commune Saint-Denis n°326492 (motivation + circonstances locales) |
+
+## Liens (maillage Graphify)
+
+- [[index-recherche-juridique]] — navigation principale
+- [[procedure-compacte]] — étapes, balises et règle de triangulation
+- [[matrice-modes]] — principes P1–P7 et modes bloqués
+- [[étape 0 bis]] — 10e déclencheur d'abstention, détail

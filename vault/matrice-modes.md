@@ -80,3 +80,10 @@ Doctrine privée (Dalloz, JCP, blogs) : identification et contextualisation seul
 | `[confiance élevée]` | Texte clair + jurisprudence constante |
 | `[confiance modérée]` | Interprétation établie mais débattue |
 | `[confiance faible]` | Zone grise, jurisprudence divergente ou absente |
+
+## Liens (maillage Graphify)
+
+- [[index-recherche-juridique]] — navigation principale
+- [[procedure-compacte]] — les étapes que cette matrice référence
+- [[modules-declencheurs]] — modules et déclencheurs d'abstention
+- [[recherche-juridique v3.3.0]] — dernière révision de P3

@@ -48,8 +48,9 @@ techniques, modules) reste inchangé sur le fond.
 
 - `SKILL.md` (racine) — pointeur v2.1.0 obsolète, évitait la coexistence de deux `SKILL.md`.
 
-## Liens
+## Liens (maillage Graphify)
 
 - [[index-recherche-juridique]] — navigation principale
-- [[structure-v2.3.0]] — arborescence et flux
+- [[recherche-juridique v2.4.0]] — version suivante
 - [[recherche-juridique v2.2.0]] — version précédente
+- [[structure-v2.3.0]] — découpage de cette version

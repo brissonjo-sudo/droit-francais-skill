@@ -77,3 +77,12 @@ Sources informelles signalées         : […]
 Limites de la recherche               : […]
 ─────────────────────────────────────────────
 ```
+
+## Liens (maillage Graphify)
+
+- [[index-recherche-juridique]] — navigation principale
+- [[étape 0 bis]] — détail de la garde procédurale d'entrée
+- [[matrice-modes]] — quel principe ou quelle étape bloque quel mode
+- [[modules-declencheurs]] — ce qu'un module ajoute à ces étapes
+- [[structure-v2.3.0]] — où vit chaque élément dans le dépôt
+- [[recherche-juridique v3.3.0]] — dernière révision des étapes 2, 4 et 7

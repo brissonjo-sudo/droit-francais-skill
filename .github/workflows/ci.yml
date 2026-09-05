@@ -60,6 +60,7 @@ jobs:
           python -m py_compile mcp_server/server.py
           python -m py_compile tests/run_eval.py
           python -m py_compile tests/check_links.py
+          python -m py_compile tests/check_vault.py
           python -m py_compile tests/check_affirmations.py
           python -m py_compile tests/check_commands.py
           python -m py_compile tests/check_plugin.py
@@ -194,6 +195,11 @@ jobs:
 
       - name: Vérifier les liens Markdown
         run: python tests/check_links.py
+
+      # check_links.py exclut vault/ : sans ce contrôle, rien ne surveille le
+      # maillage lu par la vue graphe, et il dérive sans que personne le voie.
+      - name: Vérifier le maillage du vault
+        run: python tests/check_vault.py
 
       - name: Vérifier les affirmations de la documentation
         run: python tests/check_affirmations.py
