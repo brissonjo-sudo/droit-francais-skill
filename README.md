@@ -236,6 +236,19 @@ Copier le dossier `skill/` (contenu, pas le dossier lui-même) dans
 `~/.claude/skills/recherche-juridique/`. Le champ `name:` dans
 `skill/SKILL.md` doit correspondre au nom du dossier d'installation.
 
+### Sur d'autres plateformes
+
+Deux déclinaisons vivent dans ce dépôt, chacune autonome et documentée par son
+propre README :
+
+| Dossier | Plateforme | Nature |
+|---|---|---|
+| [`grok_skill/`](grok_skill) | Grok (xAI) | Noyau condensé, droit français, récupération par les outils web natifs (`web_search`, `open_page`) au lieu du connecteur MCP et des API PISTE |
+| [`gemini_agent/`](gemini_agent) | Gemini (`google-genai`) | Agent générique, toute juridiction, livré non connecté — squelette d'outils à brancher |
+
+Elles reprennent les principes du noyau mais ne s'y synchronisent pas
+d'elles-mêmes : `skill/` reste la source de vérité méthodologique.
+
 ---
 
 ## Déclenchement
@@ -320,6 +333,8 @@ droit-francais-skill/
 │   ├── privacy-policy.md           ← politique publique
 │   └── terms-of-use.md             ← conditions publiques
 ├── chatgpt-app-submission.json     ← métadonnées et cas de test importables
+├── gemini_agent/                   ← déclinaison Gemini (agent générique, non connecté)
+├── grok_skill/                     ← déclinaison Grok (noyau condensé, outils web natifs)
 ├── vault/                          ← notes Obsidian (hors paquet)
 ├── tests/                          ← invariants, outils MCP + évals historiques
 ├── requirements-mcp.txt            ← dépendance du serveur uniquement
