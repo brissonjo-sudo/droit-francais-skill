@@ -406,7 +406,7 @@ class LegalToolsTests(unittest.TestCase):
 
         result = legal_tools.search("LEGIARTI000032041571")
 
-        get_article.assert_called_once_with("LEGIARTI000032041571")
+        get_article.assert_called_once_with("LEGIARTI000032041571", date=None)
         self.assertTrue(result["provenance"]["verified"])
 
     @mock.patch("droit_francais.tools.get_article")
@@ -419,7 +419,22 @@ class LegalToolsTests(unittest.TestCase):
 
         legal_tools.search("Vérifie LEGIARTI000032041571 aujourd'hui")
 
-        get_article.assert_called_once_with("LEGIARTI000032041571")
+        get_article.assert_called_once_with("LEGIARTI000032041571", date=None)
+
+    @mock.patch("droit_francais.tools.get_article")
+    def test_standard_search_keeps_the_date_asked_with_an_identifier(self, get_article):
+        """Une date exprimée avec l'identifiant vise la version évaluée."""
+        get_article.return_value = {
+            "id": "LEGIARTI000032041571",
+            "title": "Article 1240",
+            "url": "https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000032041571",
+        }
+
+        legal_tools.search("Vérifie LEGIARTI000032041571 au 1er janvier 2010")
+
+        get_article.assert_called_once_with(
+            "LEGIARTI000032041571", date="2010-01-01"
+        )
 
     @mock.patch("droit_francais.tools.search_case_law")
     def test_standard_search_refuses_a_malformed_article_identifier(self, search_case_law):

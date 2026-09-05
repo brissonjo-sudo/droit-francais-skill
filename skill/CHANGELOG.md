@@ -33,7 +33,12 @@ conservés tels quels pour ne pas casser les liens publiés.
   version à la date évaluée et signale une version historique.
 - `search` vérifie un identifiant `LEGIARTI` fourni avant de le retourner.
 - Le routeur conserve le code et la date reconnus et accepte les références
-  usuelles telles que `L. 2212-2 CGCT`.
+  usuelles telles que `L. 2212-2 CGCT`. Une date exprimée à côté d'un
+  identifiant `LEGIARTI` est transmise à la lecture de l'article, au lieu
+  d'évaluer la version à la date du serveur.
+- La sonde de production contrôle la **présence** de
+  `applicable_at_as_of_date` et non sa valeur de vérité : `False` (version
+  historique) et `None` (date de début manquante) sont des réponses correctes.
 
 #### Tests
 - Ajout de régressions sur la datation d'une version historique, la provenance

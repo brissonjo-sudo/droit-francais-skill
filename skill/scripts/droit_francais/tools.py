@@ -672,7 +672,9 @@ def search(query: str) -> dict[str, Any]:
     article_id_match = _ARTICLE_ID.search(query)
     if article_id_match:
         article_id = article_id_match.group(0).upper()
-        article = get_article(article_id)
+        # Une date exprimée dans la requête vise la version évaluée : la perdre
+        # ferait juger à la date du serveur une version demandée à une autre.
+        article = get_article(article_id, date=_query_date(query))
         return {
             "results": [
                 {

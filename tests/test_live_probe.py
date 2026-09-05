@@ -52,6 +52,35 @@ class CouvertureSondeProductionTests(unittest.TestCase):
         }
         self.assertEqual(set(EXPECTED_TOOLS), appeles)
 
+    def test_applicabilite_est_controlee_par_presence_et_non_par_verite(self) -> None:
+        """``False`` est la valeur normale d'une version historique.
+
+        Contrôler ce champ par sa valeur de vérité rejetterait deux réponses
+        correctes : ``False`` (version non applicable à la date évaluée) et
+        ``None`` (date de début manquante, applicabilité indéterminée).
+        """
+        arbre = ast.parse(SONDE.read_text(encoding="utf-8"))
+        champ = "applicable_at_as_of_date"
+
+        boucles_de_verite = {
+            element.value
+            for noeud in ast.walk(arbre)
+            if isinstance(noeud, ast.For) and isinstance(noeud.iter, ast.Tuple)
+            for element in noeud.iter.elts
+            if isinstance(element, ast.Constant) and isinstance(element.value, str)
+        }
+        self.assertNotIn(champ, boucles_de_verite)
+
+        controles_de_presence = {
+            noeud.left.value
+            for noeud in ast.walk(arbre)
+            if isinstance(noeud, ast.Compare)
+            and isinstance(noeud.left, ast.Constant)
+            and isinstance(noeud.left.value, str)
+            and any(isinstance(operateur, ast.NotIn) for operateur in noeud.ops)
+        }
+        self.assertIn(champ, controles_de_presence)
+
     def test_erreur_distante_est_masquee(self) -> None:
         secret = "jeton-tres-secret"
         with self.assertRaises(sonde.SondeError) as caught:
