@@ -29,6 +29,7 @@ version: 3.3.0
 | Noyau complet | `../skill/SKILL.md` |
 | Déclinaison Grok (outils web natifs, noyau condensé) | `../grok_skill/README.md` |
 | Déclinaison Gemini (agent générique non connecté) | `../gemini_agent/README.md` |
+| Déclinaison Vibe (outils `web_search`/`web_fetch`, wrapper non connecté) | `../vibe_skill/README.md` |
 | Gabarits de sortie détaillés | `../skill/references/gabarits-sortie.md` |
 | Modules activables détaillés | `../skill/references/modules.md` |
 
@@ -74,3 +75,4 @@ toute note du vault y est reliée, et chaque note renvoie ici.
 - `../skill/SKILL.md` — noyau, source de vérité méthodologique
 - `../grok_skill/README.md` — déclinaison Grok
 - `../gemini_agent/README.md` — déclinaison Gemini
+- `../vibe_skill/README.md` — déclinaison Vibe
