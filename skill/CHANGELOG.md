@@ -11,6 +11,29 @@ conservés tels quels pour ne pas casser les liens publiés.
 
 ---
 
+### [3.3.0-chatgpt-gpt] — 2026-09-06
+
+Déclinaison **GPT personnalisé** (builder de GPT de ChatGPT) de la
+méthodologie, dans `chatgpt_gpt/`. Elle ne modifie pas le noyau `skill/`,
+qui reste la source de vérité, et se distingue de l'app ChatGPT (connecteur
+MCP) documentée dans `docs/chatgpt-submission.md`.
+
+#### Ajouté
+- `chatgpt_gpt/instructions.md` : noyau condensé sous le plafond de 8 000
+  caractères du champ Instructions, reprenant P1 à P7, la procédure interne,
+  la traçabilité proportionnée et une échelle de récupération en trois
+  voies : app « Droit français » si activée (six outils nommés exactement),
+  recherche web restreinte aux domaines officiels, abstention.
+- `chatgpt_gpt/references/` : cinq fichiers Knowledge (sources autorisées,
+  modules, checklist de vigueur, format de citation, modes d'erreur), sans
+  mention d'outillage inexistant dans un GPT.
+- `chatgpt_gpt/README.md` : paramétrage champ par champ, amorces de
+  conversation, état vérifié des apps et actions dans le builder, recette.
+- `tests/test_chatgpt_gpt.py` : plafond de longueur avec marge, principes,
+  modules, voies de récupération, fichiers annoncés, outillage interdit.
+
+---
+
 ### [3.3.0-gemini] — 2026-09-06
 
 Déclinaison **Gemini** (Google) de la méthodologie, dans `gemini_skill/`. Elle

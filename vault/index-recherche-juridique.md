@@ -32,6 +32,7 @@ version: 3.3.0
 | Client Gemini SDK (`google-genai`, température 0.0) | `../gemini_agent/README.md` |
 | Déclinaison Vibe (outils `web_search`/`web_fetch`, wrapper non connecté) | `../vibe_skill/README.md` |
 | Déclinaison Manus (connecteur MCP en priorité, outils vérifiés) | `../manus_skill/README.md` |
+| Déclinaison GPT personnalisé ChatGPT (instructions ≤ 8 000 caractères, Knowledge) | `../chatgpt_gpt/README.md` |
 | Gabarits de sortie détaillés | `../skill/references/gabarits-sortie.md` |
 | Modules activables détaillés | `../skill/references/modules.md` |
 
@@ -80,3 +81,4 @@ toute note du vault y est reliée, et chaque note renvoie ici.
 - `../gemini_agent/README.md` — client Python SDK (google-genai)
 - `../vibe_skill/README.md` — déclinaison Vibe
 - `../manus_skill/README.md` — déclinaison Manus
+- `../chatgpt_gpt/README.md` — déclinaison GPT personnalisé ChatGPT
