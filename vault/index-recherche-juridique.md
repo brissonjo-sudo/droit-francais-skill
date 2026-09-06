@@ -76,6 +76,7 @@ toute note du vault y est reliée, et chaque note renvoie ici.
 
 - `../skill/SKILL.md` — noyau, source de vérité méthodologique
 - `../grok_skill/README.md` — déclinaison Grok
-- `../gemini_agent/README.md` — déclinaison Gemini
+- `../gemini_skill/README.md` — déclinaison Gemini (Agent Skills)
+- `../gemini_agent/README.md` — client Python SDK (google-genai)
 - `../vibe_skill/README.md` — déclinaison Vibe
 - `../manus_skill/README.md` — déclinaison Manus
