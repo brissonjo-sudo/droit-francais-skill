@@ -40,6 +40,12 @@ from typing import Any, Iterable
 # Préfixe des outils MCP tel que la CLI les nomme : mcp__<serveur>__<outil>.
 PREFIXE_MCP = "mcp__droit-francais__"
 
+# Outils intégrés qui ne sont pas des appels aux sources juridiques mais des
+# étapes d'infrastructure. Les outils MCP sont différés : le modèle doit les
+# découvrir par `ToolSearch` avant de pouvoir les appeler. Compter cette
+# découverte comme un appel de source fausserait le plafond et la cadence.
+OUTILS_INFRASTRUCTURE = frozenset({"ToolSearch"})
+
 # Identifiants officiels français. Chaque motif est ancré sur une forme
 # publiée ; un motif trop lâche produirait de faux positifs de provenance.
 MOTIFS_IDENTIFIANTS: tuple[re.Pattern[str], ...] = (
@@ -54,6 +60,9 @@ MOTIFS_IDENTIFIANTS: tuple[re.Pattern[str], ...] = (
     re.compile(r"\bECLI:[A-Z]{2}:[A-Z0-9]+:\d{4}:[A-Z0-9.]+\b"),
     # NOR d'un texte publié au JORF
     re.compile(r"\b[A-Z]{4}\d{7}[A-Z]\b"),
+    # Identifiant de décision Judilibre : 24 caractères hexadécimaux, forme
+    # relevée sur la production (`5fca896542d4057b05893539`).
+    re.compile(r"\b[0-9a-f]{24}\b"),
 )
 
 
@@ -117,6 +126,11 @@ class Trace:
     def noms_outils_appeles(self) -> list[str]:
         """Noms courts des outils appelés, dans l'ordre, doublons compris."""
         return [a.nom for a in self.appels]
+
+    @property
+    def appels_sources(self) -> list[Appel]:
+        """Appels aux sources juridiques, hors étapes de découverte d'outils."""
+        return [a for a in self.appels if a.nom_complet not in OUTILS_INFRASTRUCTURE]
 
     def identifiants_traces(self, avant_ordre: int | None = None) -> set[str]:
         """Identifiants rendus par les outils, hors appels en erreur.

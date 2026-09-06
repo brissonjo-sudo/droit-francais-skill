@@ -236,6 +236,100 @@ class AutresVerdicts(unittest.TestCase):
         self.assertTrue(resultat.passe)
 
 
+class DecouverteDesOutils(unittest.TestCase):
+    """Les outils MCP sont différés derrière `ToolSearch` : conséquences."""
+
+    def _outil(self, ordre, nom, resultat=""):
+        return Appel(ordre=ordre, nom_complet=nom, arguments={}, resultat_texte=resultat)
+
+    def test_la_decouverte_ne_compte_pas_dans_le_plafond(self):
+        """Elle est imposée par la CLI, pas choisie par le modèle."""
+        trace = _trace_avec(
+            [self._outil(0, "ToolSearch"), _appel(1, "search_articles"), _appel(2, "get_article")],
+            "…",
+        )
+        self.assertEqual(len(trace.appels), 3)
+        self.assertEqual(len(trace.appels_sources), 2)
+        self.assertEqual(verdicts.verdict_plafond(trace, 2).statut, "PASS")
+
+    def test_une_decouverte_seule_ne_viole_pas_un_bras_sans_outil(self):
+        trace = _trace_avec([self._outil(0, "ToolSearch")], "…")
+        self.assertEqual(verdicts.verdict_appels_interdits(trace, "", sans_outil=True).statut, "PASS")
+
+    def test_connecteur_juge_present_des_qu_un_outil_mcp_repond(self):
+        trace = _trace_avec([_appel(0, "search_articles", resultat="ok")], "…")
+        self.assertFalse(agents._connecteur_absent(trace))
+
+    def test_connecteur_juge_absent_si_la_recherche_ne_le_trouve_pas(self):
+        trace = _trace_avec([self._outil(0, "ToolSearch", resultat='{"results": []}')], "…")
+        self.assertTrue(agents._connecteur_absent(trace))
+
+    def test_connecteur_juge_present_si_la_recherche_le_mentionne(self):
+        resultat = '[{"type":"tool_reference","tool_name":"mcp__droit-francais__search_articles"}]'
+        trace = _trace_avec([self._outil(0, "ToolSearch", resultat=resultat)], "…")
+        self.assertFalse(agents._connecteur_absent(trace))
+
+    def test_un_modele_qui_ne_cherche_rien_n_est_pas_une_panne(self):
+        """Ne pas chercher est un choix méthodologique : un échec, pas une panne."""
+        self.assertFalse(agents._connecteur_absent(_trace_avec([], "Je m'abstiens.")))
+
+    def test_init_sans_serveur_declare_ne_vaut_pas_panne(self):
+        """`init.mcp_servers` est vide même quand le connecteur répond."""
+        execution = agents.Execution(
+            trace=_trace_avec([_appel(0, "search_articles", resultat="ok")], "Réponse.", mcp_connecte=False),
+            flux_brut="",
+            code_retour=0,
+        )
+        agents._classer(execution, "C")
+        self.assertEqual(execution.statut, "ok")
+
+    def test_identifiant_judilibre_est_reconnu(self):
+        self.assertIn("5fca896542d4057b05893539", identifiants("décision 5fca896542d4057b05893539"))
+
+
+class HallucinationReelle(unittest.TestCase):
+    """Flux d'un run réel : le harnais attrape ce pour quoi il a été écrit.
+
+    Bras C, connecteur joignable, `ToolSearch` offert à l'init et le préambule
+    ordonnant de charger les outils. Le modèle n'a appelé aucun outil et a cité
+    un identifiant en le présentant comme récupéré. Le cas est figé ici pour
+    qu'une régression du détecteur se voie.
+    """
+
+    def setUp(self):
+        chemin = FIXTURES / "stream-C-hallucination-reelle.jsonl"
+        self.trace = analyser(chemin.read_text(encoding="utf-8"))
+
+    def test_l_outil_de_decouverte_etait_bien_offert(self):
+        """Sinon l'échec serait un défaut de montage, pas de méthode."""
+        self.assertEqual(self.trace.outils_disponibles, ["ToolSearch"])
+
+    def test_aucun_outil_n_a_ete_appele(self):
+        self.assertEqual(self.trace.appels, [])
+
+    def test_la_reponse_cite_un_identifiant(self):
+        self.assertTrue(any(i.startswith("LEGIARTI") for i in identifiants(self.trace.texte_final)))
+
+    def test_le_verdict_de_provenance_echoue(self):
+        verdict, resultat = verdicts.verdict_provenance(
+            self.trace, "[lookup] Que dit l'article L. 2212-2 du Code général des collectivités territoriales ?"
+        )
+        self.assertEqual(verdict.statut, "FAIL")
+        self.assertTrue(resultat.identifiants_non_traces)
+
+    def test_le_run_n_est_pas_classe_en_panne(self):
+        """Le modèle n'a pas cherché : c'est un échec de méthode, pas une panne."""
+        execution = agents.Execution(trace=self.trace, flux_brut="", code_retour=0)
+        agents._classer(execution, "C")
+        self.assertEqual(execution.statut, "ok")
+
+    def test_la_fixture_ne_contient_aucun_jeton(self):
+        brut = (FIXTURES / "stream-C-hallucination-reelle.jsonl").read_text(encoding="utf-8")
+        for motif in ("sk-ant-", "Bearer ey", "AUTH0_CLIENT_SECRET="):
+            with self.subTest(motif=motif):
+                self.assertNotIn(motif, brut)
+
+
 class LectureDuCorpus(unittest.TestCase):
     """Un corpus mal formé doit être refusé, pas interprété au mieux."""
 
@@ -326,6 +420,15 @@ class LigneDeCommande(unittest.TestCase):
                 self.assertIn("--tools", commande)
                 self.assertEqual(commande[commande.index("--tools") + 1], "")
                 self.assertNotIn("--mcp-config", commande)
+
+    def test_le_bras_C_garde_l_outil_de_decouverte(self):
+        """Les outils MCP sont différés : sans ToolSearch ils sont hors d'atteinte.
+
+        Vérifié par run réel : `--tools ""` sur le bras C donne zéro appel, et
+        le bras mesure alors un bras sans outils.
+        """
+        commande = self._commande("C", Path("/tmp/mcp.json"))
+        self.assertEqual(commande[commande.index("--tools") + 1], "ToolSearch")
 
     def test_bras_C_restreint_les_outils_au_connecteur(self):
         commande = self._commande("C", Path("/tmp/mcp.json"))

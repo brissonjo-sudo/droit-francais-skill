@@ -161,8 +161,8 @@ def verdict_appels_interdits(trace: Trace, specification: str, sans_outil: bool)
     garantit que le bras « LLM seul » en est réellement un.
     """
     if sans_outil:
-        if trace.appels:
-            noms = ", ".join(sorted(set(trace.noms_outils_appeles)))
+        if trace.appels_sources:
+            noms = ", ".join(sorted({a.nom for a in trace.appels_sources}))
             return Verdict("appels_interdits", "FAIL", f"bras sans outil, appels observés : {noms}")
         return Verdict("appels_interdits", "PASS", "aucun appel, conforme au bras")
 
@@ -180,10 +180,14 @@ def verdict_appels_interdits(trace: Trace, specification: str, sans_outil: bool)
 
 
 def verdict_plafond(trace: Trace, plafond: int) -> Verdict:
-    """(d) Le nombre d'appels reste-t-il sous le plafond du cas ?"""
+    """(d) Le nombre d'appels aux sources reste-t-il sous le plafond du cas ?
+
+    La découverte d'outils (`ToolSearch`) est exclue : elle est imposée par le
+    mécanisme d'outils différés de la CLI, pas choisie par le modèle.
+    """
     if plafond <= 0:
         return Verdict("plafond", "SANS_OBJET", "pas de plafond")
-    observes = len(trace.appels)
+    observes = len(trace.appels_sources)
     if observes > plafond:
         return Verdict("plafond", "FAIL", f"{observes} appels pour un plafond de {plafond}")
     return Verdict("plafond", "PASS", f"{observes}/{plafond} appels")

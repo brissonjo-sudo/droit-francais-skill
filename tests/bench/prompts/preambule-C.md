@@ -16,6 +16,11 @@ l'échelle de récupération de l'étape 2. Ses six opérations en lecture seule
 - `search_case_law` — recherche Judilibre ;
 - `get_decision` — lecture d'une décision Judilibre.
 
+**Ces outils ne sont pas préchargés.** Ils sont différés : appelle d'abord
+`ToolSearch` pour les charger, puis appelle l'opération voulue. Un outil que
+tu n'as pas chargé reste inutilisable — ne conclus pas de son absence
+apparente qu'aucune source n'est accessible.
+
 Aucun autre outil n'est disponible : ni recherche web, ni exécution de
 `scripts/legifrance.py`, ni lecture des fichiers `references/` du skill.
 Applique la méthode à partir de ce seul document.

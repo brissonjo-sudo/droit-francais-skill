@@ -24,6 +24,16 @@ réels) :
 - ``--tools ""`` — vérifié : l'événement `init` passe de 24 outils à `[]`.
   C'est ce qui rend les bras A et B honnêtes ; sans lui, la CLI conserve
   WebFetch et WebSearch et le « sans outils » n'en est pas un.
+- ``--tools ToolSearch`` sur le bras C — **et non `--tools ""`**. Les outils
+  MCP sont *différés* : ils n'apparaissent pas dans `init.tools` et ne sont
+  atteignables qu'après un appel à `ToolSearch`. Avec `--tools ""`, le modèle
+  n'a aucun moyen de les découvrir et le bras C mesure un bras sans outils.
+  Vérifié : `--tools ""` → zéro appel ; `--tools ToolSearch` +
+  ``--allowedTools "mcp__droit-francais__*"`` → `ToolSearch` puis
+  `mcp__droit-francais__search_articles`, identifiant réel récupéré.
+- ``init.mcp_servers`` est **toujours vide** sur cette version, y compris
+  quand le connecteur répond. Ce champ ne peut donc pas servir à conclure
+  qu'un serveur est injoignable — voir `_classer`.
 - ``--setting-sources ""`` — vérifié : retire les skills et réglages du poste.
   Sans cela, le skill `recherche-juridique` installé chez l'utilisateur et son
   `CLAUDE.md` global contamineraient le bras A, censé mesurer un modèle nu.
@@ -50,13 +60,17 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Protocol
 
-from bench.flux import Trace, analyser
+from bench.flux import PREFIXE_MCP, Trace, analyser
 
 RACINE = Path(__file__).resolve().parent.parent.parent
 PROMPTS = Path(__file__).resolve().parent / "prompts"
 SKILL = RACINE / "skill" / "SKILL.md"
 
 BRAS_SANS_OUTIL = ("A", "B")
+
+# Seul outil intégré laissé au bras C : sans lui, les outils MCP — différés —
+# resteraient hors d'atteinte. Il ne donne accès ni au disque ni au web.
+OUTIL_DECOUVERTE = "ToolSearch"
 
 # Outils intégrés explicitement refusés sur le bras C. `--tools ""` les
 # désactive déjà ; la liste est une seconde barrière, au cas où une version
@@ -186,7 +200,9 @@ def construire_commande(
         "--setting-sources",
         "",
         "--tools",
-        "",
+        # Bras C : ToolSearch, sans quoi les outils MCP différés sont hors
+        # d'atteinte. Bras A et B : rien du tout.
+        OUTIL_DECOUVERTE if bras == "C" else "",
         "--strict-mcp-config",
         "--max-turns",
         str(max(1, plafond + options.marge_tours)),
@@ -288,6 +304,13 @@ def _classer(execution: Execution, bras: str) -> None:
     Une instance endormie, un jeton expiré ou un quota atteint ne sont pas des
     régressions du skill : les compter comme des échecs ferait baisser un
     score pour des raisons étrangères à ce qu'on mesure.
+
+    La disponibilité du connecteur ne se lit **pas** dans `init.mcp_servers`,
+    toujours vide sur cette version de la CLI même quand le serveur répond.
+    Elle se lit dans la trace : si le modèle a interrogé `ToolSearch` et que
+    la réponse ne mentionne aucun outil du serveur, celui-ci est injoignable.
+    À l'inverse, un modèle qui n'a jamais cherché a fait un choix
+    méthodologique — c'est un échec, pas une panne.
     """
     trace = execution.trace
 
@@ -296,9 +319,9 @@ def _classer(execution: Execution, bras: str) -> None:
         execution.motif_infra = f"erreur API {trace.api_error_status}"
         return
 
-    if bras == "C" and not trace.mcp_connecte:
+    if bras == "C" and _connecteur_absent(trace):
         execution.statut = "infra_error"
-        execution.motif_infra = "serveur MCP non connecté"
+        execution.motif_infra = "connecteur MCP introuvable à la recherche d'outils"
         return
 
     if trace.permission_denials:
@@ -316,6 +339,21 @@ def _classer(execution: Execution, bras: str) -> None:
     if not trace.texte_final:
         execution.statut = "infra_error"
         execution.motif_infra = "aucune réponse finale dans le flux"
+
+
+def _connecteur_absent(trace: Trace) -> bool:
+    """Le serveur MCP s'est-il révélé injoignable au cours du run ?
+
+    Trois cas : un outil du serveur a été appelé (présent) ; `ToolSearch` a
+    répondu sans mentionner le serveur (absent) ; le modèle n'a rien cherché
+    (indéterminé — traité comme présent, l'échec relève alors de la méthode).
+    """
+    if any(a.nom_complet.startswith(PREFIXE_MCP) for a in trace.appels):
+        return False
+    recherches = [a for a in trace.appels if a.nom_complet == OUTIL_DECOUVERTE]
+    if not recherches:
+        return False
+    return not any(PREFIXE_MCP in a.resultat_texte for a in recherches)
 
 
 class CodexHeadless:
