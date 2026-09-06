@@ -20,7 +20,7 @@ version: 3.3.0
 | Détail étape 0 bis (clause anti-échappatoire, économie questionnement) | `étape 0 bis.md` |
 | Profils configurables (métier de l'utilisateur) | `../skill/profils/` |
 | Récupération en source primaire (API PISTE, articles + jurisprudence) | `../skill/scripts/README.md` |
-| Détail des 14 modes d'erreur | `../skill/references/modes-erreur.md` |
+| Détail des 18 modes d'erreur | `../skill/references/modes-erreur.md` |
 | Changelog v3.3.0 (dernier) | `recherche-juridique v3.3.0.md` |
 | Applicabilité d'une version d'article (outils MCP) | `recherche-juridique v3.3.0.md` |
 | Changelog v2.4.0 | `recherche-juridique v2.4.0.md` |
@@ -37,7 +37,7 @@ version: 3.3.0
 
 ## Fichiers supprimés (remplacés par agrégats)
 
-Les notes individuelles `étape 0`–`étape 7`, `P1`–`P7`, `mode 1`–`mode 14`,
+Les notes individuelles `étape 0`–`étape 7`, `P1`–`P7`, `mode 1`–`mode 18`,
 `module PÉNAL`–`module CONTENTIEUX`, `déclencheurs d'abstention` n'existent pas
 en fichiers séparés. Leur contenu est dans les 3 agrégats ci-dessus.
 
