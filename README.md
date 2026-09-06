@@ -238,13 +238,15 @@ Copier le dossier `skill/` (contenu, pas le dossier lui-même) dans
 
 ### Sur d'autres plateformes
 
-Deux déclinaisons vivent dans ce dépôt, chacune autonome et documentée par son
-propre README :
+Quatre déclinaisons vivent dans ce dépôt, chacune autonome et documentée par
+son propre README :
 
 | Dossier | Plateforme | Nature |
 |---|---|---|
 | [`grok_skill/`](grok_skill) | Grok (xAI) | Noyau condensé, droit français, récupération par les outils web natifs (`web_search`, `open_page`) au lieu du connecteur MCP et des API PISTE |
 | [`gemini_agent/`](gemini_agent) | Gemini (`google-genai`) | Agent générique, toute juridiction, livré non connecté — squelette d'outils à brancher |
+| [`vibe_skill/`](vibe_skill) | Vibe (Mistral) | Noyau condensé, outils natifs `web_search`/`web_fetch` vérifiés contre le code source public ; wrapper Python fourni en squelette non connecté |
+| [`manus_skill/`](manus_skill) | Manus | Noyau condensé ; connecteur MCP personnalisé de ce dépôt en priorité (outils vérifiés), capacité web native de Manus en repli sans nom d'outil supposé |
 
 Elles reprennent les principes du noyau mais ne s'y synchronisent pas
 d'elles-mêmes : `skill/` reste la source de vérité méthodologique.
@@ -335,6 +337,8 @@ droit-francais-skill/
 ├── chatgpt-app-submission.json     ← métadonnées et cas de test importables
 ├── gemini_agent/                   ← déclinaison Gemini (agent générique, non connecté)
 ├── grok_skill/                     ← déclinaison Grok (noyau condensé, outils web natifs)
+├── vibe_skill/                     ← déclinaison Vibe (outils web_search/web_fetch vérifiés)
+├── manus_skill/                    ← déclinaison Manus (connecteur MCP en priorité)
 ├── vault/                          ← notes Obsidian (hors paquet)
 ├── tests/                          ← invariants, outils MCP + évals historiques
 ├── requirements-mcp.txt            ← dépendance du serveur uniquement
