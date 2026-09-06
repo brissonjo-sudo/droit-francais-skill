@@ -1,6 +1,6 @@
 # Skill juridique — déclinaison Gemini
 
-Déclinaison **Gemini** (Google / Antigravity / Gemini CLI / AI Studio) de la
+Déclinaison **Gemini** (Google Antigravity et Gemini CLI) de la
 méthodologie de recherche juridique en droit français portée par ce dépôt.
 
 Cette déclinaison porte au standard **Agent Skills** l'ensemble des principes
@@ -81,7 +81,24 @@ Copy-Item -Recurse gemini_skill "$env:USERPROFILE\.gemini\antigravity\skills\rec
 
 ### Dans Gemini CLI
 
-Ajouter le dossier dans le catalogue de skills configuré dans `gemini.json` ou dans vos instructions système d'agent.
+Gemini CLI découvre les skills par scan de répertoires dédiés :
+```powershell
+# Portée utilisateur
+Copy-Item -Recurse gemini_skill "$env:USERPROFILE\.gemini\skills\recherche-juridique"
+
+# Ou portée projet (répertoire de travail)
+Copy-Item -Recurse gemini_skill ".\.gemini\skills\recherche-juridique"
+```
+
+### Dans Google AI Studio (Web)
+
+Google AI Studio est une interface web de test qui ne prend pas en charge
+nativement l'exécution de serveurs MCP locaux ni la découverte de dossiers
+de skills. Pour y appliquer la méthodologie :
+1. Copier les instructions de [`SKILL.md`](SKILL.md) dans les **System Instructions**
+   du modèle (ex. `gemini-2.5-pro`) ;
+2. Activer l'outil **Grounding with Google Search** pour permettre la vérification
+   en source primaire.
 
 ### Articulation avec `gemini_agent/`
 

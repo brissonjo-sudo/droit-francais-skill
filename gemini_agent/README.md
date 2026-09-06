@@ -5,7 +5,7 @@ juridique portée par ce dépôt. Ce package constitue le **client programmatiqu
 Python** basé sur le SDK unifié `google-genai`.
 
 Pour la déclinaison sous forme de **skill déclaratif** au format Agent Skills
-(utilisable directement sous Google Antigravity, Gemini CLI et Google AI Studio),
+(utilisable directement sous Google Antigravity et Gemini CLI),
 consulter le dossier [**`gemini_skill/`**](../gemini_skill).
 
 Contrairement au skill Claude ([`skill/`](../skill)), déjà connecté à
