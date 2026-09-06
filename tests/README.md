@@ -130,9 +130,22 @@ python tests/run_bench.py --reprendre bench/runs/x.jsonl
 python tests/bench/resume.py bench/runs/x.jsonl --baseline bench/baselines/…
 ```
 
-Prérequis du bras C : `AUTH0_CLIENT_ID` et `AUTH0_CLIENT_SECRET` (ou un
-`MCP_ACCESS_TOKEN` valide) dans l'environnement. Rien n'est écrit sur disque ni
-passé en ligne de commande.
+### Où mettre les identifiants
+
+| Famille | Fichier | Utilité |
+|---|---|---|
+| Auth0 du connecteur MCP (`AUTH0_CLIENT_ID`, `AUTH0_CLIENT_SECRET`) | **`.env`** à la racine (modèle : `.env.example`) | bras C |
+| Clés PISTE (`LEGIFRANCE_*`, `JUDILIBRE_KEY_ID`) | **`skill/scripts/.env`** (modèle voisin) | uniquement `--mcp-local` |
+| Jeton de la CLI Claude | **aucun fichier** — `claude setup-token`, ou secret GitHub `CLAUDE_CODE_OAUTH_TOKEN` pour la CI | tous les bras |
+
+Les deux `.env` sont ignorés par Git (`.env`, `.env.*`, seuls les
+`.env.example` sont suivis). Une variable **déjà exportée** garde la priorité
+sur le fichier : en CI, rien n'est lu sur disque, les secrets viennent du
+coffre.
+
+En mode par défaut, les clés PISTE ne sont pas nécessaires en local — c'est le
+serveur de production qui les détient. Le jeton obtenu par échange Auth0 n'est
+ni écrit sur disque, ni passé en ligne de commande.
 
 ### Limites (à connaître avant d'interpréter un résultat)
 

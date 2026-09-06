@@ -49,6 +49,17 @@ TESTS = Path(__file__).resolve().parent
 RACINE = TESTS.parent
 sys.path.insert(0, str(TESTS))
 sys.path.insert(0, str(RACINE))
+sys.path.insert(0, str(RACINE / "skill" / "scripts"))
+
+from droit_francais.config import load_dotenv  # noqa: E402
+
+# Deux fichiers, deux usages, tous deux ignorés par Git :
+#   - `.env` à la racine : identifiants Auth0 du connecteur MCP (bras C) ;
+#   - `skill/scripts/.env` : clés PISTE, utiles au seul mode `--mcp-local`.
+# `load_dotenv` n'écrase jamais une variable déjà exportée : l'environnement
+# explicite garde la priorité, y compris en CI où rien n'est lu sur disque.
+load_dotenv(script_dir=RACINE)
+load_dotenv()
 
 from bench import agents, cases, juge as juge_mod, verdicts  # noqa: E402
 from bench.cadence import Cadence  # noqa: E402

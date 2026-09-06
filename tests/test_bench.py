@@ -525,6 +525,55 @@ class Resume(unittest.TestCase):
         self.assertIn("Taux de réussite par bras", rendu)
 
 
+class ChargementDesIdentifiants(unittest.TestCase):
+    """Les `.env` alimentent le harnais sans jamais écraser l'environnement."""
+
+    def test_une_variable_exportee_prime_sur_le_fichier(self):
+        """En CI, les secrets viennent du coffre : le disque ne doit rien écraser."""
+        sys.path.insert(0, str(RACINE / "skill" / "scripts"))
+        from droit_francais.config import load_dotenv
+
+        dossier = Path(tempfile.mkdtemp(prefix="bench-env-"))
+        self.addCleanup(lambda: __import__("shutil").rmtree(dossier, ignore_errors=True))
+        (dossier / ".env").write_text("AUTH0_CLIENT_ID=valeur-du-fichier\n", encoding="utf-8")
+
+        with mock.patch.dict("os.environ", {"AUTH0_CLIENT_ID": "valeur-exportee"}, clear=False):
+            load_dotenv(script_dir=dossier)
+            import os
+
+            self.assertEqual(os.environ["AUTH0_CLIENT_ID"], "valeur-exportee")
+
+    def test_le_modele_racine_declare_les_variables_du_bras_C(self):
+        modele = (RACINE / ".env.example").read_text(encoding="utf-8")
+        for nom in ("AUTH0_CLIENT_ID", "AUTH0_CLIENT_SECRET", "MCP_ACCESS_TOKEN"):
+            with self.subTest(variable=nom):
+                self.assertIn(f"{nom}=", modele)
+
+    def test_aucun_env_reel_n_est_suivi_par_git(self):
+        """Le modèle est commité ; un `.env` renseigné ne doit jamais l'être.
+
+        Le contrôle porte sur les noms que `.gitignore` vise — `.env` et
+        `.env.*` — et non sur tout fichier dont le nom finit par « .env » :
+        `tests/fixtures/sample.env` est une fixture publique, sans secret.
+        """
+        import subprocess
+
+        suivis = subprocess.run(
+            ["git", "ls-files"],
+            cwd=RACINE,
+            capture_output=True,
+            encoding="utf-8",
+            check=False,
+        ).stdout.split()
+        fautifs = [
+            fichier
+            for fichier in suivis
+            if (base := fichier.rsplit("/", 1)[-1]) == ".env"
+            or (base.startswith(".env.") and base != ".env.example")
+        ]
+        self.assertEqual(fautifs, [])
+
+
 class CouvertureDuCorpus(unittest.TestCase):
     """Méta-tests sur le corpus livré, patron de `test_live_probe.py`."""
 
