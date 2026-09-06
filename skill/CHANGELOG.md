@@ -34,6 +34,12 @@ MCP) documentée dans `docs/chatgpt-submission.md`.
   décrit la revue annuelle du dépôt, non la méthode juridique.
 - `chatgpt_gpt/README.md` : paramétrage champ par champ, amorces de
   conversation, état vérifié des apps et actions dans le builder, recette.
+  La création d'un **nouveau** GPT n'est pas ouverte aux comptes personnels
+  (Free, Go, Plus, Pro) : elle suppose un espace Business, Enterprise ou Edu.
+  Modèle recommandé : **GPT-5.6 Sol** (raisonnement, 9 juillet 2026) ;
+  GPT-6 Astra, introduit le 3 septembre 2026, n'est pas encore généralement
+  disponible. Canvas ne peut plus être tenu pour acquis : il a été retiré des
+  modèles 5.5 le 28 mai 2026.
 - `tests/test_chatgpt_gpt.py` : plafond de longueur avec marge, principes,
   modules, voies de récupération, fichiers annoncés, outillage interdit.
 

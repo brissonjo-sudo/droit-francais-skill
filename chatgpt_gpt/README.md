@@ -4,12 +4,19 @@ Déclinaison **GPT personnalisé** (builder de GPT de ChatGPT) de la méthodolog
 de recherche juridique portée par ce dépôt. Elle est distincte de l'**app
 ChatGPT** documentée dans [`docs/chatgpt-submission.md`](../docs/chatgpt-submission.md) :
 l'app est un connecteur MCP vers le serveur du dépôt, le GPT est un jeu
-d'instructions et de fichiers de connaissances que n'importe quel compte
-payant peut créer sans serveur. Les deux peuvent se combiner : si l'app est
-activée dans le GPT, elle devient sa première voie de récupération.
+d'instructions et de fichiers de connaissances, sans serveur. Les deux peuvent
+se combiner : si l'app est activée dans le GPT, elle devient sa première voie
+de récupération.
 
 État vérifié le 6 septembre 2026, sur la documentation OpenAI listée en fin
 de document.
+
+> **Condition d'accès.** La création et la publication d'un **nouveau** GPT ne
+> sont **pas disponibles sur les comptes personnels** — Free, Go, Plus et Pro.
+> Elles supposent un espace de travail **Business, Enterprise ou Edu**, et
+> l'autorisation correspondante. Les GPT existants restent utilisables, et
+> modifiables si l'offre et les permissions le permettent. La création se fait
+> sur le web ; les applications mobiles ne la proposent pas.
 
 ## Ce qui la distingue du noyau
 
@@ -64,9 +71,9 @@ instructions et les amorces à chaque échange.
 | Description | `Recherche juridique française sourcée : Légifrance et Judilibre, vérification de vigueur et d'applicabilité, citations traçables. N'invente jamais de référence ; s'abstient si la source n'est pas vérifiée.` |
 | Instructions | Contenu intégral de [`instructions.md`](instructions.md), collé tel quel |
 | Amorces de conversation | Les quatre amorces ci-dessous |
-| Connaissances | Les huit fichiers de `references/`, téléversés un à un (le builder en accepte jusqu'à vingt) |
-| Fonctionnalités | **Recherche web : activée** (voie 2, indispensable). **Canevas : activé** (rédaction d'actes et de notes). Génération d'images : désactivée. Interpréteur de code : désactivé par défaut ; l'activer seulement pour auditer des corpus volumineux téléversés |
-| Modèle recommandé | Laisser le choix par défaut. Si une app ou une action est branchée, le sélecteur ne propose que des modèles non-Pro |
+| Connaissances | Les huit fichiers de `references/`, téléversés un à un. Le builder accepte jusqu'à **20 fichiers**, de 512 Mo chacun |
+| Fonctionnalités | **Recherche web : activée** — c'est la voie 2, indispensable. **Canvas : activable, sans compter dessus** : il a été retiré de GPT-5.5 Instant et Thinking le 28 mai 2026, la rédaction passant par les blocs d'écriture en réponse. Génération d'images : désactivée. Interpréteur de code : désactivé par défaut ; l'activer seulement pour auditer des corpus volumineux téléversés |
+| Modèle recommandé | **GPT-5.6 Sol**, modèle de raisonnement phare des offres payantes depuis le 9 juillet 2026. La tâche est un enchaînement recherche / lecture / comparaison de dates : préférer un modèle de raisonnement à une variante Instant. Ce réglage n'est qu'une suggestion — l'utilisateur peut en changer, et un modèle proche est choisi s'il n'y a pas accès. Si une app ou une action est branchée, le sélecteur ne propose que des modèles non-Pro. **GPT-6 Astra**, introduit le 3 septembre 2026, n'est pas encore généralement disponible : reprendre cette ligne quand il le sera |
 
 ### Amorces de conversation
 
@@ -128,6 +135,9 @@ sauvegarde du GPT : les deux ne se synchronisent pas d'eux-mêmes.
 
 - [Configuring actions in GPTs](https://help.openai.com/en/articles/9442513-configuring-actions-in-gpts) : apps ou actions, schéma OpenAPI, authentification.
 - [Developer mode and MCP apps in ChatGPT](https://help.openai.com/en/articles/12584461-developer-mode-and-mcp-apps-in-chatgpt) : création d'une app MCP.
+- [Creating and editing GPTs](https://help.openai.com/en/articles/8554397-creating-a-gpt) : conditions d'accès, champs, limites de connaissances, modèle recommandé.
+- [Model Release Notes](https://help.openai.com/en/articles/9624314-model-release-notes) : GPT-5.6 Sol (9 juillet 2026), retrait de canvas des modèles 5.5 (28 mai 2026).
+- [ChatGPT — Release Notes](https://help.openai.com/en/articles/6825453-chatgpt-release-notes) : GPT-6 Astra (3 septembre 2026), non généralement disponible.
 - [GPT Action authentication](https://developers.openai.com/api/docs/actions/authentication).
 - Plafond de 8 000 caractères du champ Instructions : constaté dans le builder et documenté par la [communauté OpenAI](https://community.openai.com/t/how-can-i-increase-the-ceiling-for-gpt-instructions-beyond-8000-characters/801867).
 
