@@ -11,6 +11,34 @@ conservés tels quels pour ne pas casser les liens publiés.
 
 ---
 
+### [3.3.0-gemini] — 2026-09-06
+
+Déclinaison **Gemini** (Google) de la méthodologie, dans `gemini_skill/`. Elle
+ne modifie pas le noyau `skill/`, qui reste la source de vérité.
+
+#### Ajouté
+- `gemini_skill/SKILL.md` : noyau condensé reprenant les principes P1 à P7, la
+  procédure interne en 8 étapes, la traçabilité proportionnée et la triangulation
+  ciblée de la 3.3.0, adapté aux agents de l'écosystème Google (Antigravity,
+  Gemini CLI).
+- `gemini_skill/references/{sources-autorisees,modules.md}` : ordre de recherche
+  et autorité des sources ; six modules activables.
+- `gemini_skill/README.md` : ce que la déclinaison conserve, remplace et
+  laisse de côté par rapport au noyau, installation sous Antigravity et
+  Gemini CLI.
+- `tests/test_gemini_skill.py` : tests automatisés de conformité du frontmatter,
+  des principes invariants P1 à P7 et des modules.
+
+#### Modifié
+- L'échelle de récupération privilégie le **connecteur MCP officiel** du dépôt
+  (`mcp_server/server.py`), compatible nativement avec Google Antigravity et
+  Gemini CLI. La recherche institutionnelle via grounding Google Search restreint
+  aux sources officielles sert de repli, l'exécution Python SDK (`gemini_agent/`)
+  permet l'intégration programmatique, et l'abstention informée (P7) s'applique si
+  la source est inaccessible.
+- `gemini_agent/legal_agent_config.py` : prompt système réaligné sur les 7
+  principes invariants P1–P7 de la méthodologie v3.3.0 du droit français.
+
 ### [3.3.0-manus] — 2026-09-06
 
 Déclinaison **Manus** de la méthodologie, dans `manus_skill/`. Elle ne modifie

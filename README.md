@@ -238,13 +238,14 @@ Copier le dossier `skill/` (contenu, pas le dossier lui-même) dans
 
 ### Sur d'autres plateformes
 
-Quatre déclinaisons vivent dans ce dépôt, chacune autonome et documentée par
+Cinq déclinaisons et compagnons vivent dans ce dépôt, chacun autonome et documenté par
 son propre README :
 
 | Dossier | Plateforme | Nature |
 |---|---|---|
+| [`gemini_skill/`](gemini_skill) | Gemini (Google) | Noyau condensé v3.3.0, support prioritaire du serveur MCP de ce dépôt, repli grounding Google Search sur sources officielles |
+| [`gemini_agent/`](gemini_agent) | Gemini (`google-genai`) | Client programmatique Python, température 0.0, prompt système aligné sur la méthodologie v3.3.0 |
 | [`grok_skill/`](grok_skill) | Grok (xAI) | Noyau condensé, droit français, récupération par les outils web natifs (`web_search`, `open_page`) au lieu du connecteur MCP et des API PISTE |
-| [`gemini_agent/`](gemini_agent) | Gemini (`google-genai`) | Agent générique, toute juridiction, livré non connecté — squelette d'outils à brancher |
 | [`vibe_skill/`](vibe_skill) | Vibe (Mistral) | Noyau condensé, outils natifs `web_search`/`web_fetch` vérifiés contre le code source public ; wrapper Python fourni en squelette non connecté |
 | [`manus_skill/`](manus_skill) | Manus | Noyau condensé ; connecteur MCP personnalisé de ce dépôt en priorité (outils vérifiés), capacité web native de Manus en repli sans nom d'outil supposé |
 
@@ -335,7 +336,8 @@ droit-francais-skill/
 │   ├── privacy-policy.md           ← politique publique
 │   └── terms-of-use.md             ← conditions publiques
 ├── chatgpt-app-submission.json     ← métadonnées et cas de test importables
-├── gemini_agent/                   ← déclinaison Gemini (agent générique, non connecté)
+├── gemini_skill/                   ← déclinaison Gemini (noyau condensé, Agent Skills, MCP prioritaire)
+├── gemini_agent/                   ← déclinaison Gemini (client programmatique Python google-genai)
 ├── grok_skill/                     ← déclinaison Grok (noyau condensé, outils web natifs)
 ├── vibe_skill/                     ← déclinaison Vibe (outils web_search/web_fetch vérifiés)
 ├── manus_skill/                    ← déclinaison Manus (connecteur MCP en priorité)

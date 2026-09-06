@@ -1,11 +1,17 @@
 # Agent juridique — déclinaison Gemini
 
 Déclinaison **Gemini** (Google `google-genai`) de la méthodologie de recherche
-juridique portée par ce dépôt. Contrairement au skill Claude
-([`skill/`](../skill)), spécifique au droit français et déjà connecté à
-Légifrance/Judilibre, cet agent est **générique** (toute juridiction, toute
-branche du droit) et livré **non connecté** : un squelette à brancher sur vos
-propres API de recherche documentaire et de jurisprudence.
+juridique portée par ce dépôt. Ce package constitue le **client programmatique
+Python** basé sur le SDK unifié `google-genai`.
+
+Pour la déclinaison sous forme de **skill déclaratif** au format Agent Skills
+(utilisable directement sous Google Antigravity et Gemini CLI),
+consulter le dossier [**`gemini_skill/`**](../gemini_skill).
+
+Contrairement au skill Claude ([`skill/`](../skill)), déjà connecté à
+Légifrance/Judilibre via PISTE ou MCP, ce package Python est livré comme un
+squelette prêt à être branché sur vos propres API ou sur le connecteur MCP
+du dépôt.
 
 ## Architecture
 

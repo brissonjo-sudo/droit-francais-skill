@@ -28,7 +28,8 @@ version: 3.3.0
 | Découpage modulaire + outillage v2.3.0 (noyau ↔ références ↔ scripts) | `structure-v2.3.0.md` |
 | Noyau complet | `../skill/SKILL.md` |
 | Déclinaison Grok (outils web natifs, noyau condensé) | `../grok_skill/README.md` |
-| Déclinaison Gemini (agent générique non connecté) | `../gemini_agent/README.md` |
+| Déclinaison Gemini (Agent Skills, MCP prioritaire) | `../gemini_skill/README.md` |
+| Client Gemini SDK (`google-genai`, température 0.0) | `../gemini_agent/README.md` |
 | Déclinaison Vibe (outils `web_search`/`web_fetch`, wrapper non connecté) | `../vibe_skill/README.md` |
 | Déclinaison Manus (connecteur MCP en priorité, outils vérifiés) | `../manus_skill/README.md` |
 | Gabarits de sortie détaillés | `../skill/references/gabarits-sortie.md` |
@@ -75,6 +76,7 @@ toute note du vault y est reliée, et chaque note renvoie ici.
 
 - `../skill/SKILL.md` — noyau, source de vérité méthodologique
 - `../grok_skill/README.md` — déclinaison Grok
-- `../gemini_agent/README.md` — déclinaison Gemini
+- `../gemini_skill/README.md` — déclinaison Gemini (Agent Skills)
+- `../gemini_agent/README.md` — client Python SDK (google-genai)
 - `../vibe_skill/README.md` — déclinaison Vibe
 - `../manus_skill/README.md` — déclinaison Manus
