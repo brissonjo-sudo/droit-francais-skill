@@ -132,20 +132,36 @@ python tests/bench/resume.py bench/runs/x.jsonl --baseline bench/baselines/…
 
 ### Où mettre les identifiants
 
-| Famille | Fichier | Utilité |
+| Variable | Fichier | Utilité |
 |---|---|---|
-| Auth0 du connecteur MCP (`AUTH0_CLIENT_ID`, `AUTH0_CLIENT_SECRET`) | **`.env`** à la racine (modèle : `.env.example`) | bras C |
-| Clés PISTE (`LEGIFRANCE_*`, `JUDILIBRE_KEY_ID`) | **`skill/scripts/.env`** (modèle voisin) | uniquement `--mcp-local` |
-| Jeton de la CLI Claude | **aucun fichier** — `claude setup-token`, ou secret GitHub `CLAUDE_CODE_OAUTH_TOKEN` pour la CI | tous les bras |
+| `AUTH0_CLIENT_ID`, `AUTH0_CLIENT_SECRET` | **`.env`** à la racine (modèle : `.env.example`) | bras C — échangés contre un jeton court au démarrage |
+| `MCP_ACCESS_TOKEN` | idem, **laisser vide** sauf jeton MCP déjà en main | court-circuite l'échange ci-dessus |
+| `CLAUDE_CODE_OAUTH_TOKEN` | idem, facultatif | quand le trousseau est expiré (voir ci-dessous) |
+| `LEGIFRANCE_*`, `JUDILIBRE_KEY_ID` | **`skill/scripts/.env`** (modèle voisin) | uniquement `--mcp-local` |
 
 Les deux `.env` sont ignorés par Git (`.env`, `.env.*`, seuls les
-`.env.example` sont suivis). Une variable **déjà exportée** garde la priorité
-sur le fichier : en CI, rien n'est lu sur disque, les secrets viennent du
-coffre.
+`.env.example` sont suivis) ; un test refuse tout `.env` qui deviendrait
+suivi. Une variable **déjà exportée** garde la priorité sur le fichier.
 
 En mode par défaut, les clés PISTE ne sont pas nécessaires en local — c'est le
 serveur de production qui les détient. Le jeton obtenu par échange Auth0 n'est
 ni écrit sur disque, ni passé en ligne de commande.
+
+**Deux pièges constatés en pratique :**
+
+- Un jeton d'abonnement Claude (préfixe `sk-ant-`) rangé dans
+  `MCP_ACCESS_TOKEN` est envoyé au serveur MCP comme jeton Auth0, et refusé —
+  alors même que `AUTH0_CLIENT_ID` et `AUTH0_CLIENT_SECRET` fonctionnaient.
+  Le nom de la variable ne dit pas assez de quoi il s'agit ; les deux jetons
+  se ressemblent à l'œil.
+- Une variable posée dans un terminal tiers **n'atteint pas** le sous-processus
+  que lance le harnais : un processus hérite de son environnement à sa
+  création. D'où `CLAUDE_CODE_OAUTH_TOKEN` dans `.env` plutôt qu'un `export`
+  ailleurs, quand le trousseau du système est expiré.
+
+**En CI, rien de tout cela n'est lu sur disque** : les secrets viennent du
+coffre GitHub (`gh secret set`), et le benchmark ne tourne de toute façon pas
+dans le pipeline standard.
 
 ### Limites (à connaître avant d'interpréter un résultat)
 

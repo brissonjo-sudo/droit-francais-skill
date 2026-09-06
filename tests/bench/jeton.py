@@ -52,6 +52,28 @@ def _emetteur() -> str:
     return (os.environ.get("AUTH0_ISSUER") or EMETTEUR_DEFAUT).rstrip("/")
 
 
+def _refuser_jeton_etranger(valeur: str) -> None:
+    """Refuse un jeton qui n'est manifestement pas celui du serveur MCP.
+
+    ``MCP_ACCESS_TOKEN`` court-circuite l'échange Auth0. Un jeton d'abonnement
+    Claude (préfixe ``sk-ant-``) rangé là part vers le serveur MCP en en-tête
+    ``Authorization`` et revient en 401 — alors que les identifiants Auth0 du
+    même fichier fonctionnaient. Erreur constatée en vrai : les deux jetons se
+    ressemblent à l'œil, et le nom de la variable ne dit pas lequel est
+    attendu.
+
+    Le diagnostic porte sur le **préfixe** seul ; aucune valeur n'est
+    journalisée ni renvoyée dans le message.
+    """
+    if valeur.startswith("sk-ant-"):
+        raise JetonIndisponible(
+            "MCP_ACCESS_TOKEN contient un jeton d'abonnement Claude (préfixe "
+            "« sk-ant- »), pas un jeton du serveur MCP. Le vider : le harnais "
+            "obtiendra le bon jeton par échange Auth0. Pour authentifier la "
+            "CLI, la variable attendue est CLAUDE_CODE_OAUTH_TOKEN."
+        )
+
+
 def obtenir(*, timeout_s: int = 30) -> Jeton:
     """Rend un jeton d'accès, depuis l'environnement ou par échange Auth0.
 
@@ -61,6 +83,7 @@ def obtenir(*, timeout_s: int = 30) -> Jeton:
     """
     direct = os.environ.get("MCP_ACCESS_TOKEN")
     if direct:
+        _refuser_jeton_etranger(direct)
         # Durée inconnue : on la suppose courte pour forcer un renouvellement
         # par échange si l'exécution se prolonge.
         return Jeton(direct, time.time() + 3600)

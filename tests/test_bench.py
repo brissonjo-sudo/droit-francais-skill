@@ -545,9 +545,39 @@ class ChargementDesIdentifiants(unittest.TestCase):
 
     def test_le_modele_racine_declare_les_variables_du_bras_C(self):
         modele = (RACINE / ".env.example").read_text(encoding="utf-8")
-        for nom in ("AUTH0_CLIENT_ID", "AUTH0_CLIENT_SECRET", "MCP_ACCESS_TOKEN"):
+        for nom in (
+            "AUTH0_CLIENT_ID",
+            "AUTH0_CLIENT_SECRET",
+            "MCP_ACCESS_TOKEN",
+            "CLAUDE_CODE_OAUTH_TOKEN",
+        ):
             with self.subTest(variable=nom):
                 self.assertIn(f"{nom}=", modele)
+
+    def test_le_modele_racine_ne_porte_aucune_valeur(self):
+        """Un modèle est une liste de noms ; une valeur qui s'y glisse fuit."""
+        for ligne in (RACINE / ".env.example").read_text(encoding="utf-8").splitlines():
+            ligne = ligne.strip()
+            if ligne and not ligne.startswith("#") and "=" in ligne:
+                with self.subTest(ligne=ligne):
+                    self.assertEqual(ligne.partition("=")[2].strip(), "")
+
+    def test_un_jeton_claude_range_dans_MCP_ACCESS_TOKEN_est_refuse(self):
+        """Sinon il part vers le serveur MCP et revient en 401, sans explication."""
+        from bench.jeton import JetonIndisponible, obtenir
+
+        with mock.patch.dict("os.environ", {"MCP_ACCESS_TOKEN": "sk-ant-oat01-" + "x" * 90}):
+            with self.assertRaises(JetonIndisponible) as capture:
+                obtenir()
+        message = str(capture.exception)
+        self.assertIn("CLAUDE_CODE_OAUTH_TOKEN", message)
+        self.assertNotIn("xxxx", message)  # la valeur ne doit pas figurer dans le message
+
+    def test_un_jeton_mcp_legitime_est_accepte(self):
+        from bench.jeton import obtenir
+
+        with mock.patch.dict("os.environ", {"MCP_ACCESS_TOKEN": "eyJhbGciOiJSUzI1NiJ9.charge.signature"}):
+            self.assertTrue(obtenir().valeur.startswith("eyJ"))
 
     def test_aucun_env_reel_n_est_suivi_par_git(self):
         """Le modèle est commité ; un `.env` renseigné ne doit jamais l'être.
