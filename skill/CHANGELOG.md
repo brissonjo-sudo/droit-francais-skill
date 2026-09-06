@@ -24,9 +24,14 @@ MCP) documentée dans `docs/chatgpt-submission.md`.
   la traçabilité proportionnée et une échelle de récupération en trois
   voies : app « Droit français » si activée (six outils nommés exactement),
   recherche web restreinte aux domaines officiels, abstention.
-- `chatgpt_gpt/references/` : cinq fichiers Knowledge (sources autorisées,
-  modules, checklist de vigueur, format de citation, modes d'erreur), sans
-  mention d'outillage inexistant dans un GPT.
+- `chatgpt_gpt/references/` : huit des neuf références du noyau, portées en
+  fichiers Knowledge (sources autorisées, modules, gabarits de requêtes,
+  checklist de vigueur, format de citation, gabarits de sortie, audit
+  documentaire, modes d'erreur), sans mention d'outillage inexistant dans un
+  GPT. `gabarits-requetes.md` est réécrite pour la recherche web : le bloc
+  d'appels aux scripts PISTE et les noms d'outils du noyau sont remplacés par
+  des adresses et des requêtes. `maintenance.md` n'est pas reprise — elle
+  décrit la revue annuelle du dépôt, non la méthode juridique.
 - `chatgpt_gpt/README.md` : paramétrage champ par champ, amorces de
   conversation, état vérifié des apps et actions dans le builder, recette.
 - `tests/test_chatgpt_gpt.py` : plafond de longueur avec marge, principes,

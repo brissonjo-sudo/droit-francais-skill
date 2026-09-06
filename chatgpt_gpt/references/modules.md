@@ -113,3 +113,4 @@ Toujours qualifier explicitement l’opération selon ces quatre critères avant
 8. **Contrôle post-correction** : relire le document corrigé pour vérifier qu’aucune affirmation à risque n’a été introduite ou laissée.
 
 Sortie typique : registre des affirmations + liste des corrections + réserves restantes.
+Méthode détaillée : `audit-documentaire.md`.

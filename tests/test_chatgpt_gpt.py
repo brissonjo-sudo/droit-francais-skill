@@ -9,7 +9,8 @@ un. Ces tests figent ce qui peut l'être :
 - présence des sept principes invariants P1 à P7 ;
 - présence des six modules activables dans modules.md ;
 - échelle de récupération en trois voies (app, web officiel, abstention) ;
-- chaque fichier de connaissances annoncé dans les instructions existe ;
+- correspondance exacte entre fichiers annoncés et fichiers présents ;
+- toute référence du noyau reprise, sauf exclusion documentée ;
 - aucune mention d'outillage inexistant dans un GPT (scripts PISTE, MCP local).
 """
 
@@ -24,9 +25,16 @@ GPT_DIR = ROOT / "chatgpt_gpt"
 INSTRUCTIONS = GPT_DIR / "instructions.md"
 README = GPT_DIR / "README.md"
 REFERENCES = GPT_DIR / "references"
+REFERENCES_NOYAU = ROOT / "skill" / "references"
 
 PLAFOND_BUILDER = 8000
 MARGE_REVISION = 500
+
+#: Références du noyau volontairement non reprises dans les connaissances du
+#: GPT. ``maintenance.md`` décrit la revue annuelle du dépôt — archivage,
+#: CHANGELOG, veille — et non la méthode juridique : la téléverser ferait
+#: croire au GPT qu'il doit conduire cette revue.
+REFERENCES_ECARTEES = {"maintenance.md"}
 
 
 class ChatgptGptIntegrityTests(unittest.TestCase):
@@ -65,14 +73,48 @@ class ChatgptGptIntegrityTests(unittest.TestCase):
             with self.subTest(outil=outil):
                 self.assertRegex(self.instructions, rf"\b{outil}\b")
 
-    def test_fichiers_de_connaissances_annonces_existent(self):
+    def _fichiers_annonces(self) -> set[str]:
         section = self.instructions.split("FICHIERS DE CONNAISSANCES", 1)[1]
         section = section.split("\n\n", 1)[0]
-        annonces = re.findall(r"([a-z-]+\.md)", section)
+        return set(re.findall(r"([a-z-]+\.md)", section))
+
+    def test_fichiers_de_connaissances_annonces_et_presents_concordent(self):
+        """Correspondance exacte, dans les deux sens.
+
+        Un fichier annoncé mais absent fait promettre au GPT une connaissance
+        qu'il n'a pas. Un fichier présent mais non annoncé sera téléversé sans
+        que rien n'y renvoie, donc rarement retrouvé par la recherche
+        sémantique. Les deux écarts sont des défauts.
+        """
+        annonces = self._fichiers_annonces()
+        presents = {p.name for p in REFERENCES.glob("*.md")}
         self.assertGreaterEqual(len(annonces), 2)
-        for nom in annonces:
-            with self.subTest(fichier=nom):
-                self.assertTrue((REFERENCES / nom).is_file(), f"{nom} annoncé mais absent")
+        self.assertEqual(
+            annonces,
+            presents,
+            f"annoncés sans fichier : {sorted(annonces - presents)} ; "
+            f"présents sans mention : {sorted(presents - annonces)}",
+        )
+
+    def test_references_du_noyau_reprises_ou_ecartees_sciemment(self):
+        """Toute référence du noyau est reprise, sauf exclusion documentée.
+
+        Une référence ajoutée au noyau fera échouer ce test tant qu'elle n'aura
+        pas été soit portée dans les connaissances du GPT, soit inscrite dans
+        REFERENCES_ECARTEES. C'est le but : l'arbitrage doit rester explicite.
+        """
+        noyau = {p.name for p in REFERENCES_NOYAU.glob("*.md")}
+        presents = {p.name for p in REFERENCES.glob("*.md")}
+        self.assertEqual(
+            noyau - REFERENCES_ECARTEES - presents,
+            set(),
+            "références du noyau ni reprises ni écartées sciemment",
+        )
+        self.assertEqual(
+            presents & REFERENCES_ECARTEES,
+            set(),
+            "référence déclarée écartée, pourtant présente",
+        )
 
     def test_presence_six_modules_activables(self):
         texte = (REFERENCES / "modules.md").read_text(encoding="utf-8")

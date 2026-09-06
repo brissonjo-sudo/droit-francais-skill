@@ -248,7 +248,7 @@ son propre README :
 | [`grok_skill/`](grok_skill) | Grok (xAI) | Noyau condensé, droit français, récupération par les outils web natifs (`web_search`, `open_page`) au lieu du connecteur MCP et des API PISTE |
 | [`vibe_skill/`](vibe_skill) | Vibe (Mistral) | Noyau condensé, outils natifs `web_search`/`web_fetch` vérifiés contre le code source public ; wrapper Python fourni en squelette non connecté |
 | [`manus_skill/`](manus_skill) | Manus | Noyau condensé ; connecteur MCP personnalisé de ce dépôt en priorité (outils vérifiés), capacité web native de Manus en repli sans nom d'outil supposé |
-| [`chatgpt_gpt/`](chatgpt_gpt) | ChatGPT (GPT personnalisé) | Instructions ≤ 8 000 caractères pour le builder de GPT, cinq fichiers Knowledge ; app « Droit français » en voie 1 si activée, recherche web sur domaines officiels en repli |
+| [`chatgpt_gpt/`](chatgpt_gpt) | ChatGPT (GPT personnalisé) | Instructions ≤ 8 000 caractères pour le builder de GPT, huit fichiers Knowledge ; app « Droit français » en voie 1 si activée, recherche web sur domaines officiels en repli |
 
 Elles reprennent les principes du noyau mais ne s'y synchronisent pas
 d'elles-mêmes : `skill/` reste la source de vérité méthodologique.

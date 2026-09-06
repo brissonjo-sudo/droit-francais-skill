@@ -18,7 +18,7 @@ de document.
 | `SKILL.md` de 47 000 caractères, chargé à la demande | Champ **Instructions** plafonné à **8 000 caractères** par le builder ; tout ce qui n'y tient pas passe en fichiers de connaissances |
 | Connecteur MCP Légifrance/Judilibre | **App « Droit français »** si elle est activée dans le GPT (voie 1), sinon **recherche web** restreinte aux domaines officiels (voie 2) |
 | `scripts/legifrance.py` (API PISTE) | Sans équivalent : un GPT n'exécute pas de script du dépôt |
-| Références lues par chemin relatif | Cinq fichiers **Knowledge** téléversés un à un, consultés par recherche sémantique |
+| Neuf références lues par chemin relatif | **Huit** d'entre elles téléversées en fichiers **Knowledge**, consultées par recherche sémantique. `maintenance.md` est écartée : elle décrit la revue annuelle du dépôt, pas la méthode juridique |
 
 **L'invariant de provenance ne change pas** : identifiant officiel, URL
 canonique et date de version restent exigés quelle que soit la voie. Une
@@ -40,11 +40,14 @@ reconstituée.
 ```
 chatgpt_gpt/
 ├── instructions.md               ← texte à coller dans le champ Instructions (≤ 8 000 caractères)
-├── references/                   ← fichiers Knowledge à téléverser
+├── references/                   ← huit fichiers Knowledge à téléverser
 │   ├── sources-autorisees.md     ← ordre de recherche et autorité (P3)
 │   ├── modules.md                ← six modules activables, détail
+│   ├── gabarits-requetes.md      ← adresses et requêtes Légifrance, réécrites pour la voie web
 │   ├── checklist-vigueur.md      ← contrôle de vigueur et d'applicabilité
-│   ├── format-citation.md        ← gabarits de citation (exemples illustratifs)
+│   ├── format-citation.md        ← formats de citation imposés (exemples illustratifs)
+│   ├── gabarits-sortie.md        ← canevas de livrables
+│   ├── audit-documentaire.md     ← méthode d'audit d'un document ou d'un corpus
 │   └── modes-erreur.md           ← modes d'erreur LLM connus
 └── README.md                     ← ce document
 ```
@@ -61,7 +64,7 @@ instructions et les amorces à chaque échange.
 | Description | `Recherche juridique française sourcée : Légifrance et Judilibre, vérification de vigueur et d'applicabilité, citations traçables. N'invente jamais de référence ; s'abstient si la source n'est pas vérifiée.` |
 | Instructions | Contenu intégral de [`instructions.md`](instructions.md), collé tel quel |
 | Amorces de conversation | Les quatre amorces ci-dessous |
-| Connaissances | Les cinq fichiers de `references/`, téléversés un à un |
+| Connaissances | Les huit fichiers de `references/`, téléversés un à un (le builder en accepte jusqu'à vingt) |
 | Fonctionnalités | **Recherche web : activée** (voie 2, indispensable). **Canevas : activé** (rédaction d'actes et de notes). Génération d'images : désactivée. Interpréteur de code : désactivé par défaut ; l'activer seulement pour auditer des corpus volumineux téléversés |
 | Modèle recommandé | Laisser le choix par défaut. Si une app ou une action est branchée, le sélecteur ne propose que des modèles non-Pro |
 
@@ -110,8 +113,9 @@ doit déclencher ni recherche juridique ni citation.
 
 Contrôle automatisé côté dépôt : `python -m unittest tests.test_chatgpt_gpt`
 vérifie le plafond de 8 000 caractères avec marge, les principes P1 à P7,
-les six modules, les trois voies de récupération, l'existence des fichiers
-de connaissances annoncés et l'absence d'outillage inexistant dans un GPT.
+les six modules, les trois voies de récupération, la correspondance exacte
+entre les fichiers annoncés dans les instructions et ceux présents dans
+`references/`, et l'absence d'outillage inexistant dans un GPT.
 
 ## Versionnement
 
