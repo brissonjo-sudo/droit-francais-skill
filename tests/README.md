@@ -276,4 +276,4 @@ contrôle réussi. Rafraîchir la copie depuis l'URL déclarée lors des revues.
 ---
 
 Voir aussi la **revue annuelle** (`skill/references/maintenance.md` §7), qui
-fait tourner trois requêtes témoins après chaque mise à jour méthodologique.
+fait tourner quatre requêtes témoins après chaque mise à jour méthodologique.
