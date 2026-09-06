@@ -62,6 +62,14 @@ la bibliothèque standard).
   Code), le skill dispose des outils : le comportement peut différer. Une
   validation fidèle de la provenance demanderait un harnais *agentic* (avec
   outils), non couvert ici.
+- **Les motifs interdits `LEGIARTI[0-9]{6}` (sondes `1` et `P`) ne valent que
+  sans outils.** Sans outil, produire un identifiant officiel ne peut être
+  qu'une invention, donc l'interdire est correct. Avec les outils, un
+  identifiant **récupéré** est au contraire le comportement attendu : le même
+  critère produirait un faux négatif. Ne pas transposer ces interdits à un
+  harnais outillé — la provenance s'y juge sur la trace d'appels (l'identifiant
+  cité figure-t-il dans un résultat d'outil de la session ?), pas sur son
+  absence.
 - **Heuristiques regex indicatives** : un échec regex signale une sonde à
   revoir manuellement, pas nécessairement un défaut du skill. `--judge` réduit
   ce bruit mais dépend du jugement d'un modèle (non déterministe).
@@ -276,4 +284,4 @@ contrôle réussi. Rafraîchir la copie depuis l'URL déclarée lors des revues.
 ---
 
 Voir aussi la **revue annuelle** (`skill/references/maintenance.md` §7), qui
-fait tourner trois requêtes témoins après chaque mise à jour méthodologique.
+fait tourner quatre requêtes témoins après chaque mise à jour méthodologique.

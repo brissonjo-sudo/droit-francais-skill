@@ -11,6 +11,61 @@ conservés tels quels pour ne pas casser les liens publiés.
 
 ---
 
+### [3.3.1] — 2026-09-06
+
+Release corrective, préalable à la mise sous mesure du noyau. Aucune règle
+méthodologique n'est ajoutée, retirée ni modifiée. Elle corrige ce que la
+documentation du dépôt affirmait de faux sur elle-même : une méthodologie qui
+se décrit mal se transmet mal, et le vault sert de mémoire d'une session à la
+suivante.
+
+#### Corrigé
+- `SKILL.md` : renvoi vers un « §0.5 » absent de sa propre numérotation — le
+  chargement du profil est au §0.
+- `SKILL.md` §7 : les deux gabarits littéraux (abstention motivée, question
+  préalable) commençaient par `##` **à l'intérieur** d'un bloc de code. Tout
+  outil extrayant le plan par `^## ` voyait deux sections fantômes. Passés en
+  gras ; le gabarit reste utilisable tel quel.
+- `references/{audit-documentaire,gabarits-sortie,modules}.md` : suffixe
+  « (v3.2.0) » retiré des titres. Un titre versionné dérive à chaque cycle et
+  n'est vérifié par aucun test ; la version vit dans le frontmatter et ici.
+- `references/maintenance.md` §0 : l'archivage dans un dossier `archive/`
+  était prescrit alors que ce dossier n'existe pas. Une étape inapplicable est
+  une étape sautée. L'archive réelle — historique Git et note de version du
+  vault — est nommée à sa place.
+- `references/maintenance.md` §3 : la liste CI omettait `unittest`,
+  `check_plugin`, `check_vault` et `check_affirmations`, laissant croire à un
+  angle mort là où le garde-fou existe.
+- `vault/index-recherche-juridique.md`, `matrice-modes.md`,
+  `modules-declencheurs.md`, `procedure-compacte.md` : le vault décrivait
+  encore le noyau d'avant la v3.2.0 — 14 modes au lieu de 18, 5 modules au
+  lieu de 6, rôle (c) de l'étape 7 figé sur « jury concours » alors que la
+  v3.0.0 l'a rendu paramétrable par le profil. Les modes 15 à 18 sont ajoutés
+  à la matrice avec leur garde-fou réel (la route DOC-AUDIT du §2 bis) et le
+  mécanisme précis de `audit-documentaire.md` pour chacun.
+- `tests/check_vault.py` (docstring), `docs/article.md` : mentions de
+  « quatorze modes ». L'article étant daté, il signale l'évolution plutôt que
+  de réécrire sa genèse.
+- `tests/README.md` : « trois requêtes témoins » → quatre, depuis la v3.2.0.
+
+#### Ajouté
+- `tests/run_eval.py` (docstring) et `tests/README.md` : les motifs interdits
+  `LEGIARTI[0-9]{6}` des sondes 1 et P **ne valent que sans outils**. Avec les
+  outils, un identifiant récupéré est le comportement attendu et l'interdit
+  deviendrait un faux négatif. La règle est écrite là où elle sera lue au
+  moment de transposer les sondes à un harnais outillé.
+
+#### Vérifié sans changement
+- `--model claude-opus-4-8` de `run_eval.py` : identifiant valide de l'API
+  Messages (Claude Opus 4.8). Conservé.
+- Aucune modification des principes P1–P7, des 9 étapes, des 18 modes, des
+  techniques T1–T4, des 6 modules ni des 10 déclencheurs d'abstention.
+- Déclinaisons (`gemini_skill`, `grok_skill`, `manus_skill`, `vibe_skill`),
+  `gemini_agent/` et manifestes de plugin : intouchés. Un PATCH du noyau ne
+  déclenche pas de resynchronisation.
+
+---
+
 ### [3.3.0-gemini] — 2026-09-06
 
 Déclinaison **Gemini** (Google) de la méthodologie, dans `gemini_skill/`. Elle

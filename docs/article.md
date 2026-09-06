@@ -42,7 +42,9 @@ l'avocat devant le TA d'Orléans.
 
 Ma première étape a été de cesser de parler d'« hallucinations » au
 singulier — mot trop vague — et de disséquer **comment** une IA se trompe en
-droit. J'ai isolé **quatorze modes d'erreur** récurrents. Parmi eux :
+droit. J'ai isolé **quatorze modes d'erreur** récurrents — ils sont dix-huit
+depuis la v3.2.0, qui a ajouté ceux de l'audit de documents existants. Parmi
+eux :
 
 - **L'hallucination de référence** — l'arrêt ou l'article qui n'existe pas.
 - **L'effet de cutoff** — une réforme postérieure à l'entraînement ignorée

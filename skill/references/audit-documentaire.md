@@ -1,4 +1,4 @@
-# Audit juridique de documents existants — protocole bloquant (v3.2.0)
+# Audit juridique de documents existants — protocole bloquant
 
 > Référencé depuis `SKILL.md §2 bis` et le module DOC-AUDIT.
 > Lire ce fichier intégralement dès qu'un document existant doit être

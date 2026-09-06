@@ -4,7 +4,7 @@ tags: [skill/recherche-juridique, reference]
 
 # Modules, techniques, abstention
 
-## 5 Modules activables (mode A)
+## 6 Modules activables (mode A)
 
 Règle conservatrice : en cas de doute sur le déclenchement, le module s'active. Mode B force tous les modules.
 
@@ -15,6 +15,7 @@ Règle conservatrice : en cas de doute sur le déclenchement, le module s'active
 | **PA-PJ** | Opération susceptible d'être PA ou PJ : constatation, interpellation, contrôle, mesure préventive | Mini-grille obligatoire : finalité (préventive PA / répressive PJ) ? autorité agissante ? temporalité par rapport au fait ? régime procédural applicable ? |
 | **FOND** | Niveau exigence = note de fond / citation pour acte / concours ; ou interprétation explicitement controversée | T3 (archéologie textuelle) obligatoire. Grille autorité jurisprudentielle par arrêt : principe / constante / isolée / factuellement atypique / formation solennelle ou ordinaire / ratio decidendi / obiter dictum |
 | **CONTENTIEUX** | Question portant sur risque de recours / stratégie procédurale / voie de droit envisagée | Identifier régime contentieux : REP / plein contentieux / référé suspension / référé liberté / exception illégalité / nullité pénale. Conséquences : office du juge + charge argumentative + moyens opérants + délais de recours |
+| **DOC-AUDIT** | Audit, relecture ou correction juridique d'un ou plusieurs fichiers | Non désactivable par `[express]`. Route obligatoire du §2 bis : registre exhaustif des affirmations, risque élevé vérifié à 100 %, matrice acteur–lieu–propriétaire–pouvoir, double test source / conséquence, cohérence du corpus, contrôle post-correction. Bloque les [[matrice-modes|modes 15 à 18]] |
 
 ## 4 Techniques de raisonnement
 
