@@ -1,4 +1,4 @@
-# Gabarits de sortie — détail (v3.2.0)
+# Gabarits de sortie — détail
 
 > Référencé depuis `SKILL.md §6`. Lire ce fichier avant toute rédaction de livrable.
 > Tout gabarit commence par l'en-tête standardisé et se termine par l'encart récapitulatif.

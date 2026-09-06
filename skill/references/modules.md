@@ -1,4 +1,4 @@
-# Modules activables — détail (v3.2.0)
+# Modules activables — détail
 
 > Référencé depuis `SKILL.md §5`. Lire ce fichier dès qu'un module s'active.
 > **Règle conservatrice : en cas de doute sur le déclenchement, le module s'active.**

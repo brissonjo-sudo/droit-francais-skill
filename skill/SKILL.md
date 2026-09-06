@@ -30,7 +30,7 @@ metadata:
 > **Public** : praticiens du droit français. Le métier de l'utilisateur
 > (contexte territorial, domaines prioritaires, 3ᵉ regard d'auto-critique)
 > se configure via un **profil** — voir `profil.md` et le dossier
-> [`profils/`](profils/) (§0.5). Tout livrable peut finir dans un acte
+> [`profils/`](profils/) (§0, *Chargement du profil*). Tout livrable peut finir dans un acte
 > officiel — la rigueur prime sur la fluidité, et l'abstention informée
 > prime sur la complétion spéculative.
 
@@ -836,7 +836,7 @@ spéculer, dans **dix cas** :
 **Format d'abstention motivée** :
 
 ```
-## ⚠️ Information non vérifiable — abstention motivée
+**⚠️ Information non vérifiable — abstention motivée**
 
 Je ne peux pas produire de citation fiable pour [référence] à la
 date du [date] pour la raison suivante : [motif précis dans la
@@ -853,7 +853,7 @@ Je préfère m'abstenir plutôt que spéculer.
 **Format de clarification motivée (cas n° 10, étape 0 bis)** :
 
 ```
-## Question préalable nécessaire
+**Question préalable nécessaire**
 
 Un point conditionne la réponse et je ne peux pas le trancher seul :
 [formulation fermée ou à choix de la question].
