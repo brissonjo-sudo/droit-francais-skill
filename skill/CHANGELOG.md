@@ -11,6 +11,51 @@ conservés tels quels pour ne pas casser les liens publiés.
 
 ---
 
+### [3.3.0-manus] — 2026-09-06
+
+Déclinaison **Manus** de la méthodologie, dans `manus_skill/`. Elle ne modifie
+pas le noyau `skill/`, qui reste la source de vérité.
+
+#### Ajouté
+- `manus_skill/SKILL.md` : noyau condensé reprenant les principes P1 à P7, la
+  procédure interne, la traçabilité proportionnée et la triangulation ciblée
+  de la 3.3.0.
+- `manus_skill/references/{sources-autorisees,modules.md}` : ordre de
+  recherche et autorité des sources ; six modules activables.
+- `manus_skill/README.md` : ce que la déclinaison conserve, remplace et
+  laisse de côté par rapport au noyau.
+
+#### Modifié
+- L'échelle de récupération privilégie le **connecteur MCP personnalisé**
+  de Manus (Settings → Integrations → Custom MCP Servers), qui permet de
+  connecter le serveur MCP de ce dépôt avec ses six outils exacts, vérifiés
+  dans `mcp_server/server.py`. La capacité web native de Manus sert de repli,
+  sans nom d'outil supposé — Manus ne publie pas ce nom dans sa documentation
+  publique, contrairement au registre ouvert de Vibe Code.
+
+### [3.3.0-vibe] — 2026-09-05
+
+Déclinaison **Vibe** (Mistral) de la méthodologie, dans `vibe_skill/`. Elle
+ne modifie pas le noyau `skill/`, qui reste la source de vérité.
+
+#### Ajouté
+- `vibe_skill/SKILL.md` : noyau condensé reprenant les principes P1 à P7, la
+  procédure interne, la traçabilité proportionnée et la triangulation ciblée
+  de la 3.3.0.
+- `vibe_skill/README.md` : installation sous `.vibe/skills/`,
+  `.agents/skills/` ou `~/.vibe/skills/`, un dossier par skill nommé comme
+  le champ `name:` du frontmatter.
+- `vibe_skill/tools/` : squelette non connecté de normalisation, avec
+  avertissement explicite sur ce qu'il ne fait pas.
+
+#### Modifié
+- L'échelle de récupération utilise les outils natifs de Vibe Code,
+  `web_search` (paramètre `query`) et `web_fetch` (paramètre `url`), vérifiés
+  contre le registre public `mistralai/mistral-vibe`. Poussée initialement
+  avec des noms d'outils inexistants (`web_search_web_search`,
+  `web_search_open_url`) et une installation qui ne correspondait pas à la
+  découverte réelle des skills par Vibe ; corrigé après vérification.
+
 ### [3.3.0-grok] — 2026-09-05
 
 Déclinaison **Grok** de la méthodologie, dans `grok_skill/`. Elle ne modifie
