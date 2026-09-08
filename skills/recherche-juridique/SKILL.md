@@ -7,6 +7,6 @@ description: Méthodologie rigoureuse de recherche en droit français avec sourc
 
 Ce point d'entrée rend le skill historique disponible dans le paquet plugin sans le dupliquer ni modifier son mode d'installation autonome.
 
-Avant toute analyse juridique, lire intégralement [`../../skill/SKILL.md`](../../skill/SKILL.md) et appliquer ses instructions. Résoudre ensuite ses références, profils et scripts relativement au dossier `skill/`, qui reste l'unique source de vérité méthodologique.
+Avant toute analyse juridique, lire intégralement [`../../skill/SKILL.md`](../../skill/SKILL.md) et appliquer ses instructions, y compris sa vérification de disponibilité d'une mise à jour. Résoudre ensuite ses références, profils et scripts relativement au dossier `skill/`, qui reste l'unique source de vérité méthodologique.
 
 Si le fichier cible est absent ou illisible, signaler que l'installation du plugin est incomplète. Ne pas improviser de règle juridique ni d'identifiant officiel pour compenser.

@@ -1,6 +1,6 @@
 # droit-francais-skill
 
-**Skill LLM — méthodologie de recherche en droit français (v3.2.1)**
+**Skill LLM — méthodologie de recherche en droit français (v3.2.3)**
 
 **Distribution autonome + plugins OpenAI et Claude Code avec outils MCP (plugin v0.8.1)**
 
@@ -146,6 +146,40 @@ contexte et pose la question quand elle devient décisionnelle.
 
 ## Installation
 
+### Installation suivie et mises à jour via `npx` (recommandée)
+
+Pour que le CLI conserve la source du skill et puisse le mettre à jour sans
+recopie manuelle :
+
+```bash
+npx skills add https://github.com/brissonjo-sudo/droit-francais-skill/tree/main/skill --skill recherche-juridique
+```
+
+Le skill vérifie une fois par session si une nouvelle version est disponible,
+sans interrompre une recherche juridique. Si une mise à jour est signalée,
+l'utilisateur garde la main :
+
+```bash
+npx skills update recherche-juridique
+```
+
+La commande ne doit pas être lancée automatiquement par l'agent. Pour mettre
+à jour toutes les compétences suivies : `npx skills update`.
+
+#### Mises à jour automatiques (facultatif)
+
+Pour une installation **globale** suivie par le CLI `skills`, créez le fichier
+`.recherche-juridique-update.json` à la racine installée du skill :
+
+```json
+{ "automatic": true }
+```
+
+Au premier emploi quotidien, le skill lance alors sa mise à jour ciblée. Il
+conserve votre `profil.md` et votre fichier `scripts/.env`; il reste silencieux
+en l'absence de nouvelle version ou si le réseau est indisponible. Pour couper
+ce comportement, remplacez `true` par `false` ou supprimez le fichier.
+
 ### Comme plugin OpenAI — outils MCP locaux v0.8.1
 
 Le dépôt contient désormais un manifeste `.codex-plugin/plugin.json` et un
@@ -258,7 +292,7 @@ Le skill s'active automatiquement quand vous :
 
 ---
 
-## Arborescence (skill v3.2.1 / plugin v0.8.1)
+## Arborescence (skill v3.2.3 / plugin v0.8.1)
 
 ```
 droit-francais-skill/
@@ -298,6 +332,7 @@ droit-francais-skill/
 │   │   └── format-citation.md      ← formats de citation normalisés (complément P4)
 │   └── scripts/                    ← outillage Palier 3
 │       ├── legifrance.py           ← API Légifrance + Judilibre (via PISTE)
+│       ├── update_skill.py          ← mise à jour automatique optionnelle
 │       ├── droit_francais/         ← bibliothèque réutilisable embarquée
 │       │   ├── errors.py           ← erreurs et codes de sortie communs
 │       │   ├── config.py           ← environnements et chargement .env

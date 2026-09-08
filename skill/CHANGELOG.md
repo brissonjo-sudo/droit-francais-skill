@@ -11,6 +11,23 @@ conservés tels quels pour ne pas casser les liens publiés.
 
 ---
 
+### [3.2.3] — 2026-09-09
+
+#### Ajouté
+- **Détection fluide des mises à jour** : au premier usage d'une session, le
+  skill peut consulter `npx skills check` lorsque le CLI est disponible. Une
+  version périmée est signalée brièvement, sans interrompre l'analyse, avec la
+  commande ciblée `npx skills update recherche-juridique`.
+- **Mode automatique sur consentement explicite** : le nouveau lanceur
+  `scripts/update_skill.py` actualise une installation globale suivie, au plus
+  une fois par 24 heures, après activation dans
+  `.recherche-juridique-update.json`. Il restaure `profil.md` et `.env` après
+  la mise à jour et ne signale qu'un changement de version effectif.
+- **Garde-fous d'expérience et de sécurité** : aucun message si le contrôle
+  est indisponible ou ne détecte rien ; le mode automatique reste désactivé
+  par défaut ; les installations gérées par un marketplace conservent leur
+  mécanisme propre.
+
 ### [3.2.1] — 2026-09-04
 
 Issue d'un audit de fraîcheur juridique portant sur ce skill et sur
