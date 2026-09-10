@@ -11,12 +11,12 @@ description: Méthodologie rigoureuse de recherche en droit français (sources
   un écrit ou oral de concours avec références juridiques. Ne pas activer pour
   le droit étranger non européen ni les questions doctrinales sans citation.
 metadata:
-  version: 3.2.1
+  version: 3.2.2
   date_derniere_revue_methodologique: 2026-08-27
   date_derniere_verification_sources: 2026-09-04
   langue: français
 ---
-# Skill : recherche-juridique (v3.2.1)
+# Skill : recherche-juridique (v3.2.2)
 
 > **Objet** : encoder la méthodologie rigoureuse de recherche en droit
 > français applicable à tout usage professionnel — avocat, juriste,

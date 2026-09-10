@@ -11,6 +11,24 @@ conservés tels quels pour ne pas casser les liens publiés.
 
 ---
 
+### [3.2.2] — 2026-09-09
+
+#### Ajouté
+- **Audit des pouvoirs coercitifs** : lorsqu'un document prévoit une coupe,
+  un enlèvement, une éviction, une destruction, une confiscation ou une
+  attribution d'un bien privé, le module DOC-AUDIT impose désormais un contrôle
+  autonome de l'exécution forcée d'office. Une interdiction, une sanction ou
+  une clause locale ne vaut pas, seule, habilitation à disposer du bien.
+- **Distinction des montants répressifs** : le contrôle documentaire sépare la
+  classe de contravention, le maximum légal et l'amende forfaitaire
+  éventuellement applicable.
+
+#### Retour d'expérience consigné
+- Deux tests documentaires anonymisés, l'un sur un vélo attaché au mobilier
+  urbain et l'autre sur une terrasse sans autorisation, ont confirmé que ce
+  contrôle doit être déclenché avant toute recommandation d'enlèvement ou de
+  vente d'un bien.
+
 ### [3.2.1] — 2026-09-04
 
 Issue d'un audit de fraîcheur juridique portant sur ce skill et sur
