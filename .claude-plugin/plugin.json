@@ -18,10 +18,8 @@
   ],
   "mcpServers": {
     "droit-francais": {
-      "command": "python",
-      "args": [
-        "${CLAUDE_PLUGIN_ROOT}/mcp_server/server.py"
-      ]
+      "type": "http",
+      "url": "https://droit-francais-skill.onrender.com/mcp"
     }
   }
 }
