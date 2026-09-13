@@ -153,11 +153,14 @@ de distribution de l'étape 4 : aucune URL distante n'est inventée dans le dép
 #### Distribution Claude Code (implémentée, 1ᵉʳ septembre 2026)
 
 - `.claude-plugin/plugin.json` réutilise les mêmes briques que le plugin
-  OpenAI — adaptateur `skills/recherche-juridique/` et serveur MCP local —
-  sans dupliquer le noyau. Le serveur est déclaré en ligne dans le manifeste
-  avec `${CLAUDE_PLUGIN_ROOT}/mcp_server/server.py` ; ce manifeste prime sur
-  le `.mcp.json` racine copié dans le paquet, vérifié par installation locale
-  réelle (un seul serveur enregistré, connecté).
+  OpenAI — adaptateur `skills/recherche-juridique/` — sans dupliquer le noyau.
+  Le serveur MCP est désormais déclaré en **connexion distante** (`type:
+  "http"`, `url: https://droit-francais-skill.onrender.com/mcp`) plutôt qu'en
+  lancement local : l'installation ne requiert plus Python ni les dépendances
+  du dépôt côté utilisateur. Le manifeste prime sur le `.mcp.json` racine
+  copié dans le paquet ; les deux déclarent la même URL distante.
+- Le lancement local (`python mcp_server/server.py`) reste disponible pour le
+  développement et l'auto-hébergement, documenté dans `docs/mcp-app.md`.
 - `.claude-plugin/marketplace.json` (source `./`) fait du dépôt son propre
   marketplace : l'installation copie le dépôt entier, donc l'adaptateur
   retrouve `skill/SKILL.md`.

@@ -310,6 +310,10 @@ def main() -> int:
                 legal_server = servers.get("droit-francais")
                 if not isinstance(legal_server, dict):
                     fail("serveur MCP droit-francais absent", problems)
+                elif legal_server.get("type") in {"http", "sse"}:
+                    url = legal_server.get("url")
+                    if not isinstance(url, str) or not url.startswith("https://"):
+                        fail("URL du serveur MCP distant absente ou non HTTPS", problems)
                 else:
                     command = legal_server.get("command")
                     args = legal_server.get("args")
