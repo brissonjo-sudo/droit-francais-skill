@@ -11,6 +11,42 @@ conservés tels quels pour ne pas casser les liens publiés.
 
 ---
 
+### [plugin-v0.8.3] — 2026-09-14
+
+Correction d'empaquetage du plugin Claude Code. Le noyau méthodologique
+(`skill/`, série 3.x) n'est pas touché.
+
+#### Corrigé
+- Le README décrivait l'installation du plugin Claude Code comme reposant sur
+  un serveur MCP **local** déclaré avec `${CLAUDE_PLUGIN_ROOT}`, et annonçait
+  deux prérequis en conséquence : un `python` dans le PATH et des identifiants
+  PISTE sur le poste. Le manifeste déclarait en réalité une **connexion
+  distante** : ces prérequis étaient faux. La section est réécrite sur le
+  transport réel, le lancement local devenant une variante documentée.
+- `docs/architecture-plugin.md` portait la même affirmation périmée dans son
+  schéma d'arborescence.
+
+#### Retiré
+- La déclaration `mcpServers` de `.claude-plugin/plugin.json`. Le `.mcp.json`
+  de la racine est repris automatiquement par Claude Code pour un plugin :
+  l'URL du service y était écrite deux fois, donc corrigible à moitié.
+  Vérifié sur l'inventaire de composants du plugin, serveur MCP toujours
+  découvert sans ce bloc.
+
+#### Modifié
+- `tests/check_plugin.py` contrôle désormais aussi le socle Claude Code :
+  `.claude-plugin/plugin.json` et `.claude-plugin/marketplace.json`. Jusqu'ici
+  seul `.codex-plugin/plugin.json` était lu, alors que `.github/auto-review.md`
+  affirmait que ce vérificateur couvrait le manifeste Claude Code. Sont
+  vérifiés : le nom en kebab-case, la version en SemVer strict, son égalité
+  avec `SERVER_VERSION`, le propriétaire du marketplace, la référence au
+  plugin, la `source` `./` et l'accord de version entre les deux fichiers.
+
+#### Tests
+- `tests/test_check_plugin.py` : chaque invariant du nouveau contrôle est
+  éprouvé sur un couple manifeste/marketplace qui le viole, plus deux contrôles
+  sur le dépôt réel — dont l'absence de duplication MCP dans le manifeste.
+
 ### [3.3.0-gemini] — 2026-09-06
 
 Déclinaison **Gemini** (Google) de la méthodologie, dans `gemini_skill/`. Elle
