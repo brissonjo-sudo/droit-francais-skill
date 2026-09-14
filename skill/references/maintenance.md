@@ -16,9 +16,9 @@ actif** (section 3 de `profil.md`).
 
 1. Ouvrir le SKILL.md courant et vérifier l'en-tête YAML : `version`,
    `date_derniere_revue_methodologique`, `date_derniere_verification_sources`.
-2. Archiver la version précédente dans `archive/`
-   sous la forme `SKILL-vX.Y.Z-AAAA-MM-JJ.md` avant toute modification
-   structurante.
+2. L'historique Git et la note de version du vault
+   (`vault/recherche-juridique vX.Y.Z.md`) tiennent lieu d'archive : le
+   dépôt ne conserve pas de copie datée du SKILL.md.
 3. Préparer un brouillon d'entrée CHANGELOG datée du jour.
 
 ---
@@ -112,8 +112,9 @@ actif** (section 3 de `profil.md`).
 - `references/modes-erreur.md` : garder synchronisé avec la table du §1
   (mêmes 18 intitulés, même numérotation).
 - **CI** : vérifier que `.github/workflows/ci.yml` passe au vert
-  (`py_compile`, `check_links.py`, `check_commands.py`, `run_eval.py`
-  hors-ligne).
+  (`py_compile`, `python -m unittest discover -s tests`, `check_plugin.py`,
+  `check_links.py`, `check_vault.py`, `check_affirmations.py`,
+  `check_commands.py`, `run_eval.py` hors-ligne).
 - `checklist-vigueur.md` : aligner si des points de vigilance nouveaux
   ont émergé (ex. nouvelle disposition transitoire récurrente, nouveau
   type de renvoi normatif).

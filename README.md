@@ -1,8 +1,8 @@
 # droit-francais-skill
 
-**Skill LLM — méthodologie de recherche en droit français (v3.3.0)**
+**Skill LLM — méthodologie de recherche en droit français (v3.5.0)**
 
-**Distribution autonome + plugins OpenAI et Claude Code avec outils MCP (plugin v0.8.2)**
+**Distribution autonome + plugins OpenAI et Claude Code avec outils MCP (plugin v0.8.3)**
 
 [![CI](https://github.com/brissonjo-sudo/droit-francais-skill/actions/workflows/ci.yml/badge.svg)](https://github.com/brissonjo-sudo/droit-francais-skill/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/brissonjo-sudo/droit-francais-skill)](https://github.com/brissonjo-sudo/droit-francais-skill/releases)
@@ -146,7 +146,41 @@ contexte et pose la question quand elle devient décisionnelle.
 
 ## Installation
 
-### Comme plugin OpenAI — outils MCP locaux v0.8.2
+### Installation suivie et mises à jour via `npx` (recommandée)
+
+Pour que le CLI conserve la source du skill et puisse le mettre à jour sans
+recopie manuelle :
+
+```bash
+npx skills add https://github.com/brissonjo-sudo/droit-francais-skill/tree/main/skill --skill recherche-juridique
+```
+
+Le skill vérifie une fois par session si une nouvelle version est disponible,
+sans interrompre une recherche juridique. Si une mise à jour est signalée,
+l'utilisateur garde la main :
+
+```bash
+npx skills update recherche-juridique
+```
+
+La commande ne doit pas être lancée automatiquement par l'agent. Pour mettre
+à jour toutes les compétences suivies : `npx skills update`.
+
+#### Mises à jour automatiques (facultatif)
+
+Pour une installation **globale** suivie par le CLI `skills`, créez le fichier
+`.recherche-juridique-update.json` à la racine installée du skill :
+
+```json
+{ "automatic": true }
+```
+
+Au premier emploi quotidien, le skill lance alors sa mise à jour ciblée. Il
+conserve votre `profil.md` et votre fichier `scripts/.env`; il reste silencieux
+en l'absence de nouvelle version ou si le réseau est indisponible. Pour couper
+ce comportement, remplacez `true` par `false` ou supprimez le fichier.
+
+### Comme plugin OpenAI — outils MCP locaux v0.8.3
 
 Le dépôt contient désormais un manifeste `.codex-plugin/plugin.json` et un
 point d'entrée natif `skills/recherche-juridique/`. L'adaptateur charge le
@@ -183,13 +217,14 @@ le [guide OAuth](docs/oauth.md). Le mapping
 `.app.json` ne sera ajouté qu'après création d'une intégration réelle ; aucun
 identifiant distant fictif n'est placé dans le dépôt.
 
-### Comme plugin Claude Code — v0.8.2
+### Comme plugin Claude Code — v0.8.3
 
 Le manifeste `.claude-plugin/plugin.json` réutilise les mêmes briques que le
 plugin OpenAI : le point d'entrée `skills/recherche-juridique/` (adaptateur
-vers le noyau `skill/`) et le serveur MCP local, déclaré avec
-`${CLAUDE_PLUGIN_ROOT}` pour résoudre les chemins une fois le plugin installé.
-Le dépôt sert aussi de marketplace (`.claude-plugin/marketplace.json`) :
+vers le noyau `skill/`). Le serveur MCP est déclaré une seule fois, dans le
+`.mcp.json` de la racine que Claude Code reprend automatiquement, en
+**connexion distante** vers le service déployé. Le dépôt sert aussi de
+marketplace (`.claude-plugin/marketplace.json`) :
 
 ```bash
 claude plugin marketplace add brissonjo-sudo/droit-francais-skill
@@ -200,13 +235,34 @@ Ou, en session interactive : `/plugin marketplace add
 brissonjo-sudo/droit-francais-skill` puis `/plugin install
 droit-francais-skill@droit-francais`.
 
-Deux prérequis côté poste : un `python` accessible dans le PATH avec les
-dépendances du serveur (`python -m pip install -r requirements-mcp.txt`), et
-les identifiants PISTE fournis par variables d'environnement ou par un `.env`
-désigné via `LEGIFRANCE_DOTENV` — le `.env` n'étant pas versionné, il ne
-voyage pas avec le plugin. Sans identifiants, le skill méthodologique reste
-pleinement fonctionnel ; seuls les outils MCP de récupération déterministe
-sont indisponibles.
+**Aucun prérequis côté poste** : ni Python, ni dépendances, ni identifiants
+PISTE. Le service distant porte ses propres clés et l'accès est protégé par
+OAuth 2.1 avec quota par utilisateur — voir le [guide OAuth](docs/oauth.md).
+
+#### Variante — serveur MCP local
+
+Pour l'auto-hébergement ou le développement, remplacer la déclaration du
+`.mcp.json` par un lancement local, `${CLAUDE_PLUGIN_ROOT}` résolvant le
+chemin une fois le plugin installé :
+
+```json
+{
+  "mcpServers": {
+    "droit-francais": {
+      "command": "python",
+      "args": ["${CLAUDE_PLUGIN_ROOT}/mcp_server/server.py"]
+    }
+  }
+}
+```
+
+Cette variante, elle, suppose un `python` dans le PATH avec les dépendances
+(`python -m pip install -r requirements-mcp.txt`) et les identifiants PISTE
+fournis par variables d'environnement ou par un `.env` désigné via
+`LEGIFRANCE_DOTENV` — le `.env` n'étant pas versionné, il ne voyage pas avec
+le plugin. Sans identifiants, le skill méthodologique reste pleinement
+fonctionnel ; seuls les outils MCP de récupération déterministe sont
+indisponibles.
 
 ### Comme skill Claude Code — inchangé
 
@@ -274,7 +330,7 @@ Le skill s'active automatiquement quand vous :
 
 ---
 
-## Arborescence (skill v3.3.0 / plugin v0.8.2)
+## Arborescence (skill v3.5.0 / plugin v0.8.3)
 
 ```
 droit-francais-skill/
@@ -314,6 +370,7 @@ droit-francais-skill/
 │   │   └── format-citation.md      ← formats de citation normalisés (complément P4)
 │   └── scripts/                    ← outillage Palier 3
 │       ├── legifrance.py           ← API Légifrance + Judilibre (via PISTE)
+│       ├── update_skill.py          ← mise à jour automatique optionnelle
 │       ├── droit_francais/         ← bibliothèque réutilisable embarquée
 │       │   ├── errors.py           ← erreurs et codes de sortie communs
 │       │   ├── config.py           ← environnements et chargement .env

@@ -45,6 +45,16 @@ class FrontmatterTests(unittest.TestCase):
         self.assertEqual(parse_frontmatter("# Titre\n"), {})
 
 
+class MiseAJourSkillTests(unittest.TestCase):
+    def test_le_noyau_decrit_un_controle_unique_et_non_intrusif(self):
+        noyau = (ROOT / "skill" / "SKILL.md").read_text(encoding="utf-8")
+        self.assertIn("## Mise à jour — contrôle par session, automatique sur option", noyau)
+        self.assertIn("`npx skills check`", noyau)
+        self.assertIn("`npx skills update recherche-juridique`", noyau)
+        self.assertIn("Mode automatique explicite", noyau)
+        self.assertIn(".recherche-juridique-update.json", noyau)
+
+
 class CatalogueTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

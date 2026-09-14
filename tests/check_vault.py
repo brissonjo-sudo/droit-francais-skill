@@ -71,8 +71,8 @@ def _notions_declarees(texte_index: str) -> set[str]:
     Elles sont écrites en ``code`` dans la section de déclaration — c'est
     justement pour ne pas créer les nœuds fantômes que cette section annonce
     comme inexistants. Le préfixe est conservé sans sa partie variable, pour
-    qu'une déclaration de ``mode 1``–``mode 14`` couvre ``mode 10`` sans que
-    l'index ait à énumérer les quatorze.
+    qu'une déclaration de ``mode 1``–``mode 18`` couvre ``mode 10`` sans que
+    l'index ait à énumérer les dix-huit.
     """
     debut = texte_index.find(SECTION_DECLARATION)
     if debut == -1:

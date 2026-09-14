@@ -50,5 +50,6 @@ contrôles proportionné au livrable, sans en retirer aucun.
 
 - [[index-recherche-juridique]] — navigation principale
 - [[recherche-juridique v3.0.0]] — version précédente
+- [[recherche-juridique v3.4.0]] — version suivante
 - [[procedure-compacte]] — étapes 2, 4 et 7 revues
 - [[matrice-modes]] — P3 revu

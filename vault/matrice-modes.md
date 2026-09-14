@@ -22,6 +22,16 @@ tags: [skill/recherche-juridique, reference]
 | 12 | Oubli renvois normatifs | E2, E5 |
 | 13 | Inversion cumulatif/alternatif | E2 |
 | 14 | Faux positif textuel / mauvaise fonction juridique | P4, P5, P6, E0, E0bis, E4, E6, E7 |
+| 15 | Validation héritée d'un audit antérieur | §2 bis (indépendance et delta temporel), E6 |
+| 16 | Citation exacte, conséquence fausse | §2 bis (double test source / conséquence), E6 |
+| 17 | Mauvais acteur–lieu–propriétaire–pouvoir | §2 bis (matrice acteur–lieu–propriétaire–pouvoir), E0 |
+| 18 | Incohérence de corpus | §2 bis (cohérence de corpus, contrôle post-correction) |
+
+Les modes 15 à 18 sont apparus en v3.2.0 avec la route **DOC-AUDIT**
+(`SKILL.md §2 bis`, détail dans [[procedure-compacte]] et
+`../skill/references/audit-documentaire.md`). Ils ne sont pas bloqués par un
+principe pris isolément mais par un protocole bloquant, obligatoire dès qu'un
+document existant est audité ou corrigé — y compris sous `[express]`.
 
 ## Principes → modes bloqués
 

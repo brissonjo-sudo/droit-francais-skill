@@ -11,6 +11,144 @@ conservés tels quels pour ne pas casser les liens publiés.
 
 ---
 
+### [3.5.0] — 2026-09-14
+
+Préparée le 2026-09-09 sous le numéro 3.2.2, renumérotée après la 3.4.1.
+MINEUR : un contrôle obligatoire s'ajoute au module DOC-AUDIT
+(`maintenance.md` §5).
+
+#### Ajouté
+- **Audit des pouvoirs coercitifs** : lorsqu'un document prévoit une coupe,
+  un enlèvement, une éviction, une destruction, une confiscation ou une
+  attribution d'un bien privé, le module DOC-AUDIT impose désormais un contrôle
+  autonome de l'exécution forcée d'office. Une interdiction, une sanction ou
+  une clause locale ne vaut pas, seule, habilitation à disposer du bien.
+- **Distinction des montants répressifs** : le contrôle documentaire sépare la
+  classe de contravention, le maximum légal et l'amende forfaitaire
+  éventuellement applicable.
+
+#### Retour d'expérience consigné
+- Deux tests documentaires anonymisés, l'un sur un vélo attaché au mobilier
+  urbain et l'autre sur une terrasse sans autorisation, ont confirmé que ce
+  contrôle doit être déclenché avant toute recommandation d'enlèvement ou de
+  vente d'un bien. Consignés dans `vault/retex-tests.md`.
+
+### [3.4.1] — 2026-09-14
+
+Release corrective, préalable à la mise sous mesure du noyau. Aucune règle
+méthodologique n'est ajoutée, retirée ni modifiée. Elle corrige ce que la
+documentation du dépôt affirmait de faux sur elle-même : une méthodologie qui
+se décrit mal se transmet mal, et le vault sert de mémoire d'une session à la
+suivante.
+
+#### Corrigé
+- `SKILL.md` : renvoi vers un « §0.5 » absent de sa propre numérotation — le
+  chargement du profil est au §0.
+- `SKILL.md` §7 : les deux gabarits littéraux (abstention motivée, question
+  préalable) commençaient par `##` **à l'intérieur** d'un bloc de code. Tout
+  outil extrayant le plan par `^## ` voyait deux sections fantômes. Passés en
+  gras ; le gabarit reste utilisable tel quel.
+- `references/{audit-documentaire,gabarits-sortie,modules}.md` : suffixe
+  « (v3.2.0) » retiré des titres. Un titre versionné dérive à chaque cycle et
+  n'est vérifié par aucun test ; la version vit dans le frontmatter et ici.
+- `references/maintenance.md` §0 : l'archivage dans un dossier `archive/`
+  était prescrit alors que ce dossier n'existe pas. Une étape inapplicable est
+  une étape sautée. L'archive réelle — historique Git et note de version du
+  vault — est nommée à sa place.
+- `references/maintenance.md` §3 : la liste CI omettait `unittest`,
+  `check_plugin`, `check_vault` et `check_affirmations`, laissant croire à un
+  angle mort là où le garde-fou existe.
+- `vault/index-recherche-juridique.md`, `matrice-modes.md`,
+  `modules-declencheurs.md`, `procedure-compacte.md` : le vault décrivait
+  encore le noyau d'avant la v3.2.0 — 14 modes au lieu de 18, 5 modules au
+  lieu de 6, rôle (c) de l'étape 7 figé sur « jury concours » alors que la
+  v3.0.0 l'a rendu paramétrable par le profil. Les modes 15 à 18 sont ajoutés
+  à la matrice avec leur garde-fou réel (la route DOC-AUDIT du §2 bis) et le
+  mécanisme précis de `audit-documentaire.md` pour chacun.
+- `tests/check_vault.py` (docstring), `docs/article.md` : mentions de
+  « quatorze modes ». L'article étant daté, il signale l'évolution plutôt que
+  de réécrire sa genèse.
+- `tests/README.md` : « trois requêtes témoins » → quatre, depuis la v3.2.0.
+
+#### Ajouté
+- `tests/run_eval.py` (docstring) et `tests/README.md` : les motifs interdits
+  `LEGIARTI[0-9]{6}` des sondes 1 et P **ne valent que sans outils**. Avec les
+  outils, un identifiant récupéré est le comportement attendu et l'interdit
+  deviendrait un faux négatif. La règle est écrite là où elle sera lue au
+  moment de transposer les sondes à un harnais outillé.
+
+#### Vérifié sans changement
+- `--model claude-opus-4-8` de `run_eval.py` : identifiant valide de l'API
+  Messages (Claude Opus 4.8). Conservé.
+- Aucune modification des principes P1–P7, des 9 étapes, des 18 modes, des
+  techniques T1–T4, des 6 modules ni des 10 déclencheurs d'abstention.
+- Déclinaisons (`gemini_skill`, `grok_skill`, `manus_skill`, `vibe_skill`),
+  `gemini_agent/` et manifestes de plugin : intouchés. Un PATCH du noyau ne
+  déclenche pas de resynchronisation.
+
+### [3.4.0] — 2026-09-14
+
+#### Ajouté
+- **Détection fluide des mises à jour** : au premier usage d'une session, le
+  skill peut consulter `npx skills check` lorsque le CLI est disponible. Une
+  version périmée est signalée brièvement, sans interrompre l'analyse, avec la
+  commande ciblée `npx skills update recherche-juridique`.
+- **Mode automatique sur consentement explicite** : le nouveau lanceur
+  `scripts/update_skill.py` actualise une installation globale suivie, au plus
+  une fois par 24 heures, après activation dans
+  `.recherche-juridique-update.json`. Il restaure `profil.md` et `.env` après
+  la mise à jour et ne signale qu'un changement de version effectif.
+- **Garde-fous d'expérience et de sécurité** : aucun message si le contrôle
+  est indisponible ou ne détecte rien ; le mode automatique reste désactivé
+  par défaut ; les installations gérées par un marketplace conservent leur
+  mécanisme propre.
+
+#### Tests
+- `tests/test_update_skill.py` : 22 tests hors réseau du lanceur — lecture de
+  la version, activation par le seul booléen `true`, échéance de 24 heures
+  (fuseaux, dates invalides), refus des emplacements ambigus, sauvegarde et
+  restauration de `profil.md` et `.env`, et chaque issue de `main()`.
+  Ils ont révélé deux défauts, corrigés avant publication : sous Windows, la
+  commande `["npx", …]` échouait toujours (`npx.cmd` introuvable sans shell),
+  désormais lancée par le chemin que rend `shutil.which` ; et un lancement
+  impossible n'était pas daté, donc retenté à chaque usage.
+
+### [plugin-v0.8.3] — 2026-09-14
+
+Correction d'empaquetage du plugin Claude Code. Le noyau méthodologique
+(`skill/`, série 3.x) n'est pas touché.
+
+#### Corrigé
+- Le README décrivait l'installation du plugin Claude Code comme reposant sur
+  un serveur MCP **local** déclaré avec `${CLAUDE_PLUGIN_ROOT}`, et annonçait
+  deux prérequis en conséquence : un `python` dans le PATH et des identifiants
+  PISTE sur le poste. Le manifeste déclarait en réalité une **connexion
+  distante** : ces prérequis étaient faux. La section est réécrite sur le
+  transport réel, le lancement local devenant une variante documentée.
+- `docs/architecture-plugin.md` portait la même affirmation périmée dans son
+  schéma d'arborescence.
+
+#### Retiré
+- La déclaration `mcpServers` de `.claude-plugin/plugin.json`. Le `.mcp.json`
+  de la racine est repris automatiquement par Claude Code pour un plugin :
+  l'URL du service y était écrite deux fois, donc corrigible à moitié.
+  Vérifié sur l'inventaire de composants du plugin, serveur MCP toujours
+  découvert sans ce bloc.
+
+#### Modifié
+- `tests/check_plugin.py` contrôle désormais aussi le socle Claude Code :
+  `.claude-plugin/plugin.json` et `.claude-plugin/marketplace.json`. Jusqu'ici
+  seul `.codex-plugin/plugin.json` était lu, alors que `.github/auto-review.md`
+  affirmait que ce vérificateur couvrait le manifeste Claude Code. Sont
+  vérifiés : le nom en kebab-case, la version en SemVer strict, son égalité
+  avec `SERVER_VERSION`, le propriétaire du marketplace, la référence au
+  plugin, la `source` `./` et l'accord de version entre les deux fichiers.
+
+#### Tests
+- `tests/test_check_plugin.py` : chaque invariant du nouveau contrôle est
+  éprouvé sur un couple manifeste/marketplace qui le viole, plus deux contrôles
+  sur le dépôt réel — dont l'absence de duplication MCP dans le manifeste.
+
 ### [3.3.0-gemini] — 2026-09-06
 
 Déclinaison **Gemini** (Google) de la méthodologie, dans `gemini_skill/`. Elle
