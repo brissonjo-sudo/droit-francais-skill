@@ -77,6 +77,17 @@ jobs:
           python -m py_compile tests/test_auth.py
           python -m py_compile tests/test_skills.py
           python -m py_compile tests/test_oauth_end_to_end.py
+          python -m py_compile tests/run_bench.py
+          python -m py_compile tests/test_bench.py
+          python -m py_compile tests/bench/agents.py
+          python -m py_compile tests/bench/cadence.py
+          python -m py_compile tests/bench/cases.py
+          python -m py_compile tests/bench/flux.py
+          python -m py_compile tests/bench/jeton.py
+          python -m py_compile tests/bench/juge.py
+          python -m py_compile tests/bench/journal.py
+          python -m py_compile tests/bench/resume.py
+          python -m py_compile tests/bench/verdicts.py
 
       - name: Tester la bibliothèque et le serveur MCP hors réseau
         run: python -m unittest discover -s tests -v
@@ -209,3 +220,10 @@ jobs:
 
       - name: Éval hors-ligne (check-list 18 modes)
         run: python tests/run_eval.py
+
+      # Le benchmark agentique lui-même n'est pas joué en CI : il consomme un
+      # abonnement LLM et le quota PISTE. Seule la validité du corpus est
+      # vérifiée — une sonde qui cite un outil inexistant ou une date non ISO
+      # ne se découvre pas au milieu d'un run de plusieurs heures.
+      - name: Corpus du benchmark agentique (hors réseau)
+        run: python tests/run_bench.py --verifier-corpus

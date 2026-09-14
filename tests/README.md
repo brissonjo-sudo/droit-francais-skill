@@ -74,6 +74,120 @@ la bibliothèque standard).
   revoir manuellement, pas nécessairement un défaut du skill. `--judge` réduit
   ce bruit mais dépend du jugement d'un modèle (non déterministe).
 
+## 1 bis. `run_bench.py` — benchmark agentique (avec outils)
+
+Ce que la section précédente ne peut pas mesurer. `run_eval.py` appelle le
+modèle **sans outils** ; la promesse centrale du skill — « aucune référence ne
+se produit de mémoire » — ne se vérifie qu'avec les outils branchés, en
+regardant si l'identifiant cité provient réellement d'un appel.
+
+Le harnais pilote la **vraie CLI en headless** (`claude -p --output-format
+stream-json`), pas une boucle d'API reconstituée : ce qui est mesuré est la
+méthodologie telle qu'elle s'applique dans la chaîne d'outils distribuée.
+
+### Trois bras, un seul corpus
+
+| Bras | Prompt système | Outils | Ce qu'il mesure |
+|---|---|---|---|
+| **A** | neutre | aucun | témoin — ce que le modèle fait sans la méthode |
+| **B** | `skill/SKILL.md` | aucun | la méthode seule |
+| **C** | `skill/SKILL.md` | connecteur MCP | la production |
+
+Les trois bras sont isolés par `--tools ""` (désactive les outils intégrés,
+sans quoi le « sans outils » n'en est pas un) et `--setting-sources ""` (sans
+quoi le skill installé sur le poste contaminerait le bras A).
+
+### Deux sources de verdict, non substituables
+
+**Contrôles déterministes sur la trace**, dans `bench/verdicts.py` :
+
+| Contrôle | Question |
+|---|---|
+| `provenance` | tout identifiant cité figure-t-il dans un résultat d'outil antérieur ? |
+| `outils_attendus` | l'outil que la sonde attend a-t-il été appelé ? |
+| `appels_interdits` | un outil hors périmètre a-t-il été appelé ? |
+| `plafond` | le nombre d'appels reste-t-il borné ? |
+| `date` | la date de référence a-t-elle été passée à l'outil ? |
+| `secrets` | une valeur secrète fuit-elle dans la trace persistée ? |
+
+**Juge-modèle** sur la réponse augmentée du résumé de trace. Un cas passe si
+les deux concluent au succès : **un juge indulgent ne peut pas à lui seul
+faire réussir une sonde.**
+
+Trois précautions rendent le contrôle de provenance juste : un identifiant
+déjà présent dans la question n'est pas une invention ; un identifiant marqué
+« non vérifié » est toléré (le noyau autorise ce marquage) ; un identifiant
+trouvé dans les *arguments* d'un appel ne prouve rien — une référence inventée
+puis soumise à `get_article` y figurerait et se validerait elle-même.
+
+### Commandes
+
+```bash
+python tests/run_bench.py --verifier-corpus          # hors réseau, joué en CI
+python tests/run_bench.py --only L-1 --bras C --sans-juge --garder-flux
+python tests/run_bench.py --bras A,B,C --repeats 3 --sortie bench/runs/x.jsonl
+python tests/run_bench.py --reprendre bench/runs/x.jsonl
+python tests/bench/resume.py bench/runs/x.jsonl --baseline bench/baselines/…
+```
+
+### Où mettre les identifiants
+
+| Variable | Fichier | Utilité |
+|---|---|---|
+| `AUTH0_CLIENT_ID`, `AUTH0_CLIENT_SECRET` | **`.env`** à la racine (modèle : `.env.example`) | bras C — échangés contre un jeton court au démarrage |
+| `MCP_ACCESS_TOKEN` | idem, **laisser vide** sauf jeton MCP déjà en main | court-circuite l'échange ci-dessus |
+| `CLAUDE_CODE_OAUTH_TOKEN` | idem, facultatif | quand le trousseau est expiré (voir ci-dessous) |
+| `LEGIFRANCE_*`, `JUDILIBRE_KEY_ID` | **`skill/scripts/.env`** (modèle voisin) | uniquement `--mcp-local` |
+
+Les deux `.env` sont ignorés par Git (`.env`, `.env.*`, seuls les
+`.env.example` sont suivis) ; un test refuse tout `.env` qui deviendrait
+suivi. Une variable **déjà exportée** garde la priorité sur le fichier.
+
+En mode par défaut, les clés PISTE ne sont pas nécessaires en local — c'est le
+serveur de production qui les détient. Le jeton obtenu par échange Auth0 n'est
+ni écrit sur disque, ni passé en ligne de commande.
+
+**Deux pièges constatés en pratique :**
+
+- Un jeton d'abonnement Claude (préfixe `sk-ant-`) rangé dans
+  `MCP_ACCESS_TOKEN` est envoyé au serveur MCP comme jeton Auth0, et refusé —
+  alors même que `AUTH0_CLIENT_ID` et `AUTH0_CLIENT_SECRET` fonctionnaient.
+  Le nom de la variable ne dit pas assez de quoi il s'agit ; les deux jetons
+  se ressemblent à l'œil.
+- Une variable posée dans un terminal tiers **n'atteint pas** le sous-processus
+  que lance le harnais : un processus hérite de son environnement à sa
+  création. D'où `CLAUDE_CODE_OAUTH_TOKEN` dans `.env` plutôt qu'un `export`
+  ailleurs, quand le trousseau du système est expiré.
+
+**En CI, rien de tout cela n'est lu sur disque** : les secrets viennent du
+coffre GitHub (`gh secret set`), et le benchmark ne tourne de toute façon pas
+dans le pipeline standard.
+
+### Limites (à connaître avant d'interpréter un résultat)
+
+- **Non-déterminisme.** Un même cas peut basculer d'un run à l'autre. Les
+  baselines se font à `--repeats 3` ; une baisse d'un seul cas-équivalent par
+  mode est traitée comme de la variance, pas comme une régression.
+- **Le juge est un modèle.** Son champ `extrait` cite la phrase qui fonde son
+  verdict, précisément pour qu'un relecteur humain puisse le contredire. Un
+  échantillon des verdicts doit être relu à chaque baseline.
+- **La métrique de falsification est un proxy.** Elle constate qu'une
+  recherche distincte a suivi la première lecture aboutie — donc *la recherche
+  de réfutation*, pas sa pertinence. Le juge apprécie le reste.
+- **La surface mesurée n'est pas exactement la surface distribuée.** Le skill
+  est injecté en prompt système et le connecteur MCP est joint en HTTP ; le
+  plugin installé, lui, lance le serveur en stdio. L'écart porte sur le
+  transport, pas sur la méthode.
+- **Les pannes ne sont pas des échecs.** Instance endormie, jeton expiré,
+  quota atteint : classés `infra_error`, exclus des taux, rejouables par
+  `--reprendre`. Les compter comme des échecs ferait baisser un score pour des
+  raisons étrangères à ce qu'on mesure.
+
+Le corpus (`bench-cases.csv`) porte une colonne **`Valide par`** : par défaut,
+seules les sondes dont le fond juridique a été relu par un humain sont jouées.
+Une baseline construite sur des attentes non validées mesurerait le skill
+contre une erreur.
+
 ## 2. `evaluation-copilot-studio.csv` — jeu fonctionnel Copilot Studio
 
 Questions de bout en bout (fond + forme) pour une évaluation qualitative

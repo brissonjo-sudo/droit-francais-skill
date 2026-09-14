@@ -33,3 +33,7 @@ __pycache__/
 profil.md
 skill/profil.md
 skill/.recherche-juridique-update.json
+
+# Sorties de travail du benchmark agentique. Les baselines retenues sont
+# commitées explicitement sous tests/bench/baselines/.
+tests/bench/runs/
