@@ -20,6 +20,7 @@ import os
 import sys
 import time
 import unittest
+import warnings
 from contextlib import asynccontextmanager
 from pathlib import Path
 from unittest import mock
@@ -448,6 +449,33 @@ class PorteeExigeeTests(OAuthServerCase):
         with mock.patch.object(mcp_app.legal_tools, "search", return_value={}):
             resultat = self.call_tool(self.token(), "search", {"query": "x"})
         self.assertFalse(self.en_erreur(resultat), resultat.content)
+
+
+class ValidationRessourceTests(OAuthServerCase):
+    """``validate_token_resource`` est tranché explicitement, sans avertissement.
+
+    Depuis le SDK 2.2.0, ce champ laissé vide lève un ``MCPDeprecationWarning``
+    et passera à ``True`` en 3.0. L'audience vérifiée par ``JwksTokenVerifier``
+    peut être un identifiant d'API Auth0 distinct de l'URL de ressource : un
+    ``True`` implicite refuserait alors tous les jetons de production.
+    """
+
+    def test_construire_l_authentification_ne_leve_aucun_avertissement(self):
+        with warnings.catch_warnings():
+            warnings.simplefilter("error")
+            options = mcp_app._build_auth_options()
+        self.assertEqual(RESOURCE, str(options["auth"].resource_server_url))
+
+    def test_la_ressource_est_confiee_au_verificateur(self):
+        from mcp.server.auth.settings import AuthSettings
+
+        if "validate_token_resource" not in AuthSettings.model_fields:
+            self.skipTest("SDK MCP antérieur à 2.2.0 : champ absent")
+        options = mcp_app._build_auth_options()
+        self.assertIs(False, options["auth"].validate_token_resource)
+        # Le verrou reste tenu : le vérificateur contrôle `aud` lui-même.
+        refus = self.post_mcp(self.token(aud="https://autre-api.example/"))
+        self.assertEqual(401, refus.status_code)
 
 
 if __name__ == "__main__":
