@@ -25,6 +25,7 @@ principes P1–P7, mêmes étapes, modes, modules et déclencheurs d'abstention.
 ## Fichiers créés
 
 - `skill/scripts/update_skill.py`.
+- `tests/test_update_skill.py` (22 tests hors réseau du lanceur).
 - `vault/recherche-juridique v3.4.0.md` (cette note).
 
 ## Fichiers modifiés

@@ -28,6 +28,16 @@ conservés tels quels pour ne pas casser les liens publiés.
   par défaut ; les installations gérées par un marketplace conservent leur
   mécanisme propre.
 
+#### Tests
+- `tests/test_update_skill.py` : 22 tests hors réseau du lanceur — lecture de
+  la version, activation par le seul booléen `true`, échéance de 24 heures
+  (fuseaux, dates invalides), refus des emplacements ambigus, sauvegarde et
+  restauration de `profil.md` et `.env`, et chaque issue de `main()`.
+  Ils ont révélé deux défauts, corrigés avant publication : sous Windows, la
+  commande `["npx", …]` échouait toujours (`npx.cmd` introuvable sans shell),
+  désormais lancée par le chemin que rend `shutil.which` ; et un lancement
+  impossible n'était pas daté, donc retenté à chaque usage.
+
 ### [plugin-v0.8.3] — 2026-09-14
 
 Correction d'empaquetage du plugin Claude Code. Le noyau méthodologique

@@ -109,24 +109,31 @@ def main() -> int:
     if scope is None:
         print("UPDATE_SKIPPED installation non globale ou emplacement non reconnu")
         return 0
-    if shutil.which("npx") is None:
+    npx = shutil.which("npx")
+    if npx is None:
         print("UPDATE_SKIPPED npx indisponible")
         return 0
 
     before = read_version()
-    command = ["npx", "skills", "update", "recherche-juridique", "-y", scope]
+    # Chemin résolu, pas "npx" : sous Windows, npx est un npx.cmd que
+    # subprocess ne trouve pas sans shell (FileNotFoundError).
+    command = [npx, "skills", "update", "recherche-juridique", "-y", scope]
+    launch_error: OSError | None = None
     with TemporaryDirectory(prefix="recherche-juridique-update-") as tmp:
         backups = backup_personal_files(Path(tmp))
         try:
             result = subprocess.run(command, check=False, text=True, capture_output=True)
         except OSError as exc:
-            print(f"UPDATE_FAILED lancement impossible : {exc}")
-            return 0
+            launch_error = exc
         finally:
             restore_personal_files(backups)
 
+    # Dater aussi un lancement impossible, sinon il serait retenté à chaque usage.
     config["last_attempt_at"] = now.isoformat().replace("+00:00", "Z")
     save_config(config)
+    if launch_error is not None:
+        print(f"UPDATE_FAILED lancement impossible : {launch_error}")
+        return 0
     if result.returncode != 0:
         print("UPDATE_FAILED le CLI skills a refusé la mise à jour")
         return 0
