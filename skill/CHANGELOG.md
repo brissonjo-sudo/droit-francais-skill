@@ -11,6 +11,33 @@ conservés tels quels pour ne pas casser les liens publiés.
 
 ---
 
+### [3.4.0] — 2026-09-14
+
+#### Ajouté
+- **Détection fluide des mises à jour** : au premier usage d'une session, le
+  skill peut consulter `npx skills check` lorsque le CLI est disponible. Une
+  version périmée est signalée brièvement, sans interrompre l'analyse, avec la
+  commande ciblée `npx skills update recherche-juridique`.
+- **Mode automatique sur consentement explicite** : le nouveau lanceur
+  `scripts/update_skill.py` actualise une installation globale suivie, au plus
+  une fois par 24 heures, après activation dans
+  `.recherche-juridique-update.json`. Il restaure `profil.md` et `.env` après
+  la mise à jour et ne signale qu'un changement de version effectif.
+- **Garde-fous d'expérience et de sécurité** : aucun message si le contrôle
+  est indisponible ou ne détecte rien ; le mode automatique reste désactivé
+  par défaut ; les installations gérées par un marketplace conservent leur
+  mécanisme propre.
+
+#### Tests
+- `tests/test_update_skill.py` : 22 tests hors réseau du lanceur — lecture de
+  la version, activation par le seul booléen `true`, échéance de 24 heures
+  (fuseaux, dates invalides), refus des emplacements ambigus, sauvegarde et
+  restauration de `profil.md` et `.env`, et chaque issue de `main()`.
+  Ils ont révélé deux défauts, corrigés avant publication : sous Windows, la
+  commande `["npx", …]` échouait toujours (`npx.cmd` introuvable sans shell),
+  désormais lancée par le chemin que rend `shutil.which` ; et un lancement
+  impossible n'était pas daté, donc retenté à chaque usage.
+
 ### [plugin-v0.8.3] — 2026-09-14
 
 Correction d'empaquetage du plugin Claude Code. Le noyau méthodologique

@@ -32,3 +32,4 @@ __pycache__/
 # Profil actif choisi par l'utilisateur (local — voir skill/profils/)
 profil.md
 skill/profil.md
+skill/.recherche-juridique-update.json
