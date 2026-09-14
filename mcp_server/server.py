@@ -107,13 +107,22 @@ def _build_auth_options() -> dict[str, Any]:
         LOGGER.warning(
             "auth_scope_gate disabled — jeton valide exigé, aucune portée requise"
         )
+    auth_settings: dict[str, Any] = {
+        "issuer_url": SETTINGS.oauth_issuer,
+        "resource_server_url": SETTINGS.resource_url,
+        "required_scopes": list(SETTINGS.oauth_required_scopes),
+    }
+    # SDK >= 2.2.0 : laissé vide, ce champ lève un MCPDeprecationWarning et
+    # passera à True en 3.0 (refus de tout jeton dont `resource` diffère de
+    # `resource_server_url`). Le vérificateur contrôle déjà `aud` contre
+    # l'audience configurée — un identifiant d'API Auth0 qui n'est pas
+    # forcément l'URL de ressource —, comme le recommande la documentation du
+    # SDK dans ce cas : False, explicitement. Champ absent des SDK antérieurs.
+    if "validate_token_resource" in AuthSettings.model_fields:
+        auth_settings["validate_token_resource"] = False
     return {
         "token_verifier": verifier,
-        "auth": AuthSettings(
-            issuer_url=SETTINGS.oauth_issuer,
-            resource_server_url=SETTINGS.resource_url,
-            required_scopes=list(SETTINGS.oauth_required_scopes),
-        ),
+        "auth": AuthSettings(**auth_settings),
     }
 
 #: Instructions lues par le client à chaque connexion, « alongside tool
