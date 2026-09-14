@@ -49,7 +49,7 @@ La méthode juridique, l'interface du CLI et les variables d'environnement exist
 ```text
 droit-francais-skill/
 ├── .claude-plugin/
-│   ├── plugin.json                 # manifeste Claude Code (MCP via ${CLAUDE_PLUGIN_ROOT})
+│   ├── plugin.json                 # manifeste Claude Code (MCP repris du .mcp.json racine)
 │   └── marketplace.json            # le dépôt sert de marketplace Claude Code
 ├── .codex-plugin/
 │   └── plugin.json                 # identité et capacités réellement livrées
@@ -157,8 +157,9 @@ de distribution de l'étape 4 : aucune URL distante n'est inventée dans le dép
   Le serveur MCP est désormais déclaré en **connexion distante** (`type:
   "http"`, `url: https://droit-francais-skill.onrender.com/mcp`) plutôt qu'en
   lancement local : l'installation ne requiert plus Python ni les dépendances
-  du dépôt côté utilisateur. Le manifeste prime sur le `.mcp.json` racine
-  copié dans le paquet ; les deux déclarent la même URL distante.
+  du dépôt côté utilisateur. Depuis la 0.8.3, cette déclaration n'existe plus
+  qu'à un seul endroit : le `.mcp.json` de la racine, que Claude Code reprend
+  automatiquement pour un plugin. Le manifeste ne la duplique plus.
 - Le lancement local (`python mcp_server/server.py`) reste disponible pour le
   développement et l'auto-hébergement, documenté dans `docs/mcp-app.md`.
 - `.claude-plugin/marketplace.json` (source `./`) fait du dépôt son propre
