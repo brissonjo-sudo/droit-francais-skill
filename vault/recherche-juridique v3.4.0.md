@@ -39,3 +39,4 @@ principes P1–P7, mêmes étapes, modes, modules et déclencheurs d'abstention.
 
 - [[index-recherche-juridique]] — navigation principale
 - [[recherche-juridique v3.3.0]] — version précédente
+- [[recherche-juridique v3.4.1]] — version suivante
