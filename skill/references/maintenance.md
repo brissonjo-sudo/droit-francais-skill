@@ -151,8 +151,12 @@ actif** (section 3 de `profil.md`).
 - [ ] La **règle de provenance** (P1) est référencée à l'étape 6
       (contrôle de provenance) et dans `format-citation.md`.
 - [ ] Les gabarits A, B, C, D et le sous-gabarit syllogisme intègrent
-      tous l'en-tête standardisé et l'encart final récapitulatif
-      (sauf voie rapide `[lookup]`, exempte par construction).
+      l'en-tête standardisé ; l'encart final récapitulatif et la
+      synthèse des étapes 0 et 7 accompagnent la note de fond, l'audit
+      et `[complet]` (« Traçabilité proportionnée », §3) ; la voie rapide
+      `[lookup]` est exempte des deux par construction.
+      `references/gabarits-sortie.md` et `vault/procedure-compacte.md`
+      disent la même chose que le noyau.
 - [ ] Les 10 déclencheurs d'abstention sont listés et un format de
       réponse en cas d'abstention est fourni.
 
@@ -187,8 +191,11 @@ représentatives :
 
 1. **Mode A standard, aucun module** — requête simple de référence
    d'article (ex. « quel article du CGCT définit les pouvoirs généraux
-   du maire ? »). Vérifier l'en-tête standardisé, l'absence de
-   modules activés dans l'encart final.
+   du maire ? »). Vérifier l'identifiant récupéré en source primaire et
+   la version applicable, l'absence de module activé et l'affichage
+   proportionné (`SKILL.md`, « Traçabilité proportionnée » et §3) :
+   sources, date applicable, réserves utiles et confiance, sans
+   récitation des étapes 0, 0 bis et 7 ni encart récapitulatif.
 
 2. **Mode A + PÉNAL + ACTE-ADMIN** — requête de qualification + acte
    (ex. « qualification de dépôt sauvage et possibilité d'arrêté de
@@ -200,13 +207,18 @@ représentatives :
    (ex. « `[complet]` note sur l'articulation police générale du maire
    et police spéciale environnementale »). Vérifier que tous les
    modules sont activés, certains marqués « sans objet à cette
-   espèce » avec justification.
+   espèce » avec justification, et que la synthèse des étapes 0 et 7
+   et l'encart récapitulatif sont présents.
 
 4. **DOC-AUDIT** — corpus de deux documents contenant un article exact mais
    une conséquence opérationnelle excessive, un montant périmé et une
    divergence d'acteur ou d'indicateur. Vérifier le registre complet, le
    contrôle à 100 % du risque élevé, la matrice
-   acteur–lieu–propriétaire–pouvoir et la recherche post-correction.
+   acteur–lieu–propriétaire–pouvoir, le test séparé de l'exécution forcée
+   d'office et la distinction maximum légal / classe / amende forfaitaire
+   (`audit-documentaire.md` §8), la recherche post-correction, l'encart
+   récapitulatif, et l'absence de toute formule « conforme » tant que le
+   critère de clôture (§10) n'est pas rempli.
 
 Si l'un des tests révèle un défaut de cohérence ou d'application →
 correction immédiate avant clôture de la revue.
