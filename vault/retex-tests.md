@@ -19,3 +19,9 @@ contrôlés distinctement.
 **Décision de maintenance** : ajout d'un contrôle DOC-AUDIT des mesures
 coercitives sur les biens et de la distinction « maximum légal / classe /
 amende forfaitaire ».
+
+## Liens (maillage Graphify)
+
+- [[index-recherche-juridique]] — navigation principale
+- [[recherche-juridique v3.5.0]] — version qui intègre ces retours
+- [[modules-declencheurs]] — module DOC-AUDIT

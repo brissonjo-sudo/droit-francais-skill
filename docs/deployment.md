@@ -80,7 +80,7 @@ procédure de configuration de l'émetteur figure dans [`oauth.md`](oauth.md).
 |---|---|---|
 | `MCP_OAUTH_AUDIENCE` | `MCP_PUBLIC_URL` + `/mcp` | Audience exigée dans le jeton (RFC 8707) |
 | `MCP_OAUTH_JWKS_URL` | `MCP_OAUTH_ISSUER` sans barre finale + `/.well-known/jwks.json` | Clés publiques de vérification |
-| `MCP_OAUTH_REQUIRED_SCOPES` | `legal:read` | Portées exigées, séparées par des virgules ; `-` désactive le contrôle de portée sans désactiver l'authentification |
+| `MCP_OAUTH_REQUIRED_SCOPES` | `legal:read` | Portées exigées, séparées par des virgules ou des espaces. Seules les valeurs `-`, `none` et `aucune` désactivent le contrôle de portée, sans jamais désactiver l'authentification. **Vider la variable ou la supprimer ne la désactive pas** : le repli est la valeur par défaut `legal:read`, et le service répondra `403` à tout jeton qui ne la porte pas. Le comportement est volontairement fermant (`mcp_server/runtime.py:73-89`) |
 | `MCP_JUDILIBRE_SUPPRESSED_IDS` | vide | Identifiants Judilibre retirés temporairement, séparés par des virgules (24 caractères hexadécimaux chacun, casse indifférente). Une entrée malformée refuse le démarrage ; le nombre d'identifiants chargés est journalisé, jamais leur valeur. Voir `incident-response.md` |
 
 Le conteneur définit déjà `MCP_ENV=production`, `MCP_HOST=0.0.0.0` et
@@ -179,9 +179,19 @@ rattacher.
 - alignement du moyen de contact privé avec l'identité publiée ;
 - validation finale et téléversement du logo `assets/logo.png` ;
 - vérification du domaine dans le portail OpenAI ;
-- surveillance de l'instance : plan gratuit conservé le 1er septembre 2026,
-  maintenue hors veille par `surveillance.yml` — voir [exploitation.md](exploitation.md) ;
-  passer à une instance sans mise en veille si la série montre des réveils.
+- surveillance de l'instance : plan gratuit conservé le 1er septembre 2026.
+  Le maintien hors veille **ne repose pas** sur `surveillance.yml` — cette voie
+  a été essayée puis réfutée par la mesure, GitHub n'exécutant les workflows
+  planifiés qu'en « meilleur effort ». `surveillance.yml` ne fait que
+  *constater* l'état ; c'est un **ping externe toutes les cinq minutes** qui
+  maintient l'instance éveillée, en service depuis le 3 septembre 2026 entre
+  14:24 et 18:32 UTC. Voir [exploitation.md](exploitation.md) et
+  [pieces-humaines.md](pieces-humaines.md) § 11 ;
+- **quota d'heures d'instance Render** : une instance maintenue éveillée en
+  permanence consomme des heures en continu, là où une instance endormie les
+  économise. Le plan gratuit borne ce total par mois et le partage entre les
+  services gratuits du compte. À vérifier au tableau de bord avant publication :
+  une suspension en fin de mois serait plus visible qu'un réveil.
 
 Les descriptions, les politiques publiques, l'URL MCP et les cinq cas de test
 positifs et trois négatifs sont préparés dans

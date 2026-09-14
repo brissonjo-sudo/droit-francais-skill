@@ -11,7 +11,11 @@ conservés tels quels pour ne pas casser les liens publiés.
 
 ---
 
-### [3.2.2] — 2026-09-09
+### [3.5.0] — 2026-09-14
+
+Préparée le 2026-09-09 sous le numéro 3.2.2, renumérotée après la 3.4.1.
+MINEUR : un contrôle obligatoire s'ajoute au module DOC-AUDIT
+(`maintenance.md` §5).
 
 #### Ajouté
 - **Audit des pouvoirs coercitifs** : lorsqu'un document prévoit une coupe,
@@ -27,7 +31,250 @@ conservés tels quels pour ne pas casser les liens publiés.
 - Deux tests documentaires anonymisés, l'un sur un vélo attaché au mobilier
   urbain et l'autre sur une terrasse sans autorisation, ont confirmé que ce
   contrôle doit être déclenché avant toute recommandation d'enlèvement ou de
-  vente d'un bien.
+  vente d'un bien. Consignés dans `vault/retex-tests.md`.
+
+### [3.4.1] — 2026-09-14
+
+Release corrective, préalable à la mise sous mesure du noyau. Aucune règle
+méthodologique n'est ajoutée, retirée ni modifiée. Elle corrige ce que la
+documentation du dépôt affirmait de faux sur elle-même : une méthodologie qui
+se décrit mal se transmet mal, et le vault sert de mémoire d'une session à la
+suivante.
+
+#### Corrigé
+- `SKILL.md` : renvoi vers un « §0.5 » absent de sa propre numérotation — le
+  chargement du profil est au §0.
+- `SKILL.md` §7 : les deux gabarits littéraux (abstention motivée, question
+  préalable) commençaient par `##` **à l'intérieur** d'un bloc de code. Tout
+  outil extrayant le plan par `^## ` voyait deux sections fantômes. Passés en
+  gras ; le gabarit reste utilisable tel quel.
+- `references/{audit-documentaire,gabarits-sortie,modules}.md` : suffixe
+  « (v3.2.0) » retiré des titres. Un titre versionné dérive à chaque cycle et
+  n'est vérifié par aucun test ; la version vit dans le frontmatter et ici.
+- `references/maintenance.md` §0 : l'archivage dans un dossier `archive/`
+  était prescrit alors que ce dossier n'existe pas. Une étape inapplicable est
+  une étape sautée. L'archive réelle — historique Git et note de version du
+  vault — est nommée à sa place.
+- `references/maintenance.md` §3 : la liste CI omettait `unittest`,
+  `check_plugin`, `check_vault` et `check_affirmations`, laissant croire à un
+  angle mort là où le garde-fou existe.
+- `vault/index-recherche-juridique.md`, `matrice-modes.md`,
+  `modules-declencheurs.md`, `procedure-compacte.md` : le vault décrivait
+  encore le noyau d'avant la v3.2.0 — 14 modes au lieu de 18, 5 modules au
+  lieu de 6, rôle (c) de l'étape 7 figé sur « jury concours » alors que la
+  v3.0.0 l'a rendu paramétrable par le profil. Les modes 15 à 18 sont ajoutés
+  à la matrice avec leur garde-fou réel (la route DOC-AUDIT du §2 bis) et le
+  mécanisme précis de `audit-documentaire.md` pour chacun.
+- `tests/check_vault.py` (docstring), `docs/article.md` : mentions de
+  « quatorze modes ». L'article étant daté, il signale l'évolution plutôt que
+  de réécrire sa genèse.
+- `tests/README.md` : « trois requêtes témoins » → quatre, depuis la v3.2.0.
+
+#### Ajouté
+- `tests/run_eval.py` (docstring) et `tests/README.md` : les motifs interdits
+  `LEGIARTI[0-9]{6}` des sondes 1 et P **ne valent que sans outils**. Avec les
+  outils, un identifiant récupéré est le comportement attendu et l'interdit
+  deviendrait un faux négatif. La règle est écrite là où elle sera lue au
+  moment de transposer les sondes à un harnais outillé.
+
+#### Vérifié sans changement
+- `--model claude-opus-4-8` de `run_eval.py` : identifiant valide de l'API
+  Messages (Claude Opus 4.8). Conservé.
+- Aucune modification des principes P1–P7, des 9 étapes, des 18 modes, des
+  techniques T1–T4, des 6 modules ni des 10 déclencheurs d'abstention.
+- Déclinaisons (`gemini_skill`, `grok_skill`, `manus_skill`, `vibe_skill`),
+  `gemini_agent/` et manifestes de plugin : intouchés. Un PATCH du noyau ne
+  déclenche pas de resynchronisation.
+
+### [3.4.0] — 2026-09-14
+
+#### Ajouté
+- **Détection fluide des mises à jour** : au premier usage d'une session, le
+  skill peut consulter `npx skills check` lorsque le CLI est disponible. Une
+  version périmée est signalée brièvement, sans interrompre l'analyse, avec la
+  commande ciblée `npx skills update recherche-juridique`.
+- **Mode automatique sur consentement explicite** : le nouveau lanceur
+  `scripts/update_skill.py` actualise une installation globale suivie, au plus
+  une fois par 24 heures, après activation dans
+  `.recherche-juridique-update.json`. Il restaure `profil.md` et `.env` après
+  la mise à jour et ne signale qu'un changement de version effectif.
+- **Garde-fous d'expérience et de sécurité** : aucun message si le contrôle
+  est indisponible ou ne détecte rien ; le mode automatique reste désactivé
+  par défaut ; les installations gérées par un marketplace conservent leur
+  mécanisme propre.
+
+#### Tests
+- `tests/test_update_skill.py` : 22 tests hors réseau du lanceur — lecture de
+  la version, activation par le seul booléen `true`, échéance de 24 heures
+  (fuseaux, dates invalides), refus des emplacements ambigus, sauvegarde et
+  restauration de `profil.md` et `.env`, et chaque issue de `main()`.
+  Ils ont révélé deux défauts, corrigés avant publication : sous Windows, la
+  commande `["npx", …]` échouait toujours (`npx.cmd` introuvable sans shell),
+  désormais lancée par le chemin que rend `shutil.which` ; et un lancement
+  impossible n'était pas daté, donc retenté à chaque usage.
+
+### [plugin-v0.8.3] — 2026-09-14
+
+Correction d'empaquetage du plugin Claude Code. Le noyau méthodologique
+(`skill/`, série 3.x) n'est pas touché.
+
+#### Corrigé
+- Le README décrivait l'installation du plugin Claude Code comme reposant sur
+  un serveur MCP **local** déclaré avec `${CLAUDE_PLUGIN_ROOT}`, et annonçait
+  deux prérequis en conséquence : un `python` dans le PATH et des identifiants
+  PISTE sur le poste. Le manifeste déclarait en réalité une **connexion
+  distante** : ces prérequis étaient faux. La section est réécrite sur le
+  transport réel, le lancement local devenant une variante documentée.
+- `docs/architecture-plugin.md` portait la même affirmation périmée dans son
+  schéma d'arborescence.
+
+#### Retiré
+- La déclaration `mcpServers` de `.claude-plugin/plugin.json`. Le `.mcp.json`
+  de la racine est repris automatiquement par Claude Code pour un plugin :
+  l'URL du service y était écrite deux fois, donc corrigible à moitié.
+  Vérifié sur l'inventaire de composants du plugin, serveur MCP toujours
+  découvert sans ce bloc.
+
+#### Modifié
+- `tests/check_plugin.py` contrôle désormais aussi le socle Claude Code :
+  `.claude-plugin/plugin.json` et `.claude-plugin/marketplace.json`. Jusqu'ici
+  seul `.codex-plugin/plugin.json` était lu, alors que `.github/auto-review.md`
+  affirmait que ce vérificateur couvrait le manifeste Claude Code. Sont
+  vérifiés : le nom en kebab-case, la version en SemVer strict, son égalité
+  avec `SERVER_VERSION`, le propriétaire du marketplace, la référence au
+  plugin, la `source` `./` et l'accord de version entre les deux fichiers.
+
+#### Tests
+- `tests/test_check_plugin.py` : chaque invariant du nouveau contrôle est
+  éprouvé sur un couple manifeste/marketplace qui le viole, plus deux contrôles
+  sur le dépôt réel — dont l'absence de duplication MCP dans le manifeste.
+
+### [3.3.0-gemini] — 2026-09-06
+
+Déclinaison **Gemini** (Google) de la méthodologie, dans `gemini_skill/`. Elle
+ne modifie pas le noyau `skill/`, qui reste la source de vérité.
+
+#### Ajouté
+- `gemini_skill/SKILL.md` : noyau condensé reprenant les principes P1 à P7, la
+  procédure interne en 8 étapes, la traçabilité proportionnée et la triangulation
+  ciblée de la 3.3.0, adapté aux agents de l'écosystème Google (Antigravity,
+  Gemini CLI).
+- `gemini_skill/references/{sources-autorisees,modules.md}` : ordre de recherche
+  et autorité des sources ; six modules activables.
+- `gemini_skill/README.md` : ce que la déclinaison conserve, remplace et
+  laisse de côté par rapport au noyau, installation sous Antigravity et
+  Gemini CLI.
+- `tests/test_gemini_skill.py` : tests automatisés de conformité du frontmatter,
+  des principes invariants P1 à P7 et des modules.
+
+#### Modifié
+- L'échelle de récupération privilégie le **connecteur MCP officiel** du dépôt
+  (`mcp_server/server.py`), compatible nativement avec Google Antigravity et
+  Gemini CLI. La recherche institutionnelle via grounding Google Search restreint
+  aux sources officielles sert de repli, l'exécution Python SDK (`gemini_agent/`)
+  permet l'intégration programmatique, et l'abstention informée (P7) s'applique si
+  la source est inaccessible.
+- `gemini_agent/legal_agent_config.py` : prompt système réaligné sur les 7
+  principes invariants P1–P7 de la méthodologie v3.3.0 du droit français.
+
+### [3.3.0-manus] — 2026-09-06
+
+Déclinaison **Manus** de la méthodologie, dans `manus_skill/`. Elle ne modifie
+pas le noyau `skill/`, qui reste la source de vérité.
+
+#### Ajouté
+- `manus_skill/SKILL.md` : noyau condensé reprenant les principes P1 à P7, la
+  procédure interne, la traçabilité proportionnée et la triangulation ciblée
+  de la 3.3.0.
+- `manus_skill/references/{sources-autorisees,modules.md}` : ordre de
+  recherche et autorité des sources ; six modules activables.
+- `manus_skill/README.md` : ce que la déclinaison conserve, remplace et
+  laisse de côté par rapport au noyau.
+
+#### Modifié
+- L'échelle de récupération privilégie le **connecteur MCP personnalisé**
+  de Manus (Settings → Integrations → Custom MCP Servers), qui permet de
+  connecter le serveur MCP de ce dépôt avec ses six outils exacts, vérifiés
+  dans `mcp_server/server.py`. La capacité web native de Manus sert de repli,
+  sans nom d'outil supposé — Manus ne publie pas ce nom dans sa documentation
+  publique, contrairement au registre ouvert de Vibe Code.
+
+### [3.3.0-vibe] — 2026-09-05
+
+Déclinaison **Vibe** (Mistral) de la méthodologie, dans `vibe_skill/`. Elle
+ne modifie pas le noyau `skill/`, qui reste la source de vérité.
+
+#### Ajouté
+- `vibe_skill/SKILL.md` : noyau condensé reprenant les principes P1 à P7, la
+  procédure interne, la traçabilité proportionnée et la triangulation ciblée
+  de la 3.3.0.
+- `vibe_skill/README.md` : installation sous `.vibe/skills/`,
+  `.agents/skills/` ou `~/.vibe/skills/`, un dossier par skill nommé comme
+  le champ `name:` du frontmatter.
+- `vibe_skill/tools/` : squelette non connecté de normalisation, avec
+  avertissement explicite sur ce qu'il ne fait pas.
+
+#### Modifié
+- L'échelle de récupération utilise les outils natifs de Vibe Code,
+  `web_search` (paramètre `query`) et `web_fetch` (paramètre `url`), vérifiés
+  contre le registre public `mistralai/mistral-vibe`. Poussée initialement
+  avec des noms d'outils inexistants (`web_search_web_search`,
+  `web_search_open_url`) et une installation qui ne correspondait pas à la
+  découverte réelle des skills par Vibe ; corrigé après vérification.
+
+### [3.3.0-grok] — 2026-09-05
+
+Déclinaison **Grok** de la méthodologie, dans `grok_skill/`. Elle ne modifie
+pas le noyau `skill/`, qui reste la source de vérité.
+
+#### Ajouté
+- `grok_skill/SKILL.md` : noyau condensé reprenant les principes P1 à P7, la
+  procédure en interne, la traçabilité proportionnée et la triangulation
+  ciblée de la 3.3.0.
+- `grok_skill/references/{sources-autorisees,modules.md}` : ordre de recherche
+  et autorité des sources ; six modules activables.
+- `grok_skill/README.md` : ce que la déclinaison conserve, remplace et laisse
+  de côté par rapport au noyau.
+
+#### Modifié
+- L'échelle de récupération est remplacée par les outils natifs de la
+  plateforme — `web_search` restreint aux domaines officiels, `open_page`,
+  `browser_tab` — faute de connecteur MCP et d'accès PISTE. L'invariant de
+  provenance et le déclencheur d'abstention sont inchangés.
+
+### [3.3.0] — 2026-09-05
+
+#### Modifié
+- Les contrôles restent obligatoires, mais leur affichage devient proportionné
+  au livrable : les réponses simples ne récitent plus les étapes internes ni
+  une auto-critique vide.
+- L'ordre de recherche est distingué de la hiérarchie des normes et de l'effet
+  des décisions juridictionnelles.
+- L'échelle de récupération reconnaît désormais le connecteur MCP lorsqu'il est
+  disponible, avant le script local et le repli web.
+- La triangulation renforcée cible les interprétations discutables. L'absence
+  de jurisprudence ne rend plus automatiquement incertain un texte clair.
+- Le vault de navigation (`vault/`) est réaligné sur ces règles : P3, échelle de
+  récupération, affichage des étapes et exigence de triangulation.
+
+### [plugin-v0.8.2] — 2026-09-05
+
+#### Corrigé
+- `get_article` distingue la provenance officielle de l'applicabilité de la
+  version à la date évaluée et signale une version historique.
+- `search` vérifie un identifiant `LEGIARTI` fourni avant de le retourner.
+- Le routeur conserve le code et la date reconnus et accepte les références
+  usuelles telles que `L. 2212-2 CGCT`. Une date exprimée à côté d'un
+  identifiant `LEGIARTI` est transmise à la lecture de l'article, au lieu
+  d'évaluer la version à la date du serveur.
+- La sonde de production contrôle la **présence** de
+  `applicable_at_as_of_date` et non sa valeur de vérité : `False` (version
+  historique) et `None` (date de début manquante) sont des réponses correctes.
+
+#### Tests
+- Ajout de régressions sur la datation d'une version historique, la provenance
+  d'un identifiant fourni, la conservation du code et de la date et le routage
+  d'une référence préfixée sans le mot « article ».
 
 ### [3.2.1] — 2026-09-04
 
@@ -62,6 +309,64 @@ Domaines Légifrance, Cour de cassation, Conseil d'État, Conseil
 constitutionnel, EUR-Lex ; formats d'identifiants (LEGIARTI, JORFTEXT,
 CETATEXT, CONSTEXT) ; formats de citation (Bull./inédit, Lebon/Tables) ;
 architecture PISTE (API Légifrance + Judilibre).
+
+### [plugin-v0.8.1] — 2026-09-04
+
+Correctif de sécurité issu d'un audit adversarial du chemin d'authentification,
+mené le 4 septembre 2026 puis soumis au test de mutation par une relecture
+indépendante. Le noyau méthodologique est inchangé ; seul le vérificateur de
+jetons bouge. **Cette version doit être déployée avant toute soumission** : la
+production servait encore `0.8.0`, donc un serveur dépourvu de ces correctifs.
+
+#### Corrigé
+- **Amplification JWKS non authentifiée** — un jeton portant un identifiant de
+  clé inconnu forçait PyJWT à recharger le jeu de clés en contournant son
+  cache, et ce cache ne mémorise pas les échecs. Chaque requête anonyme coûtait
+  donc un aller-retour vers l'émetteur, indéfiniment : mesuré en production à
+  54 ms de surcoût par requête, facteur 1,8. Le délai d'attente valait trente
+  secondes par défaut, sur un pool de quarante threads et un processus unique.
+  Le rafraîchissement forcé est désormais plafonné à un par minute quel que
+  soit le nombre d'identifiants distincts présentés, et le délai ramené à cinq
+  secondes. Contre-épreuve : 20 rechargements réseau sur le code d'avant, 1 sur
+  celui-ci ; 200 contre 1 à plus forte charge.
+- **Ruée sur l'expiration du cache** — le cache de jeu de clés de PyJWT n'a
+  aucun verrou : à l'instant précis où il expire, quarante requêtes
+  concurrentes déclenchaient trente appels réseau, sans qu'aucun jeton valide
+  soit nécessaire. Les appels sont sérialisés en *single-flight* : un seul
+  thread contacte l'émetteur, les autres retrouvent le cache rechargé.
+- **Révocation de clé non honorée** — le cache de second niveau était un
+  `lru_cache` sans expiration ; le jeu de clés n'en comptant que deux, rien
+  n'était jamais évincé et une clé révoquée restait acceptée jusqu'au
+  redémarrage du processus. Tourner une clé compromise n'avait donc aucun effet
+  sur ce serveur. Elle cesse maintenant d'être acceptée en cinq minutes au pire.
+- **Panne de l'émetteur journalisée comme un refus de jeton** —
+  `PyJWKClientConnectionError` héritant de `PyJWTError`, un DNS mort, un port
+  fermé ou un délai dépassé produisaient `auth_rejected` en INFO au lieu
+  d'`auth_unavailable` en WARNING, noyant le signal « l'émetteur est tombé »
+  dans le bruit des jetons invalides.
+
+#### Tests
+- 178 → **196 tests**, aucun échec, aucun ignoré. Chaque correction porte sa
+  contre-épreuve, appliquée puis annulée, de sorte qu'aucun de ces tests ne
+  passe sur le code d'avant.
+- Comblé deux angles morts que la suite ne voyait pas : les jeux de clés
+  simulés n'en contenaient qu'**une seule**, si bien qu'une confusion de clé —
+  vérifier la signature avec la mauvaise clé du jeu — survivait à toute la
+  suite ; et les quatre branches d'erreur du contrôle de métadonnées OAuth,
+  qui protège le point de rupture historique du connecteur ChatGPT, n'étaient
+  exercées par aucun test.
+- Corrigé des mocks qui rendaient des tests aveugles : ils acceptaient
+  n'importe quel identifiant de clé, alors que la check-list Auth0 citait l'un
+  d'eux comme preuve du refus d'un identifiant inconnu. La preuve citée ne
+  prouvait rien ; elle est devenue vraie.
+
+#### Sécurité — ce qui reste ouvert
+- Aucune limitation de débit par IP **avant** l'authentification. L'atténuation
+  ci-dessus porte sur deux à trois ordres de grandeur, mais borner la durée
+  d'occupation d'un thread ne borne pas leur nombre : le finding est reclassé
+  de gravité élevée à moyenne, **non refermé**.
+- L'authentification reste la seule autorisation : aucune portée n'est exigée
+  et aucun sujet n'est comparé à une liste. Voir `docs/audit-securite.md` § 8.
 
 ### [plugin-v0.8.0] — 2026-09-02
 

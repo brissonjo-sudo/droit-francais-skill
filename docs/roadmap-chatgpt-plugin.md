@@ -350,15 +350,26 @@ temporaire à placer dans la variable Render `OPENAI_APPS_CHALLENGE`, puis à
 retirer aussitôt après validation. Le serveur expose déjà la route
 `/.well-known/openai-apps-challenge`.
 
-### Point tranché le 1er septembre 2026 — portées
+### Point tranché le 1er septembre 2026, rouvert le 4 — portées
 
-`MCP_OAUTH_REQUIRED_SCOPES=-` **reste en place**, et ce n'est plus un point
-ouvert. Le SDK couple annonce et exigence de portée ; une portée d'API
-personnalisée n'apparaît jamais dans le document de découverte OIDC de
-l'émetteur ; réactiver le contrôle répondrait donc `403` à tout le monde. Le
-critère de retour est mesurable, pas discrétionnaire : le journal métier porte
-`scopes=` sur chaque appel, et le contrôle sera réactivé le jour où les appels
-réels venus de ChatGPT montreront `legal:read`. Argumentaire complet dans
+`MCP_OAUTH_REQUIRED_SCOPES=-` **reste en place**, mais le point n'est plus
+clos : l'un des deux motifs qui le fermaient est tombé.
+
+Il tenait pour acquis qu'une portée d'API personnalisée n'apparaissant jamais
+dans le document de découverte OIDC de l'émetteur, aucun client ne la
+demanderait. Or un client MCP ne consulte ce document qu'**en troisième
+position** : il lit d'abord l'en-tête `WWW-Authenticate`, puis
+`scopes_supported` des métadonnées de ressource protégée que le serveur publie
+lui-même (`mcp/client/auth/utils.py:109-119`). C'est donc notre propre
+métadonnée qui gouverne, et y poser `legal:read` la ferait demander.
+
+Le premier motif tient : le SDK couple annonce et exigence
+(`mcp/server/lowlevel/server.py:817`), si bien que la bascule est un jour de
+bascule et non une migration progressive.
+
+Le critère de retour reste mesurable, pas discrétionnaire : le journal métier
+porte `scopes=` sur chaque appel. Chemin de bascule ordonné, contrôle négatif
+et retour arrière dans
 [exploitation.md](exploitation.md) (incident n° 4), [conformite.md](conformite.md)
 § 5, et [chatgpt-submission.md](chatgpt-submission.md) (« Portées OAuth :
 exception argumentée », à porter à la connaissance du relecteur).

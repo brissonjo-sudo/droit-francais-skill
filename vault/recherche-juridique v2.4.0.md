@@ -38,8 +38,8 @@ Fond juridique inchangé.
 - `tests/run_eval.py`, `tests/eval-modes-erreur.csv`, `tests/README.md`.
 - `README.md`.
 
-## Liens
+## Liens (maillage Graphify)
 
 - [[index-recherche-juridique]] — navigation principale
-- [[structure-v2.3.0]] — arborescence (à jour pour l'essentiel)
+- [[recherche-juridique v3.0.0]] — version suivante
 - [[recherche-juridique v2.3.0]] — version précédente

@@ -29,6 +29,12 @@ MANIFEST = ROOT / ".codex-plugin" / "plugin.json"
 SUBMISSION = ROOT / "chatgpt-app-submission.json"
 SERVER = ROOT / "mcp_server" / "server.py"
 
+#: Socle du plugin Claude Code. Il n'etait couvert par aucun controle : sa
+#: version pouvait diverger de SERVER_VERSION en silence, alors meme que
+#: `.github/auto-review.md` affirmait que ce fichier le verifiait.
+MANIFEST_CLAUDE = ROOT / ".claude-plugin" / "plugin.json"
+MARKETPLACE_CLAUDE = ROOT / ".claude-plugin" / "marketplace.json"
+
 # Limites publiees par OpenAI pour la soumission au repertoire d'applications.
 # Elles sont recopiees ici plutot que deduites : un depassement fait echouer la
 # soumission sans que rien, dans le depot, ne l'ait signale auparavant.
@@ -93,6 +99,80 @@ LOCAL_ASSET_FIELDS = (
 
 def fail(message: str, problems: list[str]) -> None:
     problems.append(message)
+
+
+def charger_json(chemin: Path, problems: list[str]) -> dict | None:
+    """Lit un manifeste JSON, en signalant absence et illisibilite."""
+    if not chemin.is_file():
+        fail(f"manifeste absent : {chemin.relative_to(ROOT)}", problems)
+        return None
+    try:
+        return json.loads(chemin.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        fail(f"manifeste illisible ({chemin.relative_to(ROOT)}) : {exc}", problems)
+        return None
+
+
+def controler_socle_claude(
+    manifeste: dict,
+    marketplace: dict,
+    server_version: str,
+    problems: list[str],
+) -> None:
+    """Controle le couple manifeste/marketplace du plugin Claude Code.
+
+    Fonction pure, sans acces disque : elle reste ainsi eprouvable sur des
+    donnees qui violent chaque invariant, faute de quoi le controle passerait
+    toujours sans rien verifier.
+    """
+    nom = manifeste.get("name")
+    if not isinstance(nom, str) or PLUGIN_NAME.fullmatch(nom) is None:
+        fail("name du plugin Claude Code absent ou hors kebab-case", problems)
+
+    version = manifeste.get("version")
+    if not isinstance(version, str) or SEMVER.fullmatch(version) is None:
+        fail("version du plugin Claude Code hors SemVer strict", problems)
+        version = None
+    elif server_version and version != server_version:
+        fail(
+            f"version du manifeste Claude Code ({version}) differente de "
+            f"SERVER_VERSION ({server_version}) : le plugin suit le serveur MCP",
+            problems,
+        )
+
+    proprietaire = marketplace.get("owner")
+    if not isinstance(proprietaire, dict) or not str(
+        proprietaire.get("name", "")
+    ).strip():
+        fail("marketplace.owner doit etre un objet portant un nom", problems)
+
+    entrees = marketplace.get("plugins")
+    if not isinstance(entrees, list) or not entrees:
+        fail("marketplace.plugins doit etre une liste non vide", problems)
+        return
+
+    entree = next(
+        (item for item in entrees if isinstance(item, dict) and item.get("name") == nom),
+        None,
+    )
+    if entree is None:
+        fail(f"le marketplace ne reference pas le plugin {nom!r}", problems)
+        return
+
+    # Le plugin est le depot lui-meme : toute autre source ferait installer
+    # autre chose que ce qui est versionne ici.
+    if entree.get("source") != "./":
+        fail(
+            "l'entree marketplace doit porter source './' "
+            "(le plugin est la racine du depot)",
+            problems,
+        )
+    if version is not None and entree.get("version") != version:
+        fail(
+            f"version de l'entree marketplace ({entree.get('version')}) "
+            f"differente du manifeste Claude Code ({version})",
+            problems,
+        )
 
 
 def valider_contre_le_schema(submission: dict, problems: list[str]) -> None:
@@ -256,16 +336,27 @@ def main() -> int:
     # Le manifeste du plugin suit la version du serveur MCP : ce sont les deux
     # faces d'un meme deploiement. Le skill, lui, garde sa propre ligne
     # editoriale et n'est pas contraint ici.
+    server_version = ""
     if SERVER.is_file():
         trouve = re.search(
             r'^SERVER_VERSION = "([^"]+)"', SERVER.read_text(encoding="utf-8"), re.M
         )
-        if trouve and version != trouve.group(1):
-            fail(
-                f"version du manifeste ({version}) differente de SERVER_VERSION "
-                f"({trouve.group(1)}) : le plugin suit le serveur MCP",
-                problems,
-            )
+        if trouve:
+            server_version = trouve.group(1)
+            if version != server_version:
+                fail(
+                    f"version du manifeste ({version}) differente de SERVER_VERSION "
+                    f"({server_version}) : le plugin suit le serveur MCP",
+                    problems,
+                )
+
+    # Meme regle pour le socle Claude Code, jusqu'ici hors de toute couverture.
+    manifeste_claude = charger_json(MANIFEST_CLAUDE, problems)
+    marketplace_claude = charger_json(MARKETPLACE_CLAUDE, problems)
+    if manifeste_claude is not None and marketplace_claude is not None:
+        controler_socle_claude(
+            manifeste_claude, marketplace_claude, server_version, problems
+        )
 
     if "[TODO:" in json.dumps(manifest, ensure_ascii=False):
         fail("le manifeste contient encore un marqueur TODO", problems)
@@ -310,6 +401,10 @@ def main() -> int:
                 legal_server = servers.get("droit-francais")
                 if not isinstance(legal_server, dict):
                     fail("serveur MCP droit-francais absent", problems)
+                elif legal_server.get("type") in {"http", "sse"}:
+                    url = legal_server.get("url")
+                    if not isinstance(url, str) or not url.startswith("https://"):
+                        fail("URL du serveur MCP distant absente ou non HTTPS", problems)
                 else:
                     command = legal_server.get("command")
                     args = legal_server.get("args")

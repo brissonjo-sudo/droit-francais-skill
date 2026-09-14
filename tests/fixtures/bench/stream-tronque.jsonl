@@ -1,0 +1,4 @@
+{"type": "system", "subtype": "init", "cwd": "E:\\repo", "session_id": "s1", "tools": ["mcp__droit-francais__search_articles", "mcp__droit-francais__get_article"], "mcp_servers": [{"name": "droit-francais", "status": "connected"}], "model": "claude-sonnet-4-6", "permissionMode": "default", "apiKeySource": "none", "claude_code_version": "2.1.133"}
+{ceci n'est pas du JSON
+{"type": "assistant", "message": {"id": "m", "model": "claude-sonnet-4-6", "role": "assistant", "type": "message", "content": [{"type": "tool_use", "id": "toolu_01", "name": "mcp__droit-francais__search_articles", "input": {"number": "62-2"}}]}, "session_id": "s1"}
+{"type": "assistant", "message": {"role": "assistant", "type": "message", "content": [{"type": "text", "text": "Réponse partielle avant coupure."}]}, "session_id": "s1"}

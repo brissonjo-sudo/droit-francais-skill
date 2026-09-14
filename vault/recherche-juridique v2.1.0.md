@@ -38,3 +38,8 @@ Deux cas observés où une ambiguïté **décisionnelle** a été traitée par h
 
 - 14 modes d'erreur (l'étape 0 bis est une garde procédurale, pas un 15e mode).
 - 7 principes, procédure en 7 étapes, double mode A/B, 5 modules, 4 techniques, 3 gabarits + sous-gabarit concours.
+
+## Liens (maillage Graphify)
+
+- [[index-recherche-juridique]] — navigation principale
+- [[recherche-juridique v2.2.0]] — version suivante

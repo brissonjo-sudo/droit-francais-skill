@@ -43,6 +43,15 @@ PUBLIC_URL = "https://exemple.test"
 RESOURCE = "https://exemple.test/mcp"
 AUTRE_EMETTEUR = "https://idp-pirate.example/"
 
+#: Identifiant de clé porté par les jetons de ce fichier. Le vérificateur
+#: résout la clé de signature par le `kid` de l'en-tête et refuse, avant tout
+#: appel réseau, un jeton qui n'en porte aucun : sans cette constante, les
+#: jetons de test seraient rejetés à l'étape de résolution de clé, et les
+#: contrôles qui suivent — audience, émetteur, portée, quota — ne seraient
+#: jamais atteints. Un test resterait alors vert en prouvant autre chose que ce
+#: qu'il annonce.
+KID_DE_TEST = "cle-de-test"
+
 #: Origine utilisee pour joindre l'application en processus. Elle est distincte
 #: de l'URL publique, qui reste celle de la ressource et de l'audience.
 TRANSPORT_HOST = "127.0.0.1:8000"
@@ -95,7 +104,16 @@ class OAuthServerCase(unittest.TestCase):
         jwks_client = cls._jwks.start()
         signing_key = mock.Mock()
         signing_key.key = cls.key.public_key()
-        jwks_client.return_value.get_signing_key_from_jwt.return_value = signing_key
+        signing_key.key_id = KID_DE_TEST
+        # Le vérificateur n'appelle plus `get_signing_key_from_jwt` : il lit le
+        # `kid` puis cherche la clé dans le jeu mis en cache, afin de ne jamais
+        # laisser un `kid` inconnu déclencher un appel réseau par requête. Le
+        # mock suit cette surface, et emprunte la vraie `match_kid` — une
+        # `@staticmethod` prise sur le module `jwt`, donc épargnée par le
+        # correctif de `mcp_server.auth`. Un mock qui accepterait n'importe
+        # quel `kid` rendrait ces tests aveugles à une régression du refus.
+        jwks_client.return_value.get_signing_keys.return_value = [signing_key]
+        jwks_client.return_value.match_kid = jwt.PyJWKClient.match_kid
 
         importlib.reload(mcp_app)
         assert mcp_app.SETTINGS.auth_enabled, "le rechargement n'a pas activé OAuth"
@@ -144,7 +162,9 @@ class OAuthServerCase(unittest.TestCase):
             "exp": now + 300,
         }
         payload.update(overrides)
-        return jwt.encode(payload, self.key, algorithm="RS256")
+        return jwt.encode(
+            payload, self.key, algorithm="RS256", headers={"kid": KID_DE_TEST}
+        )
 
     # ------------------------------------------------------------------
     # Accès HTTP en processus
@@ -237,6 +257,10 @@ class RefusTests(OAuthServerCase):
             },
             autre,
             algorithm="RS256",
+            # Le `kid` est celui du jeu de clés connu : la résolution de clé
+            # aboutit, et c'est bien la vérification de signature — non
+            # l'absence de clé — qui refuse ce jeton.
+            headers={"kid": KID_DE_TEST},
         )
         self.assertEqual(401, self.post_mcp(token).status_code)
 
@@ -248,6 +272,7 @@ class RefusTests(OAuthServerCase):
             {"iss": ISSUER, "aud": RESOURCE, "iat": now, "exp": now + 300},
             self.key,
             algorithm="RS256",
+            headers={"kid": KID_DE_TEST},
         )
         self.assertEqual(401, self.post_mcp(token).status_code)
 

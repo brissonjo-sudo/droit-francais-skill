@@ -42,12 +42,13 @@ Tant qu'un point décisionnel n'est pas tranché : au plus un « si (a) … / si
 
 Cette étape fonde le 10e cas des [[déclencheurs d'abstention]] : information décisionnelle détenue par le seul utilisateur, manquante. Format dédié : **« Question préalable nécessaire »**.
 
-## Liens
+## Liens (maillage Graphify)
 
-- [[P2]] — régime/date applicables
-- [[P7]] — abstention informée (pendant côté sortie)
-- [[étape 0]] — désambiguïsation factuelle (amont)
-- [[étape 1]] — cartographie des sources (aval)
-- [[mode 10]] — oubli du champ d'application territorial
-- [[mode 14]] — faux positif textuel / mauvaise fonction juridique
-- [[déclencheurs d'abstention]] — 10e déclencheur
+- [[index-recherche-juridique]] — navigation principale
+- [[procedure-compacte]] — place de cette étape dans la procédure
+- [[modules-declencheurs]] — 10e déclencheur d'abstention
+- [[recherche-juridique v2.1.0]] — version qui a introduit cette étape
+
+Références conceptuelles non résolues — `P2`, `P7`, `étape 0`, `étape 1`,
+`mode 10`, `mode 14`, `déclencheurs d'abstention` — : leur contenu vit dans
+les agrégats ci-dessus, jamais en note séparée (voir l'index).

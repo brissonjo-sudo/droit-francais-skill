@@ -1,7 +1,7 @@
 {
   "name": "droit-francais-skill",
   "displayName": "Droit français",
-  "version": "0.8.0",
+  "version": "0.8.3",
   "description": "Méthodologie rigoureuse de recherche en droit français, distribuée comme plugin Claude Code : sources primaires Légifrance et Judilibre, vérification de vigueur, citations traçables.",
   "author": {
     "name": "brissonjo-sudo",
@@ -15,13 +15,5 @@
     "recherche-juridique",
     "légifrance",
     "jurisprudence"
-  ],
-  "mcpServers": {
-    "droit-francais": {
-      "command": "python",
-      "args": [
-        "${CLAUDE_PLUGIN_ROOT}/mcp_server/server.py"
-      ]
-    }
-  }
+  ]
 }

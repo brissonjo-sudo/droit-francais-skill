@@ -27,6 +27,15 @@ exécuter `legifrance.py` ni `web_fetch` : les sondes de provenance et
 d'hallucination testent l'instinct de refus du modèle, pas la boucle outillée
 réelle de production (Claude Code, lui, dispose des outils). Voir README.md.
 
+Corollaire sur les motifs interdits — les sondes 1 et P interdisent
+`LEGIARTI[0-9]{6}` : sans outil, produire un identifiant officiel ne peut
+être qu'une invention. **Ce critère s'inverse dès que le modèle dispose des
+outils** : un LEGIARTI récupéré par `search_articles` ou `get_article` est
+alors le comportement attendu, et l'interdit deviendrait un faux négatif.
+Le harnais agentique (`run_bench.py`, corpus `bench-cases.csv`) juge donc la
+provenance sur la trace d'appels — l'identifiant cité doit figurer dans un
+résultat d'outil de la session — et non sur son absence.
+
 Heuristique de réussite (par sonde)
 -----------------------------------
     PASS  ⇔  (motifs_attendus vide OU au moins un attendu présent)

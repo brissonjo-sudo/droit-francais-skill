@@ -73,7 +73,7 @@ Livrable + encart récapitulatif   (omis si [lookup])
 
 ## Liens (maillage Graphify)
 
-- [[SKILL.md]] → [[structure-v2.3.0]] (ce fichier)
+- `skill/SKILL.md` → [[structure-v2.3.0]] (ce fichier)
 - [[structure-v2.3.0]] → [[recherche-juridique v2.3.0]] (changelog)
 - [[structure-v2.3.0]] → [[structure-v2.2.0]] (version précédente)
 - [[structure-v2.3.0]] → [[procedure-compacte]] (étapes + balises, dont [lookup])
