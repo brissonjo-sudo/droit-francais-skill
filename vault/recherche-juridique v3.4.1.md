@@ -38,6 +38,7 @@ attendu.
 
 - [[index-recherche-juridique]] — navigation principale
 - [[recherche-juridique v3.4.0]] — version précédente
+- [[recherche-juridique v3.5.0]] — version suivante
 - [[matrice-modes]] — modes 15 à 18 ajoutés
 - [[modules-declencheurs]] — sixième module
 - [[procedure-compacte]] — rôle (c) paramétrable

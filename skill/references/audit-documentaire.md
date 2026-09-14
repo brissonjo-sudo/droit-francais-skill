@@ -124,6 +124,22 @@ champ, une procédure et une limite. Sinon, remplacer par une instruction
 juridiquement sûre — observer, préserver les lieux, rendre compte, solliciter
 l'autorité compétente — sans inventer un pouvoir.
 
+**Exécution forcée d'office.** Si le document prévoit ou recommande de couper,
+retirer, évacuer, détruire, confisquer ou attribuer à la personne publique un
+bien privé, tester cette opération séparément de l'interdiction ou de la
+sanction qui la précède. Identifier : (1) une habilitation législative expresse
+ou une urgence caractérisée ; ou, à défaut, (2) l'absence d'autre voie de droit
+ou sanction, la base légale de la décision à exécuter, la résistance de
+l'intéressé et la stricte nécessité de la mesure. Une compétence de police, une
+contravention, un affichage ou une clause locale de « renonciation » ne créent
+pas, à eux seuls, le pouvoir de disposer du bien. Vérifier la jurisprudence et
+le régime sectoriel applicables avant de conclure.
+
+**Montants répressifs.** Distinguer toujours le maximum légal encouru, la
+classe de contravention et, lorsque la procédure le permet effectivement,
+l'amende forfaitaire. Aucun de ces trois éléments ne se déduit mécaniquement
+des deux autres.
+
 Pour les images et données, distinguer visionnage/transmission en temps
 réel, conservation, remise volontaire, réquisition judiciaire, responsable
 du traitement, destinataires et durée. Ne pas déduire une responsabilité

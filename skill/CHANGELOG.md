@@ -11,6 +11,28 @@ conservés tels quels pour ne pas casser les liens publiés.
 
 ---
 
+### [3.5.0] — 2026-09-14
+
+Préparée le 2026-09-09 sous le numéro 3.2.2, renumérotée après la 3.4.1.
+MINEUR : un contrôle obligatoire s'ajoute au module DOC-AUDIT
+(`maintenance.md` §5).
+
+#### Ajouté
+- **Audit des pouvoirs coercitifs** : lorsqu'un document prévoit une coupe,
+  un enlèvement, une éviction, une destruction, une confiscation ou une
+  attribution d'un bien privé, le module DOC-AUDIT impose désormais un contrôle
+  autonome de l'exécution forcée d'office. Une interdiction, une sanction ou
+  une clause locale ne vaut pas, seule, habilitation à disposer du bien.
+- **Distinction des montants répressifs** : le contrôle documentaire sépare la
+  classe de contravention, le maximum légal et l'amende forfaitaire
+  éventuellement applicable.
+
+#### Retour d'expérience consigné
+- Deux tests documentaires anonymisés, l'un sur un vélo attaché au mobilier
+  urbain et l'autre sur une terrasse sans autorisation, ont confirmé que ce
+  contrôle doit être déclenché avant toute recommandation d'enlèvement ou de
+  vente d'un bien. Consignés dans `vault/retex-tests.md`.
+
 ### [3.4.1] — 2026-09-14
 
 Release corrective, préalable à la mise sous mesure du noyau. Aucune règle
