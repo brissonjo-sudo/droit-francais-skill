@@ -7,7 +7,7 @@
     "description": "Droit français recherche et lit des articles et décisions dans les sources officielles Légifrance et Judilibre, avec des identifiants, des liens canoniques et des métadonnées de provenance utiles à une citation vérifiable. Méthodologie complète et code source ouverts : github.com/brissonjo-sudo/droit-francais-skill",
     "category": "PRODUCTIVITY"
   },
-  "release_notes": "Version 0.8.2. Le serveur distingue désormais la provenance officielle d’une version d’article de son applicabilité à la date évaluée, vérifie les identifiants LEGIARTI fournis et conserve le code ainsi que la date dans le routage des recherches. Le code source de cette version sera figé par le tag plugin-v0.8.2.",
+  "release_notes": "Version 0.8.3. Correction de la documentation d’installation du plugin Claude Code qui décrivait un serveur MCP local alors que le manifeste déclare un serveur distant. Suppression de la déclaration MCP redondante du manifeste Claude Code au profit du fichier .mcp.json à la racine du dépôt. Extension du vérificateur de manifeste au manifeste Claude Code. Le code source de cette version sera figé par le tag plugin-v0.8.3.",
   "tools": {
     "search": {
       "annotations": {
