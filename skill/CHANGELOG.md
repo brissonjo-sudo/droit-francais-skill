@@ -11,7 +11,7 @@ conservés tels quels pour ne pas casser les liens publiés.
 
 ---
 
-### [3.3.1] — 2026-09-06
+### [3.4.1] — 2026-09-14
 
 Release corrective, préalable à la mise sous mesure du noyau. Aucune règle
 méthodologique n'est ajoutée, retirée ni modifiée. Elle corrige ce que la
@@ -64,7 +64,68 @@ suivante.
   `gemini_agent/` et manifestes de plugin : intouchés. Un PATCH du noyau ne
   déclenche pas de resynchronisation.
 
----
+### [3.4.0] — 2026-09-14
+
+#### Ajouté
+- **Détection fluide des mises à jour** : au premier usage d'une session, le
+  skill peut consulter `npx skills check` lorsque le CLI est disponible. Une
+  version périmée est signalée brièvement, sans interrompre l'analyse, avec la
+  commande ciblée `npx skills update recherche-juridique`.
+- **Mode automatique sur consentement explicite** : le nouveau lanceur
+  `scripts/update_skill.py` actualise une installation globale suivie, au plus
+  une fois par 24 heures, après activation dans
+  `.recherche-juridique-update.json`. Il restaure `profil.md` et `.env` après
+  la mise à jour et ne signale qu'un changement de version effectif.
+- **Garde-fous d'expérience et de sécurité** : aucun message si le contrôle
+  est indisponible ou ne détecte rien ; le mode automatique reste désactivé
+  par défaut ; les installations gérées par un marketplace conservent leur
+  mécanisme propre.
+
+#### Tests
+- `tests/test_update_skill.py` : 22 tests hors réseau du lanceur — lecture de
+  la version, activation par le seul booléen `true`, échéance de 24 heures
+  (fuseaux, dates invalides), refus des emplacements ambigus, sauvegarde et
+  restauration de `profil.md` et `.env`, et chaque issue de `main()`.
+  Ils ont révélé deux défauts, corrigés avant publication : sous Windows, la
+  commande `["npx", …]` échouait toujours (`npx.cmd` introuvable sans shell),
+  désormais lancée par le chemin que rend `shutil.which` ; et un lancement
+  impossible n'était pas daté, donc retenté à chaque usage.
+
+### [plugin-v0.8.3] — 2026-09-14
+
+Correction d'empaquetage du plugin Claude Code. Le noyau méthodologique
+(`skill/`, série 3.x) n'est pas touché.
+
+#### Corrigé
+- Le README décrivait l'installation du plugin Claude Code comme reposant sur
+  un serveur MCP **local** déclaré avec `${CLAUDE_PLUGIN_ROOT}`, et annonçait
+  deux prérequis en conséquence : un `python` dans le PATH et des identifiants
+  PISTE sur le poste. Le manifeste déclarait en réalité une **connexion
+  distante** : ces prérequis étaient faux. La section est réécrite sur le
+  transport réel, le lancement local devenant une variante documentée.
+- `docs/architecture-plugin.md` portait la même affirmation périmée dans son
+  schéma d'arborescence.
+
+#### Retiré
+- La déclaration `mcpServers` de `.claude-plugin/plugin.json`. Le `.mcp.json`
+  de la racine est repris automatiquement par Claude Code pour un plugin :
+  l'URL du service y était écrite deux fois, donc corrigible à moitié.
+  Vérifié sur l'inventaire de composants du plugin, serveur MCP toujours
+  découvert sans ce bloc.
+
+#### Modifié
+- `tests/check_plugin.py` contrôle désormais aussi le socle Claude Code :
+  `.claude-plugin/plugin.json` et `.claude-plugin/marketplace.json`. Jusqu'ici
+  seul `.codex-plugin/plugin.json` était lu, alors que `.github/auto-review.md`
+  affirmait que ce vérificateur couvrait le manifeste Claude Code. Sont
+  vérifiés : le nom en kebab-case, la version en SemVer strict, son égalité
+  avec `SERVER_VERSION`, le propriétaire du marketplace, la référence au
+  plugin, la `source` `./` et l'accord de version entre les deux fichiers.
+
+#### Tests
+- `tests/test_check_plugin.py` : chaque invariant du nouveau contrôle est
+  éprouvé sur un couple manifeste/marketplace qui le viole, plus deux contrôles
+  sur le dépôt réel — dont l'absence de duplication MCP dans le manifeste.
 
 ### [3.3.0-gemini] — 2026-09-06
 
