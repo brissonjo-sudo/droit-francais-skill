@@ -239,6 +239,19 @@ droit-francais-skill@droit-francais`.
 PISTE. Le service distant porte ses propres clés et l'accès est protégé par
 OAuth 2.1 avec quota par utilisateur — voir le [guide OAuth](docs/oauth.md).
 
+**Connexion : un identifiant de client à saisir.** Le serveur d'autorisation
+n'accepte pas l'enregistrement automatique de nouveaux clients ; la connexion
+passe donc par un client prédéfini.
+
+- **Depuis claude.ai ou l'application Claude** : à l'ajout du connecteur,
+  ouvrir *Advanced settings* et saisir `UydR0hHVgqArHoQpoonkYUN1vSLfaptD` dans
+  « OAuth Client ID », en laissant le secret vide. Sans cet identifiant, la
+  connexion échoue. Voie en service depuis le 16 septembre 2026.
+- **Depuis Claude Code** : la déclaration `.mcp.json` du plugin ne porte pas
+  encore d'identifiant de client, et la connexion échouera avec « Incompatible
+  auth server: does not support dynamic client registration ». Voie non encore
+  configurée — voir le [guide OAuth](docs/oauth.md) § 4.
+
 #### Variante — serveur MCP local
 
 Pour l'auto-hébergement ou le développement, remplacer la déclaration du
