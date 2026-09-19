@@ -1,6 +1,6 @@
 # Authentification OAuth 2.1 du serveur MCP public
 
-État vérifié le 30 août 2026, révisé le 4 septembre 2026.
+État vérifié le 30 août 2026, révisé le 16 septembre 2026.
 
 ## Pourquoi une authentification
 
@@ -232,12 +232,13 @@ et une adresse de retour `http://localhost:PORT/callback` à ajouter aux
 *Allowed Callback URLs*. **Non configuré ni essayé à ce jour** : le
 `.mcp.json` du plugin ne porte pas d'identifiant, si bien qu'une installation
 Claude Code échouera avec « Incompatible auth server: does not support dynamic
-client registration ».
+client registration ». Suivi : [#88](https://github.com/brissonjo-sudo/droit-francais-skill/issues/88).
 
 **ChatGPT** accepte aussi un client prédéfini — la documentation OpenAI cite
 « CIMD, DCR, or a predefined OAuth client » —, ainsi que CIMD, qu'elle
 préfère. **Aucun des deux n'est configuré** : à régler avant la soumission,
-sans quoi le relecteur OpenAI ne pourra pas se connecter.
+sans quoi le relecteur OpenAI ne pourra pas se connecter. Suivi :
+[#89](https://github.com/brissonjo-sudo/droit-francais-skill/issues/89).
 
 ChatGPT lit `/.well-known/openid-configuration` et demande les portées qui y
 sont annoncées. Si l'autorisation échoue en `OAUTH_SCOPES_MISMATCH`, ajouter
