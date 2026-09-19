@@ -1,6 +1,6 @@
 # Authentification OAuth 2.1 du serveur MCP public
 
-État vérifié le 30 août 2026, révisé le 4 septembre 2026.
+État vérifié le 30 août 2026, révisé le 16 septembre 2026.
 
 ## Pourquoi une authentification
 
@@ -131,10 +131,28 @@ valeurs étant identiques ici, le résultat est stable.
 
 ### 4. Client OAuth
 
-**Voie retenue le 4 septembre 2026 — enregistrement dynamique bref, puis
-client durable.** Elle combine les deux approches : on laisse ChatGPT
-s'enregistrer lui-même, ce qui garantit une URI de redirection exacte sans
-recopie manuelle, puis on referme la porte derrière lui.
+> **⚠️ Correction du 16 septembre 2026 — la DCR fermée bloque toute nouvelle
+> installation.** La voie ci-dessous affirmait qu'une fois le client obtenu,
+> la connexion fonctionne DCR fermée. C'est vrai pour **la seule connexion qui
+> a produit ce client**, et faux pour toute autre. Un client MCP obtient son
+> client OAuth **à chaque nouvelle installation** : ChatGPT exécute la DCR
+> « once per MCP server connection », et Claude essaie dans l'ordre des
+> identifiants détenus par Anthropic, puis CIMD, puis la DCR. Le locataire
+> n'annonçant pas CIMD et la DCR étant fermée, **un nouvel utilisateur, un
+> second compte ou le relecteur OpenAI ne peut pas se connecter**, alors même
+> que le document de découverte Auth0 continue d'annoncer
+> `registration_endpoint`.
+>
+> Constaté le 16 septembre 2026 sur l'installation du plugin Claude depuis
+> claude.ai, puis corrigé par un **client prédéfini** : voir « Client
+> prédéfini pour Claude » plus bas. C'est désormais la voie à suivre, la DCR
+> restant fermée.
+
+**Voie du 4 septembre 2026 — enregistrement dynamique bref, puis client
+durable.** Elle combine les deux approches : on laisse ChatGPT s'enregistrer
+lui-même, ce qui garantit une URI de redirection exacte sans recopie manuelle,
+puis on referme la porte derrière lui. **Elle ne vaut que pour la connexion
+qui s'enregistre ce jour-là** — voir l'avertissement ci-dessus.
 
 1. **Ouvrir** la DCR dans **Settings → Advanced → OIDC Dynamic Application
    Registration**.
@@ -151,7 +169,8 @@ Le client ainsi créé est **public** : `token_endpoint_auth_method: none`. Il
 n'a **pas de secret client**, et il ne faut donc ni en chercher un, ni en
 saisir un dans le formulaire OpenAI. Sa sécurité repose entièrement sur PKCE
 (S256) et sur l'exactitude de l'URI de redirection. Il survit à la fermeture
-de la DCR : ChatGPT n'a plus à se réenregistrer.
+de la DCR **pour la connexion ChatGPT qui l'a créé** ; une nouvelle
+installation, elle, tente un nouvel enregistrement et échoue.
 
 Deux conséquences pratiques :
 
@@ -165,6 +184,61 @@ Deux conséquences pratiques :
 Un client antérieur, `dRsmaHYVujnQft3RtXOynPj7qeK3rAWg`, a été **supprimé** le
 4 septembre 2026 (journal Auth0 *Delete a client*). Il n'est pas réutilisable :
 aucune procédure ni aucun réglage ne doit y renvoyer.
+
+#### Client prédéfini pour Claude (claude.ai) — voie en service
+
+**Mis en service le 16 septembre 2026**, connexion réussie depuis claude.ai. Un
+client unique, créé une fois dans le tableau de bord, sert à toutes les
+installations : la DCR peut rester fermée. Claude le prend en charge
+officiellement — un identifiant saisi dans les réglages avancés du connecteur
+passe avant CIMD et la DCR.
+
+1. **Créer l'application** dans Auth0 → *Applications → Create Application*.
+   Préférer un client **public**, sans secret — type *Native*, ou méthode
+   d'authentification du point de jeton « None ». Claude traite l'identifiant
+   comme un client public quand le secret est laissé vide ; une *Regular Web
+   Application* exigerait au contraire un secret, et l'échange du code
+   échouerait sans lui.
+2. **Allowed Callback URLs** : `https://claude.ai/api/mcp/auth_callback`,
+   **à l'identique**. Toute différence produit « Callback URL mismatch ».
+3. **Grant Types** (*Advanced Settings*) : *Authorization Code* et *Refresh
+   Token*. Claude demande `scope=offline_access` afin de renouveler la
+   connexion sans reconnexion ; activer aussi *Allow Offline Access* sur l'API,
+   faute de quoi la connexion tombera à l'expiration du jeton.
+4. **Accès à l'API** : *Applications → APIs → Droit français MCP → Application
+   Access*, autoriser cette application. Un client créé dans le tableau de
+   bord est un client *first-party* ; sous la politique « Per-app
+   authorization », il n'obtient rien sans cet accès explicite. **C'est le
+   réglage manqué le 16 septembre** : Claude affichait seulement
+   « L'autorisation a échoué » avec une référence `ofid_…`.
+5. **Connexions** : vérifier que la connexion utilisée (Google, base de
+   données) est activée pour cette application dans son onglet *Connections*.
+6. **Côté Claude** : ajouter le connecteur, ouvrir ses *Advanced settings* et
+   saisir l'identifiant du client dans « OAuth Client ID ». Laisser le secret
+   vide pour un client public.
+
+Client en service : `UydR0hHVgqArHoQpoonkYUN1vSLfaptD`. Un identifiant de
+client **n'est pas un secret** : il circule en clair dans l'adresse
+d'autorisation que voit tout navigateur. Un éventuel secret client, lui, ne
+doit jamais apparaître ni dans ce dépôt, ni dans une issue.
+
+Ordre des pannes rencontrées, chacune tranchée par *Monitoring → Logs* :
+« Callback URL mismatch » (étape 2), puis « L'autorisation a échoué »
+(étape 4), puis connexion réussie.
+
+**Claude Code** utilise le même mécanisme par une autre entrée : l'objet
+`"oauth": {"clientId": …, "callbackPort": …}` dans la déclaration du serveur,
+et une adresse de retour `http://localhost:PORT/callback` à ajouter aux
+*Allowed Callback URLs*. **Non configuré ni essayé à ce jour** : le
+`.mcp.json` du plugin ne porte pas d'identifiant, si bien qu'une installation
+Claude Code échouera avec « Incompatible auth server: does not support dynamic
+client registration ». Suivi : [#88](https://github.com/brissonjo-sudo/droit-francais-skill/issues/88).
+
+**ChatGPT** accepte aussi un client prédéfini — la documentation OpenAI cite
+« CIMD, DCR, or a predefined OAuth client » —, ainsi que CIMD, qu'elle
+préfère. **Aucun des deux n'est configuré** : à régler avant la soumission,
+sans quoi le relecteur OpenAI ne pourra pas se connecter. Suivi :
+[#89](https://github.com/brissonjo-sudo/droit-francais-skill/issues/89).
 
 ChatGPT lit `/.well-known/openid-configuration` et demande les portées qui y
 sont annoncées. Si l'autorisation échoue en `OAUTH_SCOPES_MISMATCH`, ajouter

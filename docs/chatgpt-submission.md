@@ -1,6 +1,6 @@
 # Connexion et soumission du plugin dans ChatGPT
 
-État vérifié le 30 août 2026, révisé le 4 septembre 2026.
+État vérifié le 30 août 2026, révisé le 16 septembre 2026.
 
 ## Endpoint de production
 
@@ -54,17 +54,28 @@ connectors*.
    à corriger dans le formulaire : le diagnostiquer avec
    `tests/check_oauth_metadata.py`.
 
-   **Cas particulier de la première connexion.** ChatGPT s'enregistre lui-même
-   par enregistrement dynamique (RFC 7591), mais celui-ci **n'est pas laissé
-   ouvert** sur le locataire Auth0 : il a été activé le temps d'un
-   enregistrement le 4 septembre 2026, puis refermé aussitôt. Le client obtenu,
-   `tpc_tTMV6uujD9aHwP8DoFfEMg`, est durable — ChatGPT n'a plus à se
-   réenregistrer, et la connexion fonctionne DCR fermée. C'est un client
-   **public** (`token_endpoint_auth_method: none`) : il n'a pas de secret
-   client, et aucun champ du formulaire n'en demande. Si un jour un nouvel
-   enregistrement devenait nécessaire, rouvrir la DCR le temps de l'opération
-   et la refermer dans le même passage ; procédure détaillée dans
-   [`oauth.md`](oauth.md) § 4.
+   **Enregistrement du client — point bloquant avant soumission.** ChatGPT
+   s'enregistre lui-même par enregistrement dynamique (RFC 7591), mais
+   celui-ci a été **refermé** le 4 septembre 2026, après avoir produit le
+   client `tpc_tTMV6uujD9aHwP8DoFfEMg` pour le connecteur de test. Ce client
+   ne sert que **cette** connexion : ChatGPT exécute la DCR « once per MCP
+   server connection ». **Toute nouvelle installation — un second compte, un
+   utilisateur de l'annuaire, le relecteur OpenAI — tentera un nouvel
+   enregistrement et échouera**, la DCR étant fermée. L'affirmation antérieure
+   selon laquelle « la connexion fonctionne DCR fermée » ne valait que pour le
+   connecteur de test ; la panne a été constatée le 16 septembre 2026 sur
+   l'installation du plugin Claude.
+
+   La documentation OpenAI offre deux voies qui laissent la DCR fermée :
+   CIMD, qu'elle préfère mais que le locataire n'annonce pas aujourd'hui, et un
+   **client prédéfini** (« CIMD, DCR, or a predefined OAuth client »). Le
+   client prédéfini fonctionne déjà pour Claude depuis le 16 septembre ; le
+   choix de méthode se fait dans le constructeur du plugin OpenAI, et l'adresse
+   de retour à autoriser dans Auth0 est celle qu'affiche la page de gestion du
+   plugin. Procédure et pannes à éviter : [`oauth.md`](oauth.md) § 4, « Client
+   prédéfini pour Claude ». **Ne pas soumettre avant d'avoir réussi une
+   connexion depuis un second compte ChatGPT.** Suivi :
+[#89](https://github.com/brissonjo-sudo/droit-francais-skill/issues/89).
 
    Les protocoles acceptés sont SSE et *streaming HTTP* ; le transport du
    service est en Streamable HTTP.
