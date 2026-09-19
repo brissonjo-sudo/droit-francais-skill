@@ -1,6 +1,6 @@
 # Connexion et soumission du plugin dans ChatGPT
 
-État vérifié le 30 août 2026, révisé le 4 septembre 2026.
+État vérifié le 30 août 2026, révisé le 16 septembre 2026.
 
 ## Endpoint de production
 
@@ -74,7 +74,8 @@ connectors*.
    de retour à autoriser dans Auth0 est celle qu'affiche la page de gestion du
    plugin. Procédure et pannes à éviter : [`oauth.md`](oauth.md) § 4, « Client
    prédéfini pour Claude ». **Ne pas soumettre avant d'avoir réussi une
-   connexion depuis un second compte ChatGPT.**
+   connexion depuis un second compte ChatGPT.** Suivi :
+[#89](https://github.com/brissonjo-sudo/droit-francais-skill/issues/89).
 
    Les protocoles acceptés sont SSE et *streaming HTTP* ; le transport du
    service est en Streamable HTTP.
