@@ -24,6 +24,7 @@ Thumbs.db
 __pycache__/
 *.pyc
 .venv/
+dist/
 .env
 .env.*
 !.env.example

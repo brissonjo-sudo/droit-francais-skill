@@ -635,6 +635,19 @@ class McpProtocolTests(unittest.TestCase):
                         case_law, "inputSchema", getattr(case_law, "input_schema", None)
                     )
                     properties = schema["properties"]
+                    section_tool = next(t for t in listed.tools if t.name == "get_section")
+                    section_schema = getattr(
+                        section_tool, "inputSchema", getattr(section_tool, "input_schema", None)
+                    )
+                    self.assertEqual(set(section_schema["required"]), {"id", "text_id"})
+                    self.assertIn("date", section_schema["properties"])
+                    for name, args in (
+                        ("get_section", {"id": "invalide", "text_id": "LEGITEXT000000000001"}),
+                        ("get_text", {"id": "JORFTEXT000000000001"}),
+                    ):
+                        invalid = await session.call_tool(name, args)
+                        self.assertTrue(getattr(invalid, "isError", getattr(invalid, "is_error", False)))
+                        self.assertIn("non vérifiée", invalid.content[0].text)
                     self.assertEqual(
                         sorted(legal_tools.JURISDICTIONS),
                         sorted(_schema_enum(properties["jurisdiction"])),

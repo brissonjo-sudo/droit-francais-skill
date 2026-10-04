@@ -723,4 +723,24 @@ def fetch(identifier: str) -> dict[str, Any]:
     identifier = identifier.strip()
     if identifier.upper().startswith(ARTICLE_ID_PREFIX):
         return get_article(identifier)
+    if identifier.upper().startswith("LEGITEXT"):
+        return get_text(identifier)
+    if identifier.upper().startswith(("LEGISCTA", "JORF")):
+        raise LegifranceError(
+            "Pour une section CODE, utiliser get_section avec son LEGITEXT parent. "
+            "Le fonds JORF n'est pas couvert par get_text (texte consolidé LEGI).",
+            exit_code=2,
+        )
     return get_decision(identifier)
+
+
+def get_section(section_id: str, text_id: str, date: str | None = None) -> dict[str, Any]:
+    """Consulte une section CODE sans déduire son texte parent."""
+    from .texts import get_section as consult_section
+    return consult_section(section_id, text_id, date)
+
+
+def get_text(text_id: str, date: str | None = None) -> dict[str, Any]:
+    """Consulte un texte consolidé LEGI."""
+    from .texts import get_text as consult_text
+    return consult_text(text_id, date)

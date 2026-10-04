@@ -2,6 +2,7 @@
 .github
 .claude
 .venv
+dist
 __pycache__
 *.pyc
 .env

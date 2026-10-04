@@ -68,7 +68,7 @@ def main() -> None:
     parser.add_argument("url", nargs="?", default="http://127.0.0.1:8000/mcp")
     args = parser.parse_args()
     asyncio.run(probe(args.url))
-    print("Endpoint MCP HTTP valide ; 6 outils et métadonnées contrôlés.")
+    print(f"Endpoint MCP HTTP valide ; {len(EXPECTED_TOOLS)} outils et métadonnées contrôlés.")
 
 
 if __name__ == "__main__":

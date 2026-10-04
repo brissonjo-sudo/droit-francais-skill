@@ -2,6 +2,11 @@
 
 ## État de cette étape
 
+**Candidat local v0.9.0 — non déployé** : l'extension à huit outils est en
+préparation dans [livraison-0.9.0.md](livraison-0.9.0.md). Les observations
+datées ci-dessous concernent le service antérieur à six outils et ne valident
+pas les nouvelles consultations. Ne pas exécuter le déploiement sans accord.
+
 Le serveur est déployé sur Render à l'adresse
 `https://droit-francais-skill.onrender.com/mcp`. Le 30 août 2026, la sonde de
 santé, la découverte des six outils MCP et un appel réel vers chacune des API

@@ -453,7 +453,7 @@ def main() -> int:
             valider_contre_le_schema(submission, problems)
             tools = submission.get("tools")
             if not isinstance(tools, dict) or set(tools) != set(EXPECTED_TOOLS):
-                fail("la soumission doit couvrir exactement les six outils MCP", problems)
+                fail("la soumission doit couvrir exactement le catalogue MCP", problems)
             else:
                 for name, descriptor in tools.items():
                     justifications = descriptor.get("justifications", {})

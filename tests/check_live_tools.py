@@ -212,7 +212,7 @@ async def sonder(url: str, token: str) -> None:
                         raise SondeError(
                             f"annotations de sécurité invalides pour {outil.name}"
                         )
-                print("✅ Six outils découverts, tous annotés en lecture seule.")
+                print(f"✅ {len(EXPECTED_TOOLS)} outils découverts, tous annotés en lecture seule.")
 
                 # ---- 2. Appel Légifrance réel -----------------------------
                 resultat, latence_legifrance = await appeler(
@@ -332,7 +332,35 @@ async def sonder(url: str, token: str) -> None:
                 )
                 print("✅ search → fetch : parcours standard complet et traçable.")
 
-                # ---- 7. Comportement en cas d'absence ---------------------
+                # ---- 7. Sections CODE et texte consolidé LEGI ------------
+                # Identifiants du corpus DPM, pas des preuves de lecture live.
+                for nom, arguments, cible in (
+                    ("get_section", {"id": "LEGISCTA000006149238",
+                                     "text_id": "LEGITEXT000006070633",
+                                     "date": "2025-07-25"}, "LEGISCTA000006149238"),
+                    ("get_text", {"id": "LEGITEXT000005627880"}, "LEGITEXT000005627880"),
+                ):
+                    # Appels littéraux pour le contrôle de couverture AST.
+                    if nom == "get_section":
+                        resultat, _ = await appeler("get_section", arguments)
+                    else:
+                        resultat, _ = await appeler("get_text", arguments)
+                    charge = _exiger_succes(resultat, nom)
+                    _verifier_absence_de_secrets(_texte(resultat), nom)
+                    if nom == "get_section":
+                        if charge.get("metadata", {}).get("requested_id") != cible:
+                            raise SondeError("get_section n'identifie pas la section demandée")
+                        cible = charge.get("id")
+                    meta = _exiger_lecture_officielle(
+                        charge, cible, "Légifrance API", "www.legifrance.gouv.fr", nom,
+                    )
+                    if meta.get("content_complete") is not True:
+                        raise SondeError(f"{nom} ne confirme pas la lecture complète")
+                    if not meta.get("as_of_date") or "applicable_at_as_of_date" not in meta:
+                        raise SondeError(f"{nom} n'évalue pas explicitement sa datation")
+                    print(f"✅ {nom} : lecture officielle datée, sans troncature.")
+
+                # ---- 8. Comportement en cas d'absence ---------------------
                 resultat, _ = await appeler(
                     "search_articles",
                     {"number": "L9999-1", "code": CODE_TEMOIN, "limit": 5},
@@ -346,7 +374,7 @@ async def sonder(url: str, token: str) -> None:
                     raise SondeError(
                         f"outils non réellement appelés : {sorted(set(EXPECTED_TOOLS) - appeles)}"
                     )
-                print("✅ Les six outils ont chacun été réellement appelés.")
+                print(f"✅ Les {len(EXPECTED_TOOLS)} outils ont chacun été réellement appelés.")
 
 
 def main() -> int:

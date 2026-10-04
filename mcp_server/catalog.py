@@ -20,6 +20,8 @@ TOOL_NAMES: tuple[str, ...] = (
     "get_article",
     "search_case_law",
     "get_decision",
+    "get_section",
+    "get_text",
 )
 
 #: Même contrat, sous la forme attendue par les comparaisons d'ensembles.

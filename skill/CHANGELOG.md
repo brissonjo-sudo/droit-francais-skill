@@ -11,6 +11,23 @@ conservés tels quels pour ne pas casser les liens publiés.
 
 ---
 
+### [Non publié — extension MCP] — 2026-10-04
+
+Préparation de livraison : candidat plugin 0.9.0, manifestes et serveur alignés.
+Ce numéro local ne vaut ni tag Git, ni publication, ni service distant mis à jour.
+
+- Préparation locale de `get_section` (sections CODE avec parent explicite)
+  et `get_text` (textes consolidés LEGI), sur le contrat public PISTE 2.4.2.
+- Préservation de l'arborescence, de la datation et de la provenance ; refus
+  des sommaires, réponses partielles et identités incohérentes. Aucune
+  équivalence entre source officielle et vigueur juridique.
+- Catalogue, dossier de soumission local et sondes synchronisés. Tests hors
+  réseau ajoutés ; aucun déploiement, push, publication ou qualification live.
+- Méthodologie du skill et politique OAuth inchangées. Lors de la préparation
+  de livraison, `pip-audit` a identifié PyJWT 2.14.0 : passage épinglé à 2.15.0
+  (GHSA-42vr-xj54-vc7v), avec test de non-régression hors réseau. Premier
+  candidat conservé comme preuve non libératoire ; nouveau candidat à qualifier.
+
 ### [3.5.0] — 2026-09-14
 
 Préparée le 2026-09-09 sous le numéro 3.2.2, renumérotée après la 3.4.1.
