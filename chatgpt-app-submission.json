@@ -7,7 +7,7 @@
     "description": "Droit français recherche et lit des articles et décisions dans les sources officielles Légifrance et Judilibre, avec des identifiants, des liens canoniques et des métadonnées de provenance utiles à une citation vérifiable. Méthodologie complète et code source ouverts : github.com/brissonjo-sudo/droit-francais-skill",
     "category": "PRODUCTIVITY"
   },
-  "release_notes": "Version 0.8.3. Correction de la documentation d’installation du plugin Claude Code qui décrivait un serveur MCP local alors que le manifeste déclare un serveur distant. Suppression de la déclaration MCP redondante du manifeste Claude Code au profit du fichier .mcp.json à la racine du dépôt. Extension du vérificateur de manifeste au manifeste Claude Code. Le code source de cette version sera figé par le tag plugin-v0.8.3.",
+  "release_notes": "Candidat 0.9.0, non publié et non déployé. Ajout de get_section pour les sections CODE avec parent LEGITEXT explicite et de get_text pour les textes consolidés LEGI. Datation, provenance, arborescence et refus des consultations partielles. Méthodologie juridique et OAuth inchangés. Les preuves historiques du service à six outils ne qualifient pas ces nouvelles lectures ; revue humaine et essais métier officiels encore requis avant promotion.",
   "tools": {
     "search": {
       "annotations": {
@@ -67,6 +67,22 @@
         "read_only_justification": "Recherche des décisions judiciaires publiées par Judilibre sans changer la base officielle.",
         "open_world_justification": "Ne peut modifier aucun état publiquement visible d'internet : l'outil lit la source officielle Judilibre et n'écrit nulle part.",
         "destructive_justification": "Ne supprime, ne remplace et n'altère aucune décision ou métadonnée."
+      }
+    },
+    "get_section": {
+      "annotations": {"readOnlyHint": true, "openWorldHint": false, "destructiveHint": false},
+      "justifications": {
+        "read_only_justification": "Consulte une section de code datée via Légifrance, sans écrire dans la source.",
+        "open_world_justification": "Lit uniquement une source officielle et ne modifie aucun état public d'internet.",
+        "destructive_justification": "La consultation ne supprime, ne remplace et n'altère aucun contenu."
+      }
+    },
+    "get_text": {
+      "annotations": {"readOnlyHint": true, "openWorldHint": false, "destructiveHint": false},
+      "justifications": {
+        "read_only_justification": "Consulte un texte consolidé LEGI daté, sans écriture ni substitution de source.",
+        "open_world_justification": "Lit uniquement la source officielle Légifrance et ne publie aucun contenu.",
+        "destructive_justification": "Ne supprime et ne modifie aucune source ou métadonnée."
       }
     },
     "get_decision": {

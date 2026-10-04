@@ -53,6 +53,7 @@ jobs:
           python -m py_compile skill/scripts/droit_francais/legifrance.py
           python -m py_compile skill/scripts/droit_francais/judilibre.py
           python -m py_compile skill/scripts/droit_francais/tools.py
+          python -m py_compile skill/scripts/droit_francais/texts.py
           python -m py_compile mcp_server/runtime.py
           python -m py_compile mcp_server/auth.py
           python -m py_compile mcp_server/skills.py
@@ -73,6 +74,7 @@ jobs:
           python -m py_compile tests/test_deployment.py
           python -m py_compile tests/test_tools.py
           python -m py_compile tests/test_mcp_app.py
+          python -m py_compile tests/test_text_consultation.py
           python -m py_compile tests/test_affirmations.py
           python -m py_compile tests/test_auth.py
           python -m py_compile tests/test_skills.py

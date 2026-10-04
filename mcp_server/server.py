@@ -62,7 +62,7 @@ GOVERNOR = RequestGovernor(
 )
 USER_LIMITER = PrincipalRateLimiter(SETTINGS.user_calls_per_minute)
 
-SERVER_VERSION = "0.8.3"
+SERVER_VERSION = "0.9.0"
 
 
 def _load_suppression_list() -> int:
@@ -341,8 +341,9 @@ def search(query: str) -> dict[str, Any]:
     title="Lire une source juridique",
     description=(
         "Récupère le texte et les métadonnées officiels d'un identifiant renvoyé "
-        "par search. Les identifiants LEGIARTI utilisent Légifrance ; les autres "
-        "utilisent Judilibre."
+        "par search. LEGIARTI et LEGITEXT utilisent Légifrance ; les décisions "
+        "utilisent Judilibre. Pour une section CODE, utiliser get_section avec "
+        "son LEGITEXT parent. Les textes JORF ne sont pas couverts."
     ),
     annotations=READ_ONLY,
 )
@@ -438,6 +439,42 @@ def search_case_law(
 def get_decision(id: str) -> dict[str, Any]:
     """Fetch one full Judilibre decision by identifier."""
     return _safe_call(legal_tools.get_decision, id)
+
+
+@server.tool(
+    name="get_section",
+    title="Lire une section de code Légifrance",
+    description=(
+        "Lit le sous-arbre d'une section CODE LEGISCTA dans son texte LEGITEXT "
+        "parent explicitement fourni, via l'API officielle. Conserve les articles, "
+        "notes et bornes de version. date : AAAA-MM-JJ uniquement si une date "
+        "précise est demandée ; sinon horloge du serveur. verified atteste la "
+        "source, pas la vigueur : vérifier applicable_at_as_of_date. Refuse un "
+        "sommaire ou contenu partiel ; ne couvre pas les sections LODA ou JORF."
+    ),
+    annotations=READ_ONLY,
+)
+def get_section(id: str, text_id: str, date: str | None = None) -> dict[str, Any]:
+    """Lit une section CODE datée avec son parent explicite."""
+    return _safe_call(legal_tools.get_section, id, text_id, date)
+
+
+@server.tool(
+    name="get_text",
+    title="Lire un texte consolidé Légifrance",
+    description=(
+        "Lit un texte consolidé LEGI par son LEGITEXT, via legiPart : articles, "
+        "sections et notes présents dans la réponse API, hors documents liés. "
+        "Ne couvre pas un texte JORFTEXT initial ni un sommaire de code. date : "
+        "AAAA-MM-JJ seulement si une date précise est demandée ; sinon date du "
+        "serveur. verified atteste la source et non la vigueur ; contrôler "
+        "applicable_at_as_of_date. Refuse un contenu incomplet ou trop volumineux."
+    ),
+    annotations=READ_ONLY,
+)
+def get_text(id: str, date: str | None = None) -> dict[str, Any]:
+    """Lit un texte LEGI consolidé, daté et sans troncature."""
+    return _safe_call(legal_tools.get_text, id, date)
 
 
 def check_issuer() -> None:

@@ -22,6 +22,8 @@ distant fictif n'est placé dans le dépôt.
 | `get_article(id, date?)` | Légifrance | Lit une version `LEGIARTI` et son statut |
 | `search_case_law(query, jurisdiction?, date_start?, date_end?, limit?, sort?)` | Judilibre | Recherche la jurisprudence judiciaire. `jurisdiction` ∈ `cc`, `ca`, `tj`, `tcom` ; `sort` ∈ `relevance` (défaut), `date` |
 | `get_decision(id)` | Judilibre | Lit le texte intégral et les métadonnées d'une décision |
+| `get_section(id, text_id, date?)` | Légifrance CODE | Lit le sous-arbre d'une section `LEGISCTA` de son code parent `LEGITEXT` explicite |
+| `get_text(id, date?)` | Légifrance LEGI | Lit un texte consolidé `LEGITEXT`, articles et sections inclus ; pas le texte JORF initial |
 
 Tous les outils sont annotés en lecture seule. Les outils de lecture indiquent
 `metadata.verified: true` uniquement après une réponse de la source officielle.
@@ -30,6 +32,11 @@ Une erreur d'authentification, de réseau ou de schéma devient une erreur MCP
 substitution présenté comme officiel.
 
 ## Installation locale
+
+**Extension locale du 4 octobre 2026, non déployée** : le catalogue de travail
+compte huit outils. Les preuves historiques ci-dessous concernent six outils
+et ne valident pas ces deux nouvelles lectures. Voir les limites et le protocole
+dans [extension-sections-textes.md](extension-sections-textes.md).
 
 Prérequis : Python 3.10+ pour le serveur MCP. Le CLI historique reste compatible
 avec Python 3.8+ et ne dépend pas du SDK MCP.

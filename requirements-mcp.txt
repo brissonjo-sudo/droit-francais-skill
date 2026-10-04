@@ -8,4 +8,5 @@
 # le point précis dont dépend le connecteur ChatGPT.
 mcp==2.2.0
 # Vérification locale des jetons OAuth 2.1 (JWKS de l'émetteur, RS256 exact).
-PyJWT[crypto]==2.14.0
+# Correctif amont du parseur de payload récursif (GHSA-42vr-xj54-vc7v).
+PyJWT[crypto]==2.15.0

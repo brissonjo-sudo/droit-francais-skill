@@ -2,7 +2,12 @@
 
 **Skill LLM — méthodologie de recherche en droit français (v3.5.0)**
 
-**Distribution autonome + plugins OpenAI et Claude Code avec outils MCP (plugin v0.8.3)**
+**Distribution autonome + plugins OpenAI et Claude Code avec outils MCP (candidat plugin v0.9.0, non publié)**
+
+La version locale prépare deux lectures supplémentaires : sections de code et
+textes consolidés. Le service distant reste à la version publiée antérieure ;
+les nouvelles lectures ne sont disponibles qu'après un déploiement explicitement
+autorisé et leur qualification. Voir [la préparation](docs/livraison-0.9.0.md).
 
 [![CI](https://github.com/brissonjo-sudo/droit-francais-skill/actions/workflows/ci.yml/badge.svg)](https://github.com/brissonjo-sudo/droit-francais-skill/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/brissonjo-sudo/droit-francais-skill)](https://github.com/brissonjo-sudo/droit-francais-skill/releases)
@@ -180,7 +185,7 @@ conserve votre `profil.md` et votre fichier `scripts/.env`; il reste silencieux
 en l'absence de nouvelle version ou si le réseau est indisponible. Pour couper
 ce comportement, remplacez `true` par `false` ou supprimez le fichier.
 
-### Comme plugin OpenAI — outils MCP locaux v0.8.3
+### Comme plugin OpenAI — candidat v0.9.0
 
 Le dépôt contient désormais un manifeste `.codex-plugin/plugin.json` et un
 point d'entrée natif `skills/recherche-juridique/`. L'adaptateur charge le
@@ -217,7 +222,7 @@ le [guide OAuth](docs/oauth.md). Le mapping
 `.app.json` ne sera ajouté qu'après création d'une intégration réelle ; aucun
 identifiant distant fictif n'est placé dans le dépôt.
 
-### Comme plugin Claude Code — v0.8.3
+### Comme plugin Claude Code — candidat v0.9.0
 
 Le manifeste `.claude-plugin/plugin.json` réutilise les mêmes briques que le
 plugin OpenAI : le point d'entrée `skills/recherche-juridique/` (adaptateur
@@ -343,7 +348,7 @@ Le skill s'active automatiquement quand vous :
 
 ---
 
-## Arborescence (skill v3.5.0 / plugin v0.8.3)
+## Arborescence (skill v3.5.0 / candidat plugin v0.9.0)
 
 ```
 droit-francais-skill/
