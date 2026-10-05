@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import datetime as dt
+import re
 import time
 
 from . import texts
@@ -88,7 +89,22 @@ def retrieve(section_id: str, text_id: str, date: str, parent: dict) -> dict:
             or not pattern.fullmatch(identifier)
             or identifier in seen
         ):
-            texts._fail("Identité dupliquée ou invalide dans la structure officielle.")
+            # Ne jamais refléter librement une chaîne provenant de l'amont.
+            # Seuls les identifiants de nomenclature publique sont affichables.
+            safe = (
+                identifier
+                if isinstance(identifier, str)
+                and re.fullmatch(
+                    r"LEGI(?:SCTA|ARTI)[0-9]{12}(?:_[0-9-]{1,20})?", identifier
+                )
+                else f"type={type(identifier).__name__}"
+            )
+            cause = (
+                "dupliquée"
+                if isinstance(identifier, str) and identifier in seen
+                else "invalide"
+            )
+            texts._fail(f"Identité {cause} dans la structure officielle ({safe}).")
         seen.add(identifier)
         if len(seen) > texts.MAX_NODES:
             texts._limit_fail("nodes", len(seen), texts.MAX_NODES, "selected_section")
