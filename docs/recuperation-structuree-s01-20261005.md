@@ -59,3 +59,11 @@ ne se déduit de la seule remise de ce correctif.
 Code : [`sections.py`](../skill/scripts/droit_francais/sections.py),
 intégration [`texts.py`](../skill/scripts/droit_francais/texts.py), tests
 [`test_structured_sections.py`](../tests/test_structured_sections.py).
+
+## Diagnostic après première sonde
+
+La PR 94 est en service mais S01 reste refusé (référence `11aa2921`) pour
+une identité invalide ou dupliquée. Le correctif de diagnostic distingue
+ces causes et n'affiche que les identifiants de nomenclature publique
+bornée ; toute autre chaîne est masquée. Aucun contrôle d'identité n'est
+assoupli. Cette étape n'est pas une preuve de déblocage.

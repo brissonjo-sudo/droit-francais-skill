@@ -97,6 +97,20 @@ class StructuredSectionTests(unittest.TestCase):
         )
         self.assertEqual(result["metadata"]["legal_status"], "UNKNOWN")
 
+    def test_identity_diagnostic_is_bounded_and_does_not_echo_arbitrary_content(self):
+        for identifier, displayed in (
+            (None, "type=NoneType"),
+            (SECTION + "_2026-10-05", SECTION + "_2026-10-05"),
+            ("SECRET_OR_UPSTREAM_HTML" * 100, "type=str"),
+        ):
+            self.structure = structure()
+            self.structure["listSection"][0]["id"] = identifier
+            with self.assertRaises(LegifranceError) as raised:
+                self.read()
+            self.assertIn(displayed, str(raised.exception))
+            self.assertNotIn("SECRET_OR_UPSTREAM_HTML", str(raised.exception))
+            self.assertLess(len(str(raised.exception)), 400)
+
     def test_refuses_missing_and_ambiguous_versions(self):
         for versions in ([], self.structure["listSection"] * 2):
             self.structure["listSection"] = versions
