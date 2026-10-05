@@ -52,8 +52,8 @@ _TEXT_NOTES = (
 )
 
 
-def _fail(message: str) -> None:
-    raise LegifranceError(message, exit_code=5)
+def _fail(message: str, *, detail: str | None = None) -> None:
+    raise LegifranceError(message, exit_code=5, detail=detail)
 
 
 def _identifier(value: str, pattern: re.Pattern[str], label: str) -> str:
@@ -157,24 +157,47 @@ def _aggregate(result: dict[str, Any]) -> dict[str, Any]:
     return result
 
 
-def _bounded(payload: Any) -> dict[str, Any]:
+def _limit_fail(metric: str, observed: int, limit: int, scope: str) -> None:
+    """Expose seulement des compteurs, jamais le corps ou les identifiants."""
+    diagnostic = {
+        "kind": "consultation_limit",
+        "scope": scope,
+        "metric": metric,
+        "observed_at_least": observed,
+        "limit": limit,
+    }
+    _fail(
+        f"Limite de consultation dépassée ({scope}, {metric}) : "
+        f"mesure au moins {observed}, plafond {limit}. "
+        "Aucun contenu tronqué n'est retourné.",
+        detail=json.dumps(diagnostic),
+    )
+
+
+def _bounded(
+    payload: Any, *, scope: str = "response", stats: dict[str, int] | None = None
+) -> dict[str, Any]:
+    """Contrôle tout le périmètre, avec les mêmes plafonds qu'en 0.9.0.
+
+    Le parcours borné précède l'encodage ; les articles sont également
+    contrôlés contre les marques de troncature. L'encodage itératif garde
+    les séparateurs historiques : aucun gain artificiel de capacité via
+    suppression d'espaces et aucune copie JSON complète supplémentaire.
+    """
     if not isinstance(payload, dict):
         _fail("Réponse de consultation invalide.")
-    try:
-        size = len(json.dumps(payload, ensure_ascii=False).encode("utf-8"))
-    except (ValueError, TypeError, RecursionError):
-        _fail("Réponse de consultation invalide ou trop profonde.")
-    if size > MAX_RESPONSE_BYTES:
-        _fail("Consultation trop volumineuse : aucun contenu tronqué n'est retourné.")
     # Le contrat de consultation n'est pas paginé. Une continuation ou une
     # marque de troncature inattendue interdit de prétendre disposer du tout.
     stack = [(payload, 0)]
-    count = 0
+    count = 1
+    maximum_depth = 0
+    if count > MAX_NODES:
+        _limit_fail("nodes", count, MAX_NODES, scope)
     while stack:
         node, depth = stack.pop()
-        count += 1
-        if depth > MAX_DEPTH or count > MAX_NODES:
-            _fail("Arborescence trop volumineuse : aucun résultat partiel retourné.")
+        maximum_depth = max(maximum_depth, depth)
+        if depth > MAX_DEPTH:
+            _limit_fail("depth", depth, MAX_DEPTH, scope)
         if any(
             node.get(key)
             for key in ("nextPage", "nextCursor", "next_cursor", "hasMore", "truncated")
@@ -182,10 +205,23 @@ def _bounded(payload: Any) -> dict[str, Any]:
             _fail("Réponse de consultation partielle : lecture complète non confirmée.")
         if node.get("complete") is False or node.get("content_complete") is False:
             _fail("Réponse de consultation explicitement incomplète.")
-        stack.extend((child, depth + 1) for child in _children(node, "sections"))
-        count += len(_children(node, "articles"))
+        sections = _children(node, "sections")
+        articles = _children(node, "articles")
+        count += len(sections) + len(articles)
         if count > MAX_NODES:
-            _fail("Consultation trop volumineuse : aucun résultat partiel retourné.")
+            _limit_fail("nodes", count, MAX_NODES, scope)
+        stack.extend((child, depth + 1) for child in sections)
+        stack.extend((child, depth + 1) for child in articles)
+    size = 0
+    try:
+        for chunk in json.JSONEncoder(ensure_ascii=False).iterencode(payload):
+            size += len(chunk.encode("utf-8"))
+            if size > MAX_RESPONSE_BYTES:
+                _limit_fail("bytes_json", size, MAX_RESPONSE_BYTES, scope)
+    except (ValueError, TypeError, RecursionError, UnicodeEncodeError):
+        _fail("Réponse de consultation invalide ou trop profonde.")
+    if stats is not None:
+        stats.update(bytes_json=size, nodes=count, max_depth=maximum_depth)
     return payload
 
 
@@ -296,6 +332,7 @@ def get_section(
     section_id = _identifier(section_id, _SECTION_ID, "LEGISCTA")
     text_id = _identifier(text_id, _TEXT_ID, "LEGITEXT")
     effective = _consult_date(date)
+    response_stats: dict[str, int] = {}
     payload = _bounded(
         api_call(
             "/consult/code",
@@ -305,7 +342,8 @@ def get_section(
                 "date": effective,
             },
             get_token(),
-        )
+        ),
+        stats=response_stats,
     )
     _validate_text(payload, text_id)
     matches = []
@@ -317,7 +355,9 @@ def get_section(
         stack.extend(_children(node, "sections"))
     if len(matches) != 1:
         _fail("Section demandée absente ou ambiguë dans le texte officiel retourné.")
-    result = _section(matches[0], text_id, date)
+    section_stats: dict[str, int] = {}
+    selected = _bounded(matches[0], scope="selected_section", stats=section_stats)
+    result = _section(selected, text_id, date)
     result["text"] = _render(result)
     result["metadata"].update(
         {
@@ -327,6 +367,8 @@ def get_section(
             "parent_version_id": payload["id"],
             "endpoint": "/consult/code",
             "content_complete": True,
+            "response_volume": response_stats,
+            "section_volume": section_stats,
             "completeness_scope": "Sous-arbre retourné par l'API, hors documents liés externes.",
         }
     )
@@ -337,6 +379,7 @@ def get_text(text_id: str, date: str | None = None) -> dict[str, Any]:
     """Lit un texte consolidé LEGI, sans confondre source et vigueur."""
     text_id = _identifier(text_id, _TEXT_ID, "LEGITEXT")
     effective = _consult_date(date)
+    response_stats: dict[str, int] = {}
     payload = _bounded(
         api_call(
             "/consult/legiPart",
@@ -345,7 +388,8 @@ def get_text(text_id: str, date: str | None = None) -> dict[str, Any]:
                 "date": effective,
             },
             get_token(),
-        )
+        ),
+        stats=response_stats,
     )
     _validate_text(payload, text_id)
     result = {
@@ -368,6 +412,7 @@ def get_text(text_id: str, date: str | None = None) -> dict[str, Any]:
             "nor": payload.get("nor"),
             "endpoint": "/consult/legiPart",
             "content_complete": True,
+            "response_volume": response_stats,
             "completeness_scope": "Texte consolidé retourné par l'API, hors documents liés externes.",
         },
     }
