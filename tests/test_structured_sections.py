@@ -193,6 +193,16 @@ class StructuredSectionTests(unittest.TestCase):
         with self.assertRaises(LegifranceError):
             self.read()
 
+    def test_complete_inventory_precedes_bodies_and_admission_is_bounded(self):
+        with mock.patch.object(sections, "MAX_REQUESTS", 1):
+            with self.assertRaises(LegifranceError) as raised:
+                self.read()
+        self.assertIn("sections=1, articles=1, appels_requis=2", str(raised.exception))
+        self.assertNotIn(
+            "/consult/getArticle",
+            [args.args[0] for args in self.network.call_args_list],
+        )
+
     def test_refuses_duplicate_active_links_and_cycles(self):
         node = self.structure["listSection"][0]
         node["liensArticle"] *= 2
