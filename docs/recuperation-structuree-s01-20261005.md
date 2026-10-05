@@ -96,3 +96,12 @@ des sections et liens applicables est désormais réalisé avant lecture des
 corps. Il donne le nombre exact de requêtes nécessaires et refuse toute
 admission excédant le plafond de 64, sans relever celui-ci. Ces compteurs
 doivent fonder la suite, pas une hausse arbitraire de budget ou une omission.
+
+L'inventaire réel PR 101 compte **11 sections et 56 articles = 67 appels**
+(référence `f6b57ca9`). Le budget d'exécution devient donc exactement
+67 requêtes au lieu de 64. Délai 90 s au lieu de 50 : à la cadence réellement
+observée de 40 appels / 50 s, 67 appels représentent environ 84 s, arrondis
+avec marge bornée. Espacement de 1,1 s, limites de transport et plafonds de
+contenu **inchangés** (2 Mo, 5 000 nœuds, profondeur 32), contrôle d'admission
+et refus sans résultat partiel maintenus. Ce n'est pas une preuve de succès :
+la sonde indépendante S01 sur la livraison en service reste obligatoire.
