@@ -110,6 +110,8 @@ class StructuredSectionTests(unittest.TestCase):
             self.assertIn(displayed, str(raised.exception))
             self.assertNotIn("SECRET_OR_UPSTREAM_HTML", str(raised.exception))
             self.assertLess(len(str(raised.exception)), 400)
+            if isinstance(identifier, str):
+                self.assertNotIn("SECRET_OR_UPSTREAM_HTML", str(raised.exception))
 
     def test_refuses_missing_and_ambiguous_versions(self):
         for versions in ([], self.structure["listSection"] * 2):
