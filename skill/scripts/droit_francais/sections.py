@@ -54,7 +54,8 @@ def retrieve(section_id: str, text_id: str, date: str, parent: dict) -> dict:
             time.sleep(1.1)
         if len(calls) >= MAX_REQUESTS or time.monotonic() - started > MAX_SECONDS:
             texts._fail(
-                "Budget de récupération structurée atteint : aucun résultat partiel."
+                f"Budget de récupération structurée atteint : appels={len(calls)}/{MAX_REQUESTS}, "
+                f"secondes={int(time.monotonic() - started)}/{MAX_SECONDS}. Aucun résultat partiel."
             )
         stats = {}
         payload = texts._bounded(
@@ -81,7 +82,9 @@ def retrieve(section_id: str, text_id: str, date: str, parent: dict) -> dict:
             active[0].get("id"),
             active[0].get("cid"),
         ):
-            texts._fail("Rattachement daté au texte parent absent ou ambigu.")
+            texts._fail(
+                f"Rattachement daté au texte parent absent ou ambigu (contextes_applicables={len(active)})."
+            )
 
     def register(identifier, pattern):
         if (
@@ -95,7 +98,8 @@ def retrieve(section_id: str, text_id: str, date: str, parent: dict) -> dict:
                 identifier
                 if isinstance(identifier, str)
                 and re.fullmatch(
-                    r"LEGI(?:SCTA|ARTI)[0-9]{12}[-_0-9T:Z+.]{0,60}", identifier
+                    r"LEGI(?:SCTA|ARTI)[0-9]{12}(?:[-_0-9T:Z+.]{0,60}|_[A-Z]{3})",
+                    identifier,
                 )
                 else f"type={type(identifier).__name__}"
             )
@@ -129,6 +133,11 @@ def retrieve(section_id: str, text_id: str, date: str, parent: dict) -> dict:
         if len(candidates) != 1:
             texts._fail("Version de section applicable absente ou ambiguë.")
         node = candidates[0]
+        record_id = node.get("id")
+        # Le CID reste l'identité officielle demandée. Ne reconnaître qu'une
+        # forme d'index exacte, jamais un suffixe libre ni un statut déduit.
+        if record_id == cid + "_VIG":
+            node = {**node, "id": cid, "source_record_id": record_id}
         if "liensArticle" not in node or "liensSection" not in node:
             texts._fail(
                 "Inventaire des enfants absent : section complète non confirmée."
@@ -158,11 +167,15 @@ def retrieve(section_id: str, text_id: str, date: str, parent: dict) -> dict:
                 not isinstance(article, dict)
                 or article.get("id") != identifier
                 or text_id not in (article.get("idTexte"), article.get("cidTexte"))
-                or node["id"] != article.get("sectionParentId")
+                or article.get("sectionParentId") not in (node["id"], record_id)
                 or not _active(article, date)
             ):
                 texts._fail(
-                    "Article non conforme au lien, au parent ou à la date officielle."
+                    "Article non conforme au lien, au parent ou à la date officielle "
+                    f"(objet={isinstance(article, dict)}, "
+                    f"id={isinstance(article, dict) and article.get('id') == identifier}, "
+                    f"texte_parent={isinstance(article, dict) and text_id in (article.get('idTexte'), article.get('cidTexte'))}, "
+                    f"section_parent={isinstance(article, dict) and article.get('sectionParentId') in (node['id'], record_id)})."
                 )
             parent_context(article)
             converted["articles"].append(
