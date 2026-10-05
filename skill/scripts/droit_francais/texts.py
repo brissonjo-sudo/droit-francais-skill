@@ -205,8 +205,14 @@ def _bounded(
             _fail("Réponse de consultation partielle : lecture complète non confirmée.")
         if node.get("complete") is False or node.get("content_complete") is False:
             _fail("Réponse de consultation explicitement incomplète.")
-        sections = _children(node, "sections")
-        articles = _children(node, "articles")
+        sections = _children(node, "sections") + _children(node, "listSection")
+        articles = (
+            _children(node, "articles")
+            + _children(node, "liensArticle")
+            + _children(node, "liensSection")
+        )
+        if isinstance(node.get("article"), dict):
+            articles = articles + [node["article"]]
         count += len(sections) + len(articles)
         if count > MAX_NODES:
             _limit_fail("nodes", count, MAX_NODES, scope)
@@ -333,18 +339,41 @@ def get_section(
     text_id = _identifier(text_id, _TEXT_ID, "LEGITEXT")
     effective = _consult_date(date)
     response_stats: dict[str, int] = {}
-    payload = _bounded(
-        api_call(
-            "/consult/code",
-            {
-                "textId": text_id,
-                "sctCid": section_id,
-                "date": effective,
-            },
-            get_token(),
-        ),
-        stats=response_stats,
+    payload = api_call(
+        "/consult/code",
+        {
+            "textId": text_id,
+            "sctCid": section_id,
+            "date": effective,
+        },
+        get_token(),
     )
+    try:
+        _bounded(payload, stats=response_stats)
+    except LegifranceError as limit:
+        diagnostic = json.loads(limit.detail) if limit.detail else {}
+        if (
+            diagnostic.get("kind") != "consultation_limit"
+            or diagnostic.get("metric") != "nodes"
+        ):
+            raise
+        # Aucun corps du parent refusé n'est normalisé ni tronqué. Garder
+        # uniquement son identité puis relire la structure officielle bornée.
+        _validate_text(payload, text_id)
+        parent = {key: payload.get(key) for key in ("id", "title")}
+        del payload
+        from .sections import retrieve
+
+        try:
+            result = retrieve(section_id, text_id, effective, parent)
+            result["metadata"]["primary_consultation_refused"] = diagnostic
+            return result
+        except LegifranceError as failure:
+            raise LegifranceError(
+                f"{limit} Récupération structurée refusée : {failure}",
+                exit_code=5,
+                detail=limit.detail,
+            ) from failure
     _validate_text(payload, text_id)
     matches = []
     stack = list(_children(payload, "sections"))
