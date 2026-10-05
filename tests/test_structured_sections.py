@@ -178,6 +178,21 @@ class StructuredSectionTests(unittest.TestCase):
             with self.assertRaises(LegifranceError):
                 self.read()
 
+    def test_optional_parent_fields_need_dated_context_and_exact_section(self):
+        self.body["article"].pop("idTexte")
+        self.body["article"].pop("cidTexte")
+        result = self.read()
+        self.assertEqual(
+            result["articles"][0]["metadata"]["parent_binding"],
+            "official_section_link_and_dated_text_context",
+        )
+        self.assertFalse(
+            result["articles"][0]["metadata"]["direct_parent_fields_present"]
+        )
+        self.body["article"]["context"] = {}
+        with self.assertRaises(LegifranceError):
+            self.read()
+
     def test_refuses_duplicate_active_links_and_cycles(self):
         node = self.structure["listSection"][0]
         node["liensArticle"] *= 2
