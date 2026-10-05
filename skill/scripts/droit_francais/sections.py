@@ -140,10 +140,16 @@ def retrieve(section_id: str, text_id: str, date: str, parent: dict) -> dict:
             texts._fail("Version de section applicable absente ou ambiguë.")
         node = candidates[0]
         record_id = node.get("id")
-        # Le CID reste l'identité officielle demandée. Ne reconnaître qu'un
-        # nom de fichier exact, jamais un suffixe libre ni un statut déduit.
-        if record_id == cid + ".xml":
-            node = {**node, "id": cid, "source_record_id": record_id}
+        # Le CID, déjà contrôlé, désigne la section demandée ; l'ID de version
+        # peut être distinct. Retenir exactement le nom de record XML, sans
+        # remplacer sa base par le CID ni accepter un suffixe libre.
+        record = (
+            re.fullmatch(r"(LEGISCTA[0-9]{12})\.xml", record_id)
+            if isinstance(record_id, str)
+            else None
+        )
+        if record:
+            node = {**node, "id": record.group(1), "source_record_id": record_id}
         if "liensArticle" not in node or "liensSection" not in node:
             texts._fail(
                 "Inventaire des enfants absent : section complète non confirmée."

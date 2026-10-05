@@ -229,7 +229,6 @@ class StructuredSectionTests(unittest.TestCase):
             SECTION + "_XXX",
             SECTION + "_VIG",
             SECTION + "_vig",
-            "LEGISCTA000000000002.xml",
         ):
             self.structure = structure()
             self.structure["listSection"][0]["id"] = identifier
@@ -239,6 +238,39 @@ class StructuredSectionTests(unittest.TestCase):
         self.structure["listSection"][0].update(
             id=SECTION + ".xml", dateFin="2020-01-01"
         )
+        with self.assertRaises(LegifranceError):
+            self.read()
+
+    def test_version_record_xml_keeps_its_distinct_id_and_requested_cid(self):
+        version_id = "LEGISCTA000000000002"
+        raw_id = version_id + ".xml"
+        self.structure["listSection"][0]["id"] = raw_id
+        self.body["article"]["sectionParentId"] = raw_id
+        result = self.read()
+        self.assertEqual(result["id"], version_id)
+        self.assertEqual(result["cid"], SECTION)
+        self.assertEqual(result["metadata"]["requested_id"], SECTION)
+        self.assertEqual(result["metadata"]["source_record_id"], raw_id)
+        self.assertTrue(result["metadata"]["content_complete"])
+        self.assertEqual(result["metadata"]["legal_status"], "UNKNOWN")
+
+    def test_version_record_xml_does_not_relax_cid_parent_or_dates(self):
+        for mutate in (
+            lambda node: node.update(cid="LEGISCTA000000000003"),
+            lambda node: node.update(dateFin="2020-01-01"),
+            lambda node: node.update(context={}),
+            lambda node: node.update(id="LEGISCTA000000000002.xml_extra"),
+            lambda node: node.update(id="LEGISCTA000000000002.XML"),
+        ):
+            self.structure = structure()
+            self.structure["listSection"][0]["id"] = "LEGISCTA000000000002.xml"
+            mutate(self.structure["listSection"][0])
+            with self.assertRaises(LegifranceError):
+                self.read()
+
+    def test_version_record_xml_rejects_article_bound_to_unrelated_section(self):
+        self.structure["listSection"][0]["id"] = "LEGISCTA000000000002.xml"
+        self.body["article"]["sectionParentId"] = SECTION
         with self.assertRaises(LegifranceError):
             self.read()
 
