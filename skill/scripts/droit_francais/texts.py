@@ -264,7 +264,19 @@ def _article(
         "notes": _notes(node, _ARTICLE_NOTES),
         "order": node.get("intOrdre"),
         "url": f"https://www.legifrance.gouv.fr/{collection}/article_lc/{identifier}/{_iso_date(date)}/",
-        "metadata": _metadata(node, date),
+        "metadata": {
+            **_metadata(node, date),
+            **(
+                {
+                    "parent_binding": node["parent_binding"],
+                    "direct_parent_fields_present": node[
+                        "direct_parent_fields_present"
+                    ],
+                }
+                if "parent_binding" in node
+                else {}
+            ),
+        },
     }
 
 

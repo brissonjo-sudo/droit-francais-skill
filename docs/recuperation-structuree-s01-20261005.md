@@ -80,3 +80,12 @@ Les sondes réelles après PR 97/98 n'ont pas confirmé `_VIG` / `_vig`.
 Ces correspondances sont retirées : seule la forme fichier `CID + .xml`
 est désormais examinée, sans changer le CID juridique ni aucune autre
 condition. Le brut est conservé pour confirmation par la sonde réelle.
+
+Après PR 99, la sonde atteint un article : identité et section parente
+correspondent, champs `idTexte` / `cidTexte` non concordants. Le Swagger
+officiel ne déclare pas ces champs obligatoires. S'ils sont présents,
+ils doivent toujours correspondre au parent explicite (CID ou fichier XML).
+S'ils sont absents, le lien officiel de section, `sectionParentId` exact et
+le contexte `titreTxt` unique couvrant la date restent tous obligatoires.
+La provenance indique ce mode de rattachement : pas de parent déduit du
+contenu ni de qualification de complétude sans ces contrôles.

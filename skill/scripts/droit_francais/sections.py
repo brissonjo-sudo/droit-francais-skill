@@ -163,10 +163,28 @@ def retrieve(section_id: str, text_id: str, date: str, parent: dict) -> dict:
             identifier = link.get("id")
             register(identifier, texts._ARTICLE_ID)
             article = call("/consult/getArticle", {"id": identifier}).get("article")
+            direct_parent = (
+                (article.get("idTexte"), article.get("cidTexte"))
+                if isinstance(article, dict)
+                else (None, None)
+            )
+            parent_fields_present = any(
+                value not in (None, "") for value in direct_parent
+            )
+            parent_matches = any(
+                value in (text_id, text_id + ".xml") for value in direct_parent
+            )
+            public_parents = [
+                value
+                if isinstance(value, str)
+                and re.fullmatch(r"(?:LEGI|JORF)TEXT[0-9]{12}(?:\.xml)?", value)
+                else type(value).__name__
+                for value in direct_parent
+            ]
             if (
                 not isinstance(article, dict)
                 or article.get("id") != identifier
-                or text_id not in (article.get("idTexte"), article.get("cidTexte"))
+                or (parent_fields_present and not parent_matches)
                 or article.get("sectionParentId") not in (node["id"], record_id)
                 or not _active(article, date)
             ):
@@ -174,7 +192,8 @@ def retrieve(section_id: str, text_id: str, date: str, parent: dict) -> dict:
                     "Article non conforme au lien, au parent ou à la date officielle "
                     f"(objet={isinstance(article, dict)}, "
                     f"id={isinstance(article, dict) and article.get('id') == identifier}, "
-                    f"texte_parent={isinstance(article, dict) and text_id in (article.get('idTexte'), article.get('cidTexte'))}, "
+                    f"champs_parent_presents={parent_fields_present}, texte_parent={parent_matches}, "
+                    f"champs_parent_publics={public_parents}, "
                     f"section_parent={isinstance(article, dict) and article.get('sectionParentId') in (node['id'], record_id)})."
                 )
             parent_context(article)
@@ -185,6 +204,8 @@ def retrieve(section_id: str, text_id: str, date: str, parent: dict) -> dict:
                     "dateDebut": _date(article.get("dateDebut")),
                     "dateFin": _date(article.get("dateFin")),
                     "intOrdre": article.get("ordre"),
+                    "parent_binding": "official_section_link_and_dated_text_context",
+                    "direct_parent_fields_present": parent_fields_present,
                 }
             )
         for link in texts._children(node, "liensSection"):
