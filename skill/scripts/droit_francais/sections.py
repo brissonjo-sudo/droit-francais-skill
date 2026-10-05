@@ -8,8 +8,11 @@ import time
 
 from . import texts
 
-MAX_REQUESTS = 64
-MAX_SECONDS = 50
+# S01 : inventaire officiel du 05/10/2026 = 11 sections + 56 articles.
+# Observation précédente : 40 appels / 50 s ; 67 à cette cadence ≈ 84 s.
+# Délai arrondi borné, sans augmenter cadence ni plafonds de contenu.
+MAX_REQUESTS = 67
+MAX_SECONDS = 90
 
 
 def _date(value) -> str:

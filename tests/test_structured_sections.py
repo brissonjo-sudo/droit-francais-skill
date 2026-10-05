@@ -203,6 +203,13 @@ class StructuredSectionTests(unittest.TestCase):
             [args.args[0] for args in self.network.call_args_list],
         )
 
+    def test_measured_execution_budget_preserves_content_limits(self):
+        self.assertEqual(sections.MAX_REQUESTS, 67)
+        self.assertEqual(sections.MAX_SECONDS, 90)
+        self.assertEqual(texts.MAX_NODES, 5000)
+        self.assertEqual(texts.MAX_RESPONSE_BYTES, 2_000_000)
+        self.assertEqual(texts.MAX_DEPTH, 32)
+
     def test_refuses_duplicate_active_links_and_cycles(self):
         node = self.structure["listSection"][0]
         node["liensArticle"] *= 2
