@@ -95,7 +95,8 @@ def retrieve(section_id: str, text_id: str, date: str, parent: dict) -> dict:
                 identifier
                 if isinstance(identifier, str)
                 and re.fullmatch(
-                    r"LEGI(?:SCTA|ARTI)[0-9]{12}[-_0-9T:Z+.]{0,60}", identifier
+                    r"LEGI(?:SCTA|ARTI)[0-9]{12}(?:[-_0-9T:Z+.]{0,60}|_[A-Z]{3})",
+                    identifier,
                 )
                 else f"type={type(identifier).__name__}"
             )
@@ -129,6 +130,11 @@ def retrieve(section_id: str, text_id: str, date: str, parent: dict) -> dict:
         if len(candidates) != 1:
             texts._fail("Version de section applicable absente ou ambiguë.")
         node = candidates[0]
+        record_id = node.get("id")
+        # Le CID reste l'identité officielle demandée. Ne reconnaître qu'une
+        # forme d'index exacte, jamais un suffixe libre ni un statut déduit.
+        if record_id == cid + "_VIG":
+            node = {**node, "id": cid, "source_record_id": record_id}
         if "liensArticle" not in node or "liensSection" not in node:
             texts._fail(
                 "Inventaire des enfants absent : section complète non confirmée."
@@ -158,7 +164,7 @@ def retrieve(section_id: str, text_id: str, date: str, parent: dict) -> dict:
                 not isinstance(article, dict)
                 or article.get("id") != identifier
                 or text_id not in (article.get("idTexte"), article.get("cidTexte"))
-                or node["id"] != article.get("sectionParentId")
+                or article.get("sectionParentId") not in (node["id"], record_id)
                 or not _active(article, date)
             ):
                 texts._fail(

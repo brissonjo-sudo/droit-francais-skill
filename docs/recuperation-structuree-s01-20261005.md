@@ -67,3 +67,11 @@ une identité invalide ou dupliquée. Le correctif de diagnostic distingue
 ces causes et n'affiche que les identifiants de nomenclature publique
 bornée ; toute autre chaîne est masquée. Aucun contrôle d'identité n'est
 assoupli. Cette étape n'est pas une preuve de déblocage.
+
+Le diagnostic PR 96 précise un identifiant de 24 caractères, CID de S01
+suivi d'un séparateur et de trois lettres. Une correspondance d'index
+limitée `CID + _VIG` est ajoutée : identité juridique conservée au CID,
+identifiant brut gardé dans `source_record_id`. Elle ne déduit aucun statut
+juridique, ne remplace aucune borne ni preuve de parent et refuse les autres
+suffixes. La nouvelle sonde réelle doit établir si cette forme correspond
+bien au retour officiel et si le corps complet satisfait les contrôles.

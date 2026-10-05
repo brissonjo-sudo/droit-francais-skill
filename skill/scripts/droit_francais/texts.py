@@ -309,7 +309,14 @@ def _section(
             "articles": articles,
             "sections": sections,
             "url": url,
-            "metadata": _metadata(node, date),
+            "metadata": {
+                **_metadata(node, date),
+                **(
+                    {"source_record_id": node["source_record_id"]}
+                    if "source_record_id" in node
+                    else {}
+                ),
+            },
         }
     )
 
