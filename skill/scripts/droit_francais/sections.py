@@ -95,10 +95,17 @@ def retrieve(section_id: str, text_id: str, date: str, parent: dict) -> dict:
                 identifier
                 if isinstance(identifier, str)
                 and re.fullmatch(
-                    r"LEGI(?:SCTA|ARTI)[0-9]{12}(?:_[0-9-]{1,20})?", identifier
+                    r"LEGI(?:SCTA|ARTI)[0-9]{12}[-_0-9T:Z+.]{0,60}", identifier
                 )
                 else f"type={type(identifier).__name__}"
             )
+            if isinstance(identifier, str) and safe == "type=str":
+                prefix = re.match(r"LEGI(?:SCTA|ARTI)[0-9]{12}", identifier)
+                shape = "".join(
+                    "D" if char.isdigit() else "A" if char.isalpha() else "P"
+                    for char in identifier[:80]
+                )
+                safe += f", longueur={len(identifier)}, prefixe={prefix.group(0) if prefix else '-'}, forme={shape}"
             cause = (
                 "dupliquée"
                 if isinstance(identifier, str) and identifier in seen
