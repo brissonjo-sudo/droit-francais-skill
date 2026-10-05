@@ -101,7 +101,13 @@ class ConsultationLimitTests(unittest.TestCase):
                 texts.MAX_RESPONSE_BYTES,
             )
         normalize.assert_not_called()
-        self.assertEqual(self.api.call_count, 1)
+        # Le parent refusé n'est toujours pas exploité. Seule une lecture
+        # indépendante de structure est tentée ; la fixture la rend également
+        # trop volumineuse, donc aucun article ni résultat partiel n'est servi.
+        self.assertEqual(
+            [call.args[0] for call in self.api.call_args_list],
+            ["/consult/code", "/consult/getSectionByCid"],
+        )
 
     def test_incomplete_article_flags_are_checked_before_normalization(self):
         for key, value in (

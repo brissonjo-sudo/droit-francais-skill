@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import copy
+import json
 import unittest
 from unittest import mock
 
@@ -96,6 +97,98 @@ class StructuredSectionTests(unittest.TestCase):
             ["/consult/getSectionByCid", "/consult/getArticle"],
         )
         self.assertEqual(result["metadata"]["legal_status"], "UNKNOWN")
+
+    def bytes_parent(self):
+        parent = text()
+        parent["visa"] = "X" * (texts.MAX_RESPONSE_BYTES + 1)
+        original = self.api
+        self.network.side_effect = lambda endpoint, arguments, token: (
+            parent if endpoint == "/consult/code" else original(endpoint, arguments, token)
+        )
+        return parent
+
+    def test_byte_limit_recovers_structure_without_reusing_oversized_parent_body(self):
+        self.bytes_parent()
+        result = self.read()
+        diagnostic = result["metadata"]["primary_consultation_refused"]
+        self.assertEqual(diagnostic["metric"], "bytes_json")
+        self.assertEqual(diagnostic["scope"], "response")
+        self.assertGreater(diagnostic["observed_at_least"], 2_000_000)
+        self.assertEqual(result["metadata"]["retrieval_strategy"], "official_structure_links")
+        self.assertTrue(result["metadata"]["content_complete"])
+        self.assertTrue(result["metadata"]["applicable_at_as_of_date"])
+        self.assertEqual(result["articles"][0]["id"], ARTICLE)
+        self.assertNotIn("X" * 100, result["text"])
+        self.assertEqual(self.network.call_count, 3)
+
+    def test_byte_limit_does_not_relax_parent_identity_or_version(self):
+        for identifier in ("LEGITEXT000000000002", TEXT + "_31-02-2020"):
+            with self.subTest(identifier=identifier):
+                parent = self.bytes_parent()
+                parent["id"] = identifier
+                self.network.reset_mock()
+                with self.assertRaises(LegifranceError):
+                    self.read()
+                self.assertEqual(self.network.call_count, 1)
+
+    def test_byte_limit_does_not_relax_child_dates_identity_or_completeness(self):
+        for mutate in (
+            lambda node: node.update(dateFin="2020-01-01"),
+            lambda node: node.update(id="LEGIARTI000000000002"),
+            lambda node: node.update(complete=False),
+        ):
+            self.body = body()
+            mutate(self.body["article"])
+            self.bytes_parent()
+            with self.assertRaises(LegifranceError):
+                self.read()
+
+    def test_depth_and_incomplete_parent_do_not_trigger_structure_recovery(self):
+        for partial in (False, True):
+            parent = text()
+            if partial:
+                parent["truncated"] = True
+            else:
+                node = parent
+                for _ in range(texts.MAX_DEPTH + 1):
+                    child = {"sections": []}
+                    node["sections"] = [child]
+                    node = child
+            self.network.reset_mock()
+            self.network.side_effect = lambda endpoint, arguments, token: parent
+            with self.assertRaises(LegifranceError):
+                self.read()
+            self.assertEqual(self.network.call_count, 1)
+
+    def test_only_parent_response_size_or_node_limits_can_trigger_recovery(self):
+        for metric, scope in (
+            ("bytes_json", "selected_section"),
+            ("nodes", "structured_total"),
+            ("depth", "response"),
+        ):
+            failure = LegifranceError("Refus synthétique", 5, detail=json.dumps({
+                "kind": "consultation_limit", "metric": metric, "scope": scope,
+            }))
+            with mock.patch.object(texts, "_bounded", side_effect=failure), \
+                 mock.patch.object(sections, "retrieve") as retrieve:
+                with self.assertRaises(LegifranceError):
+                    self.read()
+                retrieve.assert_not_called()
+
+    def test_byte_limit_keeps_cumulative_content_and_request_admission_limits(self):
+        self.bytes_parent()
+        with mock.patch.object(sections, "MAX_REQUESTS", 1):
+            with self.assertRaises(LegifranceError):
+                self.read()
+        self.assertNotIn("/consult/getArticle", [c.args[0] for c in self.network.call_args_list])
+        self.network.reset_mock()
+        with mock.patch.object(texts, "MAX_NODES", 3):
+            with self.assertRaises(LegifranceError):
+                self.read()
+        self.assertEqual(sections.MAX_REQUESTS, 67)
+        self.assertEqual(sections.MAX_SECONDS, 90)
+        self.assertEqual(texts.MAX_RESPONSE_BYTES, 2_000_000)
+        self.assertEqual(texts.MAX_DEPTH, 32)
 
     def test_identity_diagnostic_is_bounded_and_does_not_echo_arbitrary_content(self):
         for identifier, displayed in (

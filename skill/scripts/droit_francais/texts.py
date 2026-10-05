@@ -373,7 +373,8 @@ def get_section(
         diagnostic = json.loads(limit.detail) if limit.detail else {}
         if (
             diagnostic.get("kind") != "consultation_limit"
-            or diagnostic.get("metric") != "nodes"
+            or diagnostic.get("scope") != "response"
+            or diagnostic.get("metric") not in ("nodes", "bytes_json")
         ):
             raise
         # Aucun corps du parent refusé n'est normalisé ni tronqué. Garder
