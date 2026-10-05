@@ -94,10 +94,16 @@ def retrieve(section_id: str, text_id: str, date: str, parent: dict) -> dict:
             safe = (
                 identifier
                 if isinstance(identifier, str)
-                and re.fullmatch(r"LEGI(?:SCTA|ARTI)[0-9]{12}(?:_[0-9-]{1,20})?", identifier)
+                and re.fullmatch(
+                    r"LEGI(?:SCTA|ARTI)[0-9]{12}(?:_[0-9-]{1,20})?", identifier
+                )
                 else f"type={type(identifier).__name__}"
             )
-            cause = "dupliquée" if isinstance(identifier, str) and identifier in seen else "invalide"
+            cause = (
+                "dupliquée"
+                if isinstance(identifier, str) and identifier in seen
+                else "invalide"
+            )
             texts._fail(f"Identité {cause} dans la structure officielle ({safe}).")
         seen.add(identifier)
         if len(seen) > texts.MAX_NODES:
