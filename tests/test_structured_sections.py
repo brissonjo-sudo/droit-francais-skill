@@ -1,0 +1,265 @@
+"""Structure officielle synthétique : complétude, parent, dates et budgets."""
+
+from __future__ import annotations
+
+import copy
+import unittest
+from unittest import mock
+
+from tests.test_text_consultation import ARTICLE, DATE, SECTION, TEXT, text
+from droit_francais import sections, texts, tools
+from droit_francais.errors import LegifranceError
+
+
+def context():
+    return {
+        "titreTxt": [
+            {"id": TEXT, "cid": TEXT, "debut": "2020-01-01", "fin": "2999-01-01"}
+        ]
+    }
+
+
+def structure():
+    return {
+        "listSection": [
+            {
+                "id": SECTION,
+                "cid": SECTION,
+                "titre": "Chapitre officiel simulé",
+                "dateDebut": "2020-01-01",
+                "dateFin": "2999-01-01",
+                "context": context(),
+                "liensArticle": [
+                    {"id": ARTICLE, "dateDebut": "2020-01-01", "dateFin": "2999-01-01"}
+                ],
+                "liensSection": [],
+            }
+        ]
+    }
+
+
+def body():
+    return {
+        "article": {
+            "id": ARTICLE,
+            "idTexte": TEXT,
+            "cidTexte": TEXT,
+            "sectionParentId": SECTION,
+            "dateDebut": "2020-01-01",
+            "dateFin": "2999-01-01",
+            "context": context(),
+            "texte": "Contenu officiel simulé. " * 12,
+            "num": "1",
+            "ordre": 1,
+        }
+    }
+
+
+class StructuredSectionTests(unittest.TestCase):
+    def setUp(self):
+        self.structure = structure()
+        self.body = body()
+        for target, value in ((texts, "get_token"),):
+            patch = mock.patch.object(target, value, return_value="jeton-factice")
+            patch.start()
+            self.addCleanup(patch.stop)
+        patch = mock.patch.object(sections.time, "sleep")
+        patch.start()
+        self.addCleanup(patch.stop)
+        patch = mock.patch.object(texts, "api_call", side_effect=self.api)
+        self.network = patch.start()
+        self.addCleanup(patch.stop)
+
+    def api(self, endpoint, arguments, token):
+        if endpoint == "/consult/getSectionByCid":
+            return self.structure
+        if endpoint == "/consult/getArticle":
+            return self.body
+        parent = text()
+        parent["sections"] = [{"id": "LEGISCTA000000000002"}] * 5001
+        return parent
+
+    def read(self):
+        return tools.get_section(SECTION, TEXT, DATE)
+
+    def test_recovers_all_children_after_refusing_large_code_parent(self):
+        result = self.read()
+        self.assertTrue(result["metadata"]["content_complete"])
+        self.assertTrue(result["metadata"]["applicable_at_as_of_date"])
+        self.assertEqual(
+            result["metadata"]["retrieval_strategy"], "official_structure_links"
+        )
+        self.assertEqual(result["articles"][0]["id"], ARTICLE)
+        self.assertEqual(self.network.call_count, 3)
+        self.assertEqual(
+            [x["endpoint"] for x in result["metadata"]["source_calls"]],
+            ["/consult/getSectionByCid", "/consult/getArticle"],
+        )
+        self.assertEqual(result["metadata"]["legal_status"], "UNKNOWN")
+
+    def test_refuses_missing_and_ambiguous_versions(self):
+        for versions in ([], self.structure["listSection"] * 2):
+            self.structure["listSection"] = versions
+            with self.assertRaises(LegifranceError):
+                self.read()
+
+    def test_refuses_wrong_section_cid_or_parent_context(self):
+        for mutate in (
+            lambda node: node.update(cid="LEGISCTA000000000002"),
+            lambda node: node.update(context={}),
+            lambda node: node["context"]["titreTxt"][0].update(
+                id="LEGITEXT000000000002", cid="LEGITEXT000000000002"
+            ),
+        ):
+            self.structure = structure()
+            mutate(self.structure["listSection"][0])
+            with self.assertRaises(LegifranceError):
+                self.read()
+
+    def test_refuses_missing_wrong_or_expired_articles(self):
+        for mutate in (
+            lambda article: article.update(id="LEGIARTI000000000002"),
+            lambda article: article.update(sectionParentId="LEGISCTA000000000002"),
+            lambda article: article.update(
+                idTexte="LEGITEXT000000000002", cidTexte="LEGITEXT000000000002"
+            ),
+            lambda article: article.update(dateFin="2021-01-01"),
+            lambda article: article.update(texte=""),
+            lambda article: article.update(complete=False),
+        ):
+            self.body = body()
+            mutate(self.body["article"])
+            with self.assertRaises(LegifranceError):
+                self.read()
+
+    def test_refuses_duplicate_active_links_and_cycles(self):
+        node = self.structure["listSection"][0]
+        node["liensArticle"] *= 2
+        with self.assertRaises(LegifranceError):
+            self.read()
+        self.structure = structure()
+        self.structure["listSection"][0]["liensSection"] = [
+            {
+                "id": SECTION,
+                "cid": SECTION,
+                "dateDebut": "2020-01-01",
+                "dateFin": "2999-01-01",
+            }
+        ]
+        with self.assertRaises(LegifranceError):
+            self.read()
+
+    def test_historical_links_are_not_silently_replaced(self):
+        self.structure["listSection"][0]["liensArticle"].append(
+            {
+                "id": "LEGIARTI000000000002",
+                "dateDebut": "2000-01-01",
+                "dateFin": "2010-01-01",
+            }
+        )
+        self.assertEqual(len(self.read()["articles"]), 1)
+        self.assertEqual(self.network.call_count, 3)
+
+    def test_unknown_link_dates_fail_closed(self):
+        for value in (None, "2020-01-01-corrompu", {}, True, float("inf")):
+            self.structure = structure()
+            self.structure["listSection"][0]["liensArticle"][0]["dateDebut"] = value
+            with self.assertRaises(LegifranceError):
+                self.read()
+
+    def test_numeric_dates_supported_without_inventing_legal_status(self):
+        self.structure["listSection"][0]["dateDebut"] = 1577836800000
+        self.assertEqual(self.read()["metadata"]["version_start_date"], "2020-01-01")
+
+    def test_limits_are_cumulative_and_request_budget_is_enforced(self):
+        for limit in (1,):
+            with mock.patch.object(sections, "MAX_REQUESTS", limit):
+                with self.assertRaises(LegifranceError):
+                    self.read()
+        raw = structure()
+        stats = {}
+        texts._bounded(raw, stats=stats)
+        article_stats = {}
+        texts._bounded(body(), stats=article_stats)
+        per_response = max(stats["bytes_json"], article_stats["bytes_json"]) + 1
+        with mock.patch.object(texts, "MAX_RESPONSE_BYTES", per_response):
+            with self.assertRaises(LegifranceError):
+                sections.retrieve(SECTION, TEXT, DATE, {"id": TEXT, "title": "Parent"})
+
+    def test_all_raw_structure_nodes_are_counted(self):
+        stats = {}
+        texts._bounded(structure(), stats=stats)
+        self.assertEqual(stats["nodes"], 3)
+
+    def test_no_url_from_structure_is_followed(self):
+        self.structure["listSection"][0]["liensArticle"][0]["url"] = (
+            "https://malveillant.test/"
+        )
+        self.read()
+        self.assertTrue(
+            all(
+                call.args[0].startswith("/consult/")
+                for call in self.network.call_args_list
+            )
+        )
+
+    def test_missing_child_inventory_never_becomes_an_empty_complete_section(self):
+        for key in ("liensArticle", "liensSection"):
+            self.structure = structure()
+            del self.structure["listSection"][0][key]
+            with self.assertRaises(LegifranceError):
+                self.read()
+
+    def test_missing_subsection_id_is_not_replaced_by_cid(self):
+        self.structure["listSection"][0]["liensSection"] = [
+            {"cid": SECTION, "dateDebut": "2020-01-01", "dateFin": "2999-01-01"}
+        ]
+        with self.assertRaises(LegifranceError):
+            self.read()
+
+    def test_nested_subtree_is_read_entirely_with_exact_child_id(self):
+        child_id = "LEGISCTA000000000002"
+        child_article = "LEGIARTI000000000002"
+        child = copy.deepcopy(self.structure)
+        child["listSection"][0].update(id=child_id, cid=child_id)
+        child["listSection"][0]["liensArticle"][0]["id"] = child_article
+        child_body = body()
+        child_body["article"].update(id=child_article, sectionParentId=child_id)
+        self.structure["listSection"][0]["liensArticle"] = []
+        self.structure["listSection"][0]["liensSection"] = [
+            {
+                "id": child_id,
+                "cid": child_id,
+                "dateDebut": "2020-01-01",
+                "dateFin": "2999-01-01",
+                "ordre": 1,
+            }
+        ]
+        original = self.api
+
+        def api(endpoint, arguments, token):
+            if endpoint == "/consult/getSectionByCid" and arguments["cid"] == child_id:
+                return child
+            if endpoint == "/consult/getArticle":
+                return child_body
+            return original(endpoint, arguments, token)
+
+        self.network.side_effect = api
+        result = self.read()
+        self.assertEqual(result["sections"][0]["articles"][0]["id"], child_article)
+        self.assertTrue(result["metadata"]["content_complete"])
+        self.assertTrue(result["metadata"]["applicable_at_as_of_date"])
+
+    def test_cumulative_node_and_time_budgets_fail_without_partial_result(self):
+        with mock.patch.object(texts, "MAX_NODES", 3):
+            with self.assertRaises(LegifranceError):
+                sections.retrieve(SECTION, TEXT, DATE, {"id": TEXT, "title": "Parent"})
+        self.network.reset_mock()
+        with mock.patch.object(sections, "MAX_SECONDS", -1):
+            with self.assertRaises(LegifranceError):
+                sections.retrieve(SECTION, TEXT, DATE, {"id": TEXT, "title": "Parent"})
+        self.network.assert_not_called()
+
+
+if __name__ == "__main__":
+    unittest.main()
