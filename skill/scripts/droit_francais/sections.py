@@ -98,7 +98,7 @@ def retrieve(section_id: str, text_id: str, date: str, parent: dict) -> dict:
                 identifier
                 if isinstance(identifier, str)
                 and re.fullmatch(
-                    r"LEGI(?:SCTA|ARTI)[0-9]{12}(?:[-_0-9T:Z+.]{0,60}|_[A-Z]{3})",
+                    r"LEGI(?:SCTA|ARTI)[0-9]{12}(?:[-_0-9T:Z+.]{0,60}|_[A-Za-z]{3})",
                     identifier,
                 )
                 else f"type={type(identifier).__name__}"
@@ -136,7 +136,7 @@ def retrieve(section_id: str, text_id: str, date: str, parent: dict) -> dict:
         record_id = node.get("id")
         # Le CID reste l'identité officielle demandée. Ne reconnaître qu'une
         # forme d'index exacte, jamais un suffixe libre ni un statut déduit.
-        if record_id == cid + "_VIG":
+        if record_id in (cid + "_VIG", cid + "_vig"):
             node = {**node, "id": cid, "source_record_id": record_id}
         if "liensArticle" not in node or "liensSection" not in node:
             texts._fail(
