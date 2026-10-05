@@ -54,7 +54,8 @@ def retrieve(section_id: str, text_id: str, date: str, parent: dict) -> dict:
             time.sleep(1.1)
         if len(calls) >= MAX_REQUESTS or time.monotonic() - started > MAX_SECONDS:
             texts._fail(
-                "Budget de récupération structurée atteint : aucun résultat partiel."
+                f"Budget de récupération structurée atteint : appels={len(calls)}/{MAX_REQUESTS}, "
+                f"secondes={int(time.monotonic() - started)}/{MAX_SECONDS}. Aucun résultat partiel."
             )
         stats = {}
         payload = texts._bounded(
@@ -81,7 +82,9 @@ def retrieve(section_id: str, text_id: str, date: str, parent: dict) -> dict:
             active[0].get("id"),
             active[0].get("cid"),
         ):
-            texts._fail("Rattachement daté au texte parent absent ou ambigu.")
+            texts._fail(
+                f"Rattachement daté au texte parent absent ou ambigu (contextes_applicables={len(active)})."
+            )
 
     def register(identifier, pattern):
         if (
@@ -168,7 +171,11 @@ def retrieve(section_id: str, text_id: str, date: str, parent: dict) -> dict:
                 or not _active(article, date)
             ):
                 texts._fail(
-                    "Article non conforme au lien, au parent ou à la date officielle."
+                    "Article non conforme au lien, au parent ou à la date officielle "
+                    f"(objet={isinstance(article, dict)}, "
+                    f"id={isinstance(article, dict) and article.get('id') == identifier}, "
+                    f"texte_parent={isinstance(article, dict) and text_id in (article.get('idTexte'), article.get('cidTexte'))}, "
+                    f"section_parent={isinstance(article, dict) and article.get('sectionParentId') in (node['id'], record_id)})."
                 )
             parent_context(article)
             converted["articles"].append(
