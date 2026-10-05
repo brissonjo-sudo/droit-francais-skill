@@ -120,13 +120,16 @@ class StructuredSectionTests(unittest.TestCase):
                 self.read()
 
     def test_exact_index_identity_keeps_official_cid_and_raw_provenance(self):
-        self.structure["listSection"][0]["id"] = SECTION + "_VIG"
-        for parent in (SECTION, SECTION + "_VIG"):
-            self.body["article"]["sectionParentId"] = parent
-            result = self.read()
-            self.assertEqual(result["id"], SECTION)
-            self.assertEqual(result["metadata"]["source_record_id"], SECTION + "_VIG")
-            self.assertEqual(result["metadata"]["legal_status"], "UNKNOWN")
+        for suffix in ("_VIG", "_vig"):
+            self.structure["listSection"][0]["id"] = SECTION + suffix
+            for parent in (SECTION, SECTION + suffix):
+                self.body["article"]["sectionParentId"] = parent
+                result = self.read()
+                self.assertEqual(result["id"], SECTION)
+                self.assertEqual(
+                    result["metadata"]["source_record_id"], SECTION + suffix
+                )
+                self.assertEqual(result["metadata"]["legal_status"], "UNKNOWN")
 
     def test_index_identity_does_not_relax_parent_date_or_unknown_suffix(self):
         for identifier in (SECTION + "_XXX", "LEGISCTA000000000002_VIG"):
