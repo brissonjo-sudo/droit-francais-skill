@@ -75,3 +75,8 @@ identifiant brut gardé dans `source_record_id`. Elle ne déduit aucun statut
 juridique, ne remplace aucune borne ni preuve de parent et refuse les autres
 suffixes. La nouvelle sonde réelle doit établir si cette forme correspond
 bien au retour officiel et si le corps complet satisfait les contrôles.
+
+Les sondes réelles après PR 97/98 n'ont pas confirmé `_VIG` / `_vig`.
+Ces correspondances sont retirées : seule la forme fichier `CID + .xml`
+est désormais examinée, sans changer le CID juridique ni aucune autre
+condition. Le brut est conservé pour confirmation par la sonde réelle.
