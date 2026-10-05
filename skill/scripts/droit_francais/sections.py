@@ -45,6 +45,8 @@ def retrieve(section_id: str, text_id: str, date: str, parent: dict) -> dict:
     token = texts.get_token()
     seen = set()
     calls = []
+    pending_articles = []
+    planned_requests = None
     total_bytes = total_nodes = 0
     started = time.monotonic()
 
@@ -56,6 +58,7 @@ def retrieve(section_id: str, text_id: str, date: str, parent: dict) -> dict:
             texts._fail(
                 f"Budget de récupération structurée atteint : appels={len(calls)}/{MAX_REQUESTS}, "
                 f"secondes={int(time.monotonic() - started)}/{MAX_SECONDS}. Aucun résultat partiel."
+                f" Inventaire_appels_requis={planned_requests}."
             )
         stats = {}
         payload = texts._bounded(
@@ -162,6 +165,26 @@ def retrieve(section_id: str, text_id: str, date: str, parent: dict) -> dict:
                 continue
             identifier = link.get("id")
             register(identifier, texts._ARTICLE_ID)
+            pending_articles.append((converted, node, record_id, identifier))
+        for link in texts._children(node, "liensSection"):
+            if not _active(link, date):
+                continue
+            child_cid = link.get("cid")
+            if not isinstance(child_cid, str) or not texts._SECTION_ID.fullmatch(
+                child_cid
+            ):
+                texts._fail("CID de sous-section absent du lien officiel.")
+            if not isinstance(link.get("id"), str) or not texts._SECTION_ID.fullmatch(
+                link["id"]
+            ):
+                texts._fail("Identifiant de sous-section absent du lien officiel.")
+            child = read_section(child_cid, link.get("id"), depth + 1)
+            child["intOrdre"] = link.get("ordre")
+            converted["sections"].append(child)
+        return converted
+
+    def read_articles():
+        for converted, node, record_id, identifier in pending_articles:
             article = call("/consult/getArticle", {"id": identifier}).get("article")
             direct_parent = (
                 (article.get("idTexte"), article.get("cidTexte"))
@@ -208,24 +231,16 @@ def retrieve(section_id: str, text_id: str, date: str, parent: dict) -> dict:
                     "direct_parent_fields_present": parent_fields_present,
                 }
             )
-        for link in texts._children(node, "liensSection"):
-            if not _active(link, date):
-                continue
-            child_cid = link.get("cid")
-            if not isinstance(child_cid, str) or not texts._SECTION_ID.fullmatch(
-                child_cid
-            ):
-                texts._fail("CID de sous-section absent du lien officiel.")
-            if not isinstance(link.get("id"), str) or not texts._SECTION_ID.fullmatch(
-                link["id"]
-            ):
-                texts._fail("Identifiant de sous-section absent du lien officiel.")
-            child = read_section(child_cid, link.get("id"), depth + 1)
-            child["intOrdre"] = link.get("ordre")
-            converted["sections"].append(child)
-        return converted
 
     raw = read_section(section_id)
+    structure_calls = len(calls)
+    planned_requests = structure_calls + len(pending_articles)
+    if planned_requests > MAX_REQUESTS:
+        texts._fail(
+            f"Inventaire officiel complet : sections={structure_calls}, articles={len(pending_articles)}, "
+            f"appels_requis={planned_requests}, plafond={MAX_REQUESTS}. Aucun corps partiel lu ou retourné."
+        )
+    read_articles()
     stats = {}
     texts._bounded(raw, scope="selected_section", stats=stats)
     result = texts._section(raw, text_id, date)
@@ -246,6 +261,11 @@ def retrieve(section_id: str, text_id: str, date: str, parent: dict) -> dict:
                 "nodes": total_nodes,
             },
             "source_calls": calls,
+            "retrieval_plan": {
+                "sections": structure_calls,
+                "articles": len(pending_articles),
+                "requests": planned_requests,
+            },
             "completeness_scope": "Tous les liens de la section applicables à la date ; hors documents externes.",
         }
     )

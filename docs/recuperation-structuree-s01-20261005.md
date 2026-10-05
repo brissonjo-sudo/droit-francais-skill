@@ -89,3 +89,10 @@ S'ils sont absents, le lien officiel de section, `sectionParentId` exact et
 le contexte `titreTxt` unique couvrant la date restent tous obligatoires.
 La provenance indique ce mode de rattachement : pas de parent déduit du
 contenu ni de qualification de complétude sans ces contrôles.
+
+PR 100 : S01 franchit les contrôles précédents mais s'arrête à 40 appels
+sur le délai de 50 secondes (référence `3de50b02`). L'inventaire complet
+des sections et liens applicables est désormais réalisé avant lecture des
+corps. Il donne le nombre exact de requêtes nécessaires et refuse toute
+admission excédant le plafond de 64, sans relever celui-ci. Ces compteurs
+doivent fonder la suite, pas une hausse arbitraire de budget ou une omission.
