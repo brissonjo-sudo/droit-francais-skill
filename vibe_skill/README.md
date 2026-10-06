@@ -2,7 +2,7 @@
 
 **Méthodologie rigoureuse de recherche en droit français pour Vibe**
 
-> **Version** : 3.3.0-vibe (adapté du noyau 3.3.0)
+> **Version** : 3.5.0-vibe (adapté du noyau 3.5.0)
 > **Licence** : [CC-BY-SA-4.0](../LICENSE)
 > **Auteur** : Adapté depuis [brissonjo-sudo/droit-francais-skill](https://github.com/brissonjo-sudo/droit-francais-skill)
 
@@ -417,7 +417,7 @@ Je traite la suite dès que ce point est précisé.
    git pull https://github.com/brissonjo-sudo/droit-francais-skill.git
    
    # 2. Mettre à jour la version dans vibe_skill/SKILL.md
-   #    Exemple : s/3.3.0-vibe/3.4.0-vibe/g
+   #    Exemple : s/3.5.0-vibe/3.6.0-vibe/g
    
    # 3. Vérifier les changements dans les références
    #    (skill/references/, skill/profils/)
@@ -425,6 +425,24 @@ Je traite la suite dès que ce point est précisé.
 
 3. **Changelog** :
    Consulter [`skill/CHANGELOG.md`](../skill/CHANGELOG.md) pour connaître les modifications.
+
+### Mode automatique explicite
+
+Pour les installations **globales suivies par le CLI `skills`**, vous pouvez activer
+le mode de mise à jour automatique en créant le fichier `.recherche-juridique-update.json`
+à la racine du skill :
+
+```json
+{ "automatic": true }
+```
+
+Au premier usage après 24 heures, le script `scripts/update_skill.py` sera exécuté
+automatiquement : il lancera `npx skills update recherche-juridique -y -g`, conservera
+`profil.md` et `.env`, et n'affichera que `UPDATE_APPLIED` si la version a réellement
+changé. Pour désactiver, remplacez par `{ "automatic": false }` ou supprimez le fichier.
+
+> ⚠️ Ce mode est **réservé aux installations globales** avec le CLI `skills`. Pour les
+> installations gérées par un hôte ou un marketplace, suivez leur mécanisme propre.
 
 ### Règle de synchronisation
 
