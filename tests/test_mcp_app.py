@@ -641,6 +641,8 @@ class McpProtocolTests(unittest.TestCase):
                     )
                     self.assertEqual(set(section_schema["required"]), {"id", "text_id"})
                     self.assertIn("date", section_schema["properties"])
+                    self.assertIn("cid", section_schema["properties"])
+                    self.assertNotIn("cid", section_schema["required"])
                     for name, args in (
                         ("get_section", {"id": "invalide", "text_id": "LEGITEXT000000000001"}),
                         ("get_text", {"id": "JORFTEXT000000000001"}),

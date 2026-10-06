@@ -43,7 +43,8 @@ def _active(node, date, start="dateDebut", end="dateFin"):
     return lower <= date < upper
 
 
-def retrieve(section_id: str, text_id: str, date: str, parent: dict) -> dict:
+def retrieve(section_id: str, text_id: str, date: str, parent: dict,
+             lookup_cid: str | None = None) -> dict:
     """Lit toutes les branches liées à la date, sous budgets cumulés inchangés."""
     token = texts.get_token()
     seen = set()
@@ -282,7 +283,15 @@ def retrieve(section_id: str, text_id: str, date: str, parent: dict) -> dict:
                 }
             )
 
-    raw = read_section(section_id)
+    raw = read_section(lookup_cid if lookup_cid is not None else section_id,
+                       expected_id=section_id if lookup_cid is not None else None)
+    if lookup_cid is not None:
+        identity_resolution = {
+            "requested_version_id": section_id, "resolved_cid": lookup_cid,
+            "parent_text_id": text_id, "parent_version_id": parent["id"],
+            "as_of_date": date, "endpoint": "/consult/getSectionByCid",
+            "binding": "explicit_locator_and_exact_dated_version_id",
+        }
     structure_calls = len(calls)
     section_count = sum(bool(texts._SECTION_ID.fullmatch(identifier)) for identifier in seen)
     planned_requests = structure_calls + len(pending_articles)
@@ -323,4 +332,6 @@ def retrieve(section_id: str, text_id: str, date: str, parent: dict) -> dict:
     if identity_resolution is not None:
         result["metadata"]["section_identity_resolution"] = identity_resolution
         result["metadata"]["retrieval_plan"]["identity_requests"] = structure_calls - section_count
+    if lookup_cid is not None:
+        result["metadata"]["requested_cid"] = lookup_cid
     return result

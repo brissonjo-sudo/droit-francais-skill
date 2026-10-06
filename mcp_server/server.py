@@ -450,13 +450,19 @@ def get_decision(id: str) -> dict[str, Any]:
         "notes et bornes de version. date : AAAA-MM-JJ uniquement si une date "
         "précise est demandée ; sinon horloge du serveur. verified atteste la "
         "source, pas la vigueur : vérifier applicable_at_as_of_date. Refuse un "
-        "sommaire ou contenu partiel ; ne couvre pas les sections LODA ou JORF."
+        "sommaire ou contenu partiel ; ne couvre pas les sections LODA ou JORF. "
+        "cid optionnel : CID de localisation établi à la source, distinct de "
+        "l'ID de version demandé. Si fourni, la version retournée doit égaler "
+        "exactement id ; un CID seul ne prouve ni cette identité ni la vigueur."
     ),
     annotations=READ_ONLY,
 )
-def get_section(id: str, text_id: str, date: str | None = None) -> dict[str, Any]:
+def get_section(id: str, text_id: str, date: str | None = None,
+                cid: str | None = None) -> dict[str, Any]:
     """Lit une section CODE datée avec son parent explicite."""
-    return _safe_call(legal_tools.get_section, id, text_id, date)
+    if cid is None:
+        return _safe_call(legal_tools.get_section, id, text_id, date)
+    return _safe_call(legal_tools.get_section, id, text_id, date, cid=cid)
 
 
 @server.tool(

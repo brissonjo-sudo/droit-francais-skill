@@ -351,18 +351,22 @@ def _render(node: dict[str, Any]) -> str:
 
 
 def get_section(
-    section_id: str, text_id: str, date: str | None = None
+    section_id: str, text_id: str, date: str | None = None, cid: str | None = None
 ) -> dict[str, Any]:
     """Lit uniquement le sous-arbre demandé d'un code, à la date évaluée."""
     section_id = _identifier(section_id, _SECTION_ID, "LEGISCTA")
     text_id = _identifier(text_id, _TEXT_ID, "LEGITEXT")
+    if cid is not None:
+        if not isinstance(cid, str):
+            raise LegifranceError("CID LEGISCTA invalide.", exit_code=2)
+        cid = _identifier(cid, _SECTION_ID, "LEGISCTA CID")
     effective = _consult_date(date)
     response_stats: dict[str, int] = {}
     payload = api_call(
         "/consult/code",
         {
             "textId": text_id,
-            "sctCid": section_id,
+            "sctCid": cid if cid is not None else section_id,
             "date": effective,
         },
         get_token(),
@@ -385,7 +389,7 @@ def get_section(
         from .sections import retrieve
 
         try:
-            result = retrieve(section_id, text_id, effective, parent)
+            result = retrieve(section_id, text_id, effective, parent, lookup_cid=cid)
             result["metadata"]["primary_consultation_refused"] = diagnostic
             return result
         except LegifranceError as failure:
@@ -399,7 +403,8 @@ def get_section(
     stack = list(_children(payload, "sections"))
     while stack:
         node = stack.pop()
-        if section_id in (node.get("id"), node.get("cid")):
+        if ((cid is not None and node.get("id") == section_id and node.get("cid") == cid)
+            or (cid is None and section_id in (node.get("id"), node.get("cid")))):
             matches.append(node)
         stack.extend(_children(node, "sections"))
     if len(matches) != 1:
@@ -421,6 +426,16 @@ def get_section(
             "completeness_scope": "Sous-arbre retourné par l'API, hors documents liés externes.",
         }
     )
+    if cid is not None:
+        if _metadata(payload, effective, root=True)["applicable_at_as_of_date"] is not True:
+            _fail("Parent de la localisation explicite non applicable à la date demandée.")
+        if result["metadata"]["applicable_at_as_of_date"] is not True:
+            _fail("ID de version explicite non applicable à la date demandée.")
+        result["metadata"].update(requested_cid=cid, section_identity_resolution={
+            "requested_version_id": section_id, "resolved_cid": cid,
+            "parent_text_id": text_id, "parent_version_id": payload["id"],
+            "as_of_date": effective, "endpoint": "/consult/code",
+            "binding": "explicit_locator_and_exact_dated_version_id"})
     return result
 
 
