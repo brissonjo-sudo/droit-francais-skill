@@ -734,10 +734,11 @@ def fetch(identifier: str) -> dict[str, Any]:
     return get_decision(identifier)
 
 
-def get_section(section_id: str, text_id: str, date: str | None = None) -> dict[str, Any]:
-    """Consulte une section CODE sans déduire son texte parent."""
+def get_section(section_id: str, text_id: str, date: str | None = None,
+                cid: str | None = None) -> dict[str, Any]:
+    """Consulte une section CODE ; CID explicite sans substituer l'ID demandé."""
     from .texts import get_section as consult_section
-    return consult_section(section_id, text_id, date)
+    return consult_section(section_id, text_id, date, cid=cid)
 
 
 def get_text(text_id: str, date: str | None = None) -> dict[str, Any]:
