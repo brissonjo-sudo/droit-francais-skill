@@ -9,14 +9,14 @@ allowed-tools:
   - read_file
   - ask_user_question
 metadata:
-  version: 3.3.0-vibe
-  date_derniere_revue_methodologique: 2026-09-05
+  version: 3.5.0-vibe
+  date_derniere_revue_methodologique: 2026-09-14
   date_derniere_verification_sources: 2026-09-04
   langue: français
   adapted_for: vibe
 ---
 
-# Skill : recherche-juridique (v3.3.0-vibe)
+# Skill : recherche-juridique (v3.5.0-vibe)
 
 **Objet** : empêcher toute invention de droit français. Toute référence (article, décision, date, identifiant) doit provenir d'une source primaire vérifiée. Abstention informée prime sur complétion spéculative.
 
@@ -29,6 +29,56 @@ Conçu contre les modes d'erreur LLM courants en droit (hallucination d'identifi
 >
 > **Si le fichier cible est absent ou illisible**, signaler que l'installation est incomplète.
 > Ne pas improviser de règle juridique ni d'identifiant officiel pour compenser.
+
+---
+
+---
+
+## Mise à jour — contrôle par session, automatique sur option
+
+Au premier déclenchement du skill dans une session, si le mode automatique
+n'est pas activé, vérifier discrètement si une mise à jour est disponible avec
+`npx skills check`, **uniquement** si `npx` est accessible. Ne pas relancer ce
+contrôle dans la même session et jamais avant une réponse urgente ou une simple
+clarification.
+
+- Si `recherche-juridique` est signalé comme périmé, l'indiquer en une phrase,
+  puis poursuivre immédiatement le travail :
+  « Une mise à jour de recherche-juridique est disponible ; vous pourrez
+  l'installer après cette réponse avec `npx skills update recherche-juridique`. »
+- Ne pas proposer de mise à jour si le contrôle ne signale rien, si le skill
+  n'est pas suivi par le CLI `skills`, ou si le contrôle échoue (réseau, Node,
+  droits). Ces situations ne sont pas un problème juridique et ne doivent pas
+  alourdir la réponse.
+- L'agent ne lance jamais `npx skills update` de sa propre initiative, sauf
+  si l'utilisateur a activé le mode automatique ci-dessous.
+
+Cette fonction concerne les installations réalisées avec le CLI `skills`.
+Pour une installation gérée par un hôte ou un marketplace, suivre son mécanisme
+de mise à jour ; ne pas présenter la commande `npx` comme un correctif universel.
+
+### Mode automatique explicite
+
+Ce mode est réservé à une installation **globale suivie par le CLI `skills`**.
+L'utilisateur l'active en créant, à la racine du skill, le fichier local non
+versionné `.recherche-juridique-update.json` :
+
+```json
+{ "automatic": true }
+```
+
+Au premier usage après un délai de 24 heures, exécuter à la place du contrôle
+manuel `npx skills check` :
+`scripts/update_skill.py`. Le script détermine le périmètre global, lance
+`npx skills update recherche-juridique -y -g`, conserve `profil.md` et
+`.env`, puis affiche seulement `UPDATE_APPLIED` quand la version a
+changé. Une panne réseau, l'absence de `npx`, une installation locale ou un
+emplacement ambigu ne bloque jamais le travail juridique et n'entraîne aucune
+mise à jour. Le fichier garde la date de la dernière tentative pour éviter les
+relances répétées.
+
+Pour désactiver le mode, remplacer son contenu par `{ "automatic": false }`
+ou supprimer ce fichier.
 
 ---
 
@@ -280,6 +330,16 @@ Lire [`../skill/references/modules.md`](../skill/references/modules.md) dès qu'
 | **CONTENTIEUX** | Risque de recours, stratégie procédurale | — |
 | **DOC-AUDIT** | Audit / relecture / correction de document(s) | Non désactivable par `[express]` |
 
+**Nouveautés 3.5.0** :
+- **Audit des pouvoirs coercitifs** : Lorsqu'un document prévoit une coupe,
+  un enlèvement, une éviction, une destruction, une confiscation ou une
+  attribution d'un bien privé, un contrôle autonome de l'exécution forcée
+  d'office est requis. Une interdiction ou une sanction ne vaut pas,
+  seule, habilitation à disposer du bien.
+- **Distinction des montants répressifs** : Le contrôle documentaire sépare
+  la classe de contravention, le maximum légal et l'amende forfaitaire
+  éventuellement applicable. Voir [`../skill/references/audit-documentaire.md`](../skill/references/audit-documentaire.md) §5.
+
 ---
 
 ## Mode A / Mode B
@@ -343,8 +403,8 @@ Sans `profil.md` → **profil neutre** : aucun contexte métier n'est présumé.
 
 ## Maintenance
 
-- **Source de vérité** : [`../skill/SKILL.md`](../skill/SKILL.md) (version 3.3.0)
-- **Synchronisation** : Mettre à jour `metadata.version` dans ce fichier à chaque release du noyau (ex: `3.3.0-vibe` → `3.4.0-vibe`)
+- **Source de vérité** : [`../skill/SKILL.md`](../skill/SKILL.md) (version 3.5.0)
+- **Synchronisation** : Mettre à jour `metadata.version` dans ce fichier à chaque release du noyau (ex: `3.5.0-vibe` → `3.6.0-vibe`)
 - **Tests** : Vérifier que les outils Vibe (`web_search`, `web_fetch`) répondent aux exigences P1–P7
 
 ---
