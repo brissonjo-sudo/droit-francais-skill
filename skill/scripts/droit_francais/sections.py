@@ -52,6 +52,7 @@ def retrieve(section_id: str, text_id: str, date: str, parent: dict) -> dict:
     planned_requests = None
     total_bytes = total_nodes = 0
     started = time.monotonic()
+    identity_resolution = None
 
     def call(endpoint, arguments):
         nonlocal total_bytes, total_nodes
@@ -126,12 +127,52 @@ def retrieve(section_id: str, text_id: str, date: str, parent: dict) -> dict:
         if len(seen) > texts.MAX_NODES:
             texts._limit_fail("nodes", len(seen), texts.MAX_NODES, "selected_section")
 
+    def resolve_version_cid():
+        """Résout un ID de version dans le sommaire officiel daté, sans corps."""
+        nonlocal identity_resolution
+        endpoint = "/consult/legi/tableMatieres"
+        index = call(endpoint, {"textId": text_id, "date": date, "nature": "CODE"})
+        texts._validate_text(index, text_id)
+        if (index["id"] != parent["id"] or
+                texts._metadata(index, date, root=True)["applicable_at_as_of_date"] is not True):
+            texts._fail("Sommaire et parent de versions différentes ou non datées.")
+        matches = []
+        stack = [(item, True) for item in texts._children(index, "sections")]
+        visited = set()
+        while stack:
+            node, path_active = stack.pop()
+            if id(node) in visited:
+                texts._fail("Sommaire de section dupliqué ou cyclique.")
+            visited.add(id(node))
+            active = _active(node, date) and path_active
+            if node.get("id") == section_id:
+                matches.append((node, active))
+            stack.extend((item, active) for item in texts._children(node, "sections"))
+        if len(matches) != 1 or not matches[0][1]:
+            texts._fail("ID de version demandé absent, ambigu ou non applicable dans le sommaire.")
+        node = matches[0][0]
+        cid = node.get("cid")
+        if not isinstance(cid, str) or not texts._SECTION_ID.fullmatch(cid) or cid == section_id:
+            texts._fail("CID distinct et valide de la version demandée non confirmé.")
+        identity_resolution = {
+            "requested_version_id": section_id, "resolved_cid": cid,
+            "parent_text_id": text_id, "parent_version_id": index["id"],
+            "as_of_date": date, "endpoint": endpoint,
+            "binding": "exact_dated_version_id_in_official_code_contents",
+        }
+        return cid
+
     def read_section(cid, expected_id=None, depth=0):
         if depth > texts.MAX_DEPTH:
             texts._limit_fail("depth", depth, texts.MAX_DEPTH, "selected_section")
         payload = call("/consult/getSectionByCid", {"cid": cid})
         versions = texts._children(payload, "listSection")
         if not versions or any(v.get("cid") != cid for v in versions):
+            # Une seule résolution de la racine, jamais d'un lien enfant :
+            # le CID est relu à la source, l'ID de version original reste exigé.
+            if depth == 0 and expected_id is None and cid == section_id:
+                resolved = resolve_version_cid()
+                return read_section(resolved, expected_id=section_id)
             texts._fail(
                 "Liste des versions de section absente ou différente de la demande."
             )
@@ -243,10 +284,11 @@ def retrieve(section_id: str, text_id: str, date: str, parent: dict) -> dict:
 
     raw = read_section(section_id)
     structure_calls = len(calls)
+    section_count = sum(bool(texts._SECTION_ID.fullmatch(identifier)) for identifier in seen)
     planned_requests = structure_calls + len(pending_articles)
     if planned_requests > MAX_REQUESTS:
         texts._fail(
-            f"Inventaire officiel complet : sections={structure_calls}, articles={len(pending_articles)}, "
+            f"Inventaire officiel complet : sections={section_count}, articles={len(pending_articles)}, "
             f"appels_requis={planned_requests}, plafond={MAX_REQUESTS}. Aucun corps partiel lu ou retourné."
         )
     read_articles()
@@ -261,7 +303,7 @@ def retrieve(section_id: str, text_id: str, date: str, parent: dict) -> dict:
             "parent_title": parent["title"],
             "parent_version_id": parent["id"],
             "endpoint": "/consult/code",
-            "content_endpoints": ["/consult/getSectionByCid", "/consult/getArticle"],
+            "content_endpoints": list(dict.fromkeys(item["endpoint"] for item in calls)),
             "retrieval_strategy": "official_structure_links",
             "content_complete": True,
             "section_volume": stats,
@@ -271,11 +313,14 @@ def retrieve(section_id: str, text_id: str, date: str, parent: dict) -> dict:
             },
             "source_calls": calls,
             "retrieval_plan": {
-                "sections": structure_calls,
+                "sections": section_count,
                 "articles": len(pending_articles),
                 "requests": planned_requests,
             },
             "completeness_scope": "Tous les liens de la section applicables à la date ; hors documents externes.",
         }
     )
+    if identity_resolution is not None:
+        result["metadata"]["section_identity_resolution"] = identity_resolution
+        result["metadata"]["retrieval_plan"]["identity_requests"] = structure_calls - section_count
     return result
