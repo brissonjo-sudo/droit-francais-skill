@@ -404,10 +404,12 @@ def get_section(
             result["metadata"]["primary_consultation_refused"] = diagnostic
             return result
         except LegifranceError as failure:
+            from .section_diagnostics import combined_detail
+
             raise LegifranceError(
                 f"{limit} Récupération structurée refusée : {failure}",
                 exit_code=5,
-                detail=limit.detail,
+                detail=combined_detail(diagnostic, failure.detail, limit.detail),
             ) from failure
     _validate_text(payload, text_id)
     matches = []
