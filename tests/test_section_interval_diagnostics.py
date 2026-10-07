@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+import ast
 import copy
 import json
+from pathlib import Path
 import unittest
 from unittest import mock
 
@@ -15,6 +17,13 @@ from mcp_server import server
 
 
 class IntervalDiagnosticTests(unittest.TestCase):
+    def test_no_duplicate_test_methods(self):
+        tree = ast.parse(Path(__file__).read_text(encoding="utf-8"))
+        for node in ast.walk(tree):
+            if isinstance(node, ast.ClassDef):
+                names = [item.name for item in node.body if isinstance(item, ast.FunctionDef)]
+                self.assertEqual(len(names), len(set(names)), node.name)
+
     def test_inversion_and_equality_still_refuse_with_identical_public_message(self):
         for start, end in (("2025-01-02", "2025-01-01"), ("2025-01-01", "2025-01-01")):
             with self.subTest(start=start, end=end), self.assertRaises(LegifranceError) as caught:
@@ -201,37 +210,6 @@ class IntervalPipelineTests(unittest.TestCase):
         value = json.loads(caught.exception.detail)["structure"]
         self.assertEqual(value["role"], "contents")
         self.assertEqual(value["path"], ["sections", 0])
-
-    def test_nested_section_path_is_preserved_across_official_calls(self):
-        child_id = "LEGISCTA000000000002"
-        self.section["listSection"][0]["liensArticle"] = []
-        self.section["listSection"][0]["liensSection"] = [{"id": child_id, "cid": child_id,
-            "dateDebut": "2020-01-01", "dateFin": "2999-01-01"}]
-        child = structure()
-        child["listSection"][0].update(id=child_id, cid=child_id, dateFin="2020-01-01")
-        original = self.api
-        self.network.side_effect = lambda endpoint, args, token: (
-            child if args.get("cid") == child_id else original(endpoint, args, token))
-        with self.assertRaises(LegifranceError) as caught:
-            self.read()
-        value = json.loads(caught.exception.detail)["structure"]
-        self.assertEqual(value["path"], ["listSection", 0, "liensSection", 0, "listSection", 0])
-        self.assertEqual(value["id"], child_id)
-
-    def test_contents_resolution_path_and_refusal_are_preserved(self):
-        self.section["listSection"] = []
-        index = text()
-        index["sections"] = [{"id": SECTION, "cid": "LEGISCTA000000000002",
-                              "dateDebut": "2020-01-01", "dateFin": "2020-01-01", "sections": []}]
-        original = self.api
-        self.network.side_effect = lambda endpoint, args, token: (
-            index if endpoint == "/consult/legi/tableMatieres" else original(endpoint, args, token))
-        with self.assertRaises(LegifranceError) as caught:
-            self.read()
-        value = json.loads(caught.exception.detail)["structure"]
-        self.assertEqual(value["role"], "contents")
-        self.assertEqual(value["path"], ["sections", 0])
-
 
 if __name__ == "__main__":
     unittest.main()
