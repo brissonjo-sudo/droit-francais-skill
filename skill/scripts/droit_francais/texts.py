@@ -107,15 +107,26 @@ def _metadata(
     malformed = False
     for value in (start, end):
         try:
+            if isinstance(value, bool):
+                raise ValueError("Borne de version booléenne.")
+            if isinstance(value, (int, float)):
+                # PISTE retourne aussi des millisecondes Unix dans les articles
+                # inclus de /consult/code. Calcul UTC indépendant du gmtime
+                # de la plateforme, y compris pour la borne sentinelle 2999.
+                instant = dt.datetime(1970, 1, 1, tzinfo=dt.timezone.utc) + dt.timedelta(
+                    milliseconds=value
+                )
+                parsed.append(instant.date().isoformat())
+                continue
             if not isinstance(value, str):
-                raise ValueError("Borne de version non textuelle.")
+                raise ValueError("Format de borne de version non reconnu.")
             # Accepter une date ISO ou un horodatage ISO, pas un préfixe
             # ressemblant à une date suivi d'un contenu arbitraire.
             if len(value) == 10:
                 parsed.append(dt.date.fromisoformat(value).isoformat())
             else:
                 parsed.append(dt.datetime.fromisoformat(value).date().isoformat())
-        except (TypeError, ValueError):
+        except (TypeError, ValueError, OverflowError):
             parsed.append(None)
             malformed = malformed or value not in (None, "")
     dating = _article_dating(*parsed, date)
