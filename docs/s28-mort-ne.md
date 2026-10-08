@@ -1,7 +1,11 @@
-# S28 : candidat local, confirmation stricte des versions morte-nées
+# S28 : candidat soumis à revue, confirmation stricte des versions morte-nées
 
-Statut : implémenté et testé localement seulement après accord utilisateur.
-Pas de PR, fusion, déploiement ou sonde live autorisés dans cette étape.
+Statut au 8 octobre 2026 : candidat soumis à revue dans la
+[PR #112](https://github.com/brissonjo-sudo/droit-francais-skill/pull/112),
+non fusionné et non qualifié en réel. L'étape locale initiale du 7 octobre
+n'autorisait pas de PR ; les accords ultérieurs ont permis sa création,
+son passage en revue puis les retouches ciblées et leurs contrôles locaux.
+Aucune fusion, aucun déploiement ni sonde live autorisés dans cette étape.
 
 La vérification officielle du 7 octobre a observé `MODIFIE_MORT_NE` et les
 bornes inversées de l'article identifié. Elle n'exposait pas le parent brut
@@ -26,6 +30,9 @@ XML déjà existante), le texte parent et le contexte daté. Un champ parent
 direct contradictoire interdit cette nouvelle exclusion, même si un autre
 champ direct est correct. L'absence des champs directs exige toujours le
 contexte daté et la section exacte. Toute incohérence reste un refus.
+Si la confirmation échoue, le refus reste explicite même si `_active`
+cessait de lever sur un intervalle inversé ; aucune trace d'exclusion
+ni lecture de corps actif ne doit alors être produite.
 
 La version exclue reste inventoriée avec ID, état, bornes, chemin et preuve
 de rattachement dans `metadata.excluded_article_versions`. Son corps n'est

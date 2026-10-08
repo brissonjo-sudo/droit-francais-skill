@@ -275,26 +275,28 @@ def retrieve(section_id: str, text_id: str, date: str, parent: dict,
             and re.fullmatch(r"(?:LEGI|JORF)TEXT[0-9]{12}(?:\.xml)?", value)
             else type(value).__name__ for value in direct_parent
         ]
+        diagnostic = (
+            "Article non conforme au lien, au parent ou à la date officielle "
+            f"(objet={isinstance(article, dict)}, "
+            f"id={isinstance(article, dict) and article.get('id') == identifier}, "
+            f"champs_parent_presents={parent_fields_present}, texte_parent={parent_matches}, "
+            f"champs_parent_publics={public_parents}, "
+            f"section_parent={isinstance(article, dict) and article.get('sectionParentId') in (node['id'], record_id)})."
+        )
         if (not isinstance(article, dict) or article.get("id") != identifier
                 or (parent_fields_present and not parent_matches)
                 or article.get("sectionParentId") not in (node["id"], record_id)):
-            texts._fail(
-                "Article non conforme au lien, au parent ou à la date officielle "
-                f"(objet={isinstance(article, dict)}, "
-                f"id={isinstance(article, dict) and article.get('id') == identifier}, "
-                f"champs_parent_presents={parent_fields_present}, texte_parent={parent_matches}, "
-                f"champs_parent_publics={public_parents}, "
-                f"section_parent={isinstance(article, dict) and article.get('sectionParentId') in (node['id'], record_id)})."
-            )
-        return article, parent_fields_present
+            texts._fail(diagnostic)
+        return article, parent_fields_present, diagnostic
 
     def confirm_excluded_versions():
         for node, record_id, link, link_path, lower, upper in pending_version_checks:
-            article, _ = bound_article(node, record_id, link["id"], strict_parent=True)
+            article, _, _ = bound_article(node, record_id, link["id"], strict_parent=True)
             if not article_versions.confirms_mort_ne(link, article):
                 # Restituer le refus diagnostique initial ; aucune exemption
                 # pour l'absence d'état ou des dates seulement proches.
                 _active(link, date, role="article_link", path=link_path)
+                texts._fail("Version morte-née non confirmée : confirmation refusée.")
             parent_context(article, link_path + ("article",))
             excluded_versions.append(article_versions.exclusion_record(
                 link, lower, upper, link_path, node["id"], text_id, date,
@@ -302,13 +304,11 @@ def retrieve(section_id: str, text_id: str, date: str, parent: dict,
 
     def read_articles():
         for converted, node, record_id, identifier, link_path in pending_articles:
-            article, parent_fields_present = bound_article(node, record_id, identifier)
+            article, parent_fields_present, diagnostic = bound_article(node, record_id, identifier)
             if article.get("etat") == article_versions.MORT_NE:
                 texts._fail("Version morte-née annoncée applicable par un lien : confirmation refusée.")
             if not _active(article, date, role="article", path=link_path + ("article",)):
-                texts._fail(
-                    "Article non conforme au lien, au parent ou à la date officielle."
-                )
+                texts._fail(diagnostic)
             parent_context(article, link_path + ("article",))
             converted["articles"].append(
                 {

@@ -104,6 +104,47 @@ class MortNeVersionTests(unittest.TestCase):
                 self.assertEqual(json.loads(caught.exception.detail)["id"], DEAD)
                 self.assertEqual(self.article_calls(), [DEAD])
 
+    def test_unconfirmed_version_refuses_even_if_active_returns(self):
+        original_active = sections._active
+        self.dead["article"]["etat"] = "VIGUEUR"
+        for returned in (False, True):
+            self.network.reset_mock()
+
+            def active(node, *args, **kwargs):
+                if node is self.link:
+                    return returned
+                return original_active(node, *args, **kwargs)
+
+            with self.subTest(returned=returned), mock.patch.object(
+                sections, "_active", side_effect=active
+            ), mock.patch.object(
+                article_versions, "exclusion_record", wraps=article_versions.exclusion_record
+            ) as exclusion:
+                with self.assertRaises(LegifranceError) as caught:
+                    self.read()
+                self.assertIn("confirmation refusée", str(caught.exception))
+                exclusion.assert_not_called()
+                self.assertEqual(self.article_calls(), [DEAD])
+
+    def test_inactive_article_keeps_binding_diagnostics_without_body(self):
+        self.active["article"].update(dateFin="2021-01-01", texte="SECRET_BODY")
+        with self.assertRaises(LegifranceError) as caught:
+            self.read()
+        message = str(caught.exception)
+        for indicator in ("objet=True", "id=True", "champs_parent_presents=True",
+                          "texte_parent=True", "champs_parent_publics=", "section_parent=True"):
+            self.assertIn(indicator, message)
+        self.assertNotIn("SECRET", message)
+
+    def test_inactive_article_diagnostics_allow_missing_direct_parent(self):
+        del self.active["article"]["idTexte"]
+        del self.active["article"]["cidTexte"]
+        self.active["article"]["dateFin"] = "2021-01-01"
+        with self.assertRaises(LegifranceError) as caught:
+            self.read()
+        self.assertIn("champs_parent_presents=False", str(caught.exception))
+        self.assertIn("section_parent=True", str(caught.exception))
+
     def test_contradictory_or_unknown_link_state_refuses_without_article_reads(self):
         for state in (None, "", "UNKNOWN", "VIGUEUR", "MODIFIE", []):
             self.link["etat"] = state
@@ -263,10 +304,36 @@ class MortNeVersionTests(unittest.TestCase):
         self.assertEqual(self.article_calls(), [DEAD])
 
     def test_time_limit_before_confirmation_stops_body_calls(self):
-        with mock.patch.object(sections.time, "monotonic", side_effect=[0, 0, 91, 91]):
+        clock = {"now": 0}
+        original_api = self.api
+
+        def api(endpoint, arguments, token):
+            result = original_api(endpoint, arguments, token)
+            if endpoint == "/consult/getSectionByCid":
+                clock["now"] = sections.MAX_SECONDS + 1
+            return result
+
+        self.network.side_effect = api
+        with mock.patch.object(sections.time, "monotonic", side_effect=lambda: clock["now"]):
             with self.assertRaises(LegifranceError):
                 self.read()
         self.assertEqual(self.article_calls(), [])
+
+    def test_time_limit_after_confirmation_stops_active_body_calls(self):
+        clock = {"now": 0}
+        original_api = self.api
+
+        def api(endpoint, arguments, token):
+            result = original_api(endpoint, arguments, token)
+            if endpoint == "/consult/getArticle" and arguments["id"] == DEAD:
+                clock["now"] = sections.MAX_SECONDS + 1
+            return result
+
+        self.network.side_effect = api
+        with mock.patch.object(sections.time, "monotonic", side_effect=lambda: clock["now"]):
+            with self.assertRaises(LegifranceError):
+                self.read()
+        self.assertEqual(self.article_calls(), [DEAD])
 
     def test_confirmation_depth_limit_unchanged(self):
         chain = self.dead["article"]
