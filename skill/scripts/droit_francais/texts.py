@@ -496,4 +496,11 @@ def get_text(text_id: str, date: str | None = None) -> dict[str, Any]:
     if not result["articles"] and not result["sections"]:
         _fail("Texte sans articles : consultation complète non confirmée.")
     result["text"] = _render(result)
-    return _aggregate(result)
+    result = _aggregate(result)
+    # Observation ciblée, après le calcul : aucun héritage de bornes,
+    # aucune requête supplémentaire et aucun nouveau paramètre MCP.
+    if text_id == "LEGITEXT000005627880" and date == "2026-10-05":
+        from .text_diagnostics import s30_dating_diagnostic
+
+        result["metadata"]["source_dating_diagnostic"] = s30_dating_diagnostic(payload)
+    return result
