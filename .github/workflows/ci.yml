@@ -61,6 +61,9 @@ jobs:
           python -m py_compile mcp_server/server.py
           python -m py_compile tests/run_eval.py
           python -m py_compile tests/check_links.py
+          python -m py_compile tests/test_links.py
+          python -m py_compile tests/check_readme_parity.py
+          python -m py_compile tests/test_readme_parity.py
           python -m py_compile tests/check_vault.py
           python -m py_compile tests/check_affirmations.py
           python -m py_compile tests/check_commands.py
@@ -213,6 +216,9 @@ jobs:
 
       - name: Vérifier les liens Markdown
         run: python tests/check_links.py
+
+      - name: Vérifier la parité des README français et anglais
+        run: python tests/check_readme_parity.py
 
       # check_links.py exclut vault/ : sans ce contrôle, rien ne surveille le
       # maillage lu par la vue graphe, et il dérive sans que personne le voie.

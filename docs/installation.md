@@ -3,6 +3,11 @@
 État du guide : 10 octobre 2026. Les commandes sont relevées sur Claude Code
 2.1.288 et Codex CLI 0.162.0-alpha.2. Leur aide a été contrôlée ; le parcours
 complet d'installation puis OAuth n'est pas encore qualifié sur ces versions.
+Ce relevé de versions, d'aide et de sources est daté du 10/10/2026, pas une
+garantie pour les versions futures. À chaque release, relever les versions
+réellement testées, relire l'aide et les sources officielles, rejouer la
+recette prévue pour le canal concerné, puis actualiser cette date et ses
+limites. Conserver le relevé antérieur dans le bilan de sa recette.
 Un smoke local du paquet a réussi le 10/10/2026 dans des profils temporaires
 vides : installation, liste et retrait sur les deux CLI, réinstallation
 Codex et contrôle de mise à jour Claude sans changement de version. Il porte
