@@ -229,3 +229,6 @@ jobs:
       # ne se découvre pas au milieu d'un run de plusieurs heures.
       - name: Corpus du benchmark agentique (hors réseau)
         run: python tests/run_bench.py --verifier-corpus
+
+      - name: Préparation de la campagne des 18 modes (sans appel LLM)
+        run: python tests/run_campaign.py verifier

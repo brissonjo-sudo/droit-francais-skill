@@ -83,7 +83,7 @@ class Journal:
         secondes, et garantit qu'une interruption brutale ne perd pas la
         dernière mesure.
         """
-        with self.chemin.open("a", encoding="utf-8") as flux:
+        with self.chemin.open("a", encoding="utf-8", newline="\n") as flux:
             flux.write(json.dumps(ligne, ensure_ascii=False) + "\n")
             flux.flush()
             os.fsync(flux.fileno())

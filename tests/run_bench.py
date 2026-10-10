@@ -156,7 +156,7 @@ def executer(arguments: argparse.Namespace) -> int:
         return 2
 
     bras_demandes = [b.strip() for b in arguments.bras.split(",") if b.strip()]
-    besoin_mcp = "C" in bras_demandes
+    besoin_mcp = bool(set(bras_demandes) & {"C", "D"})
 
     secrets = secrets_surveilles()
     if besoin_mcp and not arguments.mcp_local:
@@ -202,7 +202,7 @@ def executer(arguments: argparse.Namespace) -> int:
         if cle in acquis:
             continue
 
-        if bras == "C":
+        if bras in agents.BRAS_AVEC_OUTILS:
             cadence.reserver(cas.plafond_appels)
 
         prompt = composer_prompt(cas)
@@ -210,7 +210,7 @@ def executer(arguments: argparse.Namespace) -> int:
             prompt=prompt, bras=bras, plafond=cas.plafond_appels, options=options
         )
 
-        if bras == "C":
+        if bras in agents.BRAS_AVEC_OUTILS:
             cadence.corriger(cas.plafond_appels, len(execution.trace.appels))
 
         marqueur = "·"

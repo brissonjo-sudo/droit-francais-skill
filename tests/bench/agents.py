@@ -67,6 +67,7 @@ PROMPTS = Path(__file__).resolve().parent / "prompts"
 SKILL = RACINE / "skill" / "SKILL.md"
 
 BRAS_SANS_OUTIL = ("A", "B")
+BRAS_AVEC_OUTILS = ("C", "D")
 
 # Seul outil intégré laissé au bras C : sans lui, les outils MCP — différés —
 # resteraient hors d'atteinte. Il ne donne accès ni au disque ni au web.
@@ -101,6 +102,10 @@ class Options:
     mcp_local: bool = False
     marge_tours: int = 2
     garder_flux: bool = False
+    abonnement_seul: bool = False
+    effort: str = "defaut_cli"
+    fournir_references: bool = False
+    methode_experimentale: str | None = None
 
 
 @dataclass
@@ -185,7 +190,7 @@ def construire_commande(
     Fonction **pure** : testable sans réseau ni CLI, et vérifiable quant à
     l'absence de tout secret dans les arguments.
     """
-    if bras not in ("A", "B", "C"):
+    if bras not in ("A", "B", "C", "D"):
         raise ValueError(f"bras inconnu : {bras}")
 
     commande = [
@@ -202,14 +207,16 @@ def construire_commande(
         "--tools",
         # Bras C : ToolSearch, sans quoi les outils MCP différés sont hors
         # d'atteinte. Bras A et B : rien du tout.
-        OUTIL_DECOUVERTE if bras == "C" else "",
+        OUTIL_DECOUVERTE if bras in BRAS_AVEC_OUTILS else "",
         "--strict-mcp-config",
         "--max-turns",
         str(max(1, plafond + options.marge_tours)),
     ]
+    if options.effort != "defaut_cli":
+        commande += ["--effort", options.effort]
 
-    if bras == "A":
-        commande += ["--system-prompt-file", str(PROMPTS / "bras-A.md")]
+    if bras in ("A", "D"):
+        commande += ["--system-prompt-file", str(PROMPTS / f"bras-{bras}.md")]
     else:
         preambule = "preambule-B.md" if bras == "B" else "preambule-C.md"
         commande += [
@@ -219,7 +226,7 @@ def construire_commande(
             str(PROMPTS / preambule),
         ]
 
-    if bras == "C":
+    if bras in BRAS_AVEC_OUTILS:
         if chemin_config_mcp is None:
             raise ValueError("le bras C exige une configuration MCP")
         commande += [
@@ -240,13 +247,17 @@ class ClaudeHeadless:
     nom = "claude"
 
     def executer(self, *, prompt: str, bras: str, plafond: int, options: Options) -> Execution:
-        environnement = dict(os.environ)
+        if options.abonnement_seul:
+            from bench.native import environnement_abonnement
+            environnement = environnement_abonnement()
+        else:
+            environnement = dict(os.environ)
         fichier_config: Path | None = None
         temporaire: str | None = None
 
         try:
-            if bras == "C":
-                temporaire = tempfile.mkdtemp(prefix="bench-mcp-")
+            temporaire = tempfile.mkdtemp(prefix="bench-session-")
+            if bras in BRAS_AVEC_OUTILS:
                 fichier_config = Path(temporaire) / "mcp.json"
                 fichier_config.write_text(
                     json.dumps(config_mcp(options), ensure_ascii=False), encoding="utf-8"
@@ -255,6 +266,14 @@ class ClaudeHeadless:
             commande = construire_commande(
                 bras=bras, plafond=plafond, options=options, chemin_config_mcp=fichier_config
             )
+            if bras in ("B", "C") and (options.fournir_references or options.methode_experimentale):
+                from bench.native import methode
+                systeme = Path(temporaire) / "methode.md"
+                contenu = (Path(options.methode_experimentale).read_text(encoding="utf-8")
+                           if options.methode_experimentale else methode(options.fournir_references))
+                systeme.write_text(contenu, encoding="utf-8", newline="\n")
+                position = commande.index("--system-prompt-file") + 1
+                commande[position] = str(systeme)
 
             acheve = subprocess.run(  # noqa: S603 — commande construite, shell=False
                 commande,
@@ -265,12 +284,15 @@ class ClaudeHeadless:
                 env=environnement,
                 timeout=options.timeout_s,
                 shell=False,
-                cwd=str(RACINE),
+                cwd=temporaire,
             )
-        except subprocess.TimeoutExpired:
+        except subprocess.TimeoutExpired as exc:
+            partiel = exc.stdout or ""
+            if isinstance(partiel, bytes):
+                partiel = partiel.decode("utf-8", errors="replace")
             return Execution(
-                trace=Trace(),
-                flux_brut="",
+                trace=analyser(partiel),
+                flux_brut=partiel if options.garder_flux else "",
                 code_retour=-1,
                 statut="infra_error",
                 motif_infra=f"délai dépassé ({options.timeout_s} s)",
@@ -319,7 +341,7 @@ def _classer(execution: Execution, bras: str) -> None:
         execution.motif_infra = f"erreur API {trace.api_error_status}"
         return
 
-    if bras == "C" and _connecteur_absent(trace):
+    if bras in BRAS_AVEC_OUTILS and _connecteur_absent(trace):
         execution.statut = "infra_error"
         execution.motif_infra = "connecteur MCP introuvable à la recherche d'outils"
         return
@@ -357,26 +379,22 @@ def _connecteur_absent(trace: Trace) -> bool:
 
 
 class CodexHeadless:
-    """Backend `codex exec` — second point de vue, non branché.
-
-    Prévu pour croiser les résultats avec l'écosystème OpenAI, où le dépôt
-    publie déjà un manifeste (`.codex-plugin/plugin.json`). Laissé explicite
-    plutôt qu'absent : la forme de la commande cible est consignée ici pour
-    que le branchement n'ait pas à la redécouvrir.
-
-    Commande visée : ``codex exec --json --skip-git-repo-check <prompt>``
-    avec la configuration MCP du dépôt.
-    """
+    """Adaptateur natif ; la qualification du modèle reste un prérequis."""
 
     nom = "codex"
 
-    def executer(self, *, prompt: str, bras: str, plafond: int, options: Options) -> Execution:
-        raise NotImplementedError(
-            "backend codex non branché — la CLI `codex` n'est pas installée sur ce poste"
-        )
+    def executer(self, **kwargs) -> Execution:
+        from bench.native import executer
+        return executer(self.nom, **kwargs)
 
 
-BACKENDS: dict[str, type] = {"claude": ClaudeHeadless, "codex": CodexHeadless}
+class GeminiHeadless(CodexHeadless):
+    nom = "gemini"
+
+
+BACKENDS: dict[str, type] = {
+    "claude": ClaudeHeadless, "codex": CodexHeadless, "gemini": GeminiHeadless,
+}
 
 
 def backend(nom: str) -> Agent:

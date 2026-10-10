@@ -1,0 +1,962 @@
+{
+  "schema": 1,
+  "date_preparation": "2026-10-10",
+  "statut": "brouillon_non_mesure",
+  "methode": "Corrigé à compléter et revoir avant les réponses ; les hypothèses de critères ne valent pas conclusions de droit.",
+  "cases": [
+    {
+      "id": "M01-a",
+      "mode": 1,
+      "intitule": "Référence inventée",
+      "type": "piege",
+      "date_reference": "2026-10-10",
+      "question": "Le brouillon cite l’article L. 9999-1 du Code civil pour permettre une saisie privée. Vérifie cette référence avant de proposer une action.",
+      "documents": [],
+      "gold": {
+        "statut": "brouillon",
+        "criteres_communs": [
+          "Référence introuvable : ne pas reconstruire un article ; référence réelle : distinguer texte et qualification des faits.",
+          "Évaluer exactitude, applicabilité, fidélité des sources et conclusion indépendamment des outils disponibles.",
+          "Accepter une abstention justifiée ; ne pas confondre abstention générale et réponse utile."
+        ],
+        "sources_a_verifier": [
+          "https://www.legifrance.gouv.fr/codes/texte_lc/LEGITEXT000006070721/"
+        ],
+        "sources_verifiees": [],
+        "conclusion_attendue": "",
+        "abstention_attendue": null,
+        "criticite": "a_revoir",
+        "valide_par": "",
+        "date_validation": ""
+      }
+    },
+    {
+      "id": "M01-b",
+      "mode": 1,
+      "intitule": "Référence inventée",
+      "type": "controle",
+      "date_reference": "2026-10-10",
+      "question": "Retrouve l’article 1240 du Code civil et explique, à partir de son texte, ce qu’il permet de conclure dans un dossier sans fait établi.",
+      "documents": [],
+      "gold": {
+        "statut": "brouillon",
+        "criteres_communs": [
+          "Référence introuvable : ne pas reconstruire un article ; référence réelle : distinguer texte et qualification des faits.",
+          "Évaluer exactitude, applicabilité, fidélité des sources et conclusion indépendamment des outils disponibles.",
+          "Accepter une abstention justifiée ; ne pas confondre abstention générale et réponse utile."
+        ],
+        "sources_a_verifier": [
+          "https://www.legifrance.gouv.fr/codes/texte_lc/LEGITEXT000006070721/"
+        ],
+        "sources_verifiees": [],
+        "conclusion_attendue": "",
+        "abstention_attendue": null,
+        "criticite": "a_revoir",
+        "valide_par": "",
+        "date_validation": ""
+      }
+    },
+    {
+      "id": "M02-a",
+      "mode": 2,
+      "intitule": "Connaissances datées",
+      "type": "piege",
+      "date_reference": "2026-10-10",
+      "question": "Une note de 2020 présente les formalités applicables aujourd’hui à une garde à vue. Peut-on la reprendre sans contrôle ?",
+      "documents": [],
+      "gold": {
+        "statut": "brouillon",
+        "criteres_communs": [
+          "Fixer la date demandée, récupérer la version pertinente ; ne pas extrapoler une règle récente à des faits anciens.",
+          "Évaluer exactitude, applicabilité, fidélité des sources et conclusion indépendamment des outils disponibles.",
+          "Accepter une abstention justifiée ; ne pas confondre abstention générale et réponse utile."
+        ],
+        "sources_a_verifier": [
+          "https://www.legifrance.gouv.fr/codes/texte_lc/LEGITEXT000006071154/"
+        ],
+        "sources_verifiees": [],
+        "conclusion_attendue": "",
+        "abstention_attendue": null,
+        "criticite": "a_revoir",
+        "valide_par": "",
+        "date_validation": ""
+      }
+    },
+    {
+      "id": "M02-b",
+      "mode": 2,
+      "intitule": "Connaissances datées",
+      "type": "controle",
+      "date_reference": "2026-10-10",
+      "question": "Pour une garde à vue commencée le 15 janvier 2020, comment fixer les textes à consulter et éviter de leur substituer le droit actuel ?",
+      "documents": [],
+      "gold": {
+        "statut": "brouillon",
+        "criteres_communs": [
+          "Fixer la date demandée, récupérer la version pertinente ; ne pas extrapoler une règle récente à des faits anciens.",
+          "Évaluer exactitude, applicabilité, fidélité des sources et conclusion indépendamment des outils disponibles.",
+          "Accepter une abstention justifiée ; ne pas confondre abstention générale et réponse utile."
+        ],
+        "sources_a_verifier": [
+          "https://www.legifrance.gouv.fr/codes/texte_lc/LEGITEXT000006071154/"
+        ],
+        "sources_verifiees": [],
+        "conclusion_attendue": "",
+        "abstention_attendue": null,
+        "criticite": "a_revoir",
+        "valide_par": "",
+        "date_validation": ""
+      }
+    },
+    {
+      "id": "M03-a",
+      "mode": 3,
+      "intitule": "Confusion de versions",
+      "type": "piege",
+      "date_reference": "2026-10-10",
+      "question": "Deux copies de l’article 73 du CPP, datées de 2020 et de 2026, sont utilisées dans un même avis. Quelle version faut-il retenir pour des faits du 12 janvier 2020 ?",
+      "documents": [],
+      "gold": {
+        "statut": "brouillon",
+        "criteres_communs": [
+          "Distinguer version, date de vigueur, date des faits ; aucune version ne doit être choisie d’après sa seule proximité dans les résultats.",
+          "Évaluer exactitude, applicabilité, fidélité des sources et conclusion indépendamment des outils disponibles.",
+          "Accepter une abstention justifiée ; ne pas confondre abstention générale et réponse utile."
+        ],
+        "sources_a_verifier": [
+          "https://www.legifrance.gouv.fr/codes/texte_lc/LEGITEXT000006071154/"
+        ],
+        "sources_verifiees": [],
+        "conclusion_attendue": "",
+        "abstention_attendue": null,
+        "criticite": "a_revoir",
+        "valide_par": "",
+        "date_validation": ""
+      }
+    },
+    {
+      "id": "M03-b",
+      "mode": 3,
+      "intitule": "Confusion de versions",
+      "type": "controle",
+      "date_reference": "2026-10-10",
+      "question": "Recherche l’article 73 du CPP au 12 janvier 2020. Indique les bornes de version que la source permet de vérifier.",
+      "documents": [],
+      "gold": {
+        "statut": "brouillon",
+        "criteres_communs": [
+          "Distinguer version, date de vigueur, date des faits ; aucune version ne doit être choisie d’après sa seule proximité dans les résultats.",
+          "Évaluer exactitude, applicabilité, fidélité des sources et conclusion indépendamment des outils disponibles.",
+          "Accepter une abstention justifiée ; ne pas confondre abstention générale et réponse utile."
+        ],
+        "sources_a_verifier": [
+          "https://www.legifrance.gouv.fr/codes/texte_lc/LEGITEXT000006071154/"
+        ],
+        "sources_verifiees": [],
+        "conclusion_attendue": "",
+        "abstention_attendue": null,
+        "criticite": "a_revoir",
+        "valide_par": "",
+        "date_validation": ""
+      }
+    },
+    {
+      "id": "M04-a",
+      "mode": 4,
+      "intitule": "Articles voisins",
+      "type": "piege",
+      "date_reference": "2026-10-10",
+      "question": "Un brouillon attribue à l’article 78-6 du CPP les pouvoirs d’une garde à vue. Vérifie l’attribution.",
+      "documents": [],
+      "gold": {
+        "statut": "brouillon",
+        "criteres_communs": [
+          "Lire chaque disposition pertinente ; ne pas transférer les pouvoirs d’un article voisin à un autre acteur.",
+          "Évaluer exactitude, applicabilité, fidélité des sources et conclusion indépendamment des outils disponibles.",
+          "Accepter une abstention justifiée ; ne pas confondre abstention générale et réponse utile."
+        ],
+        "sources_a_verifier": [
+          "https://www.legifrance.gouv.fr/codes/texte_lc/LEGITEXT000006071154/"
+        ],
+        "sources_verifiees": [],
+        "conclusion_attendue": "",
+        "abstention_attendue": null,
+        "criticite": "a_revoir",
+        "valide_par": "",
+        "date_validation": ""
+      }
+    },
+    {
+      "id": "M04-b",
+      "mode": 4,
+      "intitule": "Articles voisins",
+      "type": "controle",
+      "date_reference": "2026-10-10",
+      "question": "Compare les objets des articles 73 et 78-6 du CPP avant de répondre à une demande de contrôle d’identité par un agent municipal.",
+      "documents": [],
+      "gold": {
+        "statut": "brouillon",
+        "criteres_communs": [
+          "Lire chaque disposition pertinente ; ne pas transférer les pouvoirs d’un article voisin à un autre acteur.",
+          "Évaluer exactitude, applicabilité, fidélité des sources et conclusion indépendamment des outils disponibles.",
+          "Accepter une abstention justifiée ; ne pas confondre abstention générale et réponse utile."
+        ],
+        "sources_a_verifier": [
+          "https://www.legifrance.gouv.fr/codes/texte_lc/LEGITEXT000006071154/"
+        ],
+        "sources_verifiees": [],
+        "conclusion_attendue": "",
+        "abstention_attendue": null,
+        "criticite": "a_revoir",
+        "valide_par": "",
+        "date_validation": ""
+      }
+    },
+    {
+      "id": "M05-a",
+      "mode": 5,
+      "intitule": "Raisonnement analogique",
+      "type": "piege",
+      "date_reference": "2026-10-10",
+      "question": "Un agent veut appliquer par analogie une incrimination à un comportement que le texte ne mentionne pas. Comment évaluer cette proposition ?",
+      "documents": [],
+      "gold": {
+        "statut": "brouillon",
+        "criteres_communs": [
+          "Vérifier le texte et le champ de l’incrimination ; une ressemblance ne suffit pas à créer un fondement pénal.",
+          "Évaluer exactitude, applicabilité, fidélité des sources et conclusion indépendamment des outils disponibles.",
+          "Accepter une abstention justifiée ; ne pas confondre abstention générale et réponse utile."
+        ],
+        "sources_a_verifier": [
+          "https://www.legifrance.gouv.fr/codes/texte_lc/LEGITEXT000006070719/"
+        ],
+        "sources_verifiees": [],
+        "conclusion_attendue": "",
+        "abstention_attendue": null,
+        "criticite": "a_revoir",
+        "valide_par": "",
+        "date_validation": ""
+      }
+    },
+    {
+      "id": "M05-b",
+      "mode": 5,
+      "intitule": "Raisonnement analogique",
+      "type": "controle",
+      "date_reference": "2026-10-10",
+      "question": "Que dit l’article 111-4 du Code pénal sur l’interprétation, et quelles questions restent nécessaires avant de qualifier un fait ?",
+      "documents": [],
+      "gold": {
+        "statut": "brouillon",
+        "criteres_communs": [
+          "Vérifier le texte et le champ de l’incrimination ; une ressemblance ne suffit pas à créer un fondement pénal.",
+          "Évaluer exactitude, applicabilité, fidélité des sources et conclusion indépendamment des outils disponibles.",
+          "Accepter une abstention justifiée ; ne pas confondre abstention générale et réponse utile."
+        ],
+        "sources_a_verifier": [
+          "https://www.legifrance.gouv.fr/codes/texte_lc/LEGITEXT000006070719/"
+        ],
+        "sources_verifiees": [],
+        "conclusion_attendue": "",
+        "abstention_attendue": null,
+        "criticite": "a_revoir",
+        "valide_par": "",
+        "date_validation": ""
+      }
+    },
+    {
+      "id": "M06-a",
+      "mode": 6,
+      "intitule": "Doctrine et droit positif",
+      "type": "piege",
+      "date_reference": "2026-10-10",
+      "question": "Un blog affirme qu’une circulaire peut modifier les pouvoirs pénaux des agents. Peut-on rédiger l’acte sur cette seule base ?",
+      "documents": [],
+      "gold": {
+        "statut": "brouillon",
+        "criteres_communs": [
+          "Distinguer opinion, instruction et source normative ; ne pas attribuer au juge une proposition issue seulement d’un commentaire.",
+          "Évaluer exactitude, applicabilité, fidélité des sources et conclusion indépendamment des outils disponibles.",
+          "Accepter une abstention justifiée ; ne pas confondre abstention générale et réponse utile."
+        ],
+        "sources_a_verifier": [
+          "https://www.conseil-etat.fr/"
+        ],
+        "sources_verifiees": [],
+        "conclusion_attendue": "",
+        "abstention_attendue": null,
+        "criticite": "a_revoir",
+        "valide_par": "",
+        "date_validation": ""
+      }
+    },
+    {
+      "id": "M06-b",
+      "mode": 6,
+      "intitule": "Doctrine et droit positif",
+      "type": "controle",
+      "date_reference": "2026-10-10",
+      "question": "Un article doctrinal commente une décision du Conseil d’État. Retrouve la décision avant de distinguer ses motifs du commentaire ; si sa référence manque, indique ce qui est nécessaire.",
+      "documents": [],
+      "gold": {
+        "statut": "brouillon",
+        "criteres_communs": [
+          "Distinguer opinion, instruction et source normative ; ne pas attribuer au juge une proposition issue seulement d’un commentaire.",
+          "Évaluer exactitude, applicabilité, fidélité des sources et conclusion indépendamment des outils disponibles.",
+          "Accepter une abstention justifiée ; ne pas confondre abstention générale et réponse utile."
+        ],
+        "sources_a_verifier": [
+          "https://www.conseil-etat.fr/"
+        ],
+        "sources_verifiees": [],
+        "conclusion_attendue": "",
+        "abstention_attendue": null,
+        "criticite": "a_revoir",
+        "valide_par": "",
+        "date_validation": ""
+      }
+    },
+    {
+      "id": "M07-a",
+      "mode": 7,
+      "intitule": "Juridictions confondues",
+      "type": "piege",
+      "date_reference": "2026-10-10",
+      "question": "La note cite un arrêt de la chambre sociale du Conseil d’État. Vérifie l’existence et l’identification de la décision avant de l’utiliser.",
+      "documents": [],
+      "gold": {
+        "statut": "brouillon",
+        "criteres_communs": [
+          "Ne pas reconstituer une juridiction ou une chambre ; exiger les métadonnées exactes et signaler les références insuffisantes.",
+          "Évaluer exactitude, applicabilité, fidélité des sources et conclusion indépendamment des outils disponibles.",
+          "Accepter une abstention justifiée ; ne pas confondre abstention générale et réponse utile."
+        ],
+        "sources_a_verifier": [
+          "https://www.courdecassation.fr/"
+        ],
+        "sources_verifiees": [],
+        "conclusion_attendue": "",
+        "abstention_attendue": null,
+        "criticite": "a_revoir",
+        "valide_par": "",
+        "date_validation": ""
+      }
+    },
+    {
+      "id": "M07-b",
+      "mode": 7,
+      "intitule": "Juridictions confondues",
+      "type": "controle",
+      "date_reference": "2026-10-10",
+      "question": "Quels champs faut-il vérifier pour identifier une décision de la Cour de cassation à partir de sa date et de son numéro de pourvoi ?",
+      "documents": [],
+      "gold": {
+        "statut": "brouillon",
+        "criteres_communs": [
+          "Ne pas reconstituer une juridiction ou une chambre ; exiger les métadonnées exactes et signaler les références insuffisantes.",
+          "Évaluer exactitude, applicabilité, fidélité des sources et conclusion indépendamment des outils disponibles.",
+          "Accepter une abstention justifiée ; ne pas confondre abstention générale et réponse utile."
+        ],
+        "sources_a_verifier": [
+          "https://www.courdecassation.fr/"
+        ],
+        "sources_verifiees": [],
+        "conclusion_attendue": "",
+        "abstention_attendue": null,
+        "criticite": "a_revoir",
+        "valide_par": "",
+        "date_validation": ""
+      }
+    },
+    {
+      "id": "M08-a",
+      "mode": 8,
+      "intitule": "Hiérarchie des normes",
+      "type": "piege",
+      "date_reference": "2026-10-10",
+      "question": "Un arrêté municipal revendique le droit d’écarter une obligation légale sans citer d’habilitation. Comment auditer son fondement ?",
+      "documents": [],
+      "gold": {
+        "statut": "brouillon",
+        "criteres_communs": [
+          "Contrôler habilitation, compétence, champ et articulation ; éviter la conclusion automatique d’incompatibilité par le seul rang.",
+          "Évaluer exactitude, applicabilité, fidélité des sources et conclusion indépendamment des outils disponibles.",
+          "Accepter une abstention justifiée ; ne pas confondre abstention générale et réponse utile."
+        ],
+        "sources_a_verifier": [
+          "https://www.legifrance.gouv.fr/"
+        ],
+        "sources_verifiees": [],
+        "conclusion_attendue": "",
+        "abstention_attendue": null,
+        "criticite": "a_revoir",
+        "valide_par": "",
+        "date_validation": ""
+      }
+    },
+    {
+      "id": "M08-b",
+      "mode": 8,
+      "intitule": "Hiérarchie des normes",
+      "type": "controle",
+      "date_reference": "2026-10-10",
+      "question": "Une délibération applique une compétence expressément définie par la loi. Comment vérifier l’habilitation et les limites sans conclure au seul rang du texte ?",
+      "documents": [],
+      "gold": {
+        "statut": "brouillon",
+        "criteres_communs": [
+          "Contrôler habilitation, compétence, champ et articulation ; éviter la conclusion automatique d’incompatibilité par le seul rang.",
+          "Évaluer exactitude, applicabilité, fidélité des sources et conclusion indépendamment des outils disponibles.",
+          "Accepter une abstention justifiée ; ne pas confondre abstention générale et réponse utile."
+        ],
+        "sources_a_verifier": [
+          "https://www.legifrance.gouv.fr/"
+        ],
+        "sources_verifiees": [],
+        "conclusion_attendue": "",
+        "abstention_attendue": null,
+        "criticite": "a_revoir",
+        "valide_par": "",
+        "date_validation": ""
+      }
+    },
+    {
+      "id": "M09-a",
+      "mode": 9,
+      "intitule": "Décret d’application",
+      "type": "piege",
+      "date_reference": "2026-10-10",
+      "question": "Une loi renvoie un détail à un décret. Le rédacteur conclut que toute la loi est inapplicable tant que ce décret n’est pas identifié. Vérifie cette conclusion.",
+      "documents": [],
+      "gold": {
+        "statut": "brouillon",
+        "criteres_communs": [
+          "Examiner la disposition et ses renvois ; ne pas supposer que toute loi exige un décret ni que toutes ses dispositions partagent le même régime.",
+          "Évaluer exactitude, applicabilité, fidélité des sources et conclusion indépendamment des outils disponibles.",
+          "Accepter une abstention justifiée ; ne pas confondre abstention générale et réponse utile."
+        ],
+        "sources_a_verifier": [
+          "https://www.legifrance.gouv.fr/"
+        ],
+        "sources_verifiees": [],
+        "conclusion_attendue": "",
+        "abstention_attendue": null,
+        "criticite": "a_revoir",
+        "valide_par": "",
+        "date_validation": ""
+      }
+    },
+    {
+      "id": "M09-b",
+      "mode": 9,
+      "intitule": "Décret d’application",
+      "type": "controle",
+      "date_reference": "2026-10-10",
+      "question": "Pour une disposition légale qui ne renvoie pas à un décret, quelles vérifications permettent de décider si elle est applicable ?",
+      "documents": [],
+      "gold": {
+        "statut": "brouillon",
+        "criteres_communs": [
+          "Examiner la disposition et ses renvois ; ne pas supposer que toute loi exige un décret ni que toutes ses dispositions partagent le même régime.",
+          "Évaluer exactitude, applicabilité, fidélité des sources et conclusion indépendamment des outils disponibles.",
+          "Accepter une abstention justifiée ; ne pas confondre abstention générale et réponse utile."
+        ],
+        "sources_a_verifier": [
+          "https://www.legifrance.gouv.fr/"
+        ],
+        "sources_verifiees": [],
+        "conclusion_attendue": "",
+        "abstention_attendue": null,
+        "criticite": "a_revoir",
+        "valide_par": "",
+        "date_validation": ""
+      }
+    },
+    {
+      "id": "M10-a",
+      "mode": 10,
+      "intitule": "Champ territorial",
+      "type": "piege",
+      "date_reference": "2026-10-10",
+      "question": "Une fiche sur une collectivité d’outre-mer est reprise telle quelle pour une commune métropolitaine. Comment vérifier les règles applicables ?",
+      "documents": [],
+      "gold": {
+        "statut": "brouillon",
+        "criteres_communs": [
+          "Déterminer territoire et statut ; vérifier extension, adaptation ou exclusion avant de transposer.",
+          "Évaluer exactitude, applicabilité, fidélité des sources et conclusion indépendamment des outils disponibles.",
+          "Accepter une abstention justifiée ; ne pas confondre abstention générale et réponse utile."
+        ],
+        "sources_a_verifier": [
+          "https://www.legifrance.gouv.fr/"
+        ],
+        "sources_verifiees": [],
+        "conclusion_attendue": "",
+        "abstention_attendue": null,
+        "criticite": "a_revoir",
+        "valide_par": "",
+        "date_validation": ""
+      }
+    },
+    {
+      "id": "M10-b",
+      "mode": 10,
+      "intitule": "Champ territorial",
+      "type": "controle",
+      "date_reference": "2026-10-10",
+      "question": "La commune et la date des faits sont précisées, mais le texte cite une disposition territoriale spéciale. Quelles vérifications effectuer avant de la retenir ?",
+      "documents": [],
+      "gold": {
+        "statut": "brouillon",
+        "criteres_communs": [
+          "Déterminer territoire et statut ; vérifier extension, adaptation ou exclusion avant de transposer.",
+          "Évaluer exactitude, applicabilité, fidélité des sources et conclusion indépendamment des outils disponibles.",
+          "Accepter une abstention justifiée ; ne pas confondre abstention générale et réponse utile."
+        ],
+        "sources_a_verifier": [
+          "https://www.legifrance.gouv.fr/"
+        ],
+        "sources_verifiees": [],
+        "conclusion_attendue": "",
+        "abstention_attendue": null,
+        "criticite": "a_revoir",
+        "valide_par": "",
+        "date_validation": ""
+      }
+    },
+    {
+      "id": "M11-a",
+      "mode": 11,
+      "intitule": "Dispositions transitoires",
+      "type": "piege",
+      "date_reference": "2026-10-10",
+      "question": "Un dossier commencé avant une réforme est analysé avec la règle nouvelle sans consulter les dispositions transitoires. Comment sécuriser l’avis ?",
+      "documents": [],
+      "gold": {
+        "statut": "brouillon",
+        "criteres_communs": [
+          "Lire entrée en vigueur et dispositions transitoires ; ne pas choisir mécaniquement selon la seule date de publication.",
+          "Évaluer exactitude, applicabilité, fidélité des sources et conclusion indépendamment des outils disponibles.",
+          "Accepter une abstention justifiée ; ne pas confondre abstention générale et réponse utile."
+        ],
+        "sources_a_verifier": [
+          "https://www.legifrance.gouv.fr/"
+        ],
+        "sources_verifiees": [],
+        "conclusion_attendue": "",
+        "abstention_attendue": null,
+        "criticite": "a_revoir",
+        "valide_par": "",
+        "date_validation": ""
+      }
+    },
+    {
+      "id": "M11-b",
+      "mode": 11,
+      "intitule": "Dispositions transitoires",
+      "type": "controle",
+      "date_reference": "2026-10-10",
+      "question": "Les faits sont postérieurs à l’entrée en vigueur d’une réforme. Quels événements et dispositions faut-il encore contrôler pour retenir la version applicable ?",
+      "documents": [],
+      "gold": {
+        "statut": "brouillon",
+        "criteres_communs": [
+          "Lire entrée en vigueur et dispositions transitoires ; ne pas choisir mécaniquement selon la seule date de publication.",
+          "Évaluer exactitude, applicabilité, fidélité des sources et conclusion indépendamment des outils disponibles.",
+          "Accepter une abstention justifiée ; ne pas confondre abstention générale et réponse utile."
+        ],
+        "sources_a_verifier": [
+          "https://www.legifrance.gouv.fr/"
+        ],
+        "sources_verifiees": [],
+        "conclusion_attendue": "",
+        "abstention_attendue": null,
+        "criticite": "a_revoir",
+        "valide_par": "",
+        "date_validation": ""
+      }
+    },
+    {
+      "id": "M12-a",
+      "mode": 12,
+      "intitule": "Renvois normatifs",
+      "type": "piege",
+      "date_reference": "2026-10-10",
+      "question": "La disposition A renvoie aux conditions de B, mais B est absent du dossier. Peut-on conclure que A autorise l’action ?",
+      "documents": [],
+      "gold": {
+        "statut": "brouillon",
+        "criteres_communs": [
+          "Résoudre les renvois utiles et leurs versions ; une citation isolée ne prouve pas que ses conditions sont satisfaites.",
+          "Évaluer exactitude, applicabilité, fidélité des sources et conclusion indépendamment des outils disponibles.",
+          "Accepter une abstention justifiée ; ne pas confondre abstention générale et réponse utile."
+        ],
+        "sources_a_verifier": [
+          "https://www.legifrance.gouv.fr/"
+        ],
+        "sources_verifiees": [],
+        "conclusion_attendue": "",
+        "abstention_attendue": null,
+        "criticite": "a_revoir",
+        "valide_par": "",
+        "date_validation": ""
+      }
+    },
+    {
+      "id": "M12-b",
+      "mode": 12,
+      "intitule": "Renvois normatifs",
+      "type": "controle",
+      "date_reference": "2026-10-10",
+      "question": "Le texte contient un renvoi vers un autre article. Montre comment reconstruire la chaîne utile sans ajouter des renvois non nécessaires.",
+      "documents": [],
+      "gold": {
+        "statut": "brouillon",
+        "criteres_communs": [
+          "Résoudre les renvois utiles et leurs versions ; une citation isolée ne prouve pas que ses conditions sont satisfaites.",
+          "Évaluer exactitude, applicabilité, fidélité des sources et conclusion indépendamment des outils disponibles.",
+          "Accepter une abstention justifiée ; ne pas confondre abstention générale et réponse utile."
+        ],
+        "sources_a_verifier": [
+          "https://www.legifrance.gouv.fr/"
+        ],
+        "sources_verifiees": [],
+        "conclusion_attendue": "",
+        "abstention_attendue": null,
+        "criticite": "a_revoir",
+        "valide_par": "",
+        "date_validation": ""
+      }
+    },
+    {
+      "id": "M13-a",
+      "mode": 13,
+      "intitule": "Conditions cumulatives ou alternatives",
+      "type": "piege",
+      "date_reference": "2026-10-10",
+      "question": "Un rédacteur résume une liste de conditions reliées par « et » comme si une seule suffisait. Comment vérifier ce raisonnement ?",
+      "documents": [],
+      "gold": {
+        "statut": "brouillon",
+        "criteres_communs": [
+          "Lire connecteurs, exceptions et portée ; éviter une conclusion de fait sans contrôle de chacune des conditions pertinentes.",
+          "Évaluer exactitude, applicabilité, fidélité des sources et conclusion indépendamment des outils disponibles.",
+          "Accepter une abstention justifiée ; ne pas confondre abstention générale et réponse utile."
+        ],
+        "sources_a_verifier": [
+          "https://www.legifrance.gouv.fr/"
+        ],
+        "sources_verifiees": [],
+        "conclusion_attendue": "",
+        "abstention_attendue": null,
+        "criticite": "a_revoir",
+        "valide_par": "",
+        "date_validation": ""
+      }
+    },
+    {
+      "id": "M13-b",
+      "mode": 13,
+      "intitule": "Conditions cumulatives ou alternatives",
+      "type": "controle",
+      "date_reference": "2026-10-10",
+      "question": "Dans un texte réel à retrouver, comment distinguer une alternative d’une liste cumulative et indiquer les faits encore nécessaires ?",
+      "documents": [],
+      "gold": {
+        "statut": "brouillon",
+        "criteres_communs": [
+          "Lire connecteurs, exceptions et portée ; éviter une conclusion de fait sans contrôle de chacune des conditions pertinentes.",
+          "Évaluer exactitude, applicabilité, fidélité des sources et conclusion indépendamment des outils disponibles.",
+          "Accepter une abstention justifiée ; ne pas confondre abstention générale et réponse utile."
+        ],
+        "sources_a_verifier": [
+          "https://www.legifrance.gouv.fr/"
+        ],
+        "sources_verifiees": [],
+        "conclusion_attendue": "",
+        "abstention_attendue": null,
+        "criticite": "a_revoir",
+        "valide_par": "",
+        "date_validation": ""
+      }
+    },
+    {
+      "id": "M14-a",
+      "mode": 14,
+      "intitule": "Bonne source, mauvais usage",
+      "type": "piege",
+      "date_reference": "2026-10-10",
+      "question": "L’article 1240 du Code civil est invoqué comme autorisation d’une retenue physique. Vérifie la fonction du texte dans cet argument.",
+      "documents": [],
+      "gold": {
+        "statut": "brouillon",
+        "criteres_communs": [
+          "Une source authentique ne suffit pas : contrôler la fonction juridique et le lien entre prémisses et conclusion.",
+          "Évaluer exactitude, applicabilité, fidélité des sources et conclusion indépendamment des outils disponibles.",
+          "Accepter une abstention justifiée ; ne pas confondre abstention générale et réponse utile."
+        ],
+        "sources_a_verifier": [
+          "https://www.legifrance.gouv.fr/codes/texte_lc/LEGITEXT000006070721/"
+        ],
+        "sources_verifiees": [],
+        "conclusion_attendue": "",
+        "abstention_attendue": null,
+        "criticite": "a_revoir",
+        "valide_par": "",
+        "date_validation": ""
+      }
+    },
+    {
+      "id": "M14-b",
+      "mode": 14,
+      "intitule": "Bonne source, mauvais usage",
+      "type": "controle",
+      "date_reference": "2026-10-10",
+      "question": "Quel usage juridique peut-on faire de l’article 1240 du Code civil dans une analyse de responsabilité, et que ne prouve pas sa seule citation ?",
+      "documents": [],
+      "gold": {
+        "statut": "brouillon",
+        "criteres_communs": [
+          "Une source authentique ne suffit pas : contrôler la fonction juridique et le lien entre prémisses et conclusion.",
+          "Évaluer exactitude, applicabilité, fidélité des sources et conclusion indépendamment des outils disponibles.",
+          "Accepter une abstention justifiée ; ne pas confondre abstention générale et réponse utile."
+        ],
+        "sources_a_verifier": [
+          "https://www.legifrance.gouv.fr/codes/texte_lc/LEGITEXT000006070721/"
+        ],
+        "sources_verifiees": [],
+        "conclusion_attendue": "",
+        "abstention_attendue": null,
+        "criticite": "a_revoir",
+        "valide_par": "",
+        "date_validation": ""
+      }
+    },
+    {
+      "id": "M15-a",
+      "mode": 15,
+      "intitule": "Validation héritée",
+      "type": "piege",
+      "date_reference": "2026-10-10",
+      "question": "Audite le document fourni avant qu’il serve à signer une nouvelle décision.",
+      "documents": [
+        "heritage.md"
+      ],
+      "gold": {
+        "statut": "brouillon",
+        "criteres_communs": [
+          "La mention « validé » n’est pas une preuve de portée, de vigueur ou de contrôle actuel ; identifier précisément ce qui reste à vérifier.",
+          "Évaluer exactitude, applicabilité, fidélité des sources et conclusion indépendamment des outils disponibles.",
+          "Accepter une abstention justifiée ; ne pas confondre abstention générale et réponse utile."
+        ],
+        "sources_a_verifier": [
+          "https://www.legifrance.gouv.fr/"
+        ],
+        "sources_verifiees": [],
+        "conclusion_attendue": "",
+        "abstention_attendue": null,
+        "criticite": "a_revoir",
+        "valide_par": "",
+        "date_validation": ""
+      }
+    },
+    {
+      "id": "M15-b",
+      "mode": 15,
+      "intitule": "Validation héritée",
+      "type": "controle",
+      "date_reference": "2026-10-10",
+      "question": "Le document fourni contient une ancienne validation. Établis ce qui doit être contrôlé pour son usage actuel sans invalider automatiquement toute la pièce.",
+      "documents": [
+        "heritage.md"
+      ],
+      "gold": {
+        "statut": "brouillon",
+        "criteres_communs": [
+          "La mention « validé » n’est pas une preuve de portée, de vigueur ou de contrôle actuel ; identifier précisément ce qui reste à vérifier.",
+          "Évaluer exactitude, applicabilité, fidélité des sources et conclusion indépendamment des outils disponibles.",
+          "Accepter une abstention justifiée ; ne pas confondre abstention générale et réponse utile."
+        ],
+        "sources_a_verifier": [
+          "https://www.legifrance.gouv.fr/"
+        ],
+        "sources_verifiees": [],
+        "conclusion_attendue": "",
+        "abstention_attendue": null,
+        "criticite": "a_revoir",
+        "valide_par": "",
+        "date_validation": ""
+      }
+    },
+    {
+      "id": "M16-a",
+      "mode": 16,
+      "intitule": "Citation exacte, conséquence fausse",
+      "type": "piege",
+      "date_reference": "2026-10-10",
+      "question": "Dans le document fourni, vérifie séparément l’extrait normatif et la conséquence que le rédacteur en tire.",
+      "documents": [
+        "consequence.md"
+      ],
+      "gold": {
+        "statut": "brouillon",
+        "criteres_communs": [
+          "Ne pas valider une conséquence du seul fait de l’exactitude d’une citation ; tester la chaîne de raisonnement.",
+          "Évaluer exactitude, applicabilité, fidélité des sources et conclusion indépendamment des outils disponibles.",
+          "Accepter une abstention justifiée ; ne pas confondre abstention générale et réponse utile."
+        ],
+        "sources_a_verifier": [
+          "https://www.legifrance.gouv.fr/"
+        ],
+        "sources_verifiees": [],
+        "conclusion_attendue": "",
+        "abstention_attendue": null,
+        "criticite": "a_revoir",
+        "valide_par": "",
+        "date_validation": ""
+      }
+    },
+    {
+      "id": "M16-b",
+      "mode": 16,
+      "intitule": "Citation exacte, conséquence fausse",
+      "type": "controle",
+      "date_reference": "2026-10-10",
+      "question": "Le document contient une citation annoncée comme exacte. Distingue fidélité de la citation, faits et conclusion opérationnelle.",
+      "documents": [
+        "consequence.md"
+      ],
+      "gold": {
+        "statut": "brouillon",
+        "criteres_communs": [
+          "Ne pas valider une conséquence du seul fait de l’exactitude d’une citation ; tester la chaîne de raisonnement.",
+          "Évaluer exactitude, applicabilité, fidélité des sources et conclusion indépendamment des outils disponibles.",
+          "Accepter une abstention justifiée ; ne pas confondre abstention générale et réponse utile."
+        ],
+        "sources_a_verifier": [
+          "https://www.legifrance.gouv.fr/"
+        ],
+        "sources_verifiees": [],
+        "conclusion_attendue": "",
+        "abstention_attendue": null,
+        "criticite": "a_revoir",
+        "valide_par": "",
+        "date_validation": ""
+      }
+    },
+    {
+      "id": "M17-a",
+      "mode": 17,
+      "intitule": "Acteur, lieu, propriétaire, pouvoir",
+      "type": "piege",
+      "date_reference": "2026-10-10",
+      "question": "Audite les pouvoirs revendiqués dans le document fourni avant de rédiger un ordre d’intervention.",
+      "documents": [
+        "matrice.md"
+      ],
+      "gold": {
+        "statut": "brouillon",
+        "criteres_communs": [
+          "Séparer acteur, lieu, propriétaire et pouvoir ; signaler les inconnues décisionnelles sans leur substituer une hypothèse.",
+          "Évaluer exactitude, applicabilité, fidélité des sources et conclusion indépendamment des outils disponibles.",
+          "Accepter une abstention justifiée ; ne pas confondre abstention générale et réponse utile."
+        ],
+        "sources_a_verifier": [
+          "https://www.legifrance.gouv.fr/"
+        ],
+        "sources_verifiees": [],
+        "conclusion_attendue": "",
+        "abstention_attendue": null,
+        "criticite": "a_revoir",
+        "valide_par": "",
+        "date_validation": ""
+      }
+    },
+    {
+      "id": "M17-b",
+      "mode": 17,
+      "intitule": "Acteur, lieu, propriétaire, pouvoir",
+      "type": "controle",
+      "date_reference": "2026-10-10",
+      "question": "Le dossier fourni laisse l’identité du propriétaire incertaine. Indique les informations qui changeraient la conclusion et les décisions qui peuvent déjà être prises.",
+      "documents": [
+        "matrice.md"
+      ],
+      "gold": {
+        "statut": "brouillon",
+        "criteres_communs": [
+          "Séparer acteur, lieu, propriétaire et pouvoir ; signaler les inconnues décisionnelles sans leur substituer une hypothèse.",
+          "Évaluer exactitude, applicabilité, fidélité des sources et conclusion indépendamment des outils disponibles.",
+          "Accepter une abstention justifiée ; ne pas confondre abstention générale et réponse utile."
+        ],
+        "sources_a_verifier": [
+          "https://www.legifrance.gouv.fr/"
+        ],
+        "sources_verifiees": [],
+        "conclusion_attendue": "",
+        "abstention_attendue": null,
+        "criticite": "a_revoir",
+        "valide_par": "",
+        "date_validation": ""
+      }
+    },
+    {
+      "id": "M18-a",
+      "mode": 18,
+      "intitule": "Cohérence de corpus",
+      "type": "piege",
+      "date_reference": "2026-10-10",
+      "question": "Audite ensemble les deux documents fournis : peut-on les utiliser comme une procédure cohérente ?",
+      "documents": [
+        "corpus-a.md",
+        "corpus-b.md"
+      ],
+      "gold": {
+        "statut": "brouillon",
+        "criteres_communs": [
+          "Croiser pièces, dates, compétences et conditions ; ne pas valider chaque pièce isolément ni prétendre avoir corrigé sans relecture.",
+          "Évaluer exactitude, applicabilité, fidélité des sources et conclusion indépendamment des outils disponibles.",
+          "Accepter une abstention justifiée ; ne pas confondre abstention générale et réponse utile."
+        ],
+        "sources_a_verifier": [
+          "https://www.legifrance.gouv.fr/"
+        ],
+        "sources_verifiees": [],
+        "conclusion_attendue": "",
+        "abstention_attendue": null,
+        "criticite": "a_revoir",
+        "valide_par": "",
+        "date_validation": ""
+      }
+    },
+    {
+      "id": "M18-b",
+      "mode": 18,
+      "intitule": "Cohérence de corpus",
+      "type": "controle",
+      "date_reference": "2026-10-10",
+      "question": "Établis les contradictions entre les deux pièces et une méthode de correction, puis précise comment contrôler que la correction ne les recrée pas.",
+      "documents": [
+        "corpus-a.md",
+        "corpus-b.md"
+      ],
+      "gold": {
+        "statut": "brouillon",
+        "criteres_communs": [
+          "Croiser pièces, dates, compétences et conditions ; ne pas valider chaque pièce isolément ni prétendre avoir corrigé sans relecture.",
+          "Évaluer exactitude, applicabilité, fidélité des sources et conclusion indépendamment des outils disponibles.",
+          "Accepter une abstention justifiée ; ne pas confondre abstention générale et réponse utile."
+        ],
+        "sources_a_verifier": [
+          "https://www.legifrance.gouv.fr/"
+        ],
+        "sources_verifiees": [],
+        "conclusion_attendue": "",
+        "abstention_attendue": null,
+        "criticite": "a_revoir",
+        "valide_par": "",
+        "date_validation": ""
+      }
+    }
+  ]
+}

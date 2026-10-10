@@ -49,6 +49,7 @@ LIBELLE_BRAS = {
     "A": "A — aucun skill, aucun outil",
     "B": "B — méthodologie appliquée, aucun outil",
     "C": "C — méthodologie appliquée, outils de recherche juridique disponibles",
+    "D": "D — aucun skill, mêmes outils de recherche juridique disponibles",
 }
 
 

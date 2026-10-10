@@ -1,0 +1,46 @@
+{
+  "schema": 1,
+  "series": "utilite-18-modes-20261010",
+  "repetitions": 2,
+  "bras": [
+    "A",
+    "B",
+    "C",
+    "D"
+  ],
+  "limite_reponses_jour": 100,
+  "pilote_modes": [
+    1,
+    3,
+    5,
+    18
+  ],
+  "familles": [
+    {
+      "nom": "claude",
+      "modele_demande": "",
+      "executable": "",
+      "raisonnement": "reglage_a_qualifier",
+      "preflight": "a_faire"
+    },
+    {
+      "nom": "codex",
+      "modele_demande": "",
+      "executable": "",
+      "raisonnement": "reglage_a_qualifier",
+      "preflight": "a_faire"
+    },
+    {
+      "nom": "gemini",
+      "modele_demande": "",
+      "executable": "",
+      "raisonnement": "reglage_a_qualifier",
+      "preflight": "a_faire"
+    }
+  ],
+  "ablation": {
+    "max_modes": 6,
+    "repetitions": 2,
+    "statut": "apres_analyse_principale"
+  }
+}
