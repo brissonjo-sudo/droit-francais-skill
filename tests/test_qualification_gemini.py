@@ -15,6 +15,7 @@ from bench import campaign, etude_v2, budget_gemini, qualification_gemini, quota
 from bench import agents, gemini_rest
 from bench.flux import Trace, Appel
 from _gemini_test_helpers import ecrire_profil
+import bench
 
 
 class QualificationGeminiTests(unittest.TestCase):
@@ -110,7 +111,7 @@ class QualificationGeminiTests(unittest.TestCase):
             qualification_gemini.verifier(self.registry, "profil-01", runtime_sha256="runtime-modifie")
 
     def chemin_technique(self, *, crash=False, derniere_panne=False, source_absente=False,
-                        reprendre=False, runtime_modifie=False, catalogue_modifie=False):
+                        reprendre=False, runtime_modifie=False, catalogue_modifie=False, invalider_complete=False):
         root = self.root / "technique"
         registry = ecrire_profil(root)
         state = root / "etat"
@@ -138,6 +139,7 @@ class QualificationGeminiTests(unittest.TestCase):
         runtime = types.ModuleType("bench.runtime_v2")
         runtime.relever = mock.Mock(side_effect=[{"runtime": "initial"}, {"runtime": "modifié"}]) if runtime_modifie else lambda config: {"runtime": "synthétique"}
         with (mock.patch.dict(sys.modules, {"bench.runtime_v2": runtime}),
+              mock.patch.object(bench, "runtime_v2", runtime, create=True),
               mock.patch.object(budget_gemini, "etat_canonique", return_value=state),
               mock.patch.object(qualification_gemini, "etat_canonique", return_value=state),
               mock.patch.dict("os.environ", {"GEMINI_API_KEY": "secret-test"}, clear=True),
@@ -163,6 +165,15 @@ class QualificationGeminiTests(unittest.TestCase):
                 if reprendre:
                     result = qualification_gemini.executer(registry, "profil-01", cfg, target)
                     self.assertTrue(result["technique_ok"])
+                if invalider_complete:
+                    serie = etude_v2.reservations(state)[0]["series_sha256"]
+                    etude_v2.invalider(state, serie, "runtime", "invalidation synthétique après quatre bras")
+                    before = target.read_bytes()
+                    with mock.patch.object(gemini_rest, "preparer_client") as prepare:
+                        with self.assertRaisesRegex(ValueError, "invalidée"):
+                            qualification_gemini.executer(registry, "profil-01", cfg, target)
+                        prepare.assert_not_called()
+                    self.assertEqual(before, target.read_bytes())
         return state, target
 
     def test_chemin_quatre_bras_reel_journal_et_quatrieme_panne(self):
@@ -199,6 +210,11 @@ class QualificationGeminiTests(unittest.TestCase):
         self.assertEqual(4, len(etude_v2.reservations(state)))
         self.assertEqual(4, len(etude_v2.clotures(state)))
         self.assertEqual(4, len(json.loads(target.read_bytes())["runs"]))
+
+    def test_serie_invalidee_refuse_meme_avec_quatre_bras_acquis(self):
+        state, target = self.chemin_technique(invalider_complete=True)
+        self.assertEqual(4, len(etude_v2.reservations(state)))
+        self.assertEqual(4, len(etude_v2.clotures(state)))
 
     def test_runtime_modifie_invalide_la_serie_avant_cloture(self):
         state, target = self.chemin_technique(runtime_modifie=True)

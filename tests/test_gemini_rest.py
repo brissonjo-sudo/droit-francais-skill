@@ -15,6 +15,8 @@ from bench import agents, gemini_http, gemini_rest, native, quotas_gemini
 from bench.budget_gemini import Budget
 from mcp_server.catalog import EXPECTED_TOOLS
 from _gemini_test_helpers import reserver
+from _gemini_test_helpers import ecrire_profil
+from bench import budget_gemini, etude_v2
 
 
 def response(parts, model="gemini-3.8-flash", finish="STOP"):
@@ -162,6 +164,35 @@ class ClientGeminiTests(unittest.IsolatedAsyncioTestCase):
             env = native.environnement_abonnement()
         self.assertNotIn("GEMINI_API_KEY_COMPTE_2", env)
         self.assertIn("LEGIFRANCE_CLIENT_ID", env)
+
+
+class BackendRESTContratTests(unittest.TestCase):
+    def test_backend_transmet_arguments_nommes_a_coroutine_keyword_only(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            registry = ecrire_profil(root)
+            ctx = reserver(root)
+            expected = agents.Execution(agents.Trace(texte_final="SYNTHESE SYNTHETIQUE"), "FLUX SYNTHETIQUE", 0)
+            observed = []
+            async def keyword_only(client, *, prompt, bras, plafond, options):
+                try:
+                    etude_v2.verifier_contexte(options.contexte)
+                    client.garde()
+                    observed.append((prompt, bras, plafond, options.contexte.attempt_id, client.modele))
+                    return expected
+                finally:
+                    await client.transport.fermer()
+            options = agents.Options(modele=ctx.modele, effort="high", contexte=ctx,
+                gemini_registre=str(registry), gemini_profil="profil-01")
+            with (mock.patch.object(quotas_gemini, "LOCAL", root),
+                  mock.patch.object(budget_gemini, "etat_canonique", return_value=root),
+                  mock.patch.dict("os.environ", {"GEMINI_API_KEY": "secret-test"}, clear=True),
+                  mock.patch.object(gemini_rest, "executer_mcp", new=keyword_only)):
+                result = agents.GeminiREST().executer(prompt="CONTROLE SYNTHETIQUE", bras="A", plafond=12, options=options)
+            self.assertIs(expected, result)
+            self.assertEqual([("CONTROLE SYNTHETIQUE", "A", 12, ctx.attempt_id, ctx.modele)], observed)
+            self.assertEqual(1, len(etude_v2.reservations(root)))
+            self.assertFalse(any(root.rglob("requetes.jsonl")))
 
 
 if __name__ == "__main__":
