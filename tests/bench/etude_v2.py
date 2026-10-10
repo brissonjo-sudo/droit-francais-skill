@@ -97,7 +97,8 @@ def verrou(state: Path):
             raise ValueError("collecte active ou verrou abandonné ; récupération explicite requise") from exc
         with os.fdopen(fd, "w", encoding="utf-8", newline="\n") as stream:
             json.dump({"schema": 2, "pid": os.getpid(), "token": token,
-                       "hote": socket.gethostname(), "cree_utc": maintenant()}, stream)
+                       "hote": socket.gethostname(), "cree_utc": maintenant(),
+                       "processus_empreinte": empreinte_processus(os.getpid())}, stream)
             stream.flush()
             os.fsync(stream.fileno())
     try:
@@ -133,11 +134,41 @@ def invalider(state: Path, serie: str, categorie: str, motif: str, *, phase: str
 
 
 def reservations(state: Path) -> list[dict]:
+    if lire(state / "quarantaines.jsonl"):
+        raise ValueError("étude en quarantaine ; compteurs conservés, reprise automatique interdite")
     rows = lire(state / "budget.jsonl")
     ids = [r.get("attempt_id") for r in rows]
     if any(not i for i in ids) or len(set(ids)) != len(ids):
         raise ValueError("réservations dupliquées ou incomplètes")
     return rows
+
+
+def quarantainer_journal(state: Path, path: Path, auteur: str, motif: str) -> None:
+    """Conserver tous les octets et bloquer ; aucune ligne ni dette effacée."""
+    from bench.campaign import confiner
+    import hashlib
+    path = confiner(path, state)
+    if not auteur.strip() or not motif.strip():
+        raise ValueError("auteur humain et motif requis")
+    with verrou(state):
+        try:
+            lire(path)
+        except ValueError:
+            raw = path.read_bytes()
+        else:
+            raise ValueError("journal lisible ; aucune quarantaine nécessaire")
+        sha = hashlib.sha256(raw).hexdigest()
+        archive = state / "quarantaine" / (sha + ".bin")
+        archive.parent.mkdir(parents=True, exist_ok=True)
+        if not archive.exists():
+            fd = os.open(archive, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+            with os.fdopen(fd, "wb") as stream:
+                stream.write(raw)
+                stream.flush()
+                os.fsync(stream.fileno())
+        Journal(state / "quarantaines.jsonl").ajouter({"schema": 2, "journal": str(path.relative_to(state.resolve())),
+            "sha256": sha, "auteur_humain": auteur, "motif": motif, "horodatage": maintenant(),
+            "decision": "compteurs_non_reconstructibles_reprise_interdite"})
 
 
 def verifier_contexte(ctx) -> None:
@@ -261,8 +292,38 @@ def declarer_manquant(state: Path, serie: str, identity: str, auteur: str, motif
             "attempt_ids": [r["attempt_id"] for r in rows], "horodatage": maintenant()})
 
 
-def processus_actif(pid: int) -> bool:
+def empreinte_processus(pid: int) -> str | None:
+    """Date de création OS (ou boot/startticks Linux), jamais un PID seul."""
+    if os.name == "nt":
+        import ctypes
+        from ctypes import wintypes
+        api = ctypes.WinDLL("kernel32", use_last_error=True)
+        api.OpenProcess.restype = wintypes.HANDLE
+        api.OpenProcess.argtypes = [wintypes.DWORD, wintypes.BOOL, wintypes.DWORD]
+        api.CloseHandle.argtypes = [wintypes.HANDLE]
+        api.GetProcessTimes.argtypes = [wintypes.HANDLE, *([ctypes.POINTER(wintypes.FILETIME)] * 4)]
+        handle = api.OpenProcess(0x1000, False, pid)
+        if not handle:
+            return None
+        try:
+            times = [wintypes.FILETIME() for _ in range(4)]
+            if not api.GetProcessTimes(handle, *(ctypes.byref(t) for t in times)):
+                return None
+            return str((times[0].dwHighDateTime << 32) | times[0].dwLowDateTime)
+        finally:
+            api.CloseHandle(handle)
+    try:
+        fields = Path(f"/proc/{pid}/stat").read_text().rsplit(")", 1)[1].split()
+        return Path("/proc/sys/kernel/random/boot_id").read_text().strip() + ":" + fields[19]
+    except (OSError, IndexError):
+        return None
+
+
+def processus_actif(pid: int, empreinte_attendue: str | None = None) -> bool:
     """Incertitude d'accès => actif ; aucun PID n'est terminé par cette lecture."""
+    current = empreinte_processus(pid)
+    if current is not None and empreinte_attendue is not None and current != empreinte_attendue:
+        return False  # PID réutilisé : le propriétaire enregistré n'est plus présent
     if os.name == "nt":
         import ctypes
         from ctypes import wintypes
@@ -295,7 +356,8 @@ def retirer_verrou_abandonne(state: Path, auteur: str, motif: str) -> None:
         path = state / "collection.lock"
         before = path.read_bytes()
         info = json.loads(before)
-        if info.get("schema") != 2 or info.get("hote") != socket.gethostname() or processus_actif(info["pid"]):
+        if (info.get("schema") != 2 or info.get("hote") != socket.gethostname()
+                or not info.get("processus_empreinte") or processus_actif(info["pid"], info["processus_empreinte"])):
             raise ValueError("processus encore actif ou verrou ancien non qualifié")
         if path.read_bytes() != before:
             raise ValueError("verrou changé pendant le contrôle")

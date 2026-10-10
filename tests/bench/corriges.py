@@ -36,7 +36,7 @@ def exporter(sortie: Path) -> int:
         f"Corrigés humains validés : {sum(campaign.gold_pret(c) for c in cases)}/36.",
         "",
         f"Rédaction des brouillons : {provenance.get('outil', 'à préciser')} ; famille {provenance.get('famille', 'non attestée')}.",
-        f"Modèle exact : {provenance.get('modele_exact', 'non attesté')}. Revue humaine : non effectuée.",
+        f"Modèle exact : {provenance.get('modele_exact', 'non attesté')}. Revue humaine : {sum(campaign.gold_pret(c) for c in cases)}/36 validés.",
         "Les brouillons sont assistés par LLM ; une revue indépendante doit contrôler le biais de famille.",
         "",
         "## Consignes de revue",
@@ -96,7 +96,7 @@ def exporter(sortie: Path) -> int:
         lignes.extend(["", f"Refus excessif : {g.get('refus_excessif', 'à préciser')}.", "",
                        "Informations manquantes : " + (" ; ".join(g.get("informations_manquantes", [])) or "aucune pour le point circonscrit") + ".",
                        g.get("justification_informations_manquantes", "à préciser"), "",
-                       "### Sources consultées pour la préparation", ""])
+                       "### Sources et statut de leur préparation", ""])
         for s in g["sources_verifiees"]:
             proof = s.get("preuve_preparation", {})
             url = s["url"]
@@ -104,7 +104,7 @@ def exporter(sortie: Path) -> int:
                 url = lien_fixture(url[8:], sortie)
             lignes.extend([
                 f"- [{s.get('titre', s['url'])}]({url})",
-                f"  - Consultation : {date.fromisoformat(s['date_consultation']).strftime('%d/%m/%Y')} ; voie : {s.get('mode_consultation', 'à préciser')}.",
+                f"  - Consultation : {date.fromisoformat(s['date_consultation']).strftime('%d/%m/%Y') if s.get('date_consultation') else 'non récupérée dans cette session'} ; voie : {s.get('mode_consultation', 'à préciser')}.",
                 f"  - Version : {s['version_applicable']}",
                 f"  - Type : {s.get('type_extrait', 'à préciser')} ; citation exacte vérifiée par : {s.get('citation_verifiee_par') or 'non attestée'}.",
                 f"  - Résumé ou observation (ne vaut pas citation exacte) : {s['extrait_utile'].replace(chr(10), ' ')}",

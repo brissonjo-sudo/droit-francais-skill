@@ -10,13 +10,14 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "tests"))
-from bench import ablation, campaign, corriges, etude_v2, revue_v2
+from bench import ablation, campaign, corriges, etude_v2, revue_v2, approbations_v2, contexte
 
 
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     sub = parser.add_subparsers(dest="action", required=True)
     sub.add_parser("verifier")
+    sub.add_parser("etat")
     gold_review = sub.add_parser("corriges")
     gold_review.add_argument("--sortie", type=Path, required=True)
     freeze = sub.add_parser("figer")
@@ -54,7 +55,18 @@ def main(argv=None) -> int:
     run_abl.add_argument("--gel", type=Path, required=True)
     run_abl.add_argument("--plan", type=Path, required=True)
     run_abl.add_argument("--famille", choices=campaign.FAMILLES, required=True)
-    for action in ("clore-interruption", "declarer-manquant", "recuperer-verrou"):
+    compare = sub.add_parser("comparer-ablation")
+    for name in ("gel", "plan", "revues", "revues-humaines", "sortie"):
+        compare.add_argument("--" + name, type=Path, required=True)
+    prep = sub.add_parser("preparer-approbation")
+    prep.add_argument("--gel", type=Path, required=True)
+    prep.add_argument("--famille", choices=campaign.FAMILLES, required=True)
+    prep.add_argument("--type", choices=("preflight", "pilote"), required=True)
+    prep.add_argument("--sortie", type=Path, required=True)
+    approve = sub.add_parser("approuver-recu")
+    approve.add_argument("--gel", type=Path, required=True)
+    approve.add_argument("--avis", type=Path, required=True)
+    for action in ("clore-interruption", "declarer-manquant", "recuperer-verrou", "quarantainer-journal", "rattacher-etat"):
         p = sub.add_parser(action)
         p.add_argument("--auteur-humain", required=True)
         p.add_argument("--motif", required=True)
@@ -63,6 +75,8 @@ def main(argv=None) -> int:
         elif action == "declarer-manquant":
             p.add_argument("--gel", type=Path, required=True)
             p.add_argument("--identite", required=True)
+        elif action == "quarantainer-journal":
+            p.add_argument("--journal", type=Path, required=True)
     human = sub.add_parser("ajouter-revue-humaine")
     human.add_argument("--avis", type=Path, required=True)
     human.add_argument("--resultats", nargs="+", type=Path, required=True)
@@ -70,7 +84,9 @@ def main(argv=None) -> int:
     human.add_argument("--sortie", type=Path, required=True)
     args = parser.parse_args(argv)
     try:
-        if args.action == "verifier":
+        if args.action == "etat":
+            print(campaign.STATE)
+        elif args.action == "verifier":
             cases = campaign.corpus()
             print(json.dumps({"cas": len(cases), "modes": 18, "reponses_principales": 864,
                               "corriges_valides": sum(campaign.gold_pret(c) for c in cases),
@@ -100,6 +116,12 @@ def main(argv=None) -> int:
         elif args.action == "ablation":
             count = ablation.collecter(campaign.read_json(args.gel), args.plan, args.famille)
             print(f"{count} réponses expérimentales écrites")
+        elif args.action == "comparer-ablation":
+            ablation.comparer(campaign.read_json(args.gel), args.plan, args.revues, args.revues_humaines, args.sortie)
+        elif args.action == "preparer-approbation":
+            approbations_v2.preparer(campaign.read_json(args.gel), args.famille, args.type, args.sortie)
+        elif args.action == "approuver-recu":
+            approbations_v2.approuver(campaign.read_json(args.gel), campaign.read_json(args.avis))
         elif args.action == "clore-interruption":
             etude_v2.clore_interruption(campaign.STATE, args.attempt_id, args.auteur_humain, args.motif)
         elif args.action == "declarer-manquant":
@@ -107,6 +129,11 @@ def main(argv=None) -> int:
             etude_v2.declarer_manquant(campaign.STATE, gel["series_sha256"], args.identite, args.auteur_humain, args.motif)
         elif args.action == "recuperer-verrou":
             etude_v2.retirer_verrou_abandonne(campaign.STATE, args.auteur_humain, args.motif)
+        elif args.action == "quarantainer-journal":
+            etude_v2.quarantainer_journal(campaign.STATE, args.journal, args.auteur_humain, args.motif)
+        elif args.action == "rattacher-etat":
+            with etude_v2.verrou(campaign.STATE):
+                contexte.assurer_ancre(campaign.STATE, auteur=args.auteur_humain, motif=args.motif)
         elif args.action == "ajouter-revue-humaine":
             def charger():
                 results = campaign.dernieres_tentatives([r for p in args.resultats for r in campaign.historique_acquis(p, campaign.STATE)])

@@ -77,14 +77,18 @@ privés ; leur qualification REST est nécessaire avant le gel.
 
 Le schéma v2 est une rupture : **aucune migration implicite des anciens gels
 ou journaux**. Conserver les preuves anciennes dans leur dossier d'origine.
-L'état de production est commun aux worktrees : sous Windows,
-%LOCALAPPDATA%/droit-francais/bench-v2 ; sous Linux,
-${XDG_STATE_HOME:-~/.local/state}/droit-francais/bench-v2. Aucun argument CLI
-ne permet de choisir un compteur d'étude ou fournisseur alternatif.
+L'état est commun aux worktrees et lié au compte OS : LocalAppData obtenu par
+l'[API Windows officielle](https://learn.microsoft.com/en-us/windows/win32/api/shlobj_core/nf-shlobj_core-shgetknownfolderpath),
+ou dossier personnel obtenu par `pwd.getpwuid` sous Linux, puis
+`droit-francais/bench-v2`. HOME, XDG_STATE_HOME et LOCALAPPDATA ne peuvent
+changer ses compteurs. `etat` affiche le chemin sans créer de fichier.
+L'ancre est vérifiée aux réservations ; un état ancien non vide sans ancre
+nécessite un rattachement humain audité. Aucun déplacement ou reset implicite.
+Une ancre différente bloque l'opération ; aucune option CLI d'état alternatif.
 Les injections d'état des fonctions Python servent aux tests internes.
 
 ~~~powershell
-$etat = Join-Path $env:LOCALAPPDATA "droit-francais/bench-v2"
+$etat = python tests/run_campaign.py etat
 python tests/run_campaign.py figer --config config-privee.json --sortie "$etat/gel.json"
 python tests/run_campaign.py preflight --gel "$etat/gel.json" --famille claude
 python tests/run_campaign.py preflight --gel "$etat/gel.json" --famille codex
@@ -99,10 +103,23 @@ isolé conservé pendant l'étude et empêcher ses mises à jour automatiques pa
 les mécanismes documentés des clients ; une modification détectée exige une
 nouvelle série. Les contrôles sont faits avant et après chaque réponse.
 
-Chaque reçu de préflight contient deux runs techniques A et C. Le titulaire
-renseigne revue_isolation_par, preuve_isolation, auth_confirmee et
-autorise_collecte après contrôle réel. Le modèle demandé n'est jamais substitué
+Chaque reçu de préflight contient deux runs techniques A et C. Préparer
+l'instantané, renseigner nom, justification, preuve_isolation, auth_confirmee
+et autorise_collecte après contrôle réel, puis l'approuver. L'outil calcule
+les hashes et conserve l'historique chaîné et daté. Modifier seulement les
+cases du reçu ne vaut pas approbation. Le modèle demandé n'est jamais substitué
 à un modèle effectif absent. Un reçu ne remplace pas la validation des corrigés.
+
+~~~powershell
+python tests/run_campaign.py preparer-approbation --gel "$etat/gel.json" --type preflight --famille claude --sortie "$etat/avis-preflight-claude.json"
+# Relire les preuves puis renseigner explicitement les champs humains de cet avis.
+python tests/run_campaign.py approuver-recu --gel "$etat/gel.json" --avis "$etat/avis-preflight-claude.json"
+~~~
+
+Répéter pour les trois familles. Après pilote, préparer un avis de type `pilote`
+par famille et l'approuver. Son instantané contient uniquement les résultats
+et manquants de son pilote ; les manquants principaux ou annexes ne le périment
+pas. Une nouvelle approbation conserve la précédente dans l'historique.
 
 ## Ordre, réservations et interruptions
 
@@ -114,7 +131,9 @@ python tests/run_campaign.py collecter-entrelace --gel "$etat/gel.json" --phase 
 Le plan matérialisé conserve proches les deux répétitions de chaque cas, en
 alternant leur ordre selon l'index du cas. Les quatre bras tournent et les
 familles alternent par blocs de quatre ; la première famille tourne également.
-Une collecte individuelle est limitée à quatre tentatives pour diagnostic.
+Une collecte individuelle exige la famille du prochain bloc du plan et
+se limite à quatre tentatives. Une autre famille est refusée ; elle ne permet
+pas de terminer toutes les répétitions d'une famille avant les autres.
 La collecte principale exige une revue humaine de chaque pilote, liée par SHA
 aux résultats et déclarations de manquants effectivement examinés, avec auteur
 et justification. Aucun score du pilote n'est recyclé dans la principale.
@@ -132,7 +151,8 @@ panne consomme ces deux limites. Aucun remboursement, attente ou retry caché.
 Une réponse acquise n'est jamais rejouée. Toute commande en panne sort avec 2.
 Une interruption entre réservation et résultat bloque la reprise jusqu'à
 clôture explicite, après contrôle du processus. Si un résultat complet avait
-été écrit avant le crash, la récupération conserve ce succès au lieu de le
+été engagé par hash durable puis écrit avant le crash, la récupération vérifie
+cet engagement et conserve ce succès au lieu de le
 transformer en interruption et de permettre un second tirage.
 
 ~~~powershell
@@ -141,14 +161,31 @@ python tests/run_campaign.py clore-interruption --attempt-id ATTEMPT_ID --auteur
 python tests/run_campaign.py declarer-manquant --gel "$etat/gel.json" --identite IDENTITE --auteur-humain "NOM" --motif "Deux pannes clôturées, données manquantes acceptées"
 ~~~
 
-Le retrait d'un verrou vérifie hôte et PID sans terminer de processus. Un PID
-encore actif, un journal tronqué ou une preuve ambiguë bloque l'opération.
+Le retrait vérifie hôte, PID et empreinte de création OS sans terminer de
+processus. Un PID réutilisé est distingué de l'ancien propriétaire ; une
+identité incertaine bloque l'opération. Les journaux sont créés avec mode 0600
+sur POSIX ; les ACL Windows restent celles du profil utilisateur.
 Après deux pannes récupérables, seule une déclaration humaine motivée autorise
 la poursuite sur les autres unités. Les paires incomplètes sont exclues, sans
 imputation d'une panne en réponse correcte ou fausse ; leurs taux sont publiés.
-**Contamination, rupture d'isolation, substitution de modèle et changement de
-gel/runtime invalident définitivement la série.** Aucun second tirage de ces
-cas n'est permis. Les invalidations et récupérations restent auditables.
+**Après exposition au moteur, contamination, isolation rompue, substitution
+de modèle et changement confirmé de gel/runtime invalident définitivement la
+phase concernée.** Aucun second tirage dans cette phase. Une contamination
+principale invalide toujours la principale ; jugement et ablation ne détruisent
+pas ses réponses acquises. Avant appel, une dérive refuse sans invalider.
+Une sonde CLI/runtime indisponible est une panne passagère, pas une dérive.
+Manquants et invalidations sont filtrés par phase et restent auditables.
+
+Un journal tronqué reste un blocage conservateur. `quarantainer-journal`
+archive tous ses octets, leur empreinte et la décision humaine, sans modifier
+l'original ni rembourser. **Cette commande ne permet pas de reprendre** : le
+nombre de tentatives éventuellement tronquées reste inconnu, même au lendemain.
+Examen/restauration externe audités nécessaires ; aucune réparation automatique.
+
+~~~powershell
+python tests/run_campaign.py quarantainer-journal --journal "$etat/budget.jsonl" --auteur-humain "NOM" --motif "Append interrompu, compteurs incertains"
+python tests/run_campaign.py rattacher-etat --auteur-humain "NOM" --motif "État historique lisible rattaché sans reset"
+~~~
 
 ## Jugements et arbitrage humain
 
@@ -178,7 +215,8 @@ resultat_sha256, jugement_sha256, relecteur_humain, justification_humaine,
 date_validation ISO, validation_humaine=true, avis_final=true,
 arbitrage=confirmer_juge ou corriger_juge, et axes définitifs. Une révision
 suivante référence le SHA de l'avis précédent. Le harnais ne complète aucun
-champ humain. Les doublons, avis orphelins/périmés, dates futures et chaînes
+champ humain. Champs inconnus, avis liés à un juge infra rejouable, doublons,
+avis orphelins/périmés, dates futures et chaînes
 rompues sont refusés. **L'arbitrage humain validé prime sur le jugement LLM**,
 qui demeure conservé dans son propre journal.
 
@@ -199,6 +237,9 @@ Au plus six modes, après rapport principal complet et recette relue humainement
 Le rapport conserve ses chemins et empreintes dans l'état privé ; il est
 recalculé depuis les traces acquises avant préparation et avant chaque collecte
 d'ablation. Modifier son statut à la main ne permet pas d'ouvrir ce passage.
+Un seul plan d'ablation est enregistré par série : un nouveau dossier n'ouvre
+pas une nouvelle enveloppe. Chaque variante est liée par hash au C principal
+du même cas, famille et répétition avant de réserver son appel.
 Chaque recette indique passages_exacts, raison, regles_partagees et valide_par ;
 un passage absent ou présent plusieurs fois est refusé. Les variantes sont
 hashées et restent dans l'état privé, sans modifier le skill canonique. La
@@ -209,13 +250,24 @@ commande individuelle et se compare au C principal du même cas/répétition.
 ~~~powershell
 python tests/run_campaign.py preparer-ablation --gel "$etat/gel.json" --recettes recettes-ablation.json --rapport "$etat/SERIE/rapport.json" --dossier "$etat/SERIE/experiences"
 python tests/run_campaign.py ablation --gel "$etat/gel.json" --plan "$etat/SERIE/experiences/plan.json" --famille claude
+python tests/run_campaign.py comparer-ablation --gel "$etat/gel.json" --plan "$etat/SERIE/experiences/plan.json" --revues "$etat/SERIE/juges.jsonl" --revues-humaines "$etat/SERIE/humains.jsonl" --sortie "$etat/SERIE/comparaison-ablation.json"
 ~~~
+
+La comparaison énumère les paires C/variante et fournit leur delta descriptif
+uniquement après acquisition des deux jugements et arbitrages humains finaux.
+Une ablation invalidée ne produit aucun score. Les ajouts annexes au journal
+de jugements n'altèrent pas les empreintes filtrées du rapport principal.
 
 La décision de simplifier une règle reste humaine. Les exemples README
 exigent un cas complet, toutes ses répétitions, les sources et un arbitrage
 humain de toutes ses réponses ; conserver également les limites et échecs.
 Aucun choix de la seule meilleure sortie, aucune affirmation que les 18 modes
 sont utiles avant mesure.
+Le rapport propose le premier identifiant lexical éligible par catégorie
+gain, abstention et limite, et conserve la liste complète des éligibles. Un
+cas doit réunir toutes les familles, bras et répétitions, leurs arbitrages
+humains et un accord `candidat_readme` explicite. Si une catégorie manque,
+aucun exemple n'est inventé. La publication reste une décision humaine.
 
 Minimum sans panne : 4 réponses de qualification Gemini REST + 6 préflights +
 192 pilote + 864 principale + 864 jugements = **1 930 tentatives**, au moins

@@ -4,11 +4,11 @@ Document généré depuis tests/campaign/cases.json avant toute collecte.
 Les propositions de correction restent des brouillons tant que la revue
 humaine n'est pas inscrite dans le corpus. Ce dossier ne les valide pas.
 
-Empreinte SHA-256 du corpus : bfada812033e530a81fe40b85ff0108a03bbe4e4de019b3d5a705971de84478d.
+Empreinte SHA-256 du corpus : 3b7597abd6274e9a3bd9709af53a61e52c0127c4500d49218e406bffbdecdd2b.
 Corrigés humains validés : 0/36.
 
 Rédaction des brouillons : Codex ; famille non attestée dans l’interface de rédaction.
-Modèle exact : non attesté. Revue humaine : non effectuée.
+Modèle exact : non attesté. Revue humaine : 0/36 validés.
 Les brouillons sont assistés par LLM ; une revue indépendante doit contrôler le biais de famille.
 
 ## Consignes de revue
@@ -47,7 +47,7 @@ Criticité proposée : ordinaire. Statut : brouillon.
 
 ### Proposition de corrigé
 
-Ne pas authentifier ni fabriquer l'article 1240-1. Le chapitre consulté ne contient pas cette référence. La proposition ne peut être fondée sur elle. Demander la source du rédacteur ou rechercher un autre fondement sans déclarer que toute responsabilité sans faute serait impossible.
+Proposition non vérifiée à la source dans cette session, à contrôler avant validation : Ne pas authentifier ni fabriquer l'article 1240-1. Le chapitre doit être récupéré avant de confirmer l'absence de cette référence. La proposition ne peut être fondée sur elle. Demander la source du rédacteur ou rechercher un autre fondement sans déclarer que toute responsabilité sans faute serait impossible.
 
 Abstention ciblée attendue : True.
 Portée : Seulement la citation 1240-1 et la proposition qui en est déduite..
@@ -61,20 +61,20 @@ Critères de fond :
 
 Alternatives admissibles :
 
-- « Référence non retrouvée dans le chapitre consulté » est préférable à une affirmation universelle d'inexistence.
+- « Référence non retrouvée dans le chapitre restant à vérifier » est préférable à une affirmation universelle d'inexistence.
 
 Refus excessif : Refuser toute analyse alors que le point demandé peut être établi, ou demander une information déjà donnée ou récupérable en source primaire..
 
 Informations manquantes : Faits établissant une faute, un dommage et leur lien causal pour un avis individuel, hors contrôle de référence demandé..
 La question permet de contrôler la référence et son rôle ; les circonstances du dommage ne permettent pas de fixer une responsabilité individuelle.
 
-### Sources consultées pour la préparation
+### Sources et statut de leur préparation
 
 - [Code civil, chapitre de la responsabilité extracontractuelle en général](https://www.legifrance.gouv.fr/codes/id/LEGISCTA000032021488)
-  - Consultation : 10/10/2026 ; voie : web_source_primaire.
-  - Version : Page affichant la version au 9 octobre 2026.
+  - Consultation : non récupérée dans cette session ; voie : non_verifie_dans_cette_session.
+  - Version : À confirmer à la source ; indication historique non vérifiée : Page affichant la version au 9 octobre 2026.
   - Type : resume ; citation exacte vérifiée par : non attestée.
-  - Résumé ou observation (ne vaut pas citation exacte) : Le sommaire et le corps consultés présentent les articles 1240, 1241, 1242, 1243 et 1244, sans article 1240-1.
+  - Résumé ou observation (ne vaut pas citation exacte) : Résumé historique non vérifié à la source dans cette session : Le sommaire et le corps mentionnés dans le brouillon présentent les articles 1240, 1241, 1242, 1243 et 1244, sans article 1240-1.
   - Limites : Constat négatif borné à ce chapitre dans la version affichée au 9 octobre 2026 et à une recherche ciblée sans résultat pertinent ; aucune preuve universelle d'inexistence passée ou future.
   - Preuve de cette préparation : non_verifie_dans_cette_session ; Référence historique embarquée : texte et version à récupérer à la date utile avant validation humaine.
   - Vérification humaine de cette source : non effectuée.
@@ -92,7 +92,7 @@ Criticité proposée : ordinaire. Statut : brouillon.
 
 ### Proposition de corrigé
 
-Oui : l'article 1240 fonde ici l'obligation de réparer le dommage causé par la faute de A. Ne pas attribuer de montant ni de pouvoir de saisie ou d'exécution forcée à B.
+Proposition non vérifiée à la source dans cette session, à contrôler avant validation : Oui : l'article 1240 fonde ici l'obligation de réparer le dommage causé par la faute de A. Ne pas attribuer de montant ni de pouvoir de saisie ou d'exécution forcée à B.
 
 Abstention ciblée attendue : False.
 Portée : aucune abstention de fond si les sources sont accessibles.
@@ -114,13 +114,13 @@ Refus excessif : Refuser toute analyse alors que le point demandé peut être é
 Informations manquantes : aucune pour le point circonscrit.
 Faute, dommage et lien causal sont expressément établis dans l'exercice ; le montant et les régimes spéciaux sont exclus du point demandé.
 
-### Sources consultées pour la préparation
+### Sources et statut de leur préparation
 
 - [Code civil, article 1240](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000032041571/2025-01-10)
-  - Consultation : 10/10/2026 ; voie : web_source_primaire.
-  - Version : Depuis le 1er octobre 2016 ; page datée du 10 janvier 2025 consultée.
+  - Consultation : non récupérée dans cette session ; voie : non_verifie_dans_cette_session.
+  - Version : À confirmer à la source ; indication historique non vérifiée : Depuis le 1er octobre 2016 ; page datée du 10 janvier 2025 mentionnée dans le brouillon.
   - Type : resume ; citation exacte vérifiée par : non attestée.
-  - Résumé ou observation (ne vaut pas citation exacte) : Tout fait quelconque de l'homme, qui cause à autrui un dommage, oblige celui par la faute duquel il est arrivé à le réparer.
+  - Résumé ou observation (ne vaut pas citation exacte) : Résumé historique non vérifié à la source dans cette session : Tout fait quelconque de l'homme, qui cause à autrui un dommage, oblige celui par la faute duquel il est arrivé à le réparer.
   - Limites : Lecture du passage et des métadonnées sur la page officielle ; validation juridique humaine encore requise.
   - Preuve de cette préparation : non_verifie_dans_cette_session ; Référence historique embarquée : texte et version à récupérer à la date utile avant validation humaine.
   - Vérification humaine de cette source : non effectuée.
@@ -159,7 +159,7 @@ Refus excessif : Refuser toute analyse alors que le point demandé peut être é
 Informations manquantes : aucune pour le point circonscrit.
 La date du dommage, la minorité, l'exercice de l'autorité parentale et l'absence de placement chez un tiers sont stipulés ; le seul motif d'exclusion lié à la résidence peut être contrôlé.
 
-### Sources consultées pour la préparation
+### Sources et statut de leur préparation
 
 - [Code civil, article 1242, alinéa relatif aux parents](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000051786000/2026-07-01)
   - Consultation : 10/10/2026 ; voie : web_source_primaire.
@@ -204,7 +204,7 @@ Refus excessif : Refuser toute analyse alors que le point demandé peut être é
 Informations manquantes : aucune pour le point circonscrit.
 La demande consiste à retrouver le paragraphe applicable au 01/07/2026 ; aucune situation individuelle supplémentaire n'est nécessaire pour cette lecture.
 
-### Sources consultées pour la préparation
+### Sources et statut de leur préparation
 
 - [Code civil, article 1242, alinéa relatif aux parents](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000051786000/2026-07-01)
   - Consultation : 10/10/2026 ; voie : web_source_primaire.
@@ -228,7 +228,7 @@ Pour une recherche historique en France au 28 mars 2014, un rédacteur attribue 
 
 ### Proposition de corrigé
 
-À cette date l'article 1240 porte sur la validité du paiement fait de bonne foi au possesseur de la créance. Le contenu sur la responsabilité actuellement associé à ce numéro date du 1er octobre 2016. Ne pas attribuer rétroactivement ce contenu à l'ancien article.
+Proposition non vérifiée à la source dans cette session, à contrôler avant validation : À cette date l'article 1240 porte sur la validité du paiement fait de bonne foi au possesseur de la créance. Le contenu sur la responsabilité actuellement associé à ce numéro date du 1er octobre 2016. Ne pas attribuer rétroactivement ce contenu à l'ancien article.
 
 Abstention ciblée attendue : False.
 Portée : aucune abstention de fond si les sources sont accessibles.
@@ -249,21 +249,21 @@ Refus excessif : Refuser toute analyse alors que le point demandé peut être é
 Informations manquantes : aucune pour le point circonscrit.
 La date historique du 28/03/2014 et la fonction attribuée à l'article suffisent au contrôle de cette attribution ; aucune qualification contractuelle n'est demandée.
 
-### Sources consultées pour la préparation
+### Sources et statut de leur préparation
 
 - [Code civil, ancien article 1240](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006437044/2014-03-28)
-  - Consultation : 10/10/2026 ; voie : web_source_primaire.
-  - Version : Du 21 mars 1804 au 1er octobre 2016 ; page datée du 28 mars 2014 consultée.
+  - Consultation : non récupérée dans cette session ; voie : non_verifie_dans_cette_session.
+  - Version : À confirmer à la source ; indication historique non vérifiée : Du 21 mars 1804 au 1er octobre 2016 ; page datée du 28 mars 2014 mentionnée dans le brouillon.
   - Type : resume ; citation exacte vérifiée par : non attestée.
-  - Résumé ou observation (ne vaut pas citation exacte) : Le paiement fait de bonne foi à celui qui est en possession de la créance est valable, encore que le possesseur en soit par la suite évincé.
+  - Résumé ou observation (ne vaut pas citation exacte) : Résumé historique non vérifié à la source dans cette session : Le paiement fait de bonne foi à celui qui est en possession de la créance est valable, encore que le possesseur en soit par la suite évincé.
   - Limites : Lecture du passage et des métadonnées sur la page officielle ; validation juridique humaine encore requise.
   - Preuve de cette préparation : non_verifie_dans_cette_session ; Référence historique embarquée : texte et version à récupérer à la date utile avant validation humaine.
   - Vérification humaine de cette source : non effectuée.
 - [Code civil, article 1240](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000032041571/2025-01-10)
-  - Consultation : 10/10/2026 ; voie : web_source_primaire.
-  - Version : Depuis le 1er octobre 2016 ; page datée du 10 janvier 2025 consultée.
+  - Consultation : non récupérée dans cette session ; voie : non_verifie_dans_cette_session.
+  - Version : À confirmer à la source ; indication historique non vérifiée : Depuis le 1er octobre 2016 ; page datée du 10 janvier 2025 mentionnée dans le brouillon.
   - Type : resume ; citation exacte vérifiée par : non attestée.
-  - Résumé ou observation (ne vaut pas citation exacte) : Tout fait quelconque de l'homme, qui cause à autrui un dommage, oblige celui par la faute duquel il est arrivé à le réparer.
+  - Résumé ou observation (ne vaut pas citation exacte) : Résumé historique non vérifié à la source dans cette session : Tout fait quelconque de l'homme, qui cause à autrui un dommage, oblige celui par la faute duquel il est arrivé à le réparer.
   - Limites : Lecture du passage et des métadonnées sur la page officielle ; validation juridique humaine encore requise.
   - Preuve de cette préparation : non_verifie_dans_cette_session ; Référence historique embarquée : texte et version à récupérer à la date utile avant validation humaine.
   - Vérification humaine de cette source : non effectuée.
@@ -281,7 +281,7 @@ Pour une recherche historique en France au 10 janvier 2025, quel est le contenu 
 
 ### Proposition de corrigé
 
-Le numéro 1240 correspond depuis le 1er octobre 2016 à la responsabilité pour faute et à l'obligation de réparation. La fiche sur le paiement correspond à l'ancien contenu, en vigueur jusqu'au 1er octobre 2016, et ne décrit pas cet article à la date demandée.
+Proposition non vérifiée à la source dans cette session, à contrôler avant validation : Le numéro 1240 correspond depuis le 1er octobre 2016 à la responsabilité pour faute et à l'obligation de réparation. La fiche sur le paiement correspond à l'ancien contenu, en vigueur jusqu'au 1er octobre 2016, et ne décrit pas cet article à la date demandée.
 
 Abstention ciblée attendue : False.
 Portée : aucune abstention de fond si les sources sont accessibles.
@@ -302,21 +302,21 @@ Refus excessif : Refuser toute analyse alors que le point demandé peut être é
 Informations manquantes : aucune pour le point circonscrit.
 La comparaison de la fiche ancienne avec la version au 10/01/2025 porte sur le contenu de l'article, sans faits litigieux à reconstituer.
 
-### Sources consultées pour la préparation
+### Sources et statut de leur préparation
 
 - [Code civil, article 1240](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000032041571/2025-01-10)
-  - Consultation : 10/10/2026 ; voie : web_source_primaire.
-  - Version : Depuis le 1er octobre 2016 ; page datée du 10 janvier 2025 consultée.
+  - Consultation : non récupérée dans cette session ; voie : non_verifie_dans_cette_session.
+  - Version : À confirmer à la source ; indication historique non vérifiée : Depuis le 1er octobre 2016 ; page datée du 10 janvier 2025 mentionnée dans le brouillon.
   - Type : resume ; citation exacte vérifiée par : non attestée.
-  - Résumé ou observation (ne vaut pas citation exacte) : Tout fait quelconque de l'homme, qui cause à autrui un dommage, oblige celui par la faute duquel il est arrivé à le réparer.
+  - Résumé ou observation (ne vaut pas citation exacte) : Résumé historique non vérifié à la source dans cette session : Tout fait quelconque de l'homme, qui cause à autrui un dommage, oblige celui par la faute duquel il est arrivé à le réparer.
   - Limites : Lecture du passage et des métadonnées sur la page officielle ; validation juridique humaine encore requise.
   - Preuve de cette préparation : non_verifie_dans_cette_session ; Référence historique embarquée : texte et version à récupérer à la date utile avant validation humaine.
   - Vérification humaine de cette source : non effectuée.
 - [Code civil, ancien article 1240](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006437044/2014-03-28)
-  - Consultation : 10/10/2026 ; voie : web_source_primaire.
-  - Version : Du 21 mars 1804 au 1er octobre 2016 ; page datée du 28 mars 2014 consultée.
+  - Consultation : non récupérée dans cette session ; voie : non_verifie_dans_cette_session.
+  - Version : À confirmer à la source ; indication historique non vérifiée : Du 21 mars 1804 au 1er octobre 2016 ; page datée du 28 mars 2014 mentionnée dans le brouillon.
   - Type : resume ; citation exacte vérifiée par : non attestée.
-  - Résumé ou observation (ne vaut pas citation exacte) : Le paiement fait de bonne foi à celui qui est en possession de la créance est valable, encore que le possesseur en soit par la suite évincé.
+  - Résumé ou observation (ne vaut pas citation exacte) : Résumé historique non vérifié à la source dans cette session : Le paiement fait de bonne foi à celui qui est en possession de la créance est valable, encore que le possesseur en soit par la suite évincé.
   - Limites : Lecture du passage et des métadonnées sur la page officielle ; validation juridique humaine encore requise.
   - Preuve de cette préparation : non_verifie_dans_cette_session ; Référence historique embarquée : texte et version à récupérer à la date utile avant validation humaine.
   - Vérification humaine de cette source : non effectuée.
@@ -356,7 +356,7 @@ Refus excessif : Refuser toute analyse alors que le point demandé peut être é
 Informations manquantes : Nature de la contravention et habilitation à la constater, pour un cas d'intervention individuel. ; Refus ou impossibilité de justifier l'identité, non décrits dans le dossier..
 L'absence d'ordre d'OPJ est donnée ; la note peut être relue sans supposer un refus d'identité ou une contravention habilitante. Ces éléments seraient requis pour une intervention individuelle, exclue ici.
 
-### Sources consultées pour la préparation
+### Sources et statut de leur préparation
 
 - [CPP, article 78-6](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000034114850)
   - Consultation : 10/10/2026 ; voie : web_source_primaire.
@@ -417,7 +417,7 @@ Refus excessif : Refuser toute analyse alors que le point demandé peut être é
 Informations manquantes : aucune pour le point circonscrit.
 La fiche de lecture ne concerne aucun contrôle individuel ; la date et les deux articles visés suffisent à distinguer leurs objets et acteurs.
 
-### Sources consultées pour la préparation
+### Sources et statut de leur préparation
 
 - [CPP, article 78-6](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000034114850)
   - Consultation : 10/10/2026 ; voie : web_source_primaire.
@@ -457,7 +457,7 @@ Criticité proposée : critique. Statut : brouillon.
 
 ### Proposition de corrigé
 
-Non : 311-2 vise la soustraction frauduleuse d'énergie, pas une assimilation générale de tous les services immatériels. L'analogie proposée ne suffit pas sous 111-4. Ne pas conclure que toute infraction est exclue : d'autres bases et faits nécessiteraient une recherche distincte.
+Proposition non vérifiée à la source dans cette session, à contrôler avant validation : Non : 311-2 vise la soustraction frauduleuse d'énergie, pas une assimilation générale de tous les services immatériels. L'analogie proposée ne suffit pas sous 111-4. Ne pas conclure que toute infraction est exclue : d'autres bases et faits nécessiteraient une recherche distincte.
 
 Abstention ciblée attendue : True.
 Portée : La qualification pénale affirmative par cette analogie et les autres infractions non étudiées..
@@ -478,21 +478,21 @@ Refus excessif : Refuser toute analyse alors que le point demandé peut être é
 Informations manquantes : Faits constitutifs et élément intentionnel d'une éventuelle qualification distincte de celle proposée..
 Le dossier permet de contrôler le seul fondement cité ; les faits constitutifs d'une autre qualification ne sont pas fournis et ne doivent pas être inventés.
 
-### Sources consultées pour la préparation
+### Sources et statut de leur préparation
 
 - [Code pénal, article 111-4](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006417178)
-  - Consultation : 10/10/2026 ; voie : web_source_primaire.
-  - Version : Depuis le 1er mars 1994, selon la page consultée.
+  - Consultation : non récupérée dans cette session ; voie : non_verifie_dans_cette_session.
+  - Version : À confirmer à la source ; indication historique non vérifiée : Depuis le 1er mars 1994, selon la page mentionnée dans le brouillon.
   - Type : resume ; citation exacte vérifiée par : non attestée.
-  - Résumé ou observation (ne vaut pas citation exacte) : La loi pénale est d'interprétation stricte.
+  - Résumé ou observation (ne vaut pas citation exacte) : Résumé historique non vérifié à la source dans cette session : La loi pénale est d'interprétation stricte.
   - Limites : Lecture du passage et des métadonnées sur la page officielle ; validation juridique humaine encore requise.
   - Preuve de cette préparation : non_verifie_dans_cette_session ; Référence historique embarquée : texte et version à récupérer à la date utile avant validation humaine.
   - Vérification humaine de cette source : non effectuée.
 - [Code pénal, article 311-2](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006418128/2025-12-23)
-  - Consultation : 10/10/2026 ; voie : web_source_primaire.
-  - Version : Depuis le 1er mars 1994 ; page datée du 23 décembre 2025 consultée.
+  - Consultation : non récupérée dans cette session ; voie : non_verifie_dans_cette_session.
+  - Version : À confirmer à la source ; indication historique non vérifiée : Depuis le 1er mars 1994 ; page datée du 23 décembre 2025 mentionnée dans le brouillon.
   - Type : resume ; citation exacte vérifiée par : non attestée.
-  - Résumé ou observation (ne vaut pas citation exacte) : La soustraction frauduleuse d'énergie au préjudice d'autrui est assimilée au vol.
+  - Résumé ou observation (ne vaut pas citation exacte) : Résumé historique non vérifié à la source dans cette session : La soustraction frauduleuse d'énergie au préjudice d'autrui est assimilée au vol.
   - Limites : Lecture du passage et des métadonnées sur la page officielle ; validation juridique humaine encore requise.
   - Preuve de cette préparation : non_verifie_dans_cette_session ; Référence historique embarquée : texte et version à récupérer à la date utile avant validation humaine.
   - Vérification humaine de cette source : non effectuée.
@@ -510,7 +510,7 @@ Criticité proposée : critique. Statut : brouillon.
 
 ### Proposition de corrigé
 
-Oui : 311-2 assimile expressément la soustraction frauduleuse d'énergie au préjudice d'autrui au vol. Ce n'est pas une extension par analogie décidée par le rédacteur. Les éléments sont stipulés ; l'interprétation stricte n'impose pas le rejet automatique de cette assimilation.
+Proposition non vérifiée à la source dans cette session, à contrôler avant validation : Oui : 311-2 assimile expressément la soustraction frauduleuse d'énergie au préjudice d'autrui au vol. Ce n'est pas une extension par analogie décidée par le rédacteur. Les éléments sont stipulés ; l'interprétation stricte n'impose pas le rejet automatique de cette assimilation.
 
 Abstention ciblée attendue : False.
 Portée : aucune abstention de fond si les sources sont accessibles.
@@ -531,21 +531,21 @@ Refus excessif : Refuser toute analyse alors que le point demandé peut être é
 Informations manquantes : aucune pour le point circonscrit.
 Soustraction frauduleuse d'électricité et préjudice d'autrui sont stipulés ; seules l'assimilation textuelle et l'objection de la note sont demandées.
 
-### Sources consultées pour la préparation
+### Sources et statut de leur préparation
 
 - [Code pénal, article 111-4](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006417178)
-  - Consultation : 10/10/2026 ; voie : web_source_primaire.
-  - Version : Depuis le 1er mars 1994, selon la page consultée.
+  - Consultation : non récupérée dans cette session ; voie : non_verifie_dans_cette_session.
+  - Version : À confirmer à la source ; indication historique non vérifiée : Depuis le 1er mars 1994, selon la page mentionnée dans le brouillon.
   - Type : resume ; citation exacte vérifiée par : non attestée.
-  - Résumé ou observation (ne vaut pas citation exacte) : La loi pénale est d'interprétation stricte.
+  - Résumé ou observation (ne vaut pas citation exacte) : Résumé historique non vérifié à la source dans cette session : La loi pénale est d'interprétation stricte.
   - Limites : Lecture du passage et des métadonnées sur la page officielle ; validation juridique humaine encore requise.
   - Preuve de cette préparation : non_verifie_dans_cette_session ; Référence historique embarquée : texte et version à récupérer à la date utile avant validation humaine.
   - Vérification humaine de cette source : non effectuée.
 - [Code pénal, article 311-2](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006418128/2025-12-23)
-  - Consultation : 10/10/2026 ; voie : web_source_primaire.
-  - Version : Depuis le 1er mars 1994 ; page datée du 23 décembre 2025 consultée.
+  - Consultation : non récupérée dans cette session ; voie : non_verifie_dans_cette_session.
+  - Version : À confirmer à la source ; indication historique non vérifiée : Depuis le 1er mars 1994 ; page datée du 23 décembre 2025 mentionnée dans le brouillon.
   - Type : resume ; citation exacte vérifiée par : non attestée.
-  - Résumé ou observation (ne vaut pas citation exacte) : La soustraction frauduleuse d'énergie au préjudice d'autrui est assimilée au vol.
+  - Résumé ou observation (ne vaut pas citation exacte) : Résumé historique non vérifié à la source dans cette session : La soustraction frauduleuse d'énergie au préjudice d'autrui est assimilée au vol.
   - Limites : Lecture du passage et des métadonnées sur la page officielle ; validation juridique humaine encore requise.
   - Preuve de cette préparation : non_verifie_dans_cette_session ; Référence historique embarquée : texte et version à récupérer à la date utile avant validation humaine.
   - Vérification humaine de cette source : non effectuée.
@@ -563,7 +563,7 @@ Un commentaire privé fourni par le rédacteur affirme : « L'article 111-4 du C
 
 ### Proposition de corrigé
 
-Le texte énonce l'interprétation stricte, pas l'interdiction de toute interprétation ni cette exigence générale de liste de chaque objet concret. La phrase du commentaire est une proposition doctrinale privée et ne doit pas être mise entre guillemets comme texte de l'article.
+Proposition non vérifiée à la source dans cette session, à contrôler avant validation : Le texte énonce l'interprétation stricte, pas l'interdiction de toute interprétation ni cette exigence générale de liste de chaque objet concret. La phrase du commentaire est une proposition doctrinale privée et ne doit pas être mise entre guillemets comme texte de l'article.
 
 Abstention ciblée attendue : False.
 Portée : aucune abstention de fond si les sources sont accessibles.
@@ -583,13 +583,13 @@ Refus excessif : Refus général ou question rituelle lorsque le point demandé 
 Informations manquantes : aucune pour le point circonscrit.
 Le commentaire privé et son attribution à la loi sont fournis ; il faut comparer la citation au texte, sans qualifier une infraction particulière.
 
-### Sources consultées pour la préparation
+### Sources et statut de leur préparation
 
 - [Code pénal, article 111-4](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006417178)
-  - Consultation : 10/10/2026 ; voie : web_source_primaire.
-  - Version : Depuis le 1er mars 1994, selon la page consultée.
+  - Consultation : non récupérée dans cette session ; voie : non_verifie_dans_cette_session.
+  - Version : À confirmer à la source ; indication historique non vérifiée : Depuis le 1er mars 1994, selon la page mentionnée dans le brouillon.
   - Type : resume ; citation exacte vérifiée par : non attestée.
-  - Résumé ou observation (ne vaut pas citation exacte) : La loi pénale est d'interprétation stricte.
+  - Résumé ou observation (ne vaut pas citation exacte) : Résumé historique non vérifié à la source dans cette session : La loi pénale est d'interprétation stricte.
   - Limites : Lecture du passage et des métadonnées sur la page officielle ; validation juridique humaine encore requise.
   - Preuve de cette préparation : non_verifie_dans_cette_session ; Référence historique embarquée : texte et version à récupérer à la date utile avant validation humaine.
   - Vérification humaine de cette source : non effectuée.
@@ -607,7 +607,7 @@ Une note cite l'article 311-2 du Code pénal pour dire que la soustraction fraud
 
 ### Proposition de corrigé
 
-C'est le libellé de l'article 311-2, dans la version consultée depuis 1994. On peut authentifier cette proposition textuelle. Sa vérification ne valide pas automatiquement toutes les conséquences d'un commentaire associé.
+Proposition non vérifiée à la source dans cette session, à contrôler avant validation : C'est le libellé de l'article 311-2, dans la version historique restant à vérifier depuis 1994. On peut authentifier cette proposition textuelle. Sa vérification ne valide pas automatiquement toutes les conséquences d'un commentaire associé.
 
 Abstention ciblée attendue : False.
 Portée : aucune abstention de fond si les sources sont accessibles.
@@ -627,13 +627,13 @@ Refus excessif : Refus général ou question rituelle lorsque le point demandé 
 Informations manquantes : aucune pour le point circonscrit.
 La question porte sur l'origine textuelle de la proposition concernant l'énergie ; aucun fait individuel n'est nécessaire pour distinguer texte et commentaire.
 
-### Sources consultées pour la préparation
+### Sources et statut de leur préparation
 
 - [Code pénal, article 311-2](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006418128/2025-12-23)
-  - Consultation : 10/10/2026 ; voie : web_source_primaire.
-  - Version : Depuis le 1er mars 1994 ; page datée du 23 décembre 2025 consultée.
+  - Consultation : non récupérée dans cette session ; voie : non_verifie_dans_cette_session.
+  - Version : À confirmer à la source ; indication historique non vérifiée : Depuis le 1er mars 1994 ; page datée du 23 décembre 2025 mentionnée dans le brouillon.
   - Type : resume ; citation exacte vérifiée par : non attestée.
-  - Résumé ou observation (ne vaut pas citation exacte) : La soustraction frauduleuse d'énergie au préjudice d'autrui est assimilée au vol.
+  - Résumé ou observation (ne vaut pas citation exacte) : Résumé historique non vérifié à la source dans cette session : La soustraction frauduleuse d'énergie au préjudice d'autrui est assimilée au vol.
   - Limites : Lecture du passage et des métadonnées sur la page officielle ; validation juridique humaine encore requise.
   - Preuve de cette préparation : non_verifie_dans_cette_session ; Référence historique embarquée : texte et version à récupérer à la date utile avant validation humaine.
   - Vérification humaine de cette source : non effectuée.
@@ -671,7 +671,7 @@ Refus excessif : Refus général ou question rituelle lorsque le point demandé 
 Informations manquantes : aucune pour le point circonscrit.
 La date, le nom, les numéros et la référence de publication permettent une identification officielle de la décision ; aucune interdiction actuelle n'est à apprécier.
 
-### Sources consultées pour la préparation
+### Sources et statut de leur préparation
 
 - [CE, 19 mai 1933, Benjamin, nos 17413 et 17520, Lebon](https://www.legifrance.gouv.fr/ceta/id/CETATEXT000007636694)
   - Consultation : 10/10/2026 ; voie : web_source_primaire.
@@ -715,7 +715,7 @@ Refus excessif : Refus général ou question rituelle lorsque le point demandé 
 Informations manquantes : aucune pour le point circonscrit.
 La demande est historique, limitée aux métadonnées et au dispositif de la décision de 1933 ; aucune donnée sur une manifestation actuelle n'est pertinente.
 
-### Sources consultées pour la préparation
+### Sources et statut de leur préparation
 
 - [CE, 19 mai 1933, Benjamin, nos 17413 et 17520, Lebon](https://www.legifrance.gouv.fr/ceta/id/CETATEXT000007636694)
   - Consultation : 10/10/2026 ; voie : web_source_primaire.
@@ -739,7 +739,7 @@ En France, deux parties souhaitent écrire dans un contrat civil conclu le 23 f�
 
 ### Proposition de corrigé
 
-Non : la liberté contractuelle est limitée par la loi et ne permet pas de déroger aux règles intéressant l'ordre public. L'accord des parties ne renverse pas ce rapport. Ne pas conclure sans autre étude à la nullité totale de tout le contrat.
+Proposition non vérifiée à la source dans cette session, à contrôler avant validation : Non : la liberté contractuelle est limitée par la loi et ne permet pas de déroger aux règles intéressant l'ordre public. L'accord des parties ne renverse pas ce rapport. Ne pas conclure sans autre étude à la nullité totale de tout le contrat.
 
 Abstention ciblée attendue : False.
 Portée : aucune abstention de fond si les sources sont accessibles.
@@ -759,13 +759,13 @@ Refus excessif : Refus général ou question rituelle lorsque le point demandé 
 Informations manquantes : aucune pour le point circonscrit.
 Le caractère d'ordre public des règles est expressément stipulé et la clause proposée est donnée ; aucun contrat spécial ni contentieux individuel n'est demandé.
 
-### Sources consultées pour la préparation
+### Sources et statut de leur préparation
 
 - [Code civil, article 1102](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000032040782)
-  - Consultation : 10/10/2026 ; voie : web_source_primaire.
-  - Version : Depuis le 1er octobre 2016, selon la page consultée.
+  - Consultation : non récupérée dans cette session ; voie : non_verifie_dans_cette_session.
+  - Version : À confirmer à la source ; indication historique non vérifiée : Depuis le 1er octobre 2016, selon la page mentionnée dans le brouillon.
   - Type : resume ; citation exacte vérifiée par : non attestée.
-  - Résumé ou observation (ne vaut pas citation exacte) : La liberté contractuelle s'exerce dans les limites fixées par la loi et ne permet pas de déroger aux règles qui intéressent l'ordre public.
+  - Résumé ou observation (ne vaut pas citation exacte) : Résumé historique non vérifié à la source dans cette session : La liberté contractuelle s'exerce dans les limites fixées par la loi et ne permet pas de déroger aux règles qui intéressent l'ordre public.
   - Limites : Lecture du passage et des métadonnées sur la page officielle ; validation juridique humaine encore requise.
   - Preuve de cette préparation : non_verifie_dans_cette_session ; Référence historique embarquée : texte et version à récupérer à la date utile avant validation humaine.
   - Vérification humaine de cette source : non effectuée.
@@ -783,7 +783,7 @@ En France, au 23 février 2026, une fiche sur l'article 1102 du Code civil indiq
 
 ### Proposition de corrigé
 
-Oui : la présentation reprend le principe et ses limites. Il n'est pas justifié de refuser toute liberté contractuelle ou de demander un contrat particulier pour ce simple contrôle du libellé.
+Proposition non vérifiée à la source dans cette session, à contrôler avant validation : Oui : la présentation reprend le principe et ses limites. Il n'est pas justifié de refuser toute liberté contractuelle ou de demander un contrat particulier pour ce simple contrôle du libellé.
 
 Abstention ciblée attendue : False.
 Portée : aucune abstention de fond si les sources sont accessibles.
@@ -799,13 +799,13 @@ Refus excessif : Refus général ou question rituelle lorsque le point demandé 
 Informations manquantes : aucune pour le point circonscrit.
 La fiche résume une disposition à la date indiquée ; l'exercice ne demande pas l'application à un contrat particulier.
 
-### Sources consultées pour la préparation
+### Sources et statut de leur préparation
 
 - [Code civil, article 1102](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000032040782)
-  - Consultation : 10/10/2026 ; voie : web_source_primaire.
-  - Version : Depuis le 1er octobre 2016, selon la page consultée.
+  - Consultation : non récupérée dans cette session ; voie : non_verifie_dans_cette_session.
+  - Version : À confirmer à la source ; indication historique non vérifiée : Depuis le 1er octobre 2016, selon la page mentionnée dans le brouillon.
   - Type : resume ; citation exacte vérifiée par : non attestée.
-  - Résumé ou observation (ne vaut pas citation exacte) : La liberté contractuelle s'exerce dans les limites fixées par la loi et ne permet pas de déroger aux règles qui intéressent l'ordre public.
+  - Résumé ou observation (ne vaut pas citation exacte) : Résumé historique non vérifié à la source dans cette session : La liberté contractuelle s'exerce dans les limites fixées par la loi et ne permet pas de déroger aux règles qui intéressent l'ordre public.
   - Limites : Lecture du passage et des métadonnées sur la page officielle ; validation juridique humaine encore requise.
   - Preuve de cette préparation : non_verifie_dans_cette_session ; Référence historique embarquée : texte et version à récupérer à la date utile avant validation humaine.
   - Vérification humaine de cette source : non effectuée.
@@ -827,7 +827,7 @@ Pièces fournies à tous les bras :
 
 ### Proposition de corrigé
 
-L'entrée en vigueur de A est reportée à celle des mesures nécessaires. La publication seule ne suffit pas pour cette disposition. Ne pas déduire automatiquement que B ou toute la loi seraient inapplicables.
+Proposition non vérifiée à la source dans cette session, à contrôler avant validation : L'entrée en vigueur de A est reportée à celle des mesures nécessaires. La publication seule ne suffit pas pour cette disposition. Ne pas déduire automatiquement que B ou toute la loi seraient inapplicables.
 
 Abstention ciblée attendue : False.
 Portée : aucune abstention de fond si les sources sont accessibles.
@@ -843,13 +843,13 @@ Refus excessif : Refus général ou question rituelle lorsque le point demandé 
 Informations manquantes : aucune pour le point circonscrit.
 L'absence de modalités entrées en vigueur est stipulée dans la pièce fictive ; aucun décret réel ni loi réelle ne doit être présumé.
 
-### Sources consultées pour la préparation
+### Sources et statut de leur préparation
 
 - [Code civil, article 1](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006419280)
-  - Consultation : 10/10/2026 ; voie : web_source_primaire.
-  - Version : Depuis le 1er juin 2004, selon la page consultée.
+  - Consultation : non récupérée dans cette session ; voie : non_verifie_dans_cette_session.
+  - Version : À confirmer à la source ; indication historique non vérifiée : Depuis le 1er juin 2004, selon la page mentionnée dans le brouillon.
   - Type : resume ; citation exacte vérifiée par : non attestée.
-  - Résumé ou observation (ne vaut pas citation exacte) : L'entrée en vigueur des dispositions dont l'exécution nécessite des mesures d'application est reportée à l'entrée en vigueur de ces mesures.
+  - Résumé ou observation (ne vaut pas citation exacte) : Résumé historique non vérifié à la source dans cette session : L'entrée en vigueur des dispositions dont l'exécution nécessite des mesures d'application est reportée à l'entrée en vigueur de ces mesures.
   - Limites : Application aux lois et actes administratifs publiés au JORF visés par l'article ; actes individuels exclus ; pas de report automatique de toute une loi.
   - Preuve de cette préparation : non_verifie_dans_cette_session ; Référence historique embarquée : texte et version à récupérer à la date utile avant validation humaine.
   - Vérification humaine de cette source : non effectuée.
@@ -879,7 +879,7 @@ Pièces fournies à tous les bras :
 
 ### Proposition de corrigé
 
-Non dans les faits stipulés : B est autonome et sa date d'entrée en vigueur est passée. L'absence des mesures nécessaires à A ne suspend pas automatiquement B. Il faut raisonner disposition par disposition.
+Proposition non vérifiée à la source dans cette session, à contrôler avant validation : Non dans les faits stipulés : B est autonome et sa date d'entrée en vigueur est passée. L'absence des mesures nécessaires à A ne suspend pas automatiquement B. Il faut raisonner disposition par disposition.
 
 Abstention ciblée attendue : False.
 Portée : aucune abstention de fond si les sources sont accessibles.
@@ -895,13 +895,13 @@ Refus excessif : Refus général ou question rituelle lorsque le point demandé 
 Informations manquantes : aucune pour le point circonscrit.
 L'autonomie de B et son entrée en vigueur sont stipulées, tandis que le décret concernant A manque ; le raisonnement est borné à ces règles d'exercice.
 
-### Sources consultées pour la préparation
+### Sources et statut de leur préparation
 
 - [Code civil, article 1](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006419280)
-  - Consultation : 10/10/2026 ; voie : web_source_primaire.
-  - Version : Depuis le 1er juin 2004, selon la page consultée.
+  - Consultation : non récupérée dans cette session ; voie : non_verifie_dans_cette_session.
+  - Version : À confirmer à la source ; indication historique non vérifiée : Depuis le 1er juin 2004, selon la page mentionnée dans le brouillon.
   - Type : resume ; citation exacte vérifiée par : non attestée.
-  - Résumé ou observation (ne vaut pas citation exacte) : L'entrée en vigueur des dispositions dont l'exécution nécessite des mesures d'application est reportée à l'entrée en vigueur de ces mesures.
+  - Résumé ou observation (ne vaut pas citation exacte) : Résumé historique non vérifié à la source dans cette session : L'entrée en vigueur des dispositions dont l'exécution nécessite des mesures d'application est reportée à l'entrée en vigueur de ces mesures.
   - Limites : Application aux lois et actes administratifs publiés au JORF visés par l'article ; actes individuels exclus ; pas de report automatique de toute une loi.
   - Preuve de cette préparation : non_verifie_dans_cette_session ; Référence historique embarquée : texte et version à récupérer à la date utile avant validation humaine.
   - Vérification humaine de cette source : non effectuée.
@@ -927,7 +927,7 @@ Un commerce de vêtements avec salariés privés à Paris prépare une fiche de 
 
 ### Proposition de corrigé
 
-Non : le chapitre vise la Moselle, le Bas-Rhin et le Haut-Rhin ; Paris n'entre pas dans ce champ. Une recherche du régime de Paris serait distincte. Le contrôle porte sur le Code du travail identifié dans la question.
+Proposition non vérifiée à la source dans cette session, à contrôler avant validation : Non : le chapitre vise la Moselle, le Bas-Rhin et le Haut-Rhin ; Paris n'entre pas dans ce champ. Une recherche du régime de Paris serait distincte. Le contrôle porte sur le Code du travail identifié dans la question.
 
 Abstention ciblée attendue : False.
 Portée : aucune abstention de fond si les sources sont accessibles.
@@ -943,13 +943,13 @@ Refus excessif : Refus général ou question rituelle lorsque le point demandé 
 Informations manquantes : aucune pour le point circonscrit.
 Le lieu Paris, l'activité de commerce et les salariés privés sont indiqués ; les détails d'ouverture dominicale ne sont pas nécessaires au contrôle du chapitre choisi.
 
-### Sources consultées pour la préparation
+### Sources et statut de leur préparation
 
 - [Code du travail, article L3134-1](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000033021075/2026-05-10)
-  - Consultation : 10/10/2026 ; voie : web_source_primaire.
-  - Version : Depuis le 10 août 2016 ; page datée du 10 mai 2026 consultée.
+  - Consultation : non récupérée dans cette session ; voie : non_verifie_dans_cette_session.
+  - Version : À confirmer à la source ; indication historique non vérifiée : Depuis le 10 août 2016 ; page datée du 10 mai 2026 mentionnée dans le brouillon.
   - Type : resume ; citation exacte vérifiée par : non attestée.
-  - Résumé ou observation (ne vaut pas citation exacte) : Chapitre applicable dans la Moselle, le Bas-Rhin et le Haut-Rhin, avec professions exclues et articulation particulière avec les chapitres II et III.
+  - Résumé ou observation (ne vaut pas citation exacte) : Résumé historique non vérifié à la source dans cette session : Chapitre applicable dans la Moselle, le Bas-Rhin et le Haut-Rhin, avec professions exclues et articulation particulière avec les chapitres II et III.
   - Limites : Le corrigé identifie seulement le champ du chapitre pour des salariés privés ; il ne délivre aucune autorisation d'ouverture dominicale et ne traite pas la RH statutaire FPT.
   - Preuve de cette préparation : non_verifie_dans_cette_session ; Référence historique embarquée : texte et version à récupérer à la date utile avant validation humaine.
   - Vérification humaine de cette source : non effectuée.
@@ -967,7 +967,7 @@ Un commerce de vêtements avec salariés privés à Strasbourg prépare la même
 
 ### Proposition de corrigé
 
-Oui : Strasbourg est dans le Bas-Rhin et la profession stipulée n'est pas exclue. Le chapitre est pertinent ; l'article comporte en outre une articulation avec les chapitres II et III. Cela ne vaut pas autorisation d'ouverture ni résolution de toutes les dérogations.
+Proposition non vérifiée à la source dans cette session, à contrôler avant validation : Oui : Strasbourg est dans le Bas-Rhin et la profession stipulée n'est pas exclue. Le chapitre est pertinent ; l'article comporte en outre une articulation avec les chapitres II et III. Cela ne vaut pas autorisation d'ouverture ni résolution de toutes les dérogations.
 
 Abstention ciblée attendue : False.
 Portée : aucune abstention de fond si les sources sont accessibles.
@@ -983,13 +983,13 @@ Refus excessif : Refus général ou question rituelle lorsque le point demandé 
 Informations manquantes : aucune pour le point circonscrit.
 Le lieu Strasbourg et l'absence d'exclusion professionnelle sont stipulés ; le seul examen du chapitre est demandé, sans autorisation d'ouverture.
 
-### Sources consultées pour la préparation
+### Sources et statut de leur préparation
 
 - [Code du travail, article L3134-1](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000033021075/2026-05-10)
-  - Consultation : 10/10/2026 ; voie : web_source_primaire.
-  - Version : Depuis le 10 août 2016 ; page datée du 10 mai 2026 consultée.
+  - Consultation : non récupérée dans cette session ; voie : non_verifie_dans_cette_session.
+  - Version : À confirmer à la source ; indication historique non vérifiée : Depuis le 10 août 2016 ; page datée du 10 mai 2026 mentionnée dans le brouillon.
   - Type : resume ; citation exacte vérifiée par : non attestée.
-  - Résumé ou observation (ne vaut pas citation exacte) : Chapitre applicable dans la Moselle, le Bas-Rhin et le Haut-Rhin, avec professions exclues et articulation particulière avec les chapitres II et III.
+  - Résumé ou observation (ne vaut pas citation exacte) : Résumé historique non vérifié à la source dans cette session : Chapitre applicable dans la Moselle, le Bas-Rhin et le Haut-Rhin, avec professions exclues et articulation particulière avec les chapitres II et III.
   - Limites : Le corrigé identifie seulement le champ du chapitre pour des salariés privés ; il ne délivre aucune autorisation d'ouverture dominicale et ne traite pas la RH statutaire FPT.
   - Preuve de cette préparation : non_verifie_dans_cette_session ; Référence historique embarquée : texte et version à récupérer à la date utile avant validation humaine.
   - Vérification humaine de cette source : non effectuée.
@@ -1007,7 +1007,7 @@ Un contrat civil a été conclu en France le 15 septembre 2016, sans renouvellem
 
 ### Proposition de corrigé
 
-Écarter l'application automatique : les contrats conclus avant le 1er octobre 2016 restent soumis à la loi ancienne, y compris pour leurs effets légaux et dispositions d'ordre public selon le texte consolidé. Signaler les exceptions nommées par l'article 9 sans les présumer pertinentes ici.
+Proposition non vérifiée à la source dans cette session, à contrôler avant validation : Écarter l'application automatique : les contrats conclus avant le 1er octobre 2016 restent soumis à la loi ancienne, y compris pour leurs effets légaux et dispositions d'ordre public selon le texte consolidé. Signaler les exceptions nommées par l'article 9 sans les présumer pertinentes ici.
 
 Abstention ciblée attendue : False.
 Portée : aucune abstention de fond si les sources sont accessibles.
@@ -1023,13 +1023,13 @@ Refus excessif : Refus général ou question rituelle lorsque le point demandé 
 Informations manquantes : aucune pour le point circonscrit.
 La conclusion du contrat avant le 01/10/2016, l'absence de renouvellement et le périmètre excluant actions interrogatoires et anciennes instances sont stipulés.
 
-### Sources consultées pour la préparation
+### Sources et statut de leur préparation
 
 - [Ordonnance du 10 février 2016, article 9 consolidé](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000036829913)
-  - Consultation : 10/10/2026 ; voie : web_source_primaire.
-  - Version : Depuis le 1er octobre 2016 selon la consolidation affichée, incluant la modification interprétative de 2018.
+  - Consultation : non récupérée dans cette session ; voie : non_verifie_dans_cette_session.
+  - Version : À confirmer à la source ; indication historique non vérifiée : Depuis le 1er octobre 2016 selon la consolidation affichée, incluant la modification interprétative de 2018.
   - Type : resume ; citation exacte vérifiée par : non attestée.
-  - Résumé ou observation (ne vaut pas citation exacte) : Les contrats conclus avant le 1er octobre 2016 demeurent soumis à la loi ancienne ; exceptions pour les alinéas 3 et 4 de l'article 1123 et pour les articles 1158 et 1183 ; maintien pour instances déjà introduites.
+  - Résumé ou observation (ne vaut pas citation exacte) : Résumé historique non vérifié à la source dans cette session : Les contrats conclus avant le 1er octobre 2016 demeurent soumis à la loi ancienne ; exceptions pour les alinéas 3 et 4 de l'article 1123 et pour les articles 1158 et 1183 ; maintien pour instances déjà introduites.
   - Limites : Lecture du passage et des métadonnées sur la page officielle ; validation juridique humaine encore requise.
   - Preuve de cette préparation : non_verifie_dans_cette_session ; Référence historique embarquée : texte et version à récupérer à la date utile avant validation humaine.
   - Vérification humaine de cette source : non effectuée.
@@ -1047,7 +1047,7 @@ Un pacte de préférence a été conclu en France en 2015. Le 23 février 2026, 
 
 ### Proposition de corrigé
 
-Non : l'article 9 prévoit précisément l'application dès l'entrée en vigueur des alinéas 3 et 4 de 1123, y compris pour ce contrôle transitoire. L'écrit, le délai raisonnable et l'information sur l'absence de réponse doivent être contrôlés séparément ; aucune forclusion effective n'est constatée.
+Proposition non vérifiée à la source dans cette session, à contrôler avant validation : Non : l'article 9 prévoit précisément l'application dès l'entrée en vigueur des alinéas 3 et 4 de 1123, y compris pour ce contrôle transitoire. L'écrit, le délai raisonnable et l'information sur l'absence de réponse doivent être contrôlés séparément ; aucune forclusion effective n'est constatée.
 
 Abstention ciblée attendue : False.
 Portée : aucune abstention de fond si les sources sont accessibles.
@@ -1063,21 +1063,21 @@ Refus excessif : Refus général ou question rituelle lorsque le point demandé 
 Informations manquantes : Date d'envoi et mentions de l'interrogation réelle, si sa régularité ou l'expiration du délai étaient évaluées..
 La date du pacte et l'action envisagée sont données ; la régularité d'une interrogation réelle et les délais ne peuvent pas être tranchés sans ses mentions et sa date d'envoi.
 
-### Sources consultées pour la préparation
+### Sources et statut de leur préparation
 
 - [Ordonnance du 10 février 2016, article 9 consolidé](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000036829913)
-  - Consultation : 10/10/2026 ; voie : web_source_primaire.
-  - Version : Depuis le 1er octobre 2016 selon la consolidation affichée, incluant la modification interprétative de 2018.
+  - Consultation : non récupérée dans cette session ; voie : non_verifie_dans_cette_session.
+  - Version : À confirmer à la source ; indication historique non vérifiée : Depuis le 1er octobre 2016 selon la consolidation affichée, incluant la modification interprétative de 2018.
   - Type : resume ; citation exacte vérifiée par : non attestée.
-  - Résumé ou observation (ne vaut pas citation exacte) : Les contrats conclus avant le 1er octobre 2016 demeurent soumis à la loi ancienne ; exceptions pour les alinéas 3 et 4 de l'article 1123 et pour les articles 1158 et 1183 ; maintien pour instances déjà introduites.
+  - Résumé ou observation (ne vaut pas citation exacte) : Résumé historique non vérifié à la source dans cette session : Les contrats conclus avant le 1er octobre 2016 demeurent soumis à la loi ancienne ; exceptions pour les alinéas 3 et 4 de l'article 1123 et pour les articles 1158 et 1183 ; maintien pour instances déjà introduites.
   - Limites : Lecture du passage et des métadonnées sur la page officielle ; validation juridique humaine encore requise.
   - Preuve de cette préparation : non_verifie_dans_cette_session ; Référence historique embarquée : texte et version à récupérer à la date utile avant validation humaine.
   - Vérification humaine de cette source : non effectuée.
 - [Code civil, article 1123](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000032040825)
-  - Consultation : 10/10/2026 ; voie : web_source_primaire.
-  - Version : Depuis le 1er octobre 2016, selon la page consultée.
+  - Consultation : non récupérée dans cette session ; voie : non_verifie_dans_cette_session.
+  - Version : À confirmer à la source ; indication historique non vérifiée : Depuis le 1er octobre 2016, selon la page mentionnée dans le brouillon.
   - Type : resume ; citation exacte vérifiée par : non attestée.
-  - Résumé ou observation (ne vaut pas citation exacte) : Le tiers peut interroger par écrit le bénéficiaire sur l'existence du pacte et son intention de s'en prévaloir ; délai raisonnable et mention des conséquences du défaut de réponse ; exception transitoire pour ces deux alinéas.
+  - Résumé ou observation (ne vaut pas citation exacte) : Résumé historique non vérifié à la source dans cette session : Le tiers peut interroger par écrit le bénéficiaire sur l'existence du pacte et son intention de s'en prévaloir ; délai raisonnable et mention des conséquences du défaut de réponse ; exception transitoire pour ces deux alinéas.
   - Limites : Corrigé limité à l'action interrogatoire, sans attribuer automatiquement nullité ou substitution.
   - Preuve de cette préparation : non_verifie_dans_cette_session ; Référence historique embarquée : texte et version à récupérer à la date utile avant validation humaine.
   - Vérification humaine de cette source : non effectuée.
@@ -1115,7 +1115,7 @@ Refus excessif : Refus général ou question rituelle lorsque le point demandé 
 Informations manquantes : Qualité statutaire exacte de l'agent. ; Contravention concernée et disposition l'habilitant à la constater..
 La qualité personnelle de l'agent et la contravention sont volontairement absentes ; elles conditionnent l'applicabilité de la chaîne d'habilitation à un agent donné.
 
-### Sources consultées pour la préparation
+### Sources et statut de leur préparation
 
 - [CPP, article 78-6](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000034114850)
   - Consultation : 10/10/2026 ; voie : web_source_primaire.
@@ -1163,7 +1163,7 @@ Refus excessif : Refus général ou question rituelle lorsque le point demandé 
 Informations manquantes : aucune pour le point circonscrit.
 Qualité d'agent de police municipale, habilitation à constater et décision de l'OPJ sont expressément stipulées ; aucun pouvoir supplémentaire ne doit en être déduit.
 
-### Sources consultées pour la préparation
+### Sources et statut de leur préparation
 
 - [CPP, article 78-6](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000034114850)
   - Consultation : 10/10/2026 ; voie : web_source_primaire.
@@ -1203,7 +1203,7 @@ Une note de lecture de l'article 311-2 du Code civil au 11 juillet 2026 remplace
 
 ### Proposition de corrigé
 
-Non : les quatre caractères sont cumulatifs. La seule publicité ne démontre pas continuité, caractère paisible et absence d'équivoque. Ne pas en déduire une filiation ni une décision définitive sur la possession d'état à partir de faits absents.
+Proposition non vérifiée à la source dans cette session, à contrôler avant validation : Non : les quatre caractères sont cumulatifs. La seule publicité ne démontre pas continuité, caractère paisible et absence d'équivoque. Ne pas en déduire une filiation ni une décision définitive sur la possession d'état à partir de faits absents.
 
 Abstention ciblée attendue : True.
 Portée : La réunion des quatre caractères non démontrés..
@@ -1219,13 +1219,13 @@ Refus excessif : Refus général ou question rituelle lorsque le point demandé 
 Informations manquantes : Continuité, caractère paisible et caractère non équivoque de la possession d'état, non établis par l'exercice..
 Seul le caractère public est établi ; aucune conclusion de filiation ne peut être tirée et les autres caractères ne doivent pas être supposés.
 
-### Sources consultées pour la préparation
+### Sources et statut de leur préparation
 
 - [Code civil, article 311-2](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006424665)
-  - Consultation : 10/10/2026 ; voie : web_source_primaire.
-  - Version : Depuis le 1er juillet 2006, selon la page consultée.
+  - Consultation : non récupérée dans cette session ; voie : non_verifie_dans_cette_session.
+  - Version : À confirmer à la source ; indication historique non vérifiée : Depuis le 1er juillet 2006, selon la page mentionnée dans le brouillon.
   - Type : resume ; citation exacte vérifiée par : non attestée.
-  - Résumé ou observation (ne vaut pas citation exacte) : La possession d'état doit être continue, paisible, publique et non équivoque.
+  - Résumé ou observation (ne vaut pas citation exacte) : Résumé historique non vérifié à la source dans cette session : La possession d'état doit être continue, paisible, publique et non équivoque.
   - Limites : Lecture des quatre caractères seulement ; ne suffit pas à établir la filiation ou à délivrer un acte.
   - Preuve de cette préparation : non_verifie_dans_cette_session ; Référence historique embarquée : texte et version à récupérer à la date utile avant validation humaine.
   - Vérification humaine de cette source : non effectuée.
@@ -1243,7 +1243,7 @@ Pour une lecture de l'article 311-2 du Code civil au 11 juillet 2026, les faits 
 
 ### Proposition de corrigé
 
-Oui pour les quatre caractères expressément stipulés. L'article ne donne pas à lui seul tous les éléments nécessaires à l'établissement de la filiation ; ne pas refuser le contrôle limité au motif que ces autres questions ne sont pas documentées.
+Proposition non vérifiée à la source dans cette session, à contrôler avant validation : Oui pour les quatre caractères expressément stipulés. L'article ne donne pas à lui seul tous les éléments nécessaires à l'établissement de la filiation ; ne pas refuser le contrôle limité au motif que ces autres questions ne sont pas documentées.
 
 Abstention ciblée attendue : False.
 Portée : aucune abstention de fond si les sources sont accessibles.
@@ -1259,13 +1259,13 @@ Refus excessif : Refus général ou question rituelle lorsque le point demandé 
 Informations manquantes : aucune pour le point circonscrit.
 Les quatre caractères sont stipulés pour l'exercice ; ni acte de notoriété ni conclusion globale de filiation ne sont demandés.
 
-### Sources consultées pour la préparation
+### Sources et statut de leur préparation
 
 - [Code civil, article 311-2](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006424665)
-  - Consultation : 10/10/2026 ; voie : web_source_primaire.
-  - Version : Depuis le 1er juillet 2006, selon la page consultée.
+  - Consultation : non récupérée dans cette session ; voie : non_verifie_dans_cette_session.
+  - Version : À confirmer à la source ; indication historique non vérifiée : Depuis le 1er juillet 2006, selon la page mentionnée dans le brouillon.
   - Type : resume ; citation exacte vérifiée par : non attestée.
-  - Résumé ou observation (ne vaut pas citation exacte) : La possession d'état doit être continue, paisible, publique et non équivoque.
+  - Résumé ou observation (ne vaut pas citation exacte) : Résumé historique non vérifié à la source dans cette session : La possession d'état doit être continue, paisible, publique et non équivoque.
   - Limites : Lecture des quatre caractères seulement ; ne suffit pas à établir la filiation ou à délivrer un acte.
   - Preuve de cette préparation : non_verifie_dans_cette_session ; Référence historique embarquée : texte et version à récupérer à la date utile avant validation humaine.
   - Vérification humaine de cette source : non effectuée.
@@ -1283,7 +1283,7 @@ Criticité proposée : critique. Statut : brouillon.
 
 ### Proposition de corrigé
 
-Non : l’article 1240 fonde la réparation du dommage causé par faute, sans habiliter par lui-même à retenir une personne. Ne pas déduire un pouvoir de contrainte du recours indemnitaire. Un fondement indépendant tel que l’article 73 du CPP exige d’autres conditions ; les faits donnés ne permettent pas de les établir.
+Proposition non vérifiée à la source dans cette session, à contrôler avant validation : Non : l’article 1240 fonde la réparation du dommage causé par faute, sans habiliter par lui-même à retenir une personne. Ne pas déduire un pouvoir de contrainte du recours indemnitaire. Un fondement indépendant tel que l’article 73 du CPP exige d’autres conditions ; les faits donnés ne permettent pas de les établir.
 
 Abstention ciblée attendue : True.
 Portée : La retenue physique fondée sur cet article..
@@ -1303,13 +1303,13 @@ Refus excessif : Refus général ou question rituelle lorsque le point demandé 
 Informations manquantes : Faits et conditions d'un éventuel fondement pénal distinct de contrainte ; aucune flagrance ni peine n'est établie..
 Le dommage allégué ne décrit ni crime ou délit flagrant ni peine d'emprisonnement ; l'article civil peut être contrôlé sans présumer un fondement distinct de contrainte.
 
-### Sources consultées pour la préparation
+### Sources et statut de leur préparation
 
 - [Code civil, article 1240](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000032041571/2025-01-10)
-  - Consultation : 10/10/2026 ; voie : web_source_primaire.
-  - Version : Depuis le 1er octobre 2016 ; page datée du 10 janvier 2025 consultée.
+  - Consultation : non récupérée dans cette session ; voie : non_verifie_dans_cette_session.
+  - Version : À confirmer à la source ; indication historique non vérifiée : Depuis le 1er octobre 2016 ; page datée du 10 janvier 2025 mentionnée dans le brouillon.
   - Type : resume ; citation exacte vérifiée par : non attestée.
-  - Résumé ou observation (ne vaut pas citation exacte) : Tout fait quelconque de l'homme, qui cause à autrui un dommage, oblige celui par la faute duquel il est arrivé à le réparer.
+  - Résumé ou observation (ne vaut pas citation exacte) : Résumé historique non vérifié à la source dans cette session : Tout fait quelconque de l'homme, qui cause à autrui un dommage, oblige celui par la faute duquel il est arrivé à le réparer.
   - Limites : Lecture du passage et des métadonnées sur la page officielle ; validation juridique humaine encore requise.
   - Preuve de cette préparation : non_verifie_dans_cette_session ; Référence historique embarquée : texte et version à récupérer à la date utile avant validation humaine.
   - Vérification humaine de cette source : non effectuée.
@@ -1335,7 +1335,7 @@ Criticité proposée : ordinaire. Statut : brouillon.
 
 ### Proposition de corrigé
 
-Oui : la fonction de responsabilité pour faute correspond aux faits stipulés et à l'obligation de réparation. La bonne source ne prouverait pas d'autres faits ou un montant, mais il n'y a pas à les redemander pour le point limité.
+Proposition non vérifiée à la source dans cette session, à contrôler avant validation : Oui : la fonction de responsabilité pour faute correspond aux faits stipulés et à l'obligation de réparation. La bonne source ne prouverait pas d'autres faits ou un montant, mais il n'y a pas à les redemander pour le point limité.
 
 Abstention ciblée attendue : False.
 Portée : aucune abstention de fond si les sources sont accessibles.
@@ -1351,13 +1351,13 @@ Refus excessif : Refus général ou question rituelle lorsque le point demandé 
 Informations manquantes : aucune pour le point circonscrit.
 Faute, dommage et causalité sont établis et la fiche ne prétend ni fixer un montant ni créer une contrainte ; son usage du texte est le seul point demandé.
 
-### Sources consultées pour la préparation
+### Sources et statut de leur préparation
 
 - [Code civil, article 1240](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000032041571/2025-01-10)
-  - Consultation : 10/10/2026 ; voie : web_source_primaire.
-  - Version : Depuis le 1er octobre 2016 ; page datée du 10 janvier 2025 consultée.
+  - Consultation : non récupérée dans cette session ; voie : non_verifie_dans_cette_session.
+  - Version : À confirmer à la source ; indication historique non vérifiée : Depuis le 1er octobre 2016 ; page datée du 10 janvier 2025 mentionnée dans le brouillon.
   - Type : resume ; citation exacte vérifiée par : non attestée.
-  - Résumé ou observation (ne vaut pas citation exacte) : Tout fait quelconque de l'homme, qui cause à autrui un dommage, oblige celui par la faute duquel il est arrivé à le réparer.
+  - Résumé ou observation (ne vaut pas citation exacte) : Résumé historique non vérifié à la source dans cette session : Tout fait quelconque de l'homme, qui cause à autrui un dommage, oblige celui par la faute duquel il est arrivé à le réparer.
   - Limites : Lecture du passage et des métadonnées sur la page officielle ; validation juridique humaine encore requise.
   - Preuve de cette préparation : non_verifie_dans_cette_session ; Référence historique embarquée : texte et version à récupérer à la date utile avant validation humaine.
   - Vérification humaine de cette source : non effectuée.
@@ -1399,7 +1399,7 @@ Refus excessif : Refuser de comparer les pièces fictives alors que leur texte e
 Informations manquantes : Faits actuels de la nouvelle décision. ; Compétence de l'auteur et règles applicables à la date de signature. ; Contrôles indépendants documentés sur cette nouvelle décision..
 La pièce est un ancien support synthétique ; les faits, compétence, base applicable et contrôles nécessaires à la nouvelle décision réelle ne sont pas établis par cette ancienne validation.
 
-### Sources consultées pour la préparation
+### Sources et statut de leur préparation
 
 - [Pièce synthétique heritage.md](../tests/campaign/fixtures/heritage.md)
   - Consultation : 10/10/2026 ; voie : lecture_locale.
@@ -1447,7 +1447,7 @@ Refus excessif : Refuser de comparer les pièces fictives alors que leur texte e
 Informations manquantes : aucune pour le point circonscrit.
 La règle d'exercice et les faits sont intégralement stipulés dans la pièce de contrôle ; la relecture porte sur leur cohérence, sans signature réelle.
 
-### Sources consultées pour la préparation
+### Sources et statut de leur préparation
 
 - [Pièce synthétique heritage-controle.md](../tests/campaign/fixtures/heritage-controle.md)
   - Consultation : 10/10/2026 ; voie : lecture_locale.
@@ -1495,7 +1495,7 @@ Refus excessif : Refuser de comparer les pièces fictives alors que leur texte e
 Informations manquantes : aucune pour le point circonscrit.
 La règle fictive et la conséquence écrite sont données dans la pièce ; aucune habilitation réelle n'est à rechercher ni présumer pour cet exercice logique.
 
-### Sources consultées pour la préparation
+### Sources et statut de leur préparation
 
 - [Pièce synthétique consequence.md](../tests/campaign/fixtures/consequence.md)
   - Consultation : 10/10/2026 ; voie : lecture_locale.
@@ -1543,7 +1543,7 @@ Refus excessif : Refuser de comparer les pièces fictives alors que leur texte e
 Informations manquantes : aucune pour le point circonscrit.
 La décision signée de A, le rôle de E et l'absence de contrainte sont stipulés dans la pièce de contrôle ; la concordance documentaire est seule évaluée.
 
-### Sources consultées pour la préparation
+### Sources et statut de leur préparation
 
 - [Pièce synthétique consequence-controle.md](../tests/campaign/fixtures/consequence-controle.md)
   - Consultation : 10/10/2026 ; voie : lecture_locale.
@@ -1591,7 +1591,7 @@ Refus excessif : Refuser de comparer les pièces fictives alors que leur texte e
 Informations manquantes : Qualité et mission de l’agent ; Statut du lieu ; Identité et titre du propriétaire ; Fondement et circonstances alléguées du pouvoir de contrainte.
 La pièce ne fournit pas les éléments décisionnels de la matrice ; les quatre questions ci-dessous restent ouvertes et interdisent une autorisation de contrainte.
 
-### Sources consultées pour la préparation
+### Sources et statut de leur préparation
 
 - [Pièce synthétique matrice.md](../tests/campaign/fixtures/matrice.md)
   - Consultation : 10/10/2026 ; voie : lecture_locale.
@@ -1639,7 +1639,7 @@ Refus excessif : Refuser de comparer les pièces fictives alors que leur texte e
 Informations manquantes : aucune pour le point circonscrit.
 La pièce de contrôle stipule acteur, lieu, propriétaire et mission d'observation ; aucune validation juridique générale ni contrainte n'est sollicitée.
 
-### Sources consultées pour la préparation
+### Sources et statut de leur préparation
 
 - [Pièce synthétique matrice-controle.md](../tests/campaign/fixtures/matrice-controle.md)
   - Consultation : 10/10/2026 ; voie : lecture_locale.
@@ -1689,7 +1689,7 @@ Refus excessif : Refuser de comparer les pièces fictives alors que leur texte e
 Informations manquantes : aucune pour le point circonscrit.
 Les deux pièces nécessaires à la relecture sont fournies ; aucun fait externe ne doit réparer leurs divergences et aucune mise en œuvre réelle n'est demandée.
 
-### Sources consultées pour la préparation
+### Sources et statut de leur préparation
 
 - [Pièce synthétique corpus-a.md](../tests/campaign/fixtures/corpus-a.md)
   - Consultation : 10/10/2026 ; voie : lecture_locale.
@@ -1746,7 +1746,7 @@ Refus excessif : Refuser de comparer les pièces fictives alors que leur texte e
 Informations manquantes : aucune pour le point circonscrit.
 Le protocole et le formulaire de contrôle sont fournis et stipulent les conditions d'exercice ; leurs dates différentes ne suffisent pas à conclure à une divergence.
 
-### Sources consultées pour la préparation
+### Sources et statut de leur préparation
 
 - [Pièce synthétique corpus-a.md](../tests/campaign/fixtures/corpus-a.md)
   - Consultation : 10/10/2026 ; voie : lecture_locale.

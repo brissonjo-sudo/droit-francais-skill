@@ -2,7 +2,7 @@
   "schema": 1,
   "date_preparation": "2026-10-10",
   "statut": "brouillon_non_mesure",
-  "methode": "Corrigés préparés à partir de pages officielles consultées le 10 octobre 2026 et de pièces synthétiques. Brouillons soumis à revue humaine avant gel ; aucune mesure ni validation humaine acquise.",
+  "methode": "Brouillons historiques soumis à revue humaine. Six références primaires récupérées dans cette session ; les autres sources juridiques restent non vérifiées. Pièces synthétiques distinctes du droit positif. Aucune mesure ni validation humaine acquise.",
   "cases": [
     {
       "id": "M01-a",
@@ -27,10 +27,10 @@
           {
             "url": "https://www.legifrance.gouv.fr/codes/id/LEGISCTA000032021488",
             "titre": "Code civil, chapitre de la responsabilité extracontractuelle en général",
-            "date_consultation": "2026-10-10",
-            "version_applicable": "Page affichant la version au 9 octobre 2026.",
-            "extrait_utile": "Le sommaire et le corps consultés présentent les articles 1240, 1241, 1242, 1243 et 1244, sans article 1240-1.",
-            "mode_consultation": "web_source_primaire",
+            "date_consultation": null,
+            "version_applicable": "À confirmer à la source ; indication historique non vérifiée : Page affichant la version au 9 octobre 2026.",
+            "extrait_utile": "Résumé historique non vérifié à la source dans cette session : Le sommaire et le corps mentionnés dans le brouillon présentent les articles 1240, 1241, 1242, 1243 et 1244, sans article 1240-1.",
+            "mode_consultation": "non_verifie_dans_cette_session",
             "limites": "Constat négatif borné à ce chapitre dans la version affichée au 9 octobre 2026 et à une recherche ciblée sans résultat pertinent ; aucune preuve universelle d'inexistence passée ou future.",
             "type_extrait": "resume",
             "citation_verifiee_par": "",
@@ -45,13 +45,13 @@
             }
           }
         ],
-        "conclusion_attendue": "Ne pas authentifier ni fabriquer l'article 1240-1. Le chapitre consulté ne contient pas cette référence. La proposition ne peut être fondée sur elle. Demander la source du rédacteur ou rechercher un autre fondement sans déclarer que toute responsabilité sans faute serait impossible.",
+        "conclusion_attendue": "Proposition non vérifiée à la source dans cette session, à contrôler avant validation : Ne pas authentifier ni fabriquer l'article 1240-1. Le chapitre doit être récupéré avant de confirmer l'absence de cette référence. La proposition ne peut être fondée sur elle. Demander la source du rédacteur ou rechercher un autre fondement sans déclarer que toute responsabilité sans faute serait impossible.",
         "abstention_attendue": true,
         "criticite": "ordinaire",
         "valide_par": "",
         "date_validation": "",
         "alternatives_admissibles": [
-          "« Référence non retrouvée dans le chapitre consulté » est préférable à une affirmation universelle d'inexistence."
+          "« Référence non retrouvée dans le chapitre restant à vérifier » est préférable à une affirmation universelle d'inexistence."
         ],
         "portee_abstention": "Seulement la citation 1240-1 et la proposition qui en est déduite.",
         "informations_manquantes": [
@@ -85,10 +85,10 @@
           {
             "url": "https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000032041571/2025-01-10",
             "titre": "Code civil, article 1240",
-            "date_consultation": "2026-10-10",
-            "version_applicable": "Depuis le 1er octobre 2016 ; page datée du 10 janvier 2025 consultée.",
-            "extrait_utile": "Tout fait quelconque de l'homme, qui cause à autrui un dommage, oblige celui par la faute duquel il est arrivé à le réparer.",
-            "mode_consultation": "web_source_primaire",
+            "date_consultation": null,
+            "version_applicable": "À confirmer à la source ; indication historique non vérifiée : Depuis le 1er octobre 2016 ; page datée du 10 janvier 2025 mentionnée dans le brouillon.",
+            "extrait_utile": "Résumé historique non vérifié à la source dans cette session : Tout fait quelconque de l'homme, qui cause à autrui un dommage, oblige celui par la faute duquel il est arrivé à le réparer.",
+            "mode_consultation": "non_verifie_dans_cette_session",
             "limites": "Lecture du passage et des métadonnées sur la page officielle ; validation juridique humaine encore requise.",
             "type_extrait": "resume",
             "citation_verifiee_par": "",
@@ -103,7 +103,7 @@
             }
           }
         ],
-        "conclusion_attendue": "Oui : l'article 1240 fonde ici l'obligation de réparer le dommage causé par la faute de A. Ne pas attribuer de montant ni de pouvoir de saisie ou d'exécution forcée à B.",
+        "conclusion_attendue": "Proposition non vérifiée à la source dans cette session, à contrôler avant validation : Oui : l'article 1240 fonde ici l'obligation de réparer le dommage causé par la faute de A. Ne pas attribuer de montant ni de pouvoir de saisie ou d'exécution forcée à B.",
         "abstention_attendue": false,
         "criticite": "ordinaire",
         "valide_par": "",
@@ -261,10 +261,10 @@
           {
             "url": "https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006437044/2014-03-28",
             "titre": "Code civil, ancien article 1240",
-            "date_consultation": "2026-10-10",
-            "version_applicable": "Du 21 mars 1804 au 1er octobre 2016 ; page datée du 28 mars 2014 consultée.",
-            "extrait_utile": "Le paiement fait de bonne foi à celui qui est en possession de la créance est valable, encore que le possesseur en soit par la suite évincé.",
-            "mode_consultation": "web_source_primaire",
+            "date_consultation": null,
+            "version_applicable": "À confirmer à la source ; indication historique non vérifiée : Du 21 mars 1804 au 1er octobre 2016 ; page datée du 28 mars 2014 mentionnée dans le brouillon.",
+            "extrait_utile": "Résumé historique non vérifié à la source dans cette session : Le paiement fait de bonne foi à celui qui est en possession de la créance est valable, encore que le possesseur en soit par la suite évincé.",
+            "mode_consultation": "non_verifie_dans_cette_session",
             "limites": "Lecture du passage et des métadonnées sur la page officielle ; validation juridique humaine encore requise.",
             "type_extrait": "resume",
             "citation_verifiee_par": "",
@@ -281,10 +281,10 @@
           {
             "url": "https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000032041571/2025-01-10",
             "titre": "Code civil, article 1240",
-            "date_consultation": "2026-10-10",
-            "version_applicable": "Depuis le 1er octobre 2016 ; page datée du 10 janvier 2025 consultée.",
-            "extrait_utile": "Tout fait quelconque de l'homme, qui cause à autrui un dommage, oblige celui par la faute duquel il est arrivé à le réparer.",
-            "mode_consultation": "web_source_primaire",
+            "date_consultation": null,
+            "version_applicable": "À confirmer à la source ; indication historique non vérifiée : Depuis le 1er octobre 2016 ; page datée du 10 janvier 2025 mentionnée dans le brouillon.",
+            "extrait_utile": "Résumé historique non vérifié à la source dans cette session : Tout fait quelconque de l'homme, qui cause à autrui un dommage, oblige celui par la faute duquel il est arrivé à le réparer.",
+            "mode_consultation": "non_verifie_dans_cette_session",
             "limites": "Lecture du passage et des métadonnées sur la page officielle ; validation juridique humaine encore requise.",
             "type_extrait": "resume",
             "citation_verifiee_par": "",
@@ -299,7 +299,7 @@
             }
           }
         ],
-        "conclusion_attendue": "À cette date l'article 1240 porte sur la validité du paiement fait de bonne foi au possesseur de la créance. Le contenu sur la responsabilité actuellement associé à ce numéro date du 1er octobre 2016. Ne pas attribuer rétroactivement ce contenu à l'ancien article.",
+        "conclusion_attendue": "Proposition non vérifiée à la source dans cette session, à contrôler avant validation : À cette date l'article 1240 porte sur la validité du paiement fait de bonne foi au possesseur de la créance. Le contenu sur la responsabilité actuellement associé à ce numéro date du 1er octobre 2016. Ne pas attribuer rétroactivement ce contenu à l'ancien article.",
         "abstention_attendue": false,
         "criticite": "ordinaire",
         "valide_par": "",
@@ -337,10 +337,10 @@
           {
             "url": "https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000032041571/2025-01-10",
             "titre": "Code civil, article 1240",
-            "date_consultation": "2026-10-10",
-            "version_applicable": "Depuis le 1er octobre 2016 ; page datée du 10 janvier 2025 consultée.",
-            "extrait_utile": "Tout fait quelconque de l'homme, qui cause à autrui un dommage, oblige celui par la faute duquel il est arrivé à le réparer.",
-            "mode_consultation": "web_source_primaire",
+            "date_consultation": null,
+            "version_applicable": "À confirmer à la source ; indication historique non vérifiée : Depuis le 1er octobre 2016 ; page datée du 10 janvier 2025 mentionnée dans le brouillon.",
+            "extrait_utile": "Résumé historique non vérifié à la source dans cette session : Tout fait quelconque de l'homme, qui cause à autrui un dommage, oblige celui par la faute duquel il est arrivé à le réparer.",
+            "mode_consultation": "non_verifie_dans_cette_session",
             "limites": "Lecture du passage et des métadonnées sur la page officielle ; validation juridique humaine encore requise.",
             "type_extrait": "resume",
             "citation_verifiee_par": "",
@@ -357,10 +357,10 @@
           {
             "url": "https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006437044/2014-03-28",
             "titre": "Code civil, ancien article 1240",
-            "date_consultation": "2026-10-10",
-            "version_applicable": "Du 21 mars 1804 au 1er octobre 2016 ; page datée du 28 mars 2014 consultée.",
-            "extrait_utile": "Le paiement fait de bonne foi à celui qui est en possession de la créance est valable, encore que le possesseur en soit par la suite évincé.",
-            "mode_consultation": "web_source_primaire",
+            "date_consultation": null,
+            "version_applicable": "À confirmer à la source ; indication historique non vérifiée : Du 21 mars 1804 au 1er octobre 2016 ; page datée du 28 mars 2014 mentionnée dans le brouillon.",
+            "extrait_utile": "Résumé historique non vérifié à la source dans cette session : Le paiement fait de bonne foi à celui qui est en possession de la créance est valable, encore que le possesseur en soit par la suite évincé.",
+            "mode_consultation": "non_verifie_dans_cette_session",
             "limites": "Lecture du passage et des métadonnées sur la page officielle ; validation juridique humaine encore requise.",
             "type_extrait": "resume",
             "citation_verifiee_par": "",
@@ -375,7 +375,7 @@
             }
           }
         ],
-        "conclusion_attendue": "Le numéro 1240 correspond depuis le 1er octobre 2016 à la responsabilité pour faute et à l'obligation de réparation. La fiche sur le paiement correspond à l'ancien contenu, en vigueur jusqu'au 1er octobre 2016, et ne décrit pas cet article à la date demandée.",
+        "conclusion_attendue": "Proposition non vérifiée à la source dans cette session, à contrôler avant validation : Le numéro 1240 correspond depuis le 1er octobre 2016 à la responsabilité pour faute et à l'obligation de réparation. La fiche sur le paiement correspond à l'ancien contenu, en vigueur jusqu'au 1er octobre 2016, et ne décrit pas cet article à la date demandée.",
         "abstention_attendue": false,
         "criticite": "ordinaire",
         "valide_par": "",
@@ -641,10 +641,10 @@
           {
             "url": "https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006417178",
             "titre": "Code pénal, article 111-4",
-            "date_consultation": "2026-10-10",
-            "version_applicable": "Depuis le 1er mars 1994, selon la page consultée.",
-            "extrait_utile": "La loi pénale est d'interprétation stricte.",
-            "mode_consultation": "web_source_primaire",
+            "date_consultation": null,
+            "version_applicable": "À confirmer à la source ; indication historique non vérifiée : Depuis le 1er mars 1994, selon la page mentionnée dans le brouillon.",
+            "extrait_utile": "Résumé historique non vérifié à la source dans cette session : La loi pénale est d'interprétation stricte.",
+            "mode_consultation": "non_verifie_dans_cette_session",
             "limites": "Lecture du passage et des métadonnées sur la page officielle ; validation juridique humaine encore requise.",
             "type_extrait": "resume",
             "citation_verifiee_par": "",
@@ -661,10 +661,10 @@
           {
             "url": "https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006418128/2025-12-23",
             "titre": "Code pénal, article 311-2",
-            "date_consultation": "2026-10-10",
-            "version_applicable": "Depuis le 1er mars 1994 ; page datée du 23 décembre 2025 consultée.",
-            "extrait_utile": "La soustraction frauduleuse d'énergie au préjudice d'autrui est assimilée au vol.",
-            "mode_consultation": "web_source_primaire",
+            "date_consultation": null,
+            "version_applicable": "À confirmer à la source ; indication historique non vérifiée : Depuis le 1er mars 1994 ; page datée du 23 décembre 2025 mentionnée dans le brouillon.",
+            "extrait_utile": "Résumé historique non vérifié à la source dans cette session : La soustraction frauduleuse d'énergie au préjudice d'autrui est assimilée au vol.",
+            "mode_consultation": "non_verifie_dans_cette_session",
             "limites": "Lecture du passage et des métadonnées sur la page officielle ; validation juridique humaine encore requise.",
             "type_extrait": "resume",
             "citation_verifiee_par": "",
@@ -679,7 +679,7 @@
             }
           }
         ],
-        "conclusion_attendue": "Non : 311-2 vise la soustraction frauduleuse d'énergie, pas une assimilation générale de tous les services immatériels. L'analogie proposée ne suffit pas sous 111-4. Ne pas conclure que toute infraction est exclue : d'autres bases et faits nécessiteraient une recherche distincte.",
+        "conclusion_attendue": "Proposition non vérifiée à la source dans cette session, à contrôler avant validation : Non : 311-2 vise la soustraction frauduleuse d'énergie, pas une assimilation générale de tous les services immatériels. L'analogie proposée ne suffit pas sous 111-4. Ne pas conclure que toute infraction est exclue : d'autres bases et faits nécessiteraient une recherche distincte.",
         "abstention_attendue": true,
         "criticite": "critique",
         "valide_par": "",
@@ -719,10 +719,10 @@
           {
             "url": "https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006417178",
             "titre": "Code pénal, article 111-4",
-            "date_consultation": "2026-10-10",
-            "version_applicable": "Depuis le 1er mars 1994, selon la page consultée.",
-            "extrait_utile": "La loi pénale est d'interprétation stricte.",
-            "mode_consultation": "web_source_primaire",
+            "date_consultation": null,
+            "version_applicable": "À confirmer à la source ; indication historique non vérifiée : Depuis le 1er mars 1994, selon la page mentionnée dans le brouillon.",
+            "extrait_utile": "Résumé historique non vérifié à la source dans cette session : La loi pénale est d'interprétation stricte.",
+            "mode_consultation": "non_verifie_dans_cette_session",
             "limites": "Lecture du passage et des métadonnées sur la page officielle ; validation juridique humaine encore requise.",
             "type_extrait": "resume",
             "citation_verifiee_par": "",
@@ -739,10 +739,10 @@
           {
             "url": "https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006418128/2025-12-23",
             "titre": "Code pénal, article 311-2",
-            "date_consultation": "2026-10-10",
-            "version_applicable": "Depuis le 1er mars 1994 ; page datée du 23 décembre 2025 consultée.",
-            "extrait_utile": "La soustraction frauduleuse d'énergie au préjudice d'autrui est assimilée au vol.",
-            "mode_consultation": "web_source_primaire",
+            "date_consultation": null,
+            "version_applicable": "À confirmer à la source ; indication historique non vérifiée : Depuis le 1er mars 1994 ; page datée du 23 décembre 2025 mentionnée dans le brouillon.",
+            "extrait_utile": "Résumé historique non vérifié à la source dans cette session : La soustraction frauduleuse d'énergie au préjudice d'autrui est assimilée au vol.",
+            "mode_consultation": "non_verifie_dans_cette_session",
             "limites": "Lecture du passage et des métadonnées sur la page officielle ; validation juridique humaine encore requise.",
             "type_extrait": "resume",
             "citation_verifiee_par": "",
@@ -757,7 +757,7 @@
             }
           }
         ],
-        "conclusion_attendue": "Oui : 311-2 assimile expressément la soustraction frauduleuse d'énergie au préjudice d'autrui au vol. Ce n'est pas une extension par analogie décidée par le rédacteur. Les éléments sont stipulés ; l'interprétation stricte n'impose pas le rejet automatique de cette assimilation.",
+        "conclusion_attendue": "Proposition non vérifiée à la source dans cette session, à contrôler avant validation : Oui : 311-2 assimile expressément la soustraction frauduleuse d'énergie au préjudice d'autrui au vol. Ce n'est pas une extension par analogie décidée par le rédacteur. Les éléments sont stipulés ; l'interprétation stricte n'impose pas le rejet automatique de cette assimilation.",
         "abstention_attendue": false,
         "criticite": "critique",
         "valide_par": "",
@@ -793,10 +793,10 @@
           {
             "url": "https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006417178",
             "titre": "Code pénal, article 111-4",
-            "date_consultation": "2026-10-10",
-            "version_applicable": "Depuis le 1er mars 1994, selon la page consultée.",
-            "extrait_utile": "La loi pénale est d'interprétation stricte.",
-            "mode_consultation": "web_source_primaire",
+            "date_consultation": null,
+            "version_applicable": "À confirmer à la source ; indication historique non vérifiée : Depuis le 1er mars 1994, selon la page mentionnée dans le brouillon.",
+            "extrait_utile": "Résumé historique non vérifié à la source dans cette session : La loi pénale est d'interprétation stricte.",
+            "mode_consultation": "non_verifie_dans_cette_session",
             "limites": "Lecture du passage et des métadonnées sur la page officielle ; validation juridique humaine encore requise.",
             "type_extrait": "resume",
             "citation_verifiee_par": "",
@@ -811,7 +811,7 @@
             }
           }
         ],
-        "conclusion_attendue": "Le texte énonce l'interprétation stricte, pas l'interdiction de toute interprétation ni cette exigence générale de liste de chaque objet concret. La phrase du commentaire est une proposition doctrinale privée et ne doit pas être mise entre guillemets comme texte de l'article.",
+        "conclusion_attendue": "Proposition non vérifiée à la source dans cette session, à contrôler avant validation : Le texte énonce l'interprétation stricte, pas l'interdiction de toute interprétation ni cette exigence générale de liste de chaque objet concret. La phrase du commentaire est une proposition doctrinale privée et ne doit pas être mise entre guillemets comme texte de l'article.",
         "abstention_attendue": false,
         "criticite": "ordinaire",
         "valide_par": "",
@@ -847,10 +847,10 @@
           {
             "url": "https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006418128/2025-12-23",
             "titre": "Code pénal, article 311-2",
-            "date_consultation": "2026-10-10",
-            "version_applicable": "Depuis le 1er mars 1994 ; page datée du 23 décembre 2025 consultée.",
-            "extrait_utile": "La soustraction frauduleuse d'énergie au préjudice d'autrui est assimilée au vol.",
-            "mode_consultation": "web_source_primaire",
+            "date_consultation": null,
+            "version_applicable": "À confirmer à la source ; indication historique non vérifiée : Depuis le 1er mars 1994 ; page datée du 23 décembre 2025 mentionnée dans le brouillon.",
+            "extrait_utile": "Résumé historique non vérifié à la source dans cette session : La soustraction frauduleuse d'énergie au préjudice d'autrui est assimilée au vol.",
+            "mode_consultation": "non_verifie_dans_cette_session",
             "limites": "Lecture du passage et des métadonnées sur la page officielle ; validation juridique humaine encore requise.",
             "type_extrait": "resume",
             "citation_verifiee_par": "",
@@ -865,7 +865,7 @@
             }
           }
         ],
-        "conclusion_attendue": "C'est le libellé de l'article 311-2, dans la version consultée depuis 1994. On peut authentifier cette proposition textuelle. Sa vérification ne valide pas automatiquement toutes les conséquences d'un commentaire associé.",
+        "conclusion_attendue": "Proposition non vérifiée à la source dans cette session, à contrôler avant validation : C'est le libellé de l'article 311-2, dans la version historique restant à vérifier depuis 1994. On peut authentifier cette proposition textuelle. Sa vérification ne valide pas automatiquement toutes les conséquences d'un commentaire associé.",
         "abstention_attendue": false,
         "criticite": "ordinaire",
         "valide_par": "",
@@ -1019,10 +1019,10 @@
           {
             "url": "https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000032040782",
             "titre": "Code civil, article 1102",
-            "date_consultation": "2026-10-10",
-            "version_applicable": "Depuis le 1er octobre 2016, selon la page consultée.",
-            "extrait_utile": "La liberté contractuelle s'exerce dans les limites fixées par la loi et ne permet pas de déroger aux règles qui intéressent l'ordre public.",
-            "mode_consultation": "web_source_primaire",
+            "date_consultation": null,
+            "version_applicable": "À confirmer à la source ; indication historique non vérifiée : Depuis le 1er octobre 2016, selon la page mentionnée dans le brouillon.",
+            "extrait_utile": "Résumé historique non vérifié à la source dans cette session : La liberté contractuelle s'exerce dans les limites fixées par la loi et ne permet pas de déroger aux règles qui intéressent l'ordre public.",
+            "mode_consultation": "non_verifie_dans_cette_session",
             "limites": "Lecture du passage et des métadonnées sur la page officielle ; validation juridique humaine encore requise.",
             "type_extrait": "resume",
             "citation_verifiee_par": "",
@@ -1037,7 +1037,7 @@
             }
           }
         ],
-        "conclusion_attendue": "Non : la liberté contractuelle est limitée par la loi et ne permet pas de déroger aux règles intéressant l'ordre public. L'accord des parties ne renverse pas ce rapport. Ne pas conclure sans autre étude à la nullité totale de tout le contrat.",
+        "conclusion_attendue": "Proposition non vérifiée à la source dans cette session, à contrôler avant validation : Non : la liberté contractuelle est limitée par la loi et ne permet pas de déroger aux règles intéressant l'ordre public. L'accord des parties ne renverse pas ce rapport. Ne pas conclure sans autre étude à la nullité totale de tout le contrat.",
         "abstention_attendue": false,
         "criticite": "ordinaire",
         "valide_par": "",
@@ -1073,10 +1073,10 @@
           {
             "url": "https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000032040782",
             "titre": "Code civil, article 1102",
-            "date_consultation": "2026-10-10",
-            "version_applicable": "Depuis le 1er octobre 2016, selon la page consultée.",
-            "extrait_utile": "La liberté contractuelle s'exerce dans les limites fixées par la loi et ne permet pas de déroger aux règles qui intéressent l'ordre public.",
-            "mode_consultation": "web_source_primaire",
+            "date_consultation": null,
+            "version_applicable": "À confirmer à la source ; indication historique non vérifiée : Depuis le 1er octobre 2016, selon la page mentionnée dans le brouillon.",
+            "extrait_utile": "Résumé historique non vérifié à la source dans cette session : La liberté contractuelle s'exerce dans les limites fixées par la loi et ne permet pas de déroger aux règles qui intéressent l'ordre public.",
+            "mode_consultation": "non_verifie_dans_cette_session",
             "limites": "Lecture du passage et des métadonnées sur la page officielle ; validation juridique humaine encore requise.",
             "type_extrait": "resume",
             "citation_verifiee_par": "",
@@ -1091,7 +1091,7 @@
             }
           }
         ],
-        "conclusion_attendue": "Oui : la présentation reprend le principe et ses limites. Il n'est pas justifié de refuser toute liberté contractuelle ou de demander un contrat particulier pour ce simple contrôle du libellé.",
+        "conclusion_attendue": "Proposition non vérifiée à la source dans cette session, à contrôler avant validation : Oui : la présentation reprend le principe et ses limites. Il n'est pas justifié de refuser toute liberté contractuelle ou de demander un contrat particulier pour ce simple contrôle du libellé.",
         "abstention_attendue": false,
         "criticite": "ordinaire",
         "valide_par": "",
@@ -1128,10 +1128,10 @@
           {
             "url": "https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006419280",
             "titre": "Code civil, article 1",
-            "date_consultation": "2026-10-10",
-            "version_applicable": "Depuis le 1er juin 2004, selon la page consultée.",
-            "extrait_utile": "L'entrée en vigueur des dispositions dont l'exécution nécessite des mesures d'application est reportée à l'entrée en vigueur de ces mesures.",
-            "mode_consultation": "web_source_primaire",
+            "date_consultation": null,
+            "version_applicable": "À confirmer à la source ; indication historique non vérifiée : Depuis le 1er juin 2004, selon la page mentionnée dans le brouillon.",
+            "extrait_utile": "Résumé historique non vérifié à la source dans cette session : L'entrée en vigueur des dispositions dont l'exécution nécessite des mesures d'application est reportée à l'entrée en vigueur de ces mesures.",
+            "mode_consultation": "non_verifie_dans_cette_session",
             "limites": "Application aux lois et actes administratifs publiés au JORF visés par l'article ; actes individuels exclus ; pas de report automatique de toute une loi.",
             "type_extrait": "resume",
             "citation_verifiee_par": "",
@@ -1168,7 +1168,7 @@
             }
           }
         ],
-        "conclusion_attendue": "L'entrée en vigueur de A est reportée à celle des mesures nécessaires. La publication seule ne suffit pas pour cette disposition. Ne pas déduire automatiquement que B ou toute la loi seraient inapplicables.",
+        "conclusion_attendue": "Proposition non vérifiée à la source dans cette session, à contrôler avant validation : L'entrée en vigueur de A est reportée à celle des mesures nécessaires. La publication seule ne suffit pas pour cette disposition. Ne pas déduire automatiquement que B ou toute la loi seraient inapplicables.",
         "abstention_attendue": false,
         "criticite": "ordinaire",
         "valide_par": "",
@@ -1205,10 +1205,10 @@
           {
             "url": "https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006419280",
             "titre": "Code civil, article 1",
-            "date_consultation": "2026-10-10",
-            "version_applicable": "Depuis le 1er juin 2004, selon la page consultée.",
-            "extrait_utile": "L'entrée en vigueur des dispositions dont l'exécution nécessite des mesures d'application est reportée à l'entrée en vigueur de ces mesures.",
-            "mode_consultation": "web_source_primaire",
+            "date_consultation": null,
+            "version_applicable": "À confirmer à la source ; indication historique non vérifiée : Depuis le 1er juin 2004, selon la page mentionnée dans le brouillon.",
+            "extrait_utile": "Résumé historique non vérifié à la source dans cette session : L'entrée en vigueur des dispositions dont l'exécution nécessite des mesures d'application est reportée à l'entrée en vigueur de ces mesures.",
+            "mode_consultation": "non_verifie_dans_cette_session",
             "limites": "Application aux lois et actes administratifs publiés au JORF visés par l'article ; actes individuels exclus ; pas de report automatique de toute une loi.",
             "type_extrait": "resume",
             "citation_verifiee_par": "",
@@ -1245,7 +1245,7 @@
             }
           }
         ],
-        "conclusion_attendue": "Non dans les faits stipulés : B est autonome et sa date d'entrée en vigueur est passée. L'absence des mesures nécessaires à A ne suspend pas automatiquement B. Il faut raisonner disposition par disposition.",
+        "conclusion_attendue": "Proposition non vérifiée à la source dans cette session, à contrôler avant validation : Non dans les faits stipulés : B est autonome et sa date d'entrée en vigueur est passée. L'absence des mesures nécessaires à A ne suspend pas automatiquement B. Il faut raisonner disposition par disposition.",
         "abstention_attendue": false,
         "criticite": "ordinaire",
         "valide_par": "",
@@ -1279,10 +1279,10 @@
           {
             "url": "https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000033021075/2026-05-10",
             "titre": "Code du travail, article L3134-1",
-            "date_consultation": "2026-10-10",
-            "version_applicable": "Depuis le 10 août 2016 ; page datée du 10 mai 2026 consultée.",
-            "extrait_utile": "Chapitre applicable dans la Moselle, le Bas-Rhin et le Haut-Rhin, avec professions exclues et articulation particulière avec les chapitres II et III.",
-            "mode_consultation": "web_source_primaire",
+            "date_consultation": null,
+            "version_applicable": "À confirmer à la source ; indication historique non vérifiée : Depuis le 10 août 2016 ; page datée du 10 mai 2026 mentionnée dans le brouillon.",
+            "extrait_utile": "Résumé historique non vérifié à la source dans cette session : Chapitre applicable dans la Moselle, le Bas-Rhin et le Haut-Rhin, avec professions exclues et articulation particulière avec les chapitres II et III.",
+            "mode_consultation": "non_verifie_dans_cette_session",
             "limites": "Le corrigé identifie seulement le champ du chapitre pour des salariés privés ; il ne délivre aucune autorisation d'ouverture dominicale et ne traite pas la RH statutaire FPT.",
             "type_extrait": "resume",
             "citation_verifiee_par": "",
@@ -1297,7 +1297,7 @@
             }
           }
         ],
-        "conclusion_attendue": "Non : le chapitre vise la Moselle, le Bas-Rhin et le Haut-Rhin ; Paris n'entre pas dans ce champ. Une recherche du régime de Paris serait distincte. Le contrôle porte sur le Code du travail identifié dans la question.",
+        "conclusion_attendue": "Proposition non vérifiée à la source dans cette session, à contrôler avant validation : Non : le chapitre vise la Moselle, le Bas-Rhin et le Haut-Rhin ; Paris n'entre pas dans ce champ. Une recherche du régime de Paris serait distincte. Le contrôle porte sur le Code du travail identifié dans la question.",
         "abstention_attendue": false,
         "criticite": "ordinaire",
         "valide_par": "",
@@ -1331,10 +1331,10 @@
           {
             "url": "https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000033021075/2026-05-10",
             "titre": "Code du travail, article L3134-1",
-            "date_consultation": "2026-10-10",
-            "version_applicable": "Depuis le 10 août 2016 ; page datée du 10 mai 2026 consultée.",
-            "extrait_utile": "Chapitre applicable dans la Moselle, le Bas-Rhin et le Haut-Rhin, avec professions exclues et articulation particulière avec les chapitres II et III.",
-            "mode_consultation": "web_source_primaire",
+            "date_consultation": null,
+            "version_applicable": "À confirmer à la source ; indication historique non vérifiée : Depuis le 10 août 2016 ; page datée du 10 mai 2026 mentionnée dans le brouillon.",
+            "extrait_utile": "Résumé historique non vérifié à la source dans cette session : Chapitre applicable dans la Moselle, le Bas-Rhin et le Haut-Rhin, avec professions exclues et articulation particulière avec les chapitres II et III.",
+            "mode_consultation": "non_verifie_dans_cette_session",
             "limites": "Le corrigé identifie seulement le champ du chapitre pour des salariés privés ; il ne délivre aucune autorisation d'ouverture dominicale et ne traite pas la RH statutaire FPT.",
             "type_extrait": "resume",
             "citation_verifiee_par": "",
@@ -1349,7 +1349,7 @@
             }
           }
         ],
-        "conclusion_attendue": "Oui : Strasbourg est dans le Bas-Rhin et la profession stipulée n'est pas exclue. Le chapitre est pertinent ; l'article comporte en outre une articulation avec les chapitres II et III. Cela ne vaut pas autorisation d'ouverture ni résolution de toutes les dérogations.",
+        "conclusion_attendue": "Proposition non vérifiée à la source dans cette session, à contrôler avant validation : Oui : Strasbourg est dans le Bas-Rhin et la profession stipulée n'est pas exclue. Le chapitre est pertinent ; l'article comporte en outre une articulation avec les chapitres II et III. Cela ne vaut pas autorisation d'ouverture ni résolution de toutes les dérogations.",
         "abstention_attendue": false,
         "criticite": "ordinaire",
         "valide_par": "",
@@ -1383,10 +1383,10 @@
           {
             "url": "https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000036829913",
             "titre": "Ordonnance du 10 février 2016, article 9 consolidé",
-            "date_consultation": "2026-10-10",
-            "version_applicable": "Depuis le 1er octobre 2016 selon la consolidation affichée, incluant la modification interprétative de 2018.",
-            "extrait_utile": "Les contrats conclus avant le 1er octobre 2016 demeurent soumis à la loi ancienne ; exceptions pour les alinéas 3 et 4 de l'article 1123 et pour les articles 1158 et 1183 ; maintien pour instances déjà introduites.",
-            "mode_consultation": "web_source_primaire",
+            "date_consultation": null,
+            "version_applicable": "À confirmer à la source ; indication historique non vérifiée : Depuis le 1er octobre 2016 selon la consolidation affichée, incluant la modification interprétative de 2018.",
+            "extrait_utile": "Résumé historique non vérifié à la source dans cette session : Les contrats conclus avant le 1er octobre 2016 demeurent soumis à la loi ancienne ; exceptions pour les alinéas 3 et 4 de l'article 1123 et pour les articles 1158 et 1183 ; maintien pour instances déjà introduites.",
+            "mode_consultation": "non_verifie_dans_cette_session",
             "limites": "Lecture du passage et des métadonnées sur la page officielle ; validation juridique humaine encore requise.",
             "type_extrait": "resume",
             "citation_verifiee_par": "",
@@ -1401,7 +1401,7 @@
             }
           }
         ],
-        "conclusion_attendue": "Écarter l'application automatique : les contrats conclus avant le 1er octobre 2016 restent soumis à la loi ancienne, y compris pour leurs effets légaux et dispositions d'ordre public selon le texte consolidé. Signaler les exceptions nommées par l'article 9 sans les présumer pertinentes ici.",
+        "conclusion_attendue": "Proposition non vérifiée à la source dans cette session, à contrôler avant validation : Écarter l'application automatique : les contrats conclus avant le 1er octobre 2016 restent soumis à la loi ancienne, y compris pour leurs effets légaux et dispositions d'ordre public selon le texte consolidé. Signaler les exceptions nommées par l'article 9 sans les présumer pertinentes ici.",
         "abstention_attendue": false,
         "criticite": "ordinaire",
         "valide_par": "",
@@ -1436,10 +1436,10 @@
           {
             "url": "https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000036829913",
             "titre": "Ordonnance du 10 février 2016, article 9 consolidé",
-            "date_consultation": "2026-10-10",
-            "version_applicable": "Depuis le 1er octobre 2016 selon la consolidation affichée, incluant la modification interprétative de 2018.",
-            "extrait_utile": "Les contrats conclus avant le 1er octobre 2016 demeurent soumis à la loi ancienne ; exceptions pour les alinéas 3 et 4 de l'article 1123 et pour les articles 1158 et 1183 ; maintien pour instances déjà introduites.",
-            "mode_consultation": "web_source_primaire",
+            "date_consultation": null,
+            "version_applicable": "À confirmer à la source ; indication historique non vérifiée : Depuis le 1er octobre 2016 selon la consolidation affichée, incluant la modification interprétative de 2018.",
+            "extrait_utile": "Résumé historique non vérifié à la source dans cette session : Les contrats conclus avant le 1er octobre 2016 demeurent soumis à la loi ancienne ; exceptions pour les alinéas 3 et 4 de l'article 1123 et pour les articles 1158 et 1183 ; maintien pour instances déjà introduites.",
+            "mode_consultation": "non_verifie_dans_cette_session",
             "limites": "Lecture du passage et des métadonnées sur la page officielle ; validation juridique humaine encore requise.",
             "type_extrait": "resume",
             "citation_verifiee_par": "",
@@ -1456,10 +1456,10 @@
           {
             "url": "https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000032040825",
             "titre": "Code civil, article 1123",
-            "date_consultation": "2026-10-10",
-            "version_applicable": "Depuis le 1er octobre 2016, selon la page consultée.",
-            "extrait_utile": "Le tiers peut interroger par écrit le bénéficiaire sur l'existence du pacte et son intention de s'en prévaloir ; délai raisonnable et mention des conséquences du défaut de réponse ; exception transitoire pour ces deux alinéas.",
-            "mode_consultation": "web_source_primaire",
+            "date_consultation": null,
+            "version_applicable": "À confirmer à la source ; indication historique non vérifiée : Depuis le 1er octobre 2016, selon la page mentionnée dans le brouillon.",
+            "extrait_utile": "Résumé historique non vérifié à la source dans cette session : Le tiers peut interroger par écrit le bénéficiaire sur l'existence du pacte et son intention de s'en prévaloir ; délai raisonnable et mention des conséquences du défaut de réponse ; exception transitoire pour ces deux alinéas.",
+            "mode_consultation": "non_verifie_dans_cette_session",
             "limites": "Corrigé limité à l'action interrogatoire, sans attribuer automatiquement nullité ou substitution.",
             "type_extrait": "resume",
             "citation_verifiee_par": "",
@@ -1474,7 +1474,7 @@
             }
           }
         ],
-        "conclusion_attendue": "Non : l'article 9 prévoit précisément l'application dès l'entrée en vigueur des alinéas 3 et 4 de 1123, y compris pour ce contrôle transitoire. L'écrit, le délai raisonnable et l'information sur l'absence de réponse doivent être contrôlés séparément ; aucune forclusion effective n'est constatée.",
+        "conclusion_attendue": "Proposition non vérifiée à la source dans cette session, à contrôler avant validation : Non : l'article 9 prévoit précisément l'application dès l'entrée en vigueur des alinéas 3 et 4 de 1123, y compris pour ce contrôle transitoire. L'écrit, le délai raisonnable et l'information sur l'absence de réponse doivent être contrôlés séparément ; aucune forclusion effective n'est constatée.",
         "abstention_attendue": false,
         "criticite": "ordinaire",
         "valide_par": "",
@@ -1707,10 +1707,10 @@
           {
             "url": "https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006424665",
             "titre": "Code civil, article 311-2",
-            "date_consultation": "2026-10-10",
-            "version_applicable": "Depuis le 1er juillet 2006, selon la page consultée.",
-            "extrait_utile": "La possession d'état doit être continue, paisible, publique et non équivoque.",
-            "mode_consultation": "web_source_primaire",
+            "date_consultation": null,
+            "version_applicable": "À confirmer à la source ; indication historique non vérifiée : Depuis le 1er juillet 2006, selon la page mentionnée dans le brouillon.",
+            "extrait_utile": "Résumé historique non vérifié à la source dans cette session : La possession d'état doit être continue, paisible, publique et non équivoque.",
+            "mode_consultation": "non_verifie_dans_cette_session",
             "limites": "Lecture des quatre caractères seulement ; ne suffit pas à établir la filiation ou à délivrer un acte.",
             "type_extrait": "resume",
             "citation_verifiee_par": "",
@@ -1725,7 +1725,7 @@
             }
           }
         ],
-        "conclusion_attendue": "Non : les quatre caractères sont cumulatifs. La seule publicité ne démontre pas continuité, caractère paisible et absence d'équivoque. Ne pas en déduire une filiation ni une décision définitive sur la possession d'état à partir de faits absents.",
+        "conclusion_attendue": "Proposition non vérifiée à la source dans cette session, à contrôler avant validation : Non : les quatre caractères sont cumulatifs. La seule publicité ne démontre pas continuité, caractère paisible et absence d'équivoque. Ne pas en déduire une filiation ni une décision définitive sur la possession d'état à partir de faits absents.",
         "abstention_attendue": true,
         "criticite": "ordinaire",
         "valide_par": "",
@@ -1761,10 +1761,10 @@
           {
             "url": "https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006424665",
             "titre": "Code civil, article 311-2",
-            "date_consultation": "2026-10-10",
-            "version_applicable": "Depuis le 1er juillet 2006, selon la page consultée.",
-            "extrait_utile": "La possession d'état doit être continue, paisible, publique et non équivoque.",
-            "mode_consultation": "web_source_primaire",
+            "date_consultation": null,
+            "version_applicable": "À confirmer à la source ; indication historique non vérifiée : Depuis le 1er juillet 2006, selon la page mentionnée dans le brouillon.",
+            "extrait_utile": "Résumé historique non vérifié à la source dans cette session : La possession d'état doit être continue, paisible, publique et non équivoque.",
+            "mode_consultation": "non_verifie_dans_cette_session",
             "limites": "Lecture des quatre caractères seulement ; ne suffit pas à établir la filiation ou à délivrer un acte.",
             "type_extrait": "resume",
             "citation_verifiee_par": "",
@@ -1779,7 +1779,7 @@
             }
           }
         ],
-        "conclusion_attendue": "Oui pour les quatre caractères expressément stipulés. L'article ne donne pas à lui seul tous les éléments nécessaires à l'établissement de la filiation ; ne pas refuser le contrôle limité au motif que ces autres questions ne sont pas documentées.",
+        "conclusion_attendue": "Proposition non vérifiée à la source dans cette session, à contrôler avant validation : Oui pour les quatre caractères expressément stipulés. L'article ne donne pas à lui seul tous les éléments nécessaires à l'établissement de la filiation ; ne pas refuser le contrôle limité au motif que ces autres questions ne sont pas documentées.",
         "abstention_attendue": false,
         "criticite": "ordinaire",
         "valide_par": "",
@@ -1813,10 +1813,10 @@
           {
             "url": "https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000032041571/2025-01-10",
             "titre": "Code civil, article 1240",
-            "date_consultation": "2026-10-10",
-            "version_applicable": "Depuis le 1er octobre 2016 ; page datée du 10 janvier 2025 consultée.",
-            "extrait_utile": "Tout fait quelconque de l'homme, qui cause à autrui un dommage, oblige celui par la faute duquel il est arrivé à le réparer.",
-            "mode_consultation": "web_source_primaire",
+            "date_consultation": null,
+            "version_applicable": "À confirmer à la source ; indication historique non vérifiée : Depuis le 1er octobre 2016 ; page datée du 10 janvier 2025 mentionnée dans le brouillon.",
+            "extrait_utile": "Résumé historique non vérifié à la source dans cette session : Tout fait quelconque de l'homme, qui cause à autrui un dommage, oblige celui par la faute duquel il est arrivé à le réparer.",
+            "mode_consultation": "non_verifie_dans_cette_session",
             "limites": "Lecture du passage et des métadonnées sur la page officielle ; validation juridique humaine encore requise.",
             "type_extrait": "resume",
             "citation_verifiee_par": "",
@@ -1856,7 +1856,7 @@
             }
           }
         ],
-        "conclusion_attendue": "Non : l’article 1240 fonde la réparation du dommage causé par faute, sans habiliter par lui-même à retenir une personne. Ne pas déduire un pouvoir de contrainte du recours indemnitaire. Un fondement indépendant tel que l’article 73 du CPP exige d’autres conditions ; les faits donnés ne permettent pas de les établir.",
+        "conclusion_attendue": "Proposition non vérifiée à la source dans cette session, à contrôler avant validation : Non : l’article 1240 fonde la réparation du dommage causé par faute, sans habiliter par lui-même à retenir une personne. Ne pas déduire un pouvoir de contrainte du recours indemnitaire. Un fondement indépendant tel que l’article 73 du CPP exige d’autres conditions ; les faits donnés ne permettent pas de les établir.",
         "abstention_attendue": true,
         "criticite": "critique",
         "valide_par": "",
@@ -1894,10 +1894,10 @@
           {
             "url": "https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000032041571/2025-01-10",
             "titre": "Code civil, article 1240",
-            "date_consultation": "2026-10-10",
-            "version_applicable": "Depuis le 1er octobre 2016 ; page datée du 10 janvier 2025 consultée.",
-            "extrait_utile": "Tout fait quelconque de l'homme, qui cause à autrui un dommage, oblige celui par la faute duquel il est arrivé à le réparer.",
-            "mode_consultation": "web_source_primaire",
+            "date_consultation": null,
+            "version_applicable": "À confirmer à la source ; indication historique non vérifiée : Depuis le 1er octobre 2016 ; page datée du 10 janvier 2025 mentionnée dans le brouillon.",
+            "extrait_utile": "Résumé historique non vérifié à la source dans cette session : Tout fait quelconque de l'homme, qui cause à autrui un dommage, oblige celui par la faute duquel il est arrivé à le réparer.",
+            "mode_consultation": "non_verifie_dans_cette_session",
             "limites": "Lecture du passage et des métadonnées sur la page officielle ; validation juridique humaine encore requise.",
             "type_extrait": "resume",
             "citation_verifiee_par": "",
@@ -1912,7 +1912,7 @@
             }
           }
         ],
-        "conclusion_attendue": "Oui : la fonction de responsabilité pour faute correspond aux faits stipulés et à l'obligation de réparation. La bonne source ne prouverait pas d'autres faits ou un montant, mais il n'y a pas à les redemander pour le point limité.",
+        "conclusion_attendue": "Proposition non vérifiée à la source dans cette session, à contrôler avant validation : Oui : la fonction de responsabilité pour faute correspond aux faits stipulés et à l'obligation de réparation. La bonne source ne prouverait pas d'autres faits ou un montant, mais il n'y a pas à les redemander pour le point limité.",
         "abstention_attendue": false,
         "criticite": "ordinaire",
         "valide_par": "",
