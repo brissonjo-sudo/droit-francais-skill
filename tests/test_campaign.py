@@ -55,13 +55,12 @@ class CampagneTests(unittest.TestCase):
                         self.fail()
 
     def test_modele_inconnu_ou_alias_ne_qualifie_pas_preflight(self):
-        f = {"nom": "codex", "modele_demande": "gpt-exact", "version_cli": "1"}
-        row = {"modele_effectif": None, "version_cli": "1", "statut_technique": "ok",
-               "controles_procedure": {"isolation_appels": True, "flux_lisible": True}, "appels": []}
-        receipt = {"series_sha256": "sha", "famille": "codex", "revue_isolation_par": "humain",
-                   "preuve_isolation": "preuve", "auth_abonnement_confirmee": True,
-                   "autorise_collecte": True, "runs": [{**row, "bras": "A"}, {**row, "bras": "C"}]}
-        self.assertFalse(campaign.preflight_pret(receipt, {"series_sha256": "sha"}, f))
+        f = {"nom": "codex", "modele_demande": "gpt-exact", "version_cli": "1", "raisonnement": "high"}
+        execution = agents.Execution(Trace(modele=None, texte_final="réponse"), "", 0)
+        row = campaign.ligne_execution(execution, f=f, bras="A")
+        self.assertEqual("infra_error", row["statut_technique"])
+        self.assertEqual("modele", row["categorie_infra"])
+        self.assertIsNone(row["modele_effectif"])
 
     def test_reponse_correcte_sans_outil_reste_a_juger_sur_le_fond(self):
         tr = Trace(texte_final="LEGIARTI000006417749")

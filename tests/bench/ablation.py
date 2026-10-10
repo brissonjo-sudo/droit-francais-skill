@@ -96,9 +96,15 @@ def collecter(gel: dict, plan_path: Path, famille: str, *, state: Path = campaig
                 continue
             options = campaign.options_pour(gel, f)
             options.methode_experimentale = str(path)
+            baseline_key = campaign.identite(gel["series_sha256"], famille, unit["id"], "C", unit["repetition"], "principale")
+            baseline = [r for r in campaign.resultats_acquis(state / gel["series_sha256"] / f"principale-{famille}.jsonl", state)
+                        if r["identite"] == baseline_key and r["statut_technique"] == "ok"]
+            if len(baseline) != 1:
+                raise ValueError("réponse C principale acquise manquante pour comparaison")
             row, reservation = campaign.effectuer(gel, f, unit, target, state,
                 prompt=campaign.prompt_cas(cases[unit["id"]]), options=options, identity=key)
             row.update(variante_sha256=variant["sha256"], plan_sha256=plan["plan_sha256"])
+            row.update(comparateur_identite=baseline_key, comparateur_sha256=campaign.digest(baseline[0]))
             if hashlib.sha256(path.read_bytes()).hexdigest() != variant["sha256"]:
                 row.update(statut_technique="infra_error", categorie_infra="gel", motif_infra="variante modifiée pendant l'appel")
             campaign.acquerir(state, target, row, reservation)
@@ -106,3 +112,46 @@ def collecter(gel: dict, plan_path: Path, famille: str, *, state: Path = campaig
             if count >= 4:
                 break
     return count
+
+
+def comparer(gel: dict, plan_path: Path, revues: Path, humains: Path, sortie: Path,
+             *, state: Path = campaign.STATE) -> dict:
+    """Comparer chaque paire C/variante ; scores seulement après arbitrage humain."""
+    from bench import revue_v2
+    with campaign.verrou(state):
+        plan = campaign.read_json(campaign.confiner(plan_path, state))
+        canonical = state / gel["series_sha256"] / "ablation-plan.json"
+        if campaign.read_json(canonical) != plan:
+            raise ValueError("plan d'ablation non enregistré")
+        verifier_rapport_plan(plan, gel, state)
+        phase = "ablation:" + plan["plan_sha256"]
+        originals = [r for f in campaign.FAMILLES for r in campaign.resultats_acquis(state / gel["series_sha256"] / f"principale-{f}.jsonl", state)]
+        variants = [r for f in campaign.FAMILLES for r in campaign.resultats_acquis(state / gel["series_sha256"] / f"ablation-{plan['plan_sha256']}-{f}.jsonl", state)]
+        results = {r["identite"]: r for r in originals + variants}
+        judges = campaign.dernieres_tentatives_juges([r for r in campaign.historique_acquis(revues, state, statut="statut_juge")
+            if r.get("identite") in results and r.get("statut_juge") == "ok"])
+        by_key = {r["identite"]: r for r in judges}
+        if any(r["resultat_sha256"] != campaign.digest(results[r["identite"]]) for r in judges):
+            raise ValueError("jugement périmé pour comparaison")
+        human = revue_v2.avis(campaign.confiner(humains, state), results, by_key, identites=set(results))
+        pairs = []
+        for v in variants:
+            baseline = results.get(v["comparateur_identite"])
+            if baseline is None or campaign.digest(baseline) != v["comparateur_sha256"]:
+                raise ValueError("comparateur principal différent")
+            complete = v["statut_technique"] == "ok" and all(r["identite"] in human for r in (baseline, v))
+            a = all(x == "correct" for x in human[baseline["identite"]]["axes"].values()) if complete else None
+            b = all(x == "correct" for x in human[v["identite"]]["axes"].values()) if complete else None
+            pairs.append({"mode": v["mode"], "famille": v["famille"], "id": v["id"], "repetition": v["repetition"],
+                "C_principal": baseline["identite"], "C_variante": v["identite"], "paire_evaluee": complete,
+                "correct_principal": a, "correct_variante": b,
+                "delta_variante_moins_principal": int(b) - int(a) if complete else None})
+        invalid = bool(campaign.etude_v2.invalidations(state, gel["series_sha256"], phase=phase))
+        report = {"schema": 2, "series_sha256": gel["series_sha256"], "plan_sha256": plan["plan_sha256"],
+            "phase_invalidee": invalid, "paires": pairs, "paires_evaluees": 0 if invalid else sum(p["paire_evaluee"] for p in pairs),
+            "statut": "phase_invalidee" if invalid else "comparaison_descriptive_a_revoir"}
+        if invalid:
+            for pair in pairs:
+                pair.update(paire_evaluee=False, correct_principal=None, correct_variante=None, delta_variante_moins_principal=None)
+        campaign.write_json(campaign.confiner(sortie, state), report)
+        return report

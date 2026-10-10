@@ -59,8 +59,8 @@ def executer_fige(frozen: dict, f: dict, **kwargs):
         raise ValueError("contexte de tentative réservée requis")
     def verifier() -> None:
         verifier_gel(frozen)
-        verifier_runtime(frozen)
-        if f["moteur"] == "cli-native" and version_cli(f["executable"]) != f["version_cli"]:
+        verifier_runtime(frozen, echeance_monotone=ctx.echeance_monotone)
+        if f["moteur"] == "cli-native" and version_cli(f["executable"], echeance_monotone=ctx.echeance_monotone) != f["version_cli"]:
             raise ValueError("runtime CLI modifié")
     try:
         verifier()
@@ -89,8 +89,8 @@ def executer_fige(frozen: dict, f: dict, **kwargs):
     return result
 
 
-def verifier_runtime(frozen: dict) -> None:
-    current = runtime_v2.relever(frozen["config"])
+def verifier_runtime(frozen: dict, *, echeance_monotone: float | None = None) -> None:
+    current = runtime_v2.relever(frozen["config"], echeance_monotone=echeance_monotone)
     if current != frozen["runtime"] or digest(current) != frozen["runtime_sha256"]:
         raise ValueError("runtime Python, dépendances ou exécutables modifiés")
 
@@ -193,17 +193,20 @@ def fichiers_figes() -> dict[str, str]:
         paths.extend(p for p in (ROOT / dossier).rglob("*") if p.is_file()
                      and "__pycache__" not in p.relative_to(ROOT).parts and "runs" not in p.relative_to(ROOT).parts
                      and p.suffix not in (".pyc", ".env") and not p.name.startswith(".env"))
-    paths.extend(ROOT / name for name in ("tests/run_campaign.py", "requirements-bench.txt", "requirements-mcp.txt") if (ROOT / name).is_file())
+    paths.extend(ROOT / name for name in ("tests/run_campaign.py", "requirements-bench.txt", "requirements-mcp.txt", "requirements-mcp-wheels.txt") if (ROOT / name).is_file())
     return {p.relative_to(ROOT).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
             for p in sorted(paths)}
 
 
-def version_cli(exe: str) -> str:
+def version_cli(exe: str, *, echeance_monotone: float | None = None) -> str:
+    timeout = 15 if echeance_monotone is None else min(15, echeance_monotone - time.monotonic())
+    if timeout <= 0:
+        raise runtime_v2.ControleIndisponible("échéance de sonde CLI atteinte ; aucune dérive attestée")
     try:
         result = subprocess.run([exe, "--version"], capture_output=True, text=True,
-                                encoding="utf-8", timeout=15, shell=False)
+                                encoding="utf-8", timeout=timeout, shell=False)
         if result.returncode:
-            raise ValueError("CLI non disponible")
+            raise runtime_v2.ControleIndisponible("sonde CLI indisponible ; réessayer sans invalidation")
         return result.stdout.strip()
     except (OSError, subprocess.TimeoutExpired) as exc:
         raise runtime_v2.ControleIndisponible("sonde CLI indisponible ; réessayer sans invalidation") from exc
@@ -485,9 +488,11 @@ def acquerir(state: Path, output: Path, row: dict, reservation: dict, *, statut:
         raise ArretCollecte("tentative conservée ; arrêt après panne, aucune reprise interne")
 
 
-def historique_acquis(path: Path, state: Path, *, statut: str = "statut_technique") -> list[dict]:
+def historique_acquis(path: Path, state: Path, *, statut: str = "statut_technique",
+                     phase: str | None = None, serie: str | None = None) -> list[dict]:
     """Aucune réponse ni note sans la clôture exacte de sa réservation durable."""
     rows = etude_v2.lire(confiner(path, state))
+    rows = [r for r in rows if (phase is None or r.get("phase") == phase) and (serie is None or r.get("series_sha256") == serie)]
     reservations = {r["attempt_id"]: r for r in etude_v2.reservations(state)}
     done = etude_v2.clotures(state)
     seen = set()
@@ -527,6 +532,7 @@ def preflight(frozen: dict, famille: str, *, state: Path = STATE) -> Path:
         rows = resultats_acquis(journal, state)
         acquired = {r["bras"] for r in rows if r["statut_technique"] == "ok"}
         if acquired == {"A", "C"}:
+            ecrire_preflight(output, frozen, f, rows)
             return output
         for bras, prompt in [
             ("A", "Réponds seulement : contrôle technique. Ne donne aucun avis juridique."),
@@ -541,13 +547,23 @@ def preflight(frozen: dict, famille: str, *, state: Path = STATE) -> Path:
                            motif_infra="préflight C sans lecture de source réussie")
             try:
                 acquerir(state, journal, row, reservation)
-            finally:
-                rows = resultats_acquis(journal, state)
-                write_json(output, {"schema": 2, "series_sha256": serie, "famille": famille,
-                    "moteur": f["moteur"], "runtime_sha256": frozen["runtime_sha256"], "runs": rows,
-                    "revue_isolation_par": "", "preuve_isolation": "", "auth_confirmee": False,
-                    "autorise_collecte": False})
+            except ArretCollecte:
+                ecrire_preflight(output, frozen, f, resultats_acquis(journal, state))
+                raise
+            ecrire_preflight(output, frozen, f, resultats_acquis(journal, state))
     return output
+
+
+def ecrire_preflight(output: Path, frozen: dict, f: dict, rows: list[dict]) -> None:
+    receipt = {"schema": 2, "series_sha256": frozen["series_sha256"], "famille": f["nom"],
+        "moteur": f["moteur"], "runtime_sha256": frozen["runtime_sha256"], "runs": rows,
+        "revue_isolation_par": "", "preuve_isolation": "", "auth_confirmee": False, "autorise_collecte": False}
+    old = read_json(output) if output.exists() else {}
+    if all(old.get(k) == receipt[k] for k in ("schema", "series_sha256", "famille", "moteur", "runtime_sha256", "runs")):
+        for key in ("revue_isolation_par", "preuve_isolation", "auth_confirmee", "autorise_collecte", "approbation_sha256"):
+            if key in old:
+                receipt[key] = old[key]
+    write_json(output, receipt)
 
 
 def source_lue(row: dict) -> bool:
@@ -556,11 +572,13 @@ def source_lue(row: dict) -> bool:
 
 
 def preflight_pret(receipt: dict, frozen: dict, f: dict, *, state: Path = STATE) -> bool:
+    from bench import approbations_v2
     rows = receipt.get("runs", [])
     authoritative = resultats_acquis(state / frozen["series_sha256"] / f"preflight-traces-{f['nom']}.jsonl", state)
     if rows != authoritative:
         return False
-    return bool(receipt.get("schema") == 2 and receipt.get("series_sha256") == frozen["series_sha256"]
+    return bool(approbations_v2.verifier(receipt, frozen, f["nom"], "preflight", state)
+        and receipt.get("schema") == 2 and receipt.get("series_sha256") == frozen["series_sha256"]
         and receipt.get("famille") == f["nom"] and receipt.get("moteur") == f["moteur"]
         and receipt.get("runtime_sha256") == frozen["runtime_sha256"]
         and receipt.get("revue_isolation_par") and receipt.get("preuve_isolation")
@@ -593,11 +611,11 @@ def pret_collecte(frozen: dict, phase: str, state: Path) -> None:
             if any(identite(frozen["series_sha256"], f["nom"], u["id"], u["bras"], u["repetition"], "pilote") not in closed for u in pilot_units):
                 raise ValueError("pilote non clôturé")
             approval = dossier / f"pilote-{f['nom']}-revue.json"
-            proof = {"resultats": historique_acquis(pilot, state), "manquants": list(absent.values())}
             if not approval.exists():
                 raise ValueError("revue humaine du pilote manquante")
             a = read_json(approval)
-            if a.get("schema") != 2 or not a.get("valide_par") or not a.get("justification") or a.get("resultats_sha256") != digest(proof):
+            from bench import approbations_v2
+            if not approbations_v2.verifier(a, frozen, f["nom"], "pilote", state):
                 raise ValueError("revue humaine du pilote périmée ou incomplète")
 
 
@@ -705,8 +723,8 @@ def _rapport(paths: list[Path], reviews: Path, *, humains: Path | None = None,
         if r["identite"] in seen:
             raise ValueError("résultats dupliqués")
         seen.add(r["identite"])
-    avis_bruts = [a for a in historique_acquis(reviews, state, statut="statut_juge")
-                  if a.get("series_sha256") == (frozen or {}).get("series_sha256") and a.get("phase") == "jugement:principale"]
+    avis_bruts = historique_acquis(reviews, state, statut="statut_juge", phase="jugement:principale",
+                                  serie=(frozen or {}).get("series_sha256"))
     latest_reviews = {}
     for a in avis_bruts:
         prev = latest_reviews.get(a["identite"])
@@ -788,8 +806,8 @@ def _rapport(paths: list[Path], reviews: Path, *, humains: Path | None = None,
             key = (r["famille"], r["id"], r["repetition"])
             pairs.setdefault(key, {})[r["bras"]] = success
             if a.get("candidat_readme") and human:
-                group = [s for s in rows if s["famille"] == r["famille"] and s["id"] == r["id"]]
-                expected_group = sum(u["famille"] == r["famille"] and u["id"] == r["id"] for u in expected_units)
+                group = [s for s in rows if s["id"] == r["id"]]
+                expected_group = sum(u["id"] == r["id"] for u in expected_units)
                 if (len(group) == expected_group and all(s["identite"] in human_by_key for s in group)):
                     for s in group:
                         if s["identite"] not in summary["exemples_readme"]:
@@ -833,6 +851,23 @@ def _rapport(paths: list[Path], reviews: Path, *, humains: Path | None = None,
         summary["statut"] = "revue_complete_a_valider"
     else:
         summary["exemples_readme"] = []
+    eligible = {r["id"] for r in rows if r["identite"] in summary["exemples_readme"]}
+    categories = {"gain": [], "abstention": [], "limite": []}
+    for case_id in sorted(eligible):
+        case = corpus_index[case_id]
+        group = [r for r in rows if r["id"] == case_id]
+        scores = {(r["famille"], r["repetition"], r["bras"]): all(x == "correct" for x in human_by_key[r["identite"]]["axes"].values()) for r in group}
+        gain = any(scores.get((f, rep, l)) is True and scores.get((f, rep, q)) is False
+                   for f in FAMILLES for rep in (1, 2) for l, q in (("C", "D"), ("B", "A")))
+        if gain:
+            categories["gain"].append(case_id)
+        if case["gold"]["abstention_attendue"] and all(scores.values()):
+            categories["abstention"].append(case_id)
+        if not all(scores.values()):
+            categories["limite"].append(case_id)
+    summary["selection_exemples_readme"] = {"regle": "premier_identifiant_lexical_eligible_par_categorie_sans_classement_des_sorties",
+        "eligibles": categories, "propositions": {k: v[0] if v else None for k, v in categories.items()},
+        "publication": "decision_humaine_ulterieure", "perimetre": "toutes_familles_bras_repetitions_du_cas"}
     return summary
 
 
@@ -874,7 +909,7 @@ def juger_paquet(frozen: dict, packet_path: Path, famille: str, target: Path, *,
         by_token = {r["token"]: r for r in mapping["mapping"]}
         if len(by_token) != len(mapping["mapping"]):
             raise ValueError("mapping dupliqué")
-        history = historique_acquis(target, state, statut="statut_juge")
+        history = historique_acquis(target, state, statut="statut_juge", phase=phase_juge, serie=frozen["series_sha256"])
         done = {r["identite"] for r in dernieres_tentatives_juges([r for r in history if r.get("phase") == phase_juge]) if r["statut_juge"] == "ok"}
         for item in read_json(packet_path):
             meta = by_token[item["token"]]

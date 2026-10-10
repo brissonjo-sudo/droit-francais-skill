@@ -14,7 +14,7 @@ from unittest import mock
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path[:0] = [str(ROOT), str(ROOT / "tests")]
-from bench import agents, campaign, etude_v2, revue_v2, ablation
+from bench import agents, campaign, etude_v2, revue_v2, ablation, approbations_v2
 from bench.contexte import ContexteExecution
 from bench.flux import Trace, Appel, PREFIXE_MCP
 
@@ -60,6 +60,14 @@ class CampaignV2(unittest.TestCase):
         return etude_v2.reserver(state, identity, serie="s", meta={"famille": "claude", "id": "M01-a",
             "bras": "A", "repetition": 1, "phase": "pilote", "modele": "claude-exact",
             "moteur": "cli-native", "output": str((output or state / "s/out.jsonl").resolve())})
+
+    def approuver_preflight(self, gel, state):
+        draft = state / ("avis-" + str(len(approbations_v2.historique(state, "s"))) + ".json")
+        avis = approbations_v2.preparer(gel, "claude", "preflight", draft, state=state)
+        avis.update(valide_par="Humain fictif du test", justification="Traces comparées",
+            preuve_isolation="Lecture des traces du test", auth_confirmee=True, autorise_collecte=True)
+        approbations_v2.approuver(gel, avis, state=state)
+        return campaign.read_json(state / "s/preflight-claude.json")
 
     def test_collecteur_ne_rejoue_jamais_un_succes_acquis(self):
         with tempfile.TemporaryDirectory() as d:
@@ -327,7 +335,7 @@ class CampaignV2(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d:
             state = Path(d)
             lock = state / "collection.lock"
-            campaign.write_json(lock, {"schema": 2, "pid": os.getpid(), "hote": socket.gethostname(), "token": "x"})
+            campaign.write_json(lock, {"schema": 2, "pid": os.getpid(), "hote": socket.gethostname(), "token": "x", "processus_empreinte": etude_v2.empreinte_processus(os.getpid())})
             with self.assertRaisesRegex(ValueError, "actif"):
                 etude_v2.retirer_verrou_abandonne(state, "Humain", "Contrôle")
             self.assertTrue(lock.exists())
@@ -421,6 +429,8 @@ class CampaignV2(unittest.TestCase):
                 plan_path = state / "plan.json"
                 campaign.write_json(plan_path, plan)
                 campaign.write_json(state / "s/ablation-plan.json", plan)
+                with mock.patch.object(campaign, "pret_collecte"):
+                    campaign.collecter(gel, "claude", "principale", state=state)
                 engine.executer.return_value = agents.Execution(Trace(modele="claude-exact",
                     texte_final=campaign.read_json(campaign.CORPUS)["temoin_corriges"]), '{"type":"result"}', 0)
                 engine.executer.side_effect = None
@@ -450,7 +460,7 @@ class CampaignV2(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d:
             state = Path(d)
             campaign.write_json(state / "collection.lock", {"schema": 2, "pid": os.getpid(),
-                "hote": socket.gethostname(), "token": "ancien"})
+                "hote": socket.gethostname(), "token": "ancien", "processus_empreinte": etude_v2.empreinte_processus(os.getpid())})
             original = Journal.ajouter
             def interleave(journal, row):
                 with self.assertRaisesRegex(ValueError, "transition"):
@@ -497,6 +507,8 @@ class CampaignV2(unittest.TestCase):
                 receipt.update(revue_isolation_par="Humain", preuve_isolation="Lecture traces",
                                auth_confirmee=True, autorise_collecte=True)
                 f = gel["config"]["familles"][0]
+                self.assertFalse(validator(receipt, gel, f, state=state))
+                receipt = self.approuver_preflight(gel, state)
                 self.assertTrue(validator(receipt, gel, f, state=state))
                 changed = copy.deepcopy(receipt)
                 changed["runs"][1]["reponse"] = "succès fabriqué"
@@ -527,6 +539,7 @@ class CampaignV2(unittest.TestCase):
                 receipt = campaign.read_json(path)
                 receipt.update(revue_isolation_par="Humain", preuve_isolation="Lecture traces",
                                auth_confirmee=True, autorise_collecte=True)
+                receipt = self.approuver_preflight(gel, state)
                 self.assertTrue(validator(receipt, gel, gel["config"]["familles"][0], state=state))
                 self.assertEqual(3, len(etude_v2.reservations(state)))
 
@@ -623,6 +636,222 @@ class CampaignV2(unittest.TestCase):
                 contexte.assurer_ancre(state, auteur="Humain", motif="Rattachement sans remboursement")
                 contexte.assurer_ancre(state)
             self.assertEqual(original, (state / "budget.jsonl").read_bytes())
+
+    def test_pid_reutilise_identifie_par_creation_os_sans_terminer_processus(self):
+        import os
+        import socket
+        with tempfile.TemporaryDirectory() as d:
+            state = Path(d)
+            fingerprint = etude_v2.empreinte_processus(os.getpid())
+            self.assertIsNotNone(fingerprint)
+            self.assertTrue(etude_v2.processus_actif(os.getpid(), fingerprint))
+            old = "ancienne-instance:" + fingerprint
+            self.assertFalse(etude_v2.processus_actif(os.getpid(), old))
+            campaign.write_json(state / "collection.lock", {"schema": 2, "pid": os.getpid(),
+                "hote": socket.gethostname(), "token": "ancien", "processus_empreinte": old})
+            etude_v2.retirer_verrou_abandonne(state, "Humain fictif", "PID réutilisé, propriétaire ancien terminé")
+            self.assertFalse((state / "collection.lock").exists())
+            self.assertTrue(etude_v2.processus_actif(os.getpid(), fingerprint))
+
+    def test_quarantaine_conserve_octets_et_interdit_toute_reprise(self):
+        with tempfile.TemporaryDirectory() as d:
+            state = Path(d)
+            path = state / "budget.jsonl"
+            raw = b'{"schema":2,"tentative":'
+            path.write_bytes(raw)
+            etude_v2.quarantainer_journal(state, path, "Humain fictif", "Crash append, nombre inconnu")
+            self.assertEqual(raw, path.read_bytes())
+            import hashlib
+            self.assertEqual(raw, (state / "quarantaine" / (hashlib.sha256(raw).hexdigest() + ".bin")).read_bytes())
+            with etude_v2.verrou(state):
+                with self.assertRaisesRegex(ValueError, "quarantaine"):
+                    self.reservation(state)
+            self.assertEqual(raw, path.read_bytes())
+
+    def test_approbation_pilote_datee_stable_apres_manquant_principal(self):
+        with tempfile.TemporaryDirectory() as d:
+            state = Path(d)
+            gel, stack, engine, calls = self.contexte(state)
+            with stack:
+                campaign.collecter_entrelace(gel, "pilote", state=state)
+                avis = approbations_v2.preparer(gel, "claude", "pilote", state / "avis.json", state=state)
+                self.assertTrue(avis["cree_utc"])
+                with self.assertRaisesRegex(ValueError, "accord humain"):
+                    approbations_v2.approuver(gel, avis, state=state)
+                avis.update(valide_par="Humain fictif", justification="Lecture pilote", autorise_collecte=True)
+                approbations_v2.approuver(gel, avis, state=state)
+                before = campaign.read_json(state / "s/pilote-claude-revue.json")
+                for _ in range(2):
+                    with etude_v2.verrou(state):
+                        r = etude_v2.reserver(state, "principal-manquant", serie="s", meta={"phase": "principale", "famille": "claude"})
+                        etude_v2.clore(state, r, statut="infra_error", categorie="transport")
+                etude_v2.declarer_manquant(state, "s", "principal-manquant", "Humain fictif", "Deux pannes")
+                self.assertTrue(approbations_v2.verifier(before, gel, "claude", "pilote", state))
+                self.assertEqual(before, campaign.read_json(state / "s/pilote-claude-revue.json"))
+                self.assertEqual(1, len(approbations_v2.historique(state, "s")))
+
+    def test_crash_recu_preflight_reconstruit_sans_rejouer(self):
+        with tempfile.TemporaryDirectory() as d:
+            state = Path(d)
+            gel, stack, engine, calls = self.contexte(state)
+            original = campaign.write_json
+            def interrupted(path, value):
+                if len(value.get("runs", [])) == 2:
+                    raise OSError("écriture reçue interrompue")
+                original(path, value)
+            with stack:
+                with mock.patch.object(campaign, "write_json", side_effect=interrupted):
+                    with self.assertRaises(OSError):
+                        campaign.preflight(gel, "claude", state=state)
+                self.assertEqual(1, len(campaign.read_json(state / "s/preflight-claude.json")["runs"]))
+                self.assertEqual(2, engine.executer.call_count)
+                path = campaign.preflight(gel, "claude", state=state)
+                self.assertEqual(2, len(campaign.read_json(path)["runs"]))
+                self.assertEqual(2, engine.executer.call_count)
+                self.assertFalse(campaign.read_json(path)["autorise_collecte"])
+
+    def test_collecteurs_en_vrais_processus_exclusion_et_reprise_sans_rejeu(self):
+        import subprocess
+        code = """import sys
+from pathlib import Path
+sys.path.insert(0,sys.argv[1])
+from test_campaign_v2 import CampaignV2
+from bench import campaign
+t=CampaignV2(); state=Path(sys.argv[2]); gel,stack,engine,calls=t.contexte(state)
+original=engine.executer.side_effect
+def pause(**kw):
+    if not (state/'pret').exists():
+        (state/'pret').write_text('pret'); sys.stdin.readline()
+    return original(**kw)
+if sys.argv[3]=='pause': engine.executer.side_effect=pause
+try:
+    with stack: campaign.collecter(gel,sys.argv[4],'pilote',state=state)
+except ValueError as e:
+    print(str(e)); sys.exit(2)
+"""
+        with tempfile.TemporaryDirectory() as d:
+            state = Path(d)
+            argv = [sys.executable, "-c", code, str(ROOT / "tests"), str(state)]
+            child = subprocess.Popen(argv + ["pause", "claude"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+            try:
+                deadline = time.monotonic() + 10
+                while not (state / "pret").exists() and child.poll() is None and time.monotonic() < deadline:
+                    time.sleep(.01)
+                self.assertTrue((state / "pret").exists())
+                blocked = subprocess.run(argv + ["direct", "claude"], capture_output=True, text=True, timeout=10)
+                self.assertEqual(2, blocked.returncode, blocked.stderr)
+                self.assertIn("verrou", blocked.stdout)
+                out, err = child.communicate("continuer\n", timeout=10)
+                self.assertEqual(0, child.returncode, err)
+                retry = subprocess.run(argv + ["direct", "claude"], capture_output=True, text=True, timeout=10)
+                self.assertEqual(2, retry.returncode)
+                self.assertEqual(4, len(etude_v2.reservations(state)))
+                next_block = subprocess.run(argv + ["direct", "codex"], capture_output=True, text=True, timeout=10)
+                self.assertEqual(0, next_block.returncode, next_block.stderr)
+                self.assertEqual(8, len(etude_v2.reservations(state)))
+            finally:
+                if child.poll() is None:
+                    child.kill()
+                    child.communicate(timeout=5)
+
+    def test_ablation_plan_unique_et_comparaison_effective_avis_humains(self):
+        import hashlib
+        from bench import native
+        with tempfile.TemporaryDirectory() as d:
+            state = Path(d)
+            gel, stack, engine, calls = self.contexte(state)
+            report = state / "rapport.json"
+            campaign.write_json(report, {"statut": "revue_complete_a_valider", "series_sha256": "s"})
+            recipe = state / "recette.json"
+            campaign.write_json(recipe, [{"mode": 1, "valide_par": "Humain fictif", "raison": "Retrait testé",
+                "regles_partagees": ["P1"], "passages_exacts": [native.methode(True)]}])
+            with stack, mock.patch.object(campaign, "verifier_rapport_acquis"), mock.patch.object(campaign, "pret_collecte"):
+                plan = ablation.preparer(gel, recipe, report, state / "experience", state=state)
+                with self.assertRaisesRegex(ValueError, "déjà enregistré"):
+                    ablation.preparer(gel, recipe, report, state / "autre-experience", state=state)
+                self.assertFalse((state / "autre-experience").exists())
+                unit = next(u for u in gel["plan"]["principale"] if u["famille"] == "claude" and u["bras"] == "C")
+                gel["plan"]["principale"] = [unit]
+                campaign.collecter(gel, "claude", "principale", state=state)
+                original = engine.executer.side_effect
+                def variant(**kw):
+                    result = original(**kw)
+                    result.trace.texte_final = "variante mesurée fictive"
+                    return result
+                engine.executer.side_effect = variant
+                plan_path = state / "experience/plan.json"
+                self.assertEqual(1, ablation.collecter(gel, plan_path, "claude", state=state))
+                main = state / "s/principale-claude.jsonl"
+                variant_path = state / "s" / f"ablation-{plan['plan_sha256']}-claude.jsonl"
+                result_rows = etude_v2.lire(main) + etude_v2.lire(variant_path)
+                self.assertEqual(campaign.digest(result_rows[0]), result_rows[1]["comparateur_sha256"])
+                reviews = state / "juges.jsonl"
+                humans = state / "humains.jsonl"
+                empty = ablation.comparer(gel, plan_path, reviews, humans, state / "comparaison-vide.json", state=state)
+                self.assertEqual(0, empty["paires_evaluees"])
+                def judge(**kw):
+                    quality = "correct" if "variante mesurée fictive" in kw["prompt"] else "faux"
+                    return agents.Execution(Trace(modele="codex-exact", texte_final=json.dumps({"axes": {a: quality for a in campaign.AXES}})), "", 0)
+                engine.executer.side_effect = judge
+                for index, path in enumerate((main, variant_path)):
+                    packet = state / f"paquet-{index}.json"
+                    campaign.paquet_revue([path], packet, state=state)
+                    campaign.juger_paquet(gel, packet, "codex", reviews, state=state)
+                results = {r["identite"]: r for r in result_rows}
+                judges = {r["identite"]: r for r in etude_v2.lire(reviews)}
+                for key, result in results.items():
+                    judge_row = judges[key]
+                    h = {"schema": 2, "identite": key, "revision": 1, "precedent_sha256": "",
+                        "relecteur_humain": "Humain fictif", "justification_humaine": "Source du test comparée",
+                        "date_validation": "2026-10-10", "validation_humaine": True, "avis_final": True,
+                        "arbitrage": "confirmer_juge", "axes": judge_row["axes"],
+                        "resultat_sha256": campaign.digest(result), "jugement_sha256": campaign.digest(judge_row)}
+                    revue_v2.ajouter(humans, h, results, judges, state=state)
+                measured = ablation.comparer(gel, plan_path, reviews, humans, state / "comparaison.json", state=state)
+                self.assertEqual(1, measured["paires_evaluees"])
+                self.assertEqual(1, measured["paires"][0]["delta_variante_moins_principal"])
+
+    def test_gel_dans_parent_runs_et_timeout_sonde_assaini(self):
+        import subprocess
+        from bench import runtime_v2
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d) / "runs" / "repo"
+            (root / "skill").mkdir(parents=True)
+            (root / "skill/SKILL.md").write_text("candidat")
+            (root / "tests/bench/runs").mkdir(parents=True)
+            (root / "tests/bench/runs/local.json").write_text("privé")
+            with mock.patch.object(campaign, "ROOT", root):
+                frozen = campaign.fichiers_figes()
+            self.assertIn("skill/SKILL.md", frozen)
+            self.assertNotIn("tests/bench/runs/local.json", frozen)
+        timeout = subprocess.TimeoutExpired(["python", "--secret=CONFIDENTIEL"], 15,
+            output="CONFIDENTIEL", stderr="CONFIDENTIEL")
+        with mock.patch.object(runtime_v2.subprocess, "run", side_effect=timeout):
+            with self.assertRaises(runtime_v2.ControleIndisponible) as exc:
+                runtime_v2.python_runtime("python")
+            self.assertNotIn("CONFIDENTIEL", str(exc.exception))
+            with self.assertRaises(runtime_v2.ControleIndisponible):
+                campaign.version_cli("cli")
+
+    def test_avis_refuse_juge_infra_et_champ_humain_inconnu(self):
+        with tempfile.TemporaryDirectory() as d:
+            state = Path(d)
+            result = {"identite": "id"}
+            judge = {"identite": "id", "statut_juge": "infra_error", "axes": {a: "correct" for a in campaign.AXES}}
+            row = {"schema": 2, "identite": "id", "revision": 1, "precedent_sha256": "",
+                "relecteur_humain": "Humain fictif", "justification_humaine": "Incident",
+                "date_validation": "2026-10-10", "validation_humaine": True, "avis_final": True,
+                "arbitrage": "confirmer_juge", "axes": judge["axes"],
+                "resultat_sha256": campaign.digest(result), "jugement_sha256": campaign.digest(judge)}
+            path = state / "humains.jsonl"
+            with self.assertRaisesRegex(ValueError, "jugement acquis"):
+                revue_v2.ajouter(path, row, {"id": result}, {"id": judge}, state=state)
+            self.assertFalse(path.exists())
+            judge["statut_juge"] = "ok"
+            row.update(jugement_sha256=campaign.digest(judge), autre_instruction="injectée")
+            with self.assertRaisesRegex(ValueError, "champ humain"):
+                revue_v2.ajouter(path, row, {"id": result}, {"id": judge}, state=state)
+            self.assertFalse(path.exists())
 
 
 if __name__ == "__main__":
