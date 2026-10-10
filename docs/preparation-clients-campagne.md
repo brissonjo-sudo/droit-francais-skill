@@ -5,19 +5,18 @@ clients. **Aucune réponse de modèle, aucun préflight comportemental ni score
 d'utilité n'est acquis.** La sélection des trois modèles demeure à renseigner
 avant le gel.
 
-**Correction du 10 octobre :** le titulaire précise que Gemini doit utiliser
-une clé API gratuite. La recette OAuth ci-dessous décrit le chemin initial,
-qui n'est plus celui retenu pour Gemini. Voir la
-[vérification des quotas gratuits](quotas-gemini-gratuit.md) : les valeurs
-actives et le projet de la clé restent à établir ; le harnais n'est pas
-encore adapté à cette authentification. Aucun appel Gemini n'est autorisé par
-le seul constat d'installation.
+**Choix retenu :** Gemini utilise une clé gratuite et le moteur REST v2,
+séparément qualifié. La [vérification des quotas](quotas-gemini-gratuit.md)
+et le [protocole v2](campagne-18-modes.md) font autorité ; la recette CLI OAuth
+ci-dessous est historique et ne constitue aucun repli. Le pilote attend les
+trois familles ensemble après qualification réelle. Aucun appel modèle n'est
+autorisé par le seul constat d'installation.
 
 | Client | Observation locale | Reste à établir |
 |---|---|---|
 | Claude Code | Version 2.1.288 ; abonnement claude.ai constaté lors de la première livraison | Modèle exact accessible au compte, effort, absence de crédits supplémentaires et preuve de préflight |
 | Codex | Version 0.162.0-alpha.2 ; connexion ChatGPT constatée lors de la première livraison | Modèle exact et preuve du modèle effectif dans le flux |
-| Gemini CLI | Version 0.63.0 installée localement, aide et version exécutées depuis Python sous Windows ; clé gratuite déclarée par le titulaire | Projet et quotas actifs, modèle Flash exact, adaptation à la clé et qualification native |
+| Gemini CLI historique | Version 0.63.0 installée localement, aide et version exécutées depuis Python sous Windows ; clé gratuite déclarée par le titulaire | Projet et quotas actifs, modèle Flash exact, qualification du moteur REST v2, indépendante de cette CLI |
 
 Les états d'authentification de la première livraison ne valent pas un appel
 réussi aujourd'hui. Le préflight les contrôle à nouveau, sans repli API.
@@ -60,11 +59,10 @@ claude-sonnet-5-5. Les versions minimales indiquées, respectivement 2.1.280 et
 2.1.284, sont inférieures à la version locale. La disponibilité réelle dans
 l'abonnement reste à constater. Les alias évolutifs sont exclus du gel.
 
-Le modèle Fable peut utiliser des crédits supplémentaires et la documentation
-précise que le mode non interactif peut les facturer sans confirmation.
-Il n'est donc pas proposé pour cette campagne limitée aux abonnements.
-Avant toute collecte, contrôler aussi l'absence de facturation supplémentaire
-pour le modèle retenu ; retirer des variables de clé API ne suffit pas à le prouver.
+Fable reste exclu du périmètre de campagne. Cette exclusion est une règle
+d'étude ; la préparation ne déduit aucun tarif d'une observation non sourcée.
+Les modèles précis, leur authentification et leur disponibilité doivent être
+confirmés avant les recettes réelles.
 
 La [documentation de sélection Gemini](https://geminicli.com/docs/cli/model/)
 consultée est datée de mars 2026. Elle décrit /model et --model, mais ne suffit
@@ -76,7 +74,7 @@ flux et les statistiques. Tout basculement reste bloquant pour la comparaison.
 
 ## Préflight restant
 
-Confirmer les corrigés humains, choisir les modèles exacts et leurs réglages,
+Préparer les preuves de sources puis obtenir la validation humaine des corrigés, choisir les modèles exacts et leurs réglages,
 commiter le candidat puis figer. Chaque client doit ensuite réussir son test
 technique et une recherche suivie d'une lecture juridique via le MCP local.
 Le catalogue de huit outils énuméré précédemment ne prouve pas cette lecture.
@@ -88,17 +86,20 @@ La documentation officielle et le code du paquet installé ont été consultés
 pour la recette. Context7 a retourné « Monthly quota exceeded » ; aucune API
 ou capacité n'est déduite de sa seule absence.
 
-Pour la clé gratuite, un prototype REST explicite est désormais préparé ;
-il n'utilise pas les reprises automatiques de Gemini CLI. La CLI reste le
-chemin historique lorsqu'aucun profil REST n'est sélectionné ; aucune bascule
-implicite n'est ajoutée. Le détail des compteurs, la mesure réelle de 31 558
-jetons et les limites de qualification sont dans
-[le relevé de préparation Gemini](quotas-gemini-gratuit.md).
-Installer les dépendances du harnais avant ses tests :
+Le chemin gratuit doit fournir un reçu REST v2 indépendant, lié au runtime
+Python du candidat et relu humainement. Sans ce reçu, le gel des trois familles
+reste fermé. CLI, Python et dépendances sont figés puis contrôlés avant/après
+chaque réponse ; conserver des environnements isolés et empêcher leurs mises
+à jour automatiques durant la série. Une modification détectée exige une
+nouvelle série sans transfert de qualification.
+
+Installer les dépendances du harnais avec leurs empreintes avant ses tests :
 
 ~~~powershell
-python -m pip install -r requirements-bench.txt
+python -m pip install --require-hashes -r requirements-bench.txt
 ~~~
 
-Cette préparation ne lève pas le blocage du gel gratuit. Aucun cas juridique
-n'a été soumis au modèle et aucun score n'est disponible.
+Le [parcours Gemini](quotas-gemini-gratuit.md) décrit les quotas et la recette
+REST préalable. Aucun cas juridique n'a été soumis au modèle ; aucun score
+n'est disponible. La mesure historique de 31 558 jetons ne qualifie pas le
+corpus corrigé.

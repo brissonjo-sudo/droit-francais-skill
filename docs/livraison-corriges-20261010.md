@@ -1,5 +1,12 @@
 # Suite de la préparation — 10 octobre 2026
 
+**Trace historique de la préparation de la PR #114, le 10/10/2026.** Les
+525 tests, le client Gemini CLI et les observations de 16 sources ci-dessous
+décrivent cette étape antérieure. Une observation documentaire ne prouve pas
+la lecture du texte primaire ni sa vigueur. Le [bilan de relecture actuel](relecture-campagne-116.md)
+distingue les preuves récupérées dans la session et les validations humaines
+encore absentes ; le [protocole v2](campagne-18-modes.md) utilise un autre moteur Gemini.
+
 La PR brouillon #114 poursuit maintenant la préparation des cas et des clients.
 Le noyau du skill et le serveur de production sont inchangés.
 

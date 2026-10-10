@@ -10,7 +10,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "tests"))
-from bench import ablation, campaign, corriges, profils_gemini, quotas_gemini
+from bench import ablation, campaign, corriges, etude_v2, revue_v2, profils_gemini, quotas_gemini
 
 
 def main(argv=None) -> int:
@@ -51,6 +51,8 @@ def main(argv=None) -> int:
     report = sub.add_parser("rapport")
     report.add_argument("--resultats", type=Path, nargs="+", required=True)
     report.add_argument("--revues", type=Path, required=True)
+    report.add_argument("--revues-humaines", type=Path)
+    report.add_argument("--gel", type=Path, required=True)
     report.add_argument("--sortie", type=Path, required=True)
     abl = sub.add_parser("preparer-ablation")
     abl.add_argument("--gel", type=Path, required=True)
@@ -61,6 +63,20 @@ def main(argv=None) -> int:
     run_abl.add_argument("--gel", type=Path, required=True)
     run_abl.add_argument("--plan", type=Path, required=True)
     run_abl.add_argument("--famille", choices=campaign.FAMILLES, required=True)
+    for action in ("clore-interruption", "declarer-manquant", "recuperer-verrou"):
+        p = sub.add_parser(action)
+        p.add_argument("--auteur-humain", required=True)
+        p.add_argument("--motif", required=True)
+        if action == "clore-interruption":
+            p.add_argument("--attempt-id", required=True)
+        elif action == "declarer-manquant":
+            p.add_argument("--gel", type=Path, required=True)
+            p.add_argument("--identite", required=True)
+    human = sub.add_parser("ajouter-revue-humaine")
+    human.add_argument("--avis", type=Path, required=True)
+    human.add_argument("--resultats", nargs="+", type=Path, required=True)
+    human.add_argument("--revues", type=Path, required=True)
+    human.add_argument("--sortie", type=Path, required=True)
     args = parser.parse_args(argv)
     try:
         if args.action == "verifier":
@@ -113,10 +129,24 @@ def main(argv=None) -> int:
         elif args.action == "ablation":
             count = ablation.collecter(campaign.read_json(args.gel), args.plan, args.famille)
             print(f"{count} réponses expérimentales écrites")
+        elif args.action == "clore-interruption":
+            etude_v2.clore_interruption(campaign.STATE, args.attempt_id, args.auteur_humain, args.motif)
+        elif args.action == "declarer-manquant":
+            gel = campaign.read_json(args.gel)
+            etude_v2.declarer_manquant(campaign.STATE, gel["series_sha256"], args.identite, args.auteur_humain, args.motif)
+        elif args.action == "recuperer-verrou":
+            etude_v2.retirer_verrou_abandonne(campaign.STATE, args.auteur_humain, args.motif)
+        elif args.action == "ajouter-revue-humaine":
+            def charger():
+                results = campaign.dernieres_tentatives([r for p in args.resultats for r in campaign.historique_acquis(p, campaign.STATE)])
+                judges = campaign.dernieres_tentatives_juges(campaign.historique_acquis(args.revues, campaign.STATE, statut="statut_juge"))
+                return {r["identite"]: r for r in results}, {r["identite"]: r for r in judges}
+            revue_v2.ajouter(args.sortie, campaign.read_json(args.avis), {}, {}, state=campaign.STATE, charger=charger)
         else:
-            campaign.write_json(args.sortie, campaign.rapport(args.resultats, args.revues))
+            campaign.write_json(campaign.confiner(args.sortie, campaign.STATE), campaign.rapport(args.resultats, args.revues,
+                humains=args.revues_humaines, frozen=campaign.read_json(args.gel)))
     except (ValueError, KeyError, OSError) as exc:
-        print(f"Arrêt : {exc}", file=sys.stderr)
+        print(f"Arrêt : {str(exc) if not isinstance(exc, OSError) else 'lecture ou écriture privée impossible ; consulter localement les permissions et fichiers'}", file=sys.stderr)
         return 2
     return 0
 

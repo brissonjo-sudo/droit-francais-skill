@@ -1,18 +1,10 @@
-# Campagne d'utilité des 18 modes
+# Campagne d'utilité des 18 modes — protocole v2
 
-Préparation du 10 octobre 2026. **36 cas circonstanciés avec propositions de
-corrigés sourcés, zéro réponse mesurée, zéro corrigé humain validé.**
-Le noyau du skill n'est pas modifié.
-Les tests logiciels du harnais ne prouvent pas une performance juridique.
+Préparation du 10/10/2026 : **36 cas, zéro réponse juridique collectée et 0/36
+corrigés humains validés**. Les tests du harnais n'établissent aucune utilité
+juridique. Le noyau du skill reste inchangé.
 
-**Gemini gratuit :** le titulaire a précisé l'usage d'une clé API gratuite,
-qui remplace l'hypothèse Gemini sur abonnement dans la recette ci-dessous.
-La [vérification préalable des quotas](quotas-gemini-gratuit.md) distingue
-RPM, TPM, RPD et requêtes internes à une réponse. Le gel actuel exige encore
-un abonnement : adapter ce chemin et observer les quotas actifs avant de
-paramétrer ou de lancer Gemini. Les recettes Claude/Codex restent applicables.
-
-## Ce que la campagne comparera
+## Comparaisons et conditions de départ
 
 | Bras | Méthode | Outils juridiques |
 |---|---|---|
@@ -21,296 +13,215 @@ paramétrer ou de lancer Gemini. Les recettes Claude/Codex restent applicables.
 | C | Même méthode que B | MCP local du candidat |
 | D | Prompt neutre | Même MCP que C |
 
-La méthode est injectée à partir du noyau et des neuf fichiers Markdown de
-references. Chaque famille reçoit le même contenu méthodologique, avec une
-adaptation explicite de la découverte des outils. Les profils, hooks, mémoire,
-skills installés et moteurs web du poste sont exclus ou doivent être attestés
-absents au préflight. Les fichiers restent accessibles au lanceur et au serveur,
-pas comme outil de lecture du modèle.
+Les comparaisons B/A et C/D portent sur le même cas, la même répétition, la
+même famille et le même moteur. Aucun classement inter-familles n'est calculé.
+Claude et Codex utilisent leur CLI native avec abonnement ; Gemini utilise
+exclusivement le moteur REST v2 avec clé gratuite et quotas confirmés. Aucun
+repli vers OAuth, un autre modèle, une autre clé ou un moteur payant n'est prévu.
 
-Ce protocole mesure une méthode fournie dans un environnement contrôlé.
-Une installation réelle du plugin charge ses références selon le client ;
-sa recette est une preuve distincte. Le service distant peut exposer une autre
-version : ses résultats ne sont pas transférables au candidat local.
+La campagne pilote et principale attend les **trois familles qualifiées
+ensemble**. Le gel refuse une qualification Gemini absente, périmée ou non
+relue humainement. Le lot [Gemini et quotas](quotas-gemini-gratuit.md) fournit
+cette recette séparée. Un catalogue de huit outils ne prouve pas un accès aux
+sources ni une lecture juridique réussie.
 
-36 cas × 4 bras × 2 répétitions × 3 familles = **864 réponses principales**.
-Le pilote de quatre modes représente 192 réponses supplémentaires au maximum,
-plus six réponses de préflight. Le jugement LLM consomme lui aussi le quota
-du fournisseur et doit être compté dans le budget journalier. Aucun appel API
-payant ni repli implicite n'est prévu.
+36 cas × 4 bras × 2 répétitions × 3 familles = 864 réponses principales.
+Le pilote, séparé, porte sur les modes 1, 3, 5 et 18 : 192 réponses. Deux cas
+et deux répétitions par mode produisent des observations descriptives ; ils
+ne permettent pas de conclure à une significativité ni à une utilité générale.
 
-C/D mesure l'apport de la méthode à outils constants ; B/A mesure son apport
-sans outils. Les comparaisons se font au sein de chaque famille et de chaque
-cas/répétition. Une différence entre familles peut venir du client ou de la
-configuration ; aucun classement général de LLM n'est calculé.
+## Corrigés et preuves officielles
 
-## Relire le corpus avant collecte
+Lire le [dossier des corrigés](corriges-campagne-18-modes.md), puis corriger
+[cases.json](../tests/campaign/cases.json). Les faits déterminants absents
+et leurs limites sont propres à chaque cas ; aucune hypothèse n'est ajoutée
+pour rendre le résultat complet. Les questions M04-a, M05-a, M10-a et M18-a
+ne prescrivent plus l'analyse attendue.
 
-Ouvrir [cases.json](../tests/campaign/cases.json). Deux cas par mode : un piège
-et un contrôle destiné à détecter le refus excessif. Les modes 9 et 15 à 18
-utilisent des pièces synthétiques, marquées comme telles et injectées à tous
-les bras. Les pièces de contrôle des modes 15 à 18 permettent une conclusion
-positive sur leur seule cohérence documentaire.
+Le [registre préparatoire des sources](../tests/campaign/preuves-sources-20261010.json)
+distingue textes/versions récupérés dans cette session, pièces synthétiques
+lues et références historiques non vérifiées dans cette session. Six pages
+officielles prioritaires ont été relues : article 1242, articles 78-6, 78-3,
+21, 73 du CPP et décision Benjamin. Les fragments sauvegardés sont partiels ;
+ils ne suffisent pas à vérifier toute citation possible d'une réponse.
+L'article 21 est lu sur une page au 12/10/2023 dont l'intervalle de version
+couvre le 16/05/2026 ; la page datée du 16/05/2026 n'a pas été récupérée.
+La décision Benjamin n'est vérifiée que pour l'identification historique.
 
-Lire le [dossier de revue des corrigés](corriges-campagne-18-modes.md), généré
-depuis le corpus, et les [prérequis clients](preparation-clients-campagne.md).
-Les propositions comprennent conclusions, réserves ciblées, alternatives,
-criticité et observations des sources officielles consultées. Les dates de
-droit sont propres à chaque cas ; la date de consultation ne les remplace pas.
-Les observations de préparation ne constituent pas une validation humaine.
+Les résumés restent des résumés. Un fragment officiel, son empreinte et les
+bornes de version ne transforment pas une paraphrase en citation. L'axe
+fidelite_sources reste indetermine si le passage officiel requis n'est pas
+présent. Les pièces synthétiques ne constituent jamais du droit positif.
+Le contrôle humain doit confirmer sources et versions à la date utile, puis
+renseigner verification_humaine de chaque source et la validation du gold.
+Une date future, un nom seul ou une ancienne consultation embarquée ne suffisent
+pas. Tous ces champs humains restent vides après la préparation par agent.
 
-Deux situations par mode restent exploratoires. Certains cas réutilisent
-les mêmes sources ; les modes ne sont donc pas statistiquement indépendants.
-Le pilote devra identifier les questions saturées, ambiguës ou trop faciles
-avant le gel de la campagne principale.
-
-Pour chaque gold, renseigner avant les réponses :
-
-- conclusion attendue et alternatives admissibles ;
-- critères communs d'exactitude, applicabilité, fidélité et conclusion ;
-- abstention attendue (booléen), informations manquantes et refus excessif ;
-- criticité ordinaire/critique ;
-- sources officielles précises, extrait utile, version applicable et date de
-  consultation. Pour une pièce synthétique : fixture:nom-du-document ;
-- statut valide, nom du relecteur humain et date_validation ISO.
-
-Le lanceur ne valide aucun cas à la place du relecteur et refuse une collecte
-avec un corrigé incomplet. Un nom de relecteur seul ne suffit pas. Après revue,
-commiter le corrigé, puis figer : changer le corpus après gel crée une autre série.
+Les dates affichées en français sont européennes ; **les dates JSON restent
+ISO AAAA-MM-JJ**. La provenance déclare l'assistance Codex et un modèle exact
+non attesté, sans déduire une version de LLM depuis l'interface.
 
 ~~~powershell
 python tests/run_campaign.py verifier
 python tests/run_campaign.py corriges --sortie docs/corriges-campagne-18-modes.md
 ~~~
 
-## Figer le candidat et les clients
+## Gel, état commun et qualification
 
-Copier [config.example.json](../tests/campaign/config.example.json) vers un
-fichier local sous tests/bench/runs/campaign. Renseigner, pour chaque famille,
-le nom de modèle exact, le chemin de CLI, auth = abonnement pour Claude/Codex et raisonnement. Le template Gemini déclare
-cle_api_gratuite et un moteur REST non qualifié : le gel refuse donc ce template
-tant que cette voie n’est pas qualifiée ; ne pas remplacer ce champ par OAuth pour contourner le refus.
-Le réglage defaut_cli doit être attesté lors de la recette ; Claude et Codex
-acceptent également un effort explicite. Le prototype Gemini REST reste bloqué avant qualification ; la recette CLI OAuth est historique.
-python_mcp peut désigner l'interpréteur portant les dépendances du serveur.
+Copier [config.example.json](../tests/campaign/config.example.json), puis
+renseigner les modèles exacts et réglages. Les paramètres inconnus et les alias
+évolutifs, quelle que soit leur casse, sont refusés. Les champs moteur,
+ordre_collecte, max_tentatives_par_identite, timeout_s et ablation sont
+appliqués ou refusés explicitement. Le profil Gemini et son registre sont
+privés ; leur qualification REST est nécessaire avant le gel.
 
-Les alias sonnet, opus, auto et default sont refusés. Les trois clients doivent
-être qualifiés avant le gel. Claude et Codex gardent leurs clients natifs ; Gemini
-est prévu via un moteur REST distinct. Aucun moteur n’est choisi comme repli implicite.
-
-~~~powershell
-python tests/run_campaign.py figer --config tests/bench/runs/campaign/config.json --sortie tests/bench/runs/campaign/gel.json
-python tests/run_campaign.py preflight --gel tests/bench/runs/campaign/gel.json --famille claude
-~~~
-
-Répéter le préflight pour codex et gemini. Le gel conserve commit, hashes des
-sources/fixtures/harnais, configuration, versions CLI et catalogue MCP réellement
-énuméré avec ses schémas. Le serveur lancé pour énumérer le catalogue ne fait
-aucune recherche juridique.
-
-Le préflight produit un reçu sous tests/bench/runs/campaign/<empreinte>.
-Examiner appels, configuration d'isolation et authentification réelle ; renseigner
-revue_isolation_par, preuve_isolation, auth_abonnement_confirmee et autorise_collecte
-uniquement si le contrôle est établi. Les champs restent vides par défaut.
-La présence d'un MCP dans une liste ne prouve pas une lecture réussie.
-
-**Limites connues des adaptateurs :** les commandes et normaliseurs Codex/Gemini
-sont préparés et testés sur contrats synthétiques ; leur qualification native
-reste à faire. Codex peut ne pas annoncer le modèle effectif dans son flux JSON.
-Dans ce cas la série est bloquée : le modèle demandé n’est jamais substitué
-à cette preuve. Le chemin retenu pour Gemini est une clé gratuite et un moteur REST
-distinct, non qualifié. L’ancienne recette CLI OAuth ne s’applique pas à cette clé.
-Les comparaisons inter-familles confondent moteur et modèle : elles sont exclues.
-Les comparaisons A/B et C/D restent internes à une famille et à son moteur figé.
-
-## Pilote, collecte et reprise
+Le schéma v2 est une rupture : **aucune migration implicite des anciens gels
+ou journaux**. Conserver les preuves anciennes dans leur dossier d'origine.
+L'état de production est commun aux worktrees : sous Windows,
+%LOCALAPPDATA%/droit-francais/bench-v2 ; sous Linux,
+${XDG_STATE_HOME:-~/.local/state}/droit-francais/bench-v2. Aucun argument CLI
+ne permet de choisir un compteur d'étude ou fournisseur alternatif.
+Les injections d'état des fonctions Python servent aux tests internes.
 
 ~~~powershell
-python tests/run_campaign.py collecter --gel tests/bench/runs/campaign/gel.json --famille claude --phase pilote
+$etat = Join-Path $env:LOCALAPPDATA "droit-francais/bench-v2"
+python tests/run_campaign.py figer --config config-privee.json --sortie "$etat/gel.json"
+python tests/run_campaign.py preflight --gel "$etat/gel.json" --famille claude
+python tests/run_campaign.py preflight --gel "$etat/gel.json" --famille codex
+python tests/run_campaign.py preflight --gel "$etat/gel.json" --famille gemini
 ~~~
 
-Les modes 1, 3, 5 et 18 sont imposés au pilote. Après analyse de toutes ses
-réponses, créer pilote-claude-revue.json dans le dossier de série :
+Le gel conserve commit, hashes du candidat/corpus/harnais, catalogue MCP avec
+schémas, configuration, ordre matérialisé, exécutables CLI résolus et versions,
+versions/hash des Python du harnais et du serveur, ainsi que toutes les versions
+des distributions installées, dont MCP et PyJWT. Préparer un environnement
+isolé conservé pendant l'étude et empêcher ses mises à jour automatiques par
+les mécanismes documentés des clients ; une modification détectée exige une
+nouvelle série. Les contrôles sont faits avant et après chaque réponse.
 
-~~~json
-{
-  "valide_par": "RELECTEUR_HUMAIN",
-  "resultats_sha256": "EMPREINTE_DU_JSON_DES_LIGNES_DU_PILOTE"
-}
-~~~
+Chaque reçu de préflight contient deux runs techniques A et C. Le titulaire
+renseigne revue_isolation_par, preuve_isolation, auth_confirmee et
+autorise_collecte après contrôle réel. Le modèle demandé n'est jamais substitué
+à un modèle effectif absent. Un reçu ne remplace pas la validation des corrigés.
 
-L'empreinte est celle de bench.campaign.digest(bench.campaign.lire_strict(path)).
-Le fichier doit être créé après revue ; cette empreinte lie la décision aux
-résultats examinés. Puis :
+## Ordre, réservations et interruptions
 
 ~~~powershell
-python tests/run_campaign.py collecter --gel tests/bench/runs/campaign/gel.json --famille claude --phase principale
+python tests/run_campaign.py collecter-entrelace --gel "$etat/gel.json" --phase pilote
+python tests/run_campaign.py collecter-entrelace --gel "$etat/gel.json" --phase principale
 ~~~
 
-Pour l’étude comparative, utiliser collecter-entrelace après les trois préflights :
+Le plan matérialisé conserve proches les deux répétitions de chaque cas, en
+alternant leur ordre selon l'index du cas. Les quatre bras tournent et les
+familles alternent par blocs de quatre ; la première famille tourne également.
+Une collecte individuelle est limitée à quatre tentatives pour diagnostic.
+La collecte principale exige une revue humaine de chaque pilote, liée par SHA
+aux résultats et déclarations de manquants effectivement examinés, avec auteur
+et justification. Aucun score du pilote n'est recyclé dans la principale.
+
+Le verrou couvre lecture autoritaire, réservation, appel, résultat et clôture.
+Une réservation durable unique précède toute initialisation MCP et tout appel
+modèle ; elle possède attempt_id, identité, numéro et horodatage. L'échéance
+globale couvre aussi les vérifications préalables et borne le timeout natif.
+Les quotas HTTP Gemini ont leurs propres réservations liées à cette tentative ;
+ils ne créent pas une deuxième réservation d'étude.
+
+Maximum 100 **tentatives de réponse par jour UTC**, toutes familles et phases
+confondues, et deux tentatives réservées par identité. Une interruption ou une
+panne consomme ces deux limites. Aucun remboursement, attente ou retry caché.
+Une réponse acquise n'est jamais rejouée. Toute commande en panne sort avec 2.
+Une interruption entre réservation et résultat bloque la reprise jusqu'à
+clôture explicite, après contrôle du processus. Si un résultat complet avait
+été écrit avant le crash, la récupération conserve ce succès au lieu de le
+transformer en interruption et de permettre un second tirage.
 
 ~~~powershell
-python tests/run_campaign.py collecter-entrelace --gel tests/bench/runs/campaign/gel.json --phase pilote
-python tests/run_campaign.py collecter-entrelace --gel tests/bench/runs/campaign/gel.json --phase principale
+python tests/run_campaign.py recuperer-verrou --auteur-humain "NOM" --motif "Processus terminé et contrôlé"
+python tests/run_campaign.py clore-interruption --attempt-id ATTEMPT_ID --auteur-humain "NOM" --motif "Contrôle de la tentative interrompue"
+python tests/run_campaign.py declarer-manquant --gel "$etat/gel.json" --identite IDENTITE --auteur-humain "NOM" --motif "Deux pannes clôturées, données manquantes acceptées"
 ~~~
 
-La commande alterne des blocs de quatre tentatives entre les trois familles.
-L’ordre des bras est tournant par cas/répétition ; la reprise commence par la
-famille la moins avancée. Une collecte individuelle reste limitée à quatre
-tentatives et sert au diagnostic, pas à exécuter une famille entière en premier.
-Maximum 100 **tentatives de réponse par jour UTC**, toutes familles,
-préflights, collectes, jugements et ablations confondus dans le même état local.
-La limite est réservée avant l'appel, même si celui-ci échoue ou si le processus
-s'interrompt. Après quota, le lanceur s'arrête ; aucune attente ou relance cachée.
-La commande juger partage ce budget ; elle exige aussi un client qualifié.
+Le retrait d'un verrou vérifie hôte et PID sans terminer de processus. Un PID
+encore actif, un journal tronqué ou une preuve ambiguë bloque l'opération.
+Après deux pannes récupérables, seule une déclaration humaine motivée autorise
+la poursuite sur les autres unités. Les paires incomplètes sont exclues, sans
+imputation d'une panne en réponse correcte ou fausse ; leurs taux sont publiés.
+**Contamination, rupture d'isolation, substitution de modèle et changement de
+gel/runtime invalident définitivement la série.** Aucun second tirage de ces
+cas n'est permis. Les invalidations et récupérations restent auditables.
 
-Rejouer explicitement la commande reprend les identités absentes et les erreurs
-techniques, au plus deux tentatives par identité pour la collecte. Les réponses
-ok ne sont jamais rejouées. Chaque essai reste dans le journal append-only et
-consomme du budget ; paquet et rapport utilisent le dernier essai et comptent les
-pannes historiques. Après deux pannes, arrêter et examiner les données manquantes.
-Il n’y a aucune reprise interne après erreur. Une commande arrêtée sort avec 2.
-Un changement de modèle, version CLI, corpus, méthode ou schéma crée une série.
-Un verrou après interruption exige de vérifier que le processus est terminé
-avant son retrait. Un journal tronqué bloque la reprise et doit être réparé
-explicitement depuis une copie conservée.
-
-Les traces et résultats sont ignorés par Git. Les secrets d'environnement sont
-expurgés avant écriture ; relire toute preuve avant de l'exporter publiquement.
-
-## Revue du fond, séparée de la procédure
+## Jugements et arbitrage humain
 
 ~~~powershell
-python tests/run_campaign.py paquet-revue --resultats tests/bench/runs/campaign/SERIE/principale-claude.jsonl --sortie tests/bench/runs/campaign/SERIE/paquet.json
+python tests/run_campaign.py paquet-revue --resultats "$etat/SERIE/principale-claude.jsonl" --sortie "$etat/SERIE/paquet.json"
+python tests/run_campaign.py juger --gel "$etat/gel.json" --paquet "$etat/SERIE/paquet.json" --famille codex --sortie "$etat/SERIE/juges.jsonl"
 ~~~
 
-Le paquet retire les étiquettes de bras et de famille ; le texte peut néanmoins
-révéler la méthode ou les outils. Il s’agit d’une anonymisation partielle, pas
-d’un double aveugle garanti. Le juge inscrit toute inférence sans s’en servir
-comme critère d’exactitude. Le paquet ne fournit ni bras ni famille au juge. Le mapping reste local et
-privé. Choisir un juge d'une autre famille ; la revue ne présume pas son exactitude.
-La fidélité du texte reste à contrôler face aux sources, pas uniquement par regex.
+Le paquet LLM contient uniquement les réponses techniquement admissibles.
+Les pannes avec texte partiel sont conservées dans un paquet privé pour revue
+humaine d'incidents ; aucune dépense de jugement automatique ne leur est imputée.
+Résultats, jugements et reçus de préflight sont rapprochés des réservations,
+clôtures et empreintes exactes avant utilisation. Un succès écrit juste avant
+un crash reste inutilisable tant que sa récupération explicite n'est pas faite.
+Les tokens HMAC utilisent un sel aléatoire privé. Mapping et sel restent dans
+$etat/prive et ne sont pas transmis au juge. Le texte peut révéler la méthode :
+anonymisation partielle, pas double aveugle garanti.
+
+Un juge indépendant est attribué par rotation fixe : Claude → Codex,
+Codex → Gemini, Gemini → Claude. Les autres commandes de jugement ignorent
+les réponses qui ne leur sont pas attribuées ; aucun choix du meilleur juge.
+Les axes et la justification LLM sont enregistrés sans aucune signature humaine.
+
+Les avis humains utilisent un **JSONL distinct**. Préparer un fichier d'avis
+avec schema=2, identite, revision, precedent_sha256 (vide pour révision 1),
+resultat_sha256, jugement_sha256, relecteur_humain, justification_humaine,
+date_validation ISO, validation_humaine=true, avis_final=true,
+arbitrage=confirmer_juge ou corriger_juge, et axes définitifs. Une révision
+suivante référence le SHA de l'avis précédent. Le harnais ne complète aucun
+champ humain. Les doublons, avis orphelins/périmés, dates futures et chaînes
+rompues sont refusés. **L'arbitrage humain validé prime sur le jugement LLM**,
+qui demeure conservé dans son propre journal.
 
 ~~~powershell
-python tests/run_campaign.py juger --gel tests/bench/runs/campaign/gel.json --paquet tests/bench/runs/campaign/SERIE/paquet.json --famille gemini --sortie tests/bench/runs/campaign/SERIE/jugements.jsonl
+python tests/run_campaign.py ajouter-revue-humaine --avis avis-humain.json --resultats "$etat/SERIE/principale-claude.jsonl" --revues "$etat/SERIE/juges.jsonl" --sortie "$etat/SERIE/humains.jsonl"
+python tests/run_campaign.py rapport --gel "$etat/gel.json" --resultats "$etat/SERIE/principale-claude.jsonl" "$etat/SERIE/principale-codex.jsonl" "$etat/SERIE/principale-gemini.jsonl" --revues "$etat/SERIE/juges.jsonl" --revues-humaines "$etat/SERIE/humains.jsonl" --sortie "$etat/SERIE/rapport.json"
 ~~~
 
-La commande ignore les réponses de sa propre famille. Utiliser un second juge
-pour celles-ci, dans le même journal de sortie ; conserver un jugement par
-identité. Le mapping est vérifié et n'est pas envoyé au juge. Une sortie mal
-formée ou un modèle inattendu reste indéterminé. Les commentaires humains sont
-ajoutés après revue dans ce JSONL ; rapport accepte JSON ou JSONL.
+Revue humaine de tous les désaccords, réponses fausses et cas critiques, plus
+au moins 10 % par famille/bras. Les dénominateurs viennent du gel et de la
+phase. Le rapport distingue résultats admissibles, réservations, interruptions,
+pannes historiques et manquants par strate, ainsi que gains/pertes sur paires
+complètes. Un rapport partiel ne produit aucun exemple README complet.
 
-Une revue par identité contient :
+## Ablation, exemples et calendrier
 
-~~~json
-{
-  "identite": "IDENTITE_RESULTAT",
-  "famille_juge": "gemini",
-  "axes": {
-    "exactitude": "correct",
-    "applicabilite": "correct",
-    "fidelite_sources": "correct",
-    "conclusion": "correct",
-    "abstention": "correct"
-  },
-  "desaccord": false,
-  "relecteur_humain": "",
-  "justification_humaine": "",
-  "candidat_readme": false
-}
-~~~
-
-Valeurs d'axe : correct, faux, indetermine. L'évaluation peut être correcte
-sans citation quand l'abstention est justifiée. Une réponse factuellement
-correcte sans outils reste correcte sur le fond ; son défaut de provenance
-est une mesure de procédure séparée. Une trace techniquement propre ne crée
-aucun verdict juridique. Une réponse inventée après erreur d'outil reste à revoir.
-
-Revue humaine obligatoire des désaccords, réponses fausses et cas critiques,
-plus au moins 10 % par famille/bras. Les exemples README exigent aussi une
-revue humaine de l'ensemble des répétitions et une validation des sources.
-Les champs d'auteur et de justification humaine ne sont jamais remplis par le harnais.
+Au plus six modes, après rapport principal complet et recette relue humainement.
+Le rapport conserve ses chemins et empreintes dans l'état privé ; il est
+recalculé depuis les traces acquises avant préparation et avant chaque collecte
+d'ablation. Modifier son statut à la main ne permet pas d'ouvrir ce passage.
+Chaque recette indique passages_exacts, raison, regles_partagees et valide_par ;
+un passage absent ou présent plusieurs fois est refusé. Les variantes sont
+hashées et restent dans l'état privé, sans modifier le skill canonique. La
+collecte d'ablation reprend le plan et les mêmes garanties de réservation,
+isolation, contamination et gel. Elle reste limitée à quatre tentatives par
+commande individuelle et se compare au C principal du même cas/répétition.
 
 ~~~powershell
-python tests/run_campaign.py rapport --resultats tests/bench/runs/campaign/SERIE/principale-claude.jsonl tests/bench/runs/campaign/SERIE/principale-codex.jsonl tests/bench/runs/campaign/SERIE/principale-gemini.jsonl --revues tests/bench/runs/campaign/SERIE/revues.json --sortie tests/bench/runs/campaign/SERIE/rapport.json
+python tests/run_campaign.py preparer-ablation --gel "$etat/gel.json" --recettes recettes-ablation.json --rapport "$etat/SERIE/rapport.json" --dossier "$etat/SERIE/experiences"
+python tests/run_campaign.py ablation --gel "$etat/gel.json" --plan "$etat/SERIE/experiences/plan.json" --famille claude
 ~~~
 
-Le rapport garde les effectifs par mode/famille, gains et pertes sur paires
-complètes, erreurs techniques, abstention, longueur, latence et appels dans
-les données sources. Il reste incomplet sans 864 réponses, jugements indépendants
-et échantillon humain équilibré. Deux répétitions donnent des observations
-descriptives, pas une preuve de significativité.
+La décision de simplifier une règle reste humaine. Les exemples README
+exigent un cas complet, toutes ses répétitions, les sources et un arbitrage
+humain de toutes ses réponses ; conserver également les limites et échecs.
+Aucun choix de la seule meilleure sortie, aucune affirmation que les 18 modes
+sont utiles avant mesure.
 
-## Utilité, ablation et exemples
-
-Les catégories sont utilité observée, variable, non observée et preuves
-insuffisantes. Leur attribution automatique est conservatrice et provisoire :
-un gain dans deux familles avec au moins deux paires favorables par famille et
-aucune perte est un signal d'utilité ; gain/perte hétérogène est variable ;
-égalité complète est absence de gain observé, pas preuve d'inutilité.
-
-Pour au plus six modes ambigus, préparer une ablation ciblée après analyse :
-deux cas × deux répétitions × trois familles = 72 réponses supplémentaires
-au maximum, comparées au bras C acquis. Documenter précisément les passages
-retirés et leurs règles partagées. Les variantes restent hors du skill de
-production. Retirer seulement le nom d'un mode ne teste pas toutes les règles
-qui le protègent ; ne pas conclure à sa suppression à partir de ce seul test.
-
-Une recette JSON d'ablation précise mode, passages_exacts (liste de textes
-à retirer une seule fois), raison, regles_partagees et valide_par humain.
-Le lanceur refuse une suppression absente ou ambiguë et produit un plan
-expérimental hashé. La collecte partage le budget et reprend les identités absentes :
-
-~~~powershell
-python tests/run_campaign.py preparer-ablation --gel tests/bench/runs/campaign/gel.json --recettes tests/bench/runs/campaign/recettes-ablation.json --rapport tests/bench/runs/campaign/SERIE/rapport.json --dossier tests/bench/runs/campaign/experiences
-python tests/run_campaign.py ablation --gel tests/bench/runs/campaign/gel.json --plan tests/bench/runs/campaign/experiences/plan.json --famille claude
-~~~
-
-Les réponses d'ablation sont revues séparément et comparées au C principal
-du même cas, modèle et répétition ; elles ne sont pas ajoutées aux 864
-réponses principales. La décision de simplifier la méthode reste humaine.
-
-Sélectionner trois exemples réels : gain, abstention justifiée, limite.
-Conserver question, version, SHA, modèle effectif, source, toutes les répétitions,
-verdict et éventuel échec. Aucune sélection uniquement sur la meilleure réponse.
-Le README demeure une illustration historique tant que cette étape est ouverte.
-
-Documentation native consultée : [Claude headless](https://code.claude.com/docs/en/headless),
-[Codex CLI](https://learn.chatgpt.com/docs/cli/reference),
-[Gemini headless](https://geminicli.com/docs/cli/headless/),
-[configuration Gemini](https://geminicli.com/docs/reference/configuration/)
-et [prompt système Gemini](https://geminicli.com/docs/cli/system-prompt/).
-
-## Calendrier et données manquantes enregistrés avant collecte
-
-Le minimum prévu est 6 préflights + 192 réponses de pilote + 864 réponses
-principales = 1 062 tentatives, puis au moins 864 jugements : **1 926**,
-soit au moins **20 journées UTC de budget** à 100/jour. L’ablation maximale
-ajoute 72 réponses et 72 jugements : **2 070**, soit au moins **21 journées**.
-Ces minimums excluent les pannes/reprises, les délais de revue humaine et les
-quotas fournisseurs ; ils ne constituent pas un calendrier de livraison.
-Une tentative de réponse peut consommer plusieurs requêtes API : la limite
-interne ne remplace jamais RPM/TPM/RPD ou les quotas propres au tokenizer.
-
-Fixer la règle avant le pilote : pas d’imputation d’une panne en réponse fausse
-ou correcte ; conserver tout texte partiel pour revue séparée. Rapport des
-absences et erreurs par famille/bras, des pannes historiques et des paires
-complètes uniquement. Présenter leur dénominateur ; pas de score comparable
-si la disponibilité diffère entre bras. Après deux pannes, ne pas choisir un
-autre modèle ou une autre clé pour remplir la paire. Toute adaptation de
-ce plan exige un nouveau gel, sans recyclage des scores du pilote.
-
-Les brouillons sont rédigés avec assistance Codex, famille OpenAI GPT-6 ;
-l’identifiant exact de rédaction n’est pas attesté. La revue humaine est
-indépendante et doit contrôler ce biais possible avant validation. Les
-observations préparatoires sont typées comme résumés ou observations de
-pièces : elles ne valent pas citations exactes. L’axe fidelite_sources
-compare une citation produite au texte officiel lu, jamais à une paraphrase.
-
-Les trois lanceurs utilisent un répertoire de travail temporaire sans docs
-ni corrigés. Le serveur MCP lit le candidat avec ses huit outils juridiques ;
-aucun outil filesystem n’est autorisé au modèle. Un témoin figurant seulement
-dans le corpus des corrigés bloque le cas s’il apparaît dans la réponse. Son
-absence ne prouve pas à elle seule l’absence de contamination ; le préflight
-humain doit examiner configuration, permissions et chemins accessibles.
+Minimum sans panne : 4 réponses de qualification Gemini REST + 6 préflights +
+192 pilote + 864 principale + 864 jugements = **1 930 tentatives**, au moins
+20 journées UTC à 100/jour. L'ablation maximale ajoute 72 réponses et 72
+jugements : **2 074**, au moins 21 journées. Ces valeurs excluent les autres
+recettes réelles, reprises, sondes et délais humains. Chaque réponse REST peut
+consommer plusieurs HTTP ; la limite d'étude ne remplace pas RPM/TPM/RPD.
+La réinitialisation fournisseur en heure du Pacifique est distincte du budget
+UTC d'étude. Ces minimums ne constituent pas une date de livraison.

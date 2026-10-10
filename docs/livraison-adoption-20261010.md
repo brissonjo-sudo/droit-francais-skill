@@ -1,5 +1,11 @@
 # Livraison : audit d'adoption et préparation de la campagne
 
+**Trace historique de la première préparation du 10/10/2026.** Les 521 tests,
+versions de clients et empreintes ci-dessous décrivent ce candidat antérieur,
+pas le harnais v2. Voir le [bilan de relecture actuel](relecture-campagne-116.md)
+et le [protocole actuel](campagne-18-modes.md). Les preuves anciennes sont
+conservées ; elles ne qualifient aucun runtime ni corrigé supplémentaire.
+
 10 octobre 2026. Base : main, commit 17a2bb88e0187d6eb1e906f0ef7c83c2ab9564d8.
 Candidat préparé dans un worktree séparé ; aucun changement au noyau juridique.
 

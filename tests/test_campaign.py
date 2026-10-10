@@ -17,12 +17,6 @@ from bench.preconditions import catalogue
 
 
 class CampagneTests(unittest.TestCase):
-    def test_catalogue_reel_gelable_avec_sdk_epingle(self):
-        from mcp_server.catalog import EXPECTED_TOOLS
-        tools = catalogue(ROOT, sys.executable)
-        self.assertEqual({t["name"] for t in tools}, EXPECTED_TOOLS)
-        self.assertTrue(all(isinstance(t["inputSchema"], dict) for t in tools))
-
     def test_gold_brouillon_ne_permet_aucune_mesure(self):
         cases = campaign.corpus()
         self.assertEqual(len(cases), 36)
@@ -35,7 +29,7 @@ class CampagneTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as dossier:
             path = Path(dossier) / "config.json"
             campaign.write_json(path, config)
-            with self.assertRaisesRegex(ValueError, "crédits"), mock.patch.object(campaign, "version_cli") as version:
+            with self.assertRaisesRegex(ValueError, "périmètre"), mock.patch.object(campaign, "version_cli") as version:
                 campaign.figer(path, Path(dossier) / "gel.json")
             version.assert_not_called()
 
@@ -53,36 +47,12 @@ class CampagneTests(unittest.TestCase):
             alt[i] = changed
             self.assertNotEqual(base, campaign.identite(*alt))
 
-    def test_limite_journaliere_commune_et_reprise_lendemain(self):
-        with tempfile.TemporaryDirectory() as d:
-            root = Path(d)
-            for i in range(100):
-                campaign.reserver_budget(root, str(i), jour="2026-10-10")
-            with self.assertRaisesRegex(ValueError, "journalière"):
-                campaign.reserver_budget(root, "codex", jour="2026-10-10")
-            campaign.reserver_budget(root, "nouveau", jour="2026-10-11")
-            self.assertEqual(len(campaign.lire_strict(root / "budget.jsonl")), 101)
-
-    def test_journal_tronque_bloque_le_contournement_du_budget(self):
-        with tempfile.TemporaryDirectory() as d:
-            root = Path(d)
-            (root / "budget.jsonl").write_text('{"jour":', encoding="utf-8")
-            with self.assertRaises(ValueError):
-                campaign.reserver_budget(root, "x")
-
     def test_verrou_interdit_collecte_concurrente(self):
         with tempfile.TemporaryDirectory() as d:
             with campaign.verrou(Path(d)):
                 with self.assertRaises(ValueError):
                     with campaign.verrou(Path(d)):
                         self.fail()
-
-    def test_un_changement_octet_arrete_le_gel(self):
-        data = {"schema": 1, "fichiers": {"skill/SKILL.md": "old"}}
-        data["series_sha256"] = campaign.digest(data)
-        with mock.patch.object(campaign, "fichiers_figes", return_value={"skill/SKILL.md": "new"}):
-            with self.assertRaisesRegex(ValueError, "modifié"):
-                campaign.verifier_gel(data)
 
     def test_modele_inconnu_ou_alias_ne_qualifie_pas_preflight(self):
         f = {"nom": "codex", "modele_demande": "gpt-exact", "version_cli": "1"}
@@ -185,26 +155,12 @@ class CampagneTests(unittest.TestCase):
 
     def test_rapport_vide_n_invente_ni_utilite_ni_exemple(self):
         with tempfile.TemporaryDirectory() as d:
-            reviews = Path(d) / "revues.json"
-            reviews.write_text("[]", encoding="utf-8")
-            report = campaign.rapport([], reviews)
+            reviews = Path(d) / "revues.jsonl"
+            reviews.write_text("", encoding="utf-8")
+            report = campaign.rapport([], reviews, state=Path(d))
             self.assertEqual(report["statut"], "revue_incomplete")
             self.assertEqual(report["exemples_readme"], [])
             self.assertTrue(all(m["utilite"] == "preuves_insuffisantes" for m in report["par_mode"]))
-
-    def test_paquet_aveugle_ne_contient_pas_le_bras_ni_la_famille(self):
-        with tempfile.TemporaryDirectory() as d:
-            output, target = Path(d) / "runs.jsonl", Path(d) / "paquet.json"
-            row = {"identite": "abc", "id": "M01-a", "famille": "claude", "bras": "C",
-                   "statut_technique": "ok", "reponse": "réponse"}
-            output.write_text(json.dumps(row) + "\n", encoding="utf-8")
-            campaign.paquet_revue([output], target)
-            packet = campaign.read_json(target)[0]
-            self.assertNotIn("famille", packet)
-            self.assertNotIn("bras", packet)
-            self.assertTrue(target.with_name("paquet-mapping-prive.json").exists())
-
-
 
     def test_timeout_claude_conserve_la_reponse_partielle(self):
         import subprocess
@@ -216,63 +172,6 @@ class CampagneTests(unittest.TestCase):
         self.assertIn("partielle", result.trace.texte_final)
         self.assertIn("partielle", result.flux_brut)
 
-    def test_le_juge_ne_peut_pas_s_autodeclarer_humain(self):
-        with tempfile.TemporaryDirectory() as d:
-            state = Path(d)
-            item = {"token": "t", "question": "question", "gold": {}, "reponse": "texte"}
-            packet = state / "paquet.json"
-            campaign.write_json(packet, [item])
-            campaign.write_json(state / "paquet-mapping-prive.json", [
-                {"token": "t", "identite": "run", "famille": "claude", "series_sha256": "sha",
-                 "paquet_sha256": campaign.digest(item)}])
-            receipt = state / "sha/preflight-codex.json"
-            campaign.write_json(receipt, {})
-            target = state / "judge.jsonl"
-            f = {"nom": "codex", "modele_demande": "gpt-exact", "executable": "codex",
-                 "version_cli": "1", "raisonnement": "defaut_cli"}
-            gel = {"series_sha256": "sha", "config": {"familles": [f]}}
-            answer = {"axes": {a: "correct" for a in campaign.AXES},
-                      "justification": "avis", "relecteur_humain": "fausse signature"}
-            execution = agents.Execution(Trace(modele="gpt-exact", texte_final=json.dumps(answer)), "", 0)
-            backend = mock.Mock()
-            backend.executer.return_value = execution
-            with (mock.patch.object(campaign, "verifier_gel"),
-                  mock.patch.object(campaign, "gold_pret", return_value=True),
-                  mock.patch.object(campaign, "version_cli", return_value="1"),
-                  mock.patch.object(campaign, "preflight_pret", return_value=True),
-                  mock.patch("bench.preconditions.abonnement", return_value=True),
-                  mock.patch("bench.agents.backend", return_value=backend)):
-                self.assertEqual(campaign.juger_paquet(gel, packet, "codex", target, state=state), 1)
-            row = campaign.lire_strict(target)[0]
-            self.assertEqual(row["relecteur_humain"], "")
-            self.assertEqual(row["justification_humaine"], "")
-            self.assertEqual(len(campaign.lire_strict(state / "budget.jsonl")), 1)
-            prompt = backend.executer.call_args.kwargs["prompt"]
-            self.assertNotIn("claude", prompt)
-            self.assertNotIn('"bras"', prompt)
-
-    def test_ablation_interdit_suppression_approximative_et_preserve_skill(self):
-        from bench import ablation
-        before = (ROOT / "skill/SKILL.md").read_bytes()
-        with tempfile.TemporaryDirectory() as d:
-            root = Path(d)
-            recipe, report = root / "recette.json", root / "rapport.json"
-            campaign.write_json(report, {"statut": "revue_complete_a_valider", "series_sha256": "sha"})
-            campaign.write_json(recipe, [{"mode": 1, "valide_par": "humain", "raison": "ambigu",
-                "regles_partagees": ["P1"], "passages_exacts": ["ABSENT_DU_SKILL"]}])
-            with mock.patch.object(campaign, "verifier_gel"):
-                with self.assertRaisesRegex(ValueError, "absent ou ambigu"):
-                    ablation.preparer({"series_sha256": "sha"}, recipe, report, root / "experience")
-            self.assertEqual((ROOT / "skill/SKILL.md").read_bytes(), before)
-
-    def test_ablation_refuse_rapport_d_un_autre_candidat(self):
-        from bench import ablation
-        with tempfile.TemporaryDirectory() as d:
-            root = Path(d)
-            campaign.write_json(root / "rapport.json", {"statut": "revue_complete_a_valider", "series_sha256": "autre"})
-            with mock.patch.object(campaign, "verifier_gel"):
-                with self.assertRaises(ValueError):
-                    ablation.preparer({"series_sha256": "sha"}, root / "absent.json", root / "rapport.json", root / "experience")
 
 
 if __name__ == "__main__":

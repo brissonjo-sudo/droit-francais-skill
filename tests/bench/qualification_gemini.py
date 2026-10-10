@@ -119,6 +119,7 @@ def executer(registre: Path, profil: str, config: Path, sortie: Path) -> dict:
             "statut": "a_relire", "runs": [], "validation": {"valide_par": "", "date_validation": "",
             "auth_free_confirmee": False, "isolation_confirmee": False}}
     with etude_v2.verrou(state):
+        etude_v2.sain(state, serie)
         if target.exists():
             previous = json.loads(target.read_bytes())
             if (any(previous.get(k) != data[k] for k in ("schema", "moteur", "runtime_sha256", "candidat_sha256", "modele", "numero_projet", "raisonnement"))
