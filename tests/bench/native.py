@@ -25,7 +25,8 @@ API_ENV = (
 
 
 def environnement_abonnement() -> dict[str, str]:
-    return {k: v for k, v in os.environ.items() if k not in API_ENV}
+    return {k: v for k, v in os.environ.items()
+            if k not in API_ENV and not k.startswith("GEMINI_API_KEY_")}
 
 
 def analyser_natif(flux: str, famille: str) -> Trace:

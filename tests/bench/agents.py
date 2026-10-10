@@ -106,6 +106,9 @@ class Options:
     effort: str = "defaut_cli"
     fournir_references: bool = False
     methode_experimentale: str | None = None
+    gemini_registre: Path | None = None
+    gemini_profil: str | None = None
+    gemini_budget_state: Path | None = None
 
 
 @dataclass
@@ -390,6 +393,22 @@ class CodexHeadless:
 
 class GeminiHeadless(CodexHeadless):
     nom = "gemini"
+
+    def executer(self, **kwargs) -> Execution:
+        options = kwargs["options"]
+        if options.gemini_registre is None:
+            return super().executer(**kwargs)
+        if options.abonnement_seul or not options.gemini_profil or options.gemini_budget_state is None:
+            raise ValueError("REST gratuit exige un profil explicite ; incompatible avec abonnement_seul")
+        from bench import gemini_rest
+        import asyncio
+        client = gemini_rest.preparer_client(options.gemini_registre, options.gemini_profil,
+                                             options.gemini_budget_state)
+        if client.modele != options.modele:
+            raise ValueError("modèle du profil différent du modèle demandé")
+        # Ce prototype ne modifie pas le gate de campagne.figer : une
+        # qualification réelle reste nécessaire avant collecte juridique.
+        return asyncio.run(gemini_rest.executer_mcp(client, **kwargs))
 
 
 BACKENDS: dict[str, type] = {

@@ -293,3 +293,62 @@ tailles et empreintes de la charge et du corpus ; pas le texte transmis.
 Sa rétention est d'un jour. Ni les outils des bras C/D ni leur historique
 ne sont inclus dans cette mesure. Aucun résultat juridique, quota actif,
 modèle effectif d'une génération ou autorisation de collecte n'est déduit.
+
+Le [contrôle Actions du 10 octobre 2026](https://github.com/brissonjo-sudo/droit-francais-skill/actions/runs/38046628086)
+a réussi avec la clé GitHub existante : **31 558 jetons**, entrée B du cas
+M15-b, 118 504 octets UTF-8, modèle demandé gemini-3.8-flash. Une seule
+requête HTTP, zéro génération. Empreinte SHA-256 de la requête :
+5402a49af46d162651f70fbdfef13e68c4bc1151901a48607a6894aed4f250eb.
+Cette mesure ne couvre pas les déclarations d'outils, les résultats MCP ni
+les tours supplémentaires. Elle ne prouve aucun quota actif du projet.
+
+## Prototype REST et compteurs préparés
+
+Les modules tests/bench/gemini_rest.py et tests/bench/budget_gemini.py
+préparent un moteur distinct de la CLI. Le transport utilise uniquement les
+méthodes countTokens et generateContent du point d'accès officiel Google,
+sans SDK, redirect, retry, changement de modèle ni rotation de clé.
+Les champs REST ont été vérifiés dans le
+[schéma Discovery officiel](https://generativelanguage.googleapis.com/$discovery/rest?version=v1beta).
+Context7 était indisponible (« Monthly quota exceeded »).
+
+Un profil explicitement sélectionné et ses preuves privées sont revérifiés
+avant chaque appel ; un relevé périmé ou modifié arrête le cas. Les compteurs
+partagent un journal par projet et modèle, indépendamment de la clé, avec
+verrou conservé pendant l'envoi. Une tentative est inscrite avant HTTP et
+n'est jamais remboursée après échec. Les plafonds utilisent une marge de 20 %
+(arrondi entier, minimum une unité), une fenêtre glissante de 60 secondes
+pour RPM/TPM et le jour du Pacifique pour RPD. Un 429 laisse un arrêt
+persistant exigeant un examen explicite, même après changement de jour.
+
+Chaque génération est précédée d'un countTokens sur la requête complète,
+historique et schémas compris. L'entrée réservée est le compte mesuré majoré
+de 10 %, puis de 32 jetons. L'usage d'entrée effectif est contrôlé au retour ;
+un dépassement inscrit le surplus et arrête les appels suivants. Les tours
+d'outils conservent les thoughtSignature dans l'historique transmis. Les
+signatures et blocs de raisonnement ne sont pas copiés dans le journal.
+Un modèle effectif absent ou différent, une réponse tronquée, un outil hors
+catalogue ou un secret connu dans une réponse arrête le cas.
+
+countTokens est compté provisoirement comme une tentative RPM/RPD par
+prudence ; son éventuel quota propre et son traitement TPM doivent encore
+être vérifiés. **354 réponses avec un seul tour représentent au moins
+708 requêtes HTTP** avec ce prototype, hors outils et jugements. Le plafond
+commun de 100 tentatives de réponse par jour UTC reste distinct.
+
+Les journaux doivent être persistants et partagés entre les processus sur
+un même hôte. Ils ne voient pas les autres usages du projet ; plusieurs
+machines ou des runners Actions éphémères ne constituent pas un compteur
+partagé. Aucun workflow de collecte n'est ajouté à ce stade.
+
+Installer requirements-bench.txt fournit tzdata 2026.5, utilisé explicitement
+pour obtenir les mêmes changements d'heure sous Windows et Linux. Cette
+dépendance de test ne modifie pas les dépendances du serveur distribué.
+
+Les essais synthétiques couvrent les limites, les changements d'heure,
+l'arrêt après 429, la conservation des signatures, les refus d'outils et
+la confidentialité. Le catalogue MCP stdio réel est converti en huit
+déclarations REST dans un test sans génération Google ni lecture juridique.
+Le prototype reste **non qualifié en conditions réelles** : le gel gratuit
+continue à bloquer avant collecte. Restent les quotas actifs, la validation
+humaine des 36 corrigés, l'accès aux sources et les préflights puis le pilote.

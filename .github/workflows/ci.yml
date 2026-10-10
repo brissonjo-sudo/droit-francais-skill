@@ -22,6 +22,9 @@ jobs:
       - name: Installer le SDK MCP
         run: python -m pip install -r requirements-mcp.txt
 
+      - name: Installer les données de fuseau du harnais
+        run: python -m pip install -r requirements-bench.txt
+
       - name: Auditer les dépendances et produire le SBOM CycloneDX
         run: |
           python -m pip install -r requirements-audit.txt

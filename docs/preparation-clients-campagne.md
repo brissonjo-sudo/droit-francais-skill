@@ -87,3 +87,18 @@ MCP local reste donc à établir avant le pilote.
 La documentation officielle et le code du paquet installé ont été consultés
 pour la recette. Context7 a retourné « Monthly quota exceeded » ; aucune API
 ou capacité n'est déduite de sa seule absence.
+
+Pour la clé gratuite, un prototype REST explicite est désormais préparé ;
+il n'utilise pas les reprises automatiques de Gemini CLI. La CLI reste le
+chemin historique lorsqu'aucun profil REST n'est sélectionné ; aucune bascule
+implicite n'est ajoutée. Le détail des compteurs, la mesure réelle de 31 558
+jetons et les limites de qualification sont dans
+[le relevé de préparation Gemini](quotas-gemini-gratuit.md).
+Installer les dépendances du harnais avant ses tests :
+
+~~~powershell
+python -m pip install -r requirements-bench.txt
+~~~
+
+Cette préparation ne lève pas le blocage du gel gratuit. Aucun cas juridique
+n'a été soumis au modèle et aucun score n'est disponible.
