@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "auth": "cle_api_gratuite",
+  "projet_ref": "",
+  "cle_projet_confirmee": false,
+  "niveau": "free",
+  "modele": "",
+  "observe_le": null,
+  "source": "https://aistudio.google.com/rate-limit",
+  "preuve": {"fichier": "", "sha256": ""},
+  "limites": {"rpm": null, "tpm_entree": null, "rpd": null},
+  "autres_limites_verifiees": false,
+  "autres_limites": []
+}

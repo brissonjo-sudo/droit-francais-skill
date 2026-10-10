@@ -108,3 +108,37 @@ fortement cette durée. Aucune date de fin n'est donc promise avant le pilote.
 
 L'absence de quotas observables bloque le paramétrage de la collecte Gemini,
 mais pas la revue des 36 corrigés ni la préparation des autres clients.
+
+## Contrôle local du relevé
+
+Le formulaire contient seulement des champs vides et des quotas null.
+Créer sa copie privée dans l'état ignoré :
+
+~~~powershell
+python tests/run_campaign.py quotas-gemini --initialiser tests/bench/runs/gemini/releve.json
+python tests/run_campaign.py quotas-gemini --preuve tests/bench/runs/gemini/releve.json
+~~~
+
+Le deuxième appel échoue volontairement tant que le relevé n'est pas complet.
+Renseigner le projet Google associé à la clé, un modèle Flash exact, les trois
+valeurs positives, une date ISO avec fuseau et une pièce locale avec son SHA-256.
+La preuve doit également rester sous tests/bench/runs ; ne pas y inclure la clé.
+Confirmer la vérification des éventuelles autres limites. Si elles existent,
+le contrôle bloque pour examen plutôt que de les ignorer.
+
+Le contrôle applique une fraîcheur maximale de 24 heures, choix conservateur
+du protocole, et vérifie les octets de la pièce. Il ne vérifie pas lui-même
+le contenu de l'image ni le rattachement réel de la clé : un relevé cohérent
+reste une déclaration à examiner au préflight. Aucune valeur privée ni secret
+n'est affiché. La présence de GEMINI_API_KEY est seulement signalée par un
+booléen ; elle ne prouve ni l'authentification ni la gratuité.
+
+Même avec un relevé cohérent, collecte_autorisee reste false : cet outil
+ne remplace ni l'adaptateur avec contrôle par requête ni les validations humaines.
+Un gel configuré avec auth = cle_api_gratuite s'arrête explicitement avant
+toute invocation CLI tant que ce chemin n'est pas qualifié.
+
+Lors de la reprise, AI Studio a redirigé vers sa page d'erreur /520. Aucun
+quota actif supplémentaire n'a donc été acquis. Le Python local ne dispose
+pas non plus des données ZoneInfo America/Los_Angeles : leur fourniture
+reproductible sous Windows reste nécessaire avant d'implémenter le compteur.

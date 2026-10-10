@@ -135,6 +135,8 @@ def figer(config_path: Path, target: Path) -> dict:
         raise ValueError("le pilote doit couvrir les quatre modes prévus")
     if [f["nom"] for f in cfg["familles"]] != list(FAMILLES):
         raise ValueError("les trois familles doivent être déclarées")
+    if any(f["nom"] == "gemini" and f.get("auth") == "cle_api_gratuite" for f in cfg["familles"]):
+        raise ValueError("Gemini gratuit : quotas actifs et adaptateur par requête non qualifiés ; aucun appel")
     for f in cfg["familles"]:
         if not f["modele_demande"] or not f["executable"] or f["raisonnement"] == "reglage_a_qualifier":
             raise ValueError("renseigner modèle exact, CLI et réglages avant de figer")
