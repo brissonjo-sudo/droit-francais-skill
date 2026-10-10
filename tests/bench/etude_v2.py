@@ -112,17 +112,24 @@ def maintenant() -> str:
     return dt.datetime.now(dt.timezone.utc).isoformat()
 
 
-def sain(state: Path, serie: str) -> None:
+def invalidations(state: Path, serie: str, *, phase: str | None = None) -> list[dict]:
+    rows = lire(state / serie / "invalidations.jsonl")
+    if any(not r.get("phase") for r in rows):
+        raise ValueError("invalidation ancienne sans phase ; examen explicite requis")
+    return [r for r in rows if phase is None or r["phase"] == phase]
+
+
+def sain(state: Path, serie: str, *, phase: str | None = None) -> None:
     """Une série invalidée n'est jamais réactivée par une relance."""
-    if lire(state / serie / "invalidations.jsonl"):
-        raise ValueError("série définitivement invalidée ; nouvelle série requise")
+    if invalidations(state, serie, phase=phase):
+        raise ValueError("phase définitivement invalidée ; nouvelle série requise pour cette phase")
 
 
-def invalider(state: Path, serie: str, categorie: str, motif: str) -> None:
+def invalider(state: Path, serie: str, categorie: str, motif: str, *, phase: str) -> None:
     if categorie not in IRRECUPERABLES:
         raise ValueError("catégorie non invalidante")
     Journal(state / serie / "invalidations.jsonl").ajouter({"schema": 2,
-        "categorie_infra": categorie, "motif": motif, "horodatage": maintenant()})
+        "categorie_infra": categorie, "motif": motif, "phase": phase, "horodatage": maintenant()})
 
 
 def reservations(state: Path) -> list[dict]:
@@ -135,7 +142,7 @@ def reservations(state: Path) -> list[dict]:
 
 def verifier_contexte(ctx) -> None:
     """Sans réacquérir le verrou déjà tenu par le lanceur : preuve active exacte."""
-    sain(ctx.racine_etat, ctx.series_sha256)
+    sain(ctx.racine_etat, ctx.series_sha256, phase=ctx.reservation["phase"])
     rows = [r for r in reservations(ctx.racine_etat) if r["attempt_id"] == ctx.attempt_id]
     if len(rows) != 1 or rows[0] != ctx.reservation:
         raise ValueError("contexte sans réservation durable exacte")
@@ -158,17 +165,21 @@ def clotures(state: Path) -> dict[str, dict]:
     return dict(zip(ids, rows))
 
 
-def verifier_attentes(state: Path, serie: str) -> None:
+def verifier_attentes(state: Path, serie: str, *, phase: str | None = None) -> None:
     done = clotures(state)
-    if any(r["series_sha256"] == serie and r["attempt_id"] not in done for r in reservations(state)):
+    if any(r["series_sha256"] == serie and (phase is None or r["phase"] == phase) and r["attempt_id"] not in done for r in reservations(state)):
         raise ValueError("tentative indéterminée après interruption ; clôturer explicitement avant reprise")
 
 
 def reserver(state: Path, identity: str, *, serie: str, meta: dict,
              jour: str | None = None) -> dict:
     """Sous verrou ; seul point de réservation de l'étude, jamais remboursé."""
-    sain(state, serie)
-    verifier_attentes(state, serie)
+    from bench.contexte import assurer_ancre
+    assurer_ancre(state)
+    if not isinstance(meta.get("phase"), str) or not meta["phase"]:
+        raise ValueError("phase de réservation obligatoire")
+    sain(state, serie, phase=meta["phase"])
+    verifier_attentes(state, serie, phase=meta["phase"])
     rows = reservations(state)
     done = clotures(state)
     previous = [r for r in rows if r["identite"] == identity]
@@ -200,8 +211,30 @@ def clore(state: Path, reservation: dict, *, statut: str, categorie: str = "", p
         "horodatage": maintenant()})
 
 
-def manquants(state: Path, serie: str) -> dict[str, dict]:
+def engagements(state: Path) -> dict[str, dict]:
+    rows = lire(state / "engagements.jsonl")
+    keys = [r["attempt_id"] for r in rows]
+    if len(keys) != len(set(keys)):
+        raise ValueError("engagement de résultat dupliqué")
+    return dict(zip(keys, rows))
+
+
+def engager_resultat(state: Path, reservation: dict, sha256: str) -> None:
+    if len(sha256) != 64 or any(c not in "0123456789abcdef" for c in sha256):
+        raise ValueError("empreinte de résultat invalide")
+    if reservation not in reservations(state) or reservation["attempt_id"] in clotures(state):
+        raise ValueError("réservation active exacte requise")
+    if reservation["attempt_id"] in engagements(state):
+        raise ValueError("résultat déjà engagé ; récupération explicite requise")
+    Journal(state / "engagements.jsonl").ajouter({"schema": 2, "attempt_id": reservation["attempt_id"],
+        "resultat_sha256": sha256, "horodatage": maintenant()})
+
+
+def manquants(state: Path, serie: str, *, phase: str | None = None) -> dict[str, dict]:
     rows = lire(state / serie / "manquants.jsonl")
+    if any(not r.get("phase") for r in rows):
+        raise ValueError("manquant ancien sans phase ; examen explicite requis")
+    rows = [r for r in rows if phase is None or r["phase"] == phase]
     keys = [r["identite"] for r in rows]
     if len(set(keys)) != len(keys):
         raise ValueError("déclaration de manquant dupliquée")
@@ -212,16 +245,19 @@ def declarer_manquant(state: Path, serie: str, identity: str, auteur: str, motif
     if not auteur.strip() or not motif.strip():
         raise ValueError("auteur humain et motif requis")
     with verrou(state):
-        sain(state, serie)
-        verifier_attentes(state, serie)
         rows = [r for r in reservations(state) if r["series_sha256"] == serie and r["identite"] == identity]
+        if not rows or len({r["phase"] for r in rows}) != 1:
+            raise ValueError("identité sans phase réservée unique")
+        phase = rows[0]["phase"]
+        sain(state, serie, phase=phase)
+        verifier_attentes(state, serie, phase=phase)
         done = clotures(state)
         if len(rows) != 2 or any(done[r["attempt_id"]]["statut"] == "ok" for r in rows):
             raise ValueError("deux pannes clôturées requises ; un succès ne devient pas manquant")
         if identity in manquants(state, serie):
             raise ValueError("déclaration déjà acquise")
         Journal(state / serie / "manquants.jsonl").ajouter({"schema": 2,
-            "identite": identity, "auteur_humain": auteur, "motif": motif,
+            "identite": identity, "phase": phase, "auteur_humain": auteur, "motif": motif,
             "attempt_ids": [r["attempt_id"] for r in rows], "horodatage": maintenant()})
 
 
@@ -286,14 +322,16 @@ def clore_interruption(state: Path, attempt_id: str, auteur: str, motif: str) ->
         from bench.campaign import digest
         if found:
             x = found[0]
+            if engagements(state).get(attempt_id, {}).get("resultat_sha256") != digest(x):
+                raise ValueError("résultat sans engagement préalable exact ; fabrication ou corruption possible")
             for key in ("series_sha256", "identite", "tentative"):
                 expected = r.get("resultat_identite", r["identite"]) if key == "identite" else r[key]
                 if x.get(key) != expected:
                     raise ValueError("résultat durable incohérent avec sa réservation")
             statut = x.get("statut_technique", x.get("statut_juge"))
             categorie = x.get("categorie_infra", "")
-            if categorie in IRRECUPERABLES:
-                invalider(state, r["series_sha256"], categorie, "récupération d'un résultat invalidant")
+            if categorie in IRRECUPERABLES and x.get("exposition_modele") is True:
+                invalider(state, r["series_sha256"], categorie, "récupération d'un résultat invalidant", phase=r["phase"])
             clore(state, r, statut=statut, categorie=categorie, preuve=digest(x))
         else:
             clore(state, r, statut="infra_error", categorie="interruption")

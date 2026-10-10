@@ -143,8 +143,8 @@ def main(argv=None) -> int:
                 return {r["identite"]: r for r in results}, {r["identite"]: r for r in judges}
             revue_v2.ajouter(args.sortie, campaign.read_json(args.avis), {}, {}, state=campaign.STATE, charger=charger)
         else:
-            campaign.write_json(campaign.confiner(args.sortie, campaign.STATE), campaign.rapport(args.resultats, args.revues,
-                humains=args.revues_humaines, frozen=campaign.read_json(args.gel)))
+            campaign.rapport(args.resultats, args.revues, humains=args.revues_humaines,
+                frozen=campaign.read_json(args.gel), sortie=args.sortie)
     except (ValueError, KeyError, OSError) as exc:
         print(f"Arrêt : {str(exc) if not isinstance(exc, OSError) else 'lecture ou écriture privée impossible ; consulter localement les permissions et fichiers'}", file=sys.stderr)
         return 2

@@ -8,20 +8,29 @@ from bench import etude_v2
 from bench.journal import Journal
 
 AXES = {"exactitude", "applicabilite", "fidelite_sources", "conclusion", "abstention"}
+CHAMPS = {"schema", "identite", "relecteur_humain", "justification_humaine", "date_validation",
+    "validation_humaine", "avis_final", "arbitrage", "axes", "revision", "precedent_sha256",
+    "resultat_sha256", "jugement_sha256", "candidat_readme"}
 
 
 def axes_valides(value: object) -> bool:
     return isinstance(value, dict) and set(value) == AXES and all(x in ("correct", "faux", "indetermine") for x in value.values())
 
 
-def avis(path: Path | None, resultats: dict, juges: dict) -> dict:
+def avis(path: Path | None, resultats: dict, juges: dict, *, identites: set | None = None) -> dict:
     """Une révision est liée au résultat, au juge et à l'avis humain précédent."""
     from bench.campaign import digest
     latest = {}
     for r in etude_v2.lire(path) if path is not None else []:
         key = r.get("identite")
+        if identites is not None and key not in identites:
+            continue
+        if set(r) - CHAMPS:
+            raise ValueError("champ humain inconnu refusé")
         if key not in resultats or key not in juges:
             raise ValueError("avis humain orphelin")
+        if juges[key].get("statut_juge") != "ok":
+            raise ValueError("avis humain exige un jugement acquis réussi ; incident séparé requis")
         prev = latest.get(key)
         try:
             day = dt.date.fromisoformat(r["date_validation"])

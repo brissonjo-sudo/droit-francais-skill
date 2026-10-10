@@ -126,6 +126,8 @@ class Execution:
     statut: str = "ok"  # "ok" | "infra_error"
     motif_infra: str = ""
     categorie_infra: str = ""
+    exposition_modele: bool = True
+    statut_http: int | None = None
 
 
 class Agent(Protocol):

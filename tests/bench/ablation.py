@@ -16,11 +16,13 @@ def preparer(gel: dict, recipes_path: Path, report_path: Path, target: Path, *, 
 
 def _preparer(gel: dict, recipes_path: Path, report_path: Path, target: Path, *, state: Path) -> dict:
     campaign.verifier_gel(gel)
-    campaign.etude_v2.sain(state, gel["series_sha256"])
+    campaign.etude_v2.sain(state, gel["series_sha256"], phase="principale")
     report = campaign.read_json(campaign.confiner(report_path, state))
     if report.get("statut") != "revue_complete_a_valider" or report.get("series_sha256") != gel["series_sha256"]:
         raise ValueError("analyse principale complète requise avant ablation")
     campaign.verifier_rapport_acquis(report, gel, state)
+    if (state / gel["series_sha256"] / "ablation-plan.json").exists():
+        raise ValueError("plan d'ablation déjà enregistré ; aucun nouveau tirage autorisé")
     recipes = campaign.read_json(recipes_path)
     if not 1 <= len(recipes) <= gel["config"]["ablation"]["max_modes"] or len({r["mode"] for r in recipes}) != len(recipes):
         raise ValueError("un à six modes distincts au maximum")
@@ -50,6 +52,7 @@ def _preparer(gel: dict, recipes_path: Path, report_path: Path, target: Path, *,
             "rapport_principal_sha256": campaign.digest(report), "rapport_principal_path": str(report_path.resolve())}
     plan["plan_sha256"] = campaign.digest(plan)
     campaign.write_json(target / "plan.json", plan)
+    campaign.write_json(state / gel["series_sha256"] / "ablation-plan.json", plan)
     return plan
 
 
@@ -69,10 +72,15 @@ def collecter(gel: dict, plan_path: Path, famille: str, *, state: Path = campaig
     target = state / gel["series_sha256"] / f"ablation-{plan['plan_sha256']}-{famille}.jsonl"
     count = 0
     with campaign.verrou(state):
-        campaign.pret_collecte(gel, "principale", state)
+        canonical_plan = state / gel["series_sha256"] / "ablation-plan.json"
+        if not canonical_plan.exists() or campaign.read_json(canonical_plan) != plan:
+            raise ValueError("plan d'ablation non enregistré ou différent")
+        phase = "ablation:" + plan["plan_sha256"]
+        campaign.verifier_serie(gel, state, phase=phase)
+        campaign.verifier_famille(gel, f)
         verifier_rapport_plan(plan, gel, state)
         done = {r["identite"] for r in campaign.resultats_acquis(target, state) if r["statut_technique"] == "ok"}
-        missing = campaign.etude_v2.manquants(state, gel["series_sha256"])
+        missing = campaign.etude_v2.manquants(state, gel["series_sha256"], phase=phase)
         cases = {c["id"]: c for c in campaign.corpus()}
         variants = {v["mode"]: v for v in plan["variantes"]}
         for unit in gel["plan"]["principale"]:
@@ -81,9 +89,8 @@ def collecter(gel: dict, plan_path: Path, famille: str, *, state: Path = campaig
             variant = variants[unit["mode"]]
             path = campaign.confiner(Path(variant["path"]), state)
             if hashlib.sha256(path.read_bytes()).hexdigest() != variant["sha256"]:
-                campaign.etude_v2.invalider(state, gel["series_sha256"], "gel", "variante expérimentale modifiée")
                 raise ValueError("variante expérimentale modifiée")
-            unit = {**unit, "phase": "ablation"}
+            unit = {**unit, "phase": phase}
             key = campaign.identite(plan["plan_sha256"], famille, unit["id"], "C", unit["repetition"], "ablation")
             if key in done or key in missing:
                 continue
