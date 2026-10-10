@@ -167,3 +167,61 @@ tailles de contexte et capacité de génération déclarée. Une lecture réussi
 ne prouve ni l'accès à une génération gratuite, ni les quotas actifs,
 ni l'association de cette clé au projet consulté dans AI Studio. Les tailles
 de contexte inputTokenLimit/outputTokenLimit ne sont pas des limites TPM.
+
+## Complément vérifié après le retour documentaire
+
+Le retour fourni par un LLM est une déclaration, pas une preuve des quotas
+actifs. Les pages officielles ont été relues le 10 octobre 2026. Aucun chiffre
+RPM/TPM/RPD du projet n'est ajouté au relevé privé sur cette base.
+
+La [fiche Gemini 3.8 Flash](https://ai.google.dev/gemini-api/docs/models/gemini-3.8-flash)
+classe gemini-3.8-flash comme version stable, avec function calling et thinking.
+La [tarification officielle](https://ai.google.dev/gemini-api/docs/pricing)
+indique des entrées et sorties gratuites pour ce modèle en mode Standard.
+Ce nom est donc un candidat documenté pour la qualification ; il n'est pas
+encore gelé pour l'étude. Ni ces pages ni le catalogue ne démontrent la
+capacité active du projet. Le Batch et le grounding Google Search/Maps ne
+sont pas disponibles gratuitement pour ce modèle dans cette grille ; les
+sources juridiques restent celles du MCP prévu par le protocole.
+
+Le [guide de comptage](https://ai.google.dev/gemini-api/docs/tokens) fournit
+countTokens pour mesurer l'entrée de la requête. Le volume de 113 659 octets
+ne devient pas une mesure de 25 000 à 30 000 tokens par une conversion
+approximative. Compter le contexte réellement transmis : instructions,
+question, pièces, schémas d'outils et historique selon le format choisi.
+Cette mesure technique doit rester distincte d'une génération et conserver
+modèle, empreinte de l'entrée, nombre de tokens et date. Elle ne détermine
+pas les quotas ni la réussite d'une génération.
+
+Le [guide thinking](https://ai.google.dev/gemini-api/docs/thinking) distingue
+les tokens de sortie et de raisonnement dans les métadonnées d'usage ; leur
+somme intervient dans la tarification et le plafond de génération. Le TPM
+documenté pour les limites de débit porte sur l'entrée. Ne pas assimiler
+automatiquement ces compteurs à une même limite.
+
+Le [guide de dépannage](https://ai.google.dev/gemini-api/docs/troubleshooting)
+recommande un backoff borné pour les erreurs transitoires. Ce conseil ne
+prouve pas qu'un 429 consomme toujours le RPM ou le RPD, ni qu'il épuise la
+journée. Pour notre compteur conservateur, toute tentative envoyée réserve
+une unité avant envoi ; un échec ne rembourse pas cette réservation locale.
+Le protocole conserve l'arrêt du lot sur 429, avec diagnostic avant reprise,
+pour éviter des retries internes non comptés. C'est un choix de l'étude.
+
+Les pages consultées n'établissent pas que models.list ou l'ouverture du
+Playground initialisent les quotas visibles. Cette suggestion n'est pas
+une procédure officielle vérifiée. La documentation de la CLI distingue
+également l'accès par compte Google de l'accès par clé API ; la CLI ne
+consomme pas toujours les quotas de la Developer API, selon son mode
+d'authentification. Le chemin retenu ici reste celui de la clé gratuite.
+
+Enfin, 354 réponses sous le plafond interne de 100 tentatives par jour UTC
+nécessitent **au moins quatre journées UTC de quota pour Gemini seul**.
+Il s'agit de fenêtres de compteur, pas d'une promesse de quatre fois 24 heures
+écoulées. Ce budget est partagé avec les autres familles et les jugements ;
+les TPM, RPD au fuseau Pacifique, tours d'outils et temps de traitement peuvent
+allonger le calendrier. Les calculs de 35 ou 89 minutes correspondent seulement
+à un espacement hypothétique de 354 appels simples, sans ces contraintes.
+
+Le réglage reste à concurrence 1, sans fallback ni changement de facturation.
+Un intervalle fixe de 10 à 15 secondes ne suffit pas à qualifier le TPM :
+la cadence doit résulter des quotas observés et des entrées mesurées par tour.
