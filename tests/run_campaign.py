@@ -10,7 +10,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "tests"))
-from bench import ablation, campaign, corriges
+from bench import ablation, campaign, corriges, profils_gemini, quotas_gemini
 
 
 def main(argv=None) -> int:
@@ -19,6 +19,15 @@ def main(argv=None) -> int:
     sub.add_parser("verifier")
     gold_review = sub.add_parser("corriges")
     gold_review.add_argument("--sortie", type=Path, required=True)
+    quota = sub.add_parser("quotas-gemini", help="Contrôle local, sans appel de modèle ni secret en sortie")
+    quota_args = quota.add_mutually_exclusive_group(required=True)
+    quota_args.add_argument("--initialiser", type=Path)
+    quota_args.add_argument("--preuve", type=Path)
+    profils = sub.add_parser("profils-gemini", help="Registre privé de profils, sans rotation ni collecte")
+    profils_args = profils.add_mutually_exclusive_group(required=True)
+    profils_args.add_argument("--initialiser", type=Path)
+    profils_args.add_argument("--registre", type=Path)
+    profils.add_argument("--profil", help="Sélection explicite, par exemple profil-01")
     freeze = sub.add_parser("figer")
     freeze.add_argument("--config", type=Path, required=True)
     freeze.add_argument("--sortie", type=Path, required=True)
@@ -61,6 +70,26 @@ def main(argv=None) -> int:
                               "statut": "preparation"}, ensure_ascii=False))
         elif args.action == "corriges":
             print(f"{corriges.exporter(args.sortie)} corrigés exportés, sans validation automatique")
+        elif args.action == "quotas-gemini":
+            if args.initialiser:
+                quotas_gemini.initialiser(args.initialiser)
+                print("Relevé privé vide créé ; aucune valeur ni autorisation de collecte acquise")
+            else:
+                resultat = quotas_gemini.verifier(args.preuve)
+                print(json.dumps(resultat, ensure_ascii=False))
+                if resultat["problemes_releve"]:
+                    return 2
+        elif args.action == "profils-gemini":
+            if args.initialiser:
+                if args.profil:
+                    raise ValueError("la sélection exige un registre existant")
+                profils_gemini.initialiser(args.initialiser)
+                print("Registre privé créé ; aucun secret ni relevé acquis")
+            else:
+                resultat = profils_gemini.verifier(args.registre, args.profil)
+                print(json.dumps(resultat, ensure_ascii=False))
+                if resultat["statut"] != "profils_declares_coherents":
+                    return 2
         elif args.action == "figer":
             gel = campaign.figer(args.config, args.sortie)
             print(gel["series_sha256"])

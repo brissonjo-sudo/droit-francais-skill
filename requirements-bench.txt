@@ -1,0 +1,2 @@
+# Données IANA identiques sur Windows et Linux, réservées au harnais.
+tzdata==2026.5

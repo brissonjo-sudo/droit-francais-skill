@@ -22,6 +22,9 @@ jobs:
       - name: Installer le SDK MCP
         run: python -m pip install -r requirements-mcp.txt
 
+      - name: Installer les données de fuseau du harnais
+        run: python -m pip install -r requirements-bench.txt
+
       - name: Auditer les dépendances et produire le SBOM CycloneDX
         run: |
           python -m pip install -r requirements-audit.txt
@@ -229,3 +232,6 @@ jobs:
       # ne se découvre pas au milieu d'un run de plusieurs heures.
       - name: Corpus du benchmark agentique (hors réseau)
         run: python tests/run_bench.py --verifier-corpus
+
+      - name: Préparation de la campagne des 18 modes (sans appel LLM)
+        run: python tests/run_campaign.py verifier
