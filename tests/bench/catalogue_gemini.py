@@ -13,6 +13,7 @@ from pathlib import Path
 
 ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models?pageSize=1000"
 LOCAL = Path(__file__).resolve().parents[2] / "tests/bench/runs"
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 
 class SansRedirection(urllib.request.HTTPRedirectHandler):
@@ -22,7 +23,7 @@ class SansRedirection(urllib.request.HTTPRedirectHandler):
         raise urllib.error.HTTPError(req.full_url, code, "redirection refusée", headers, fp)
 
 
-def lire(cle: str) -> dict:
+def _lire(cle: str) -> dict:
     """Un GET borné, suivi d'une liste blanche de métadonnées publiques."""
     if not cle or len(cle) < 8 or "\n" in cle or "\r" in cle:
         raise ValueError("GEMINI_API_KEY absente ou invalide ; valeur non affichée")
@@ -60,17 +61,34 @@ def lire(cle: str) -> dict:
     return result
 
 
+def lire(cle: str, budget) -> dict:
+    """Réserver la sonde dans le même compteur persistant que les générations."""
+    with budget.tentative(0, "models.list"):
+        try:
+            return _lire(cle)
+        except urllib.error.HTTPError as exc:
+            if exc.code == 429:
+                budget.bloquer(429)
+            raise
+
+
 def main(argv=None) -> int:
     """Écrire seulement une observation assainie dans l'état local ignoré."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--sortie", required=True, type=Path)
+    parser.add_argument("--registre", required=True, type=Path)
+    parser.add_argument("--profil", required=True)
+    parser.add_argument("--budget-state", required=True, type=Path)
     args = parser.parse_args(argv)
     target = args.sortie.resolve()
     if not target.is_relative_to(LOCAL.resolve()) or target.exists():
         print("Arrêt : sortie neuve requise sous tests/bench/runs", file=sys.stderr)
         return 2
     try:
-        result = lire(os.environ.get("GEMINI_API_KEY", ""))
+        from bench.gemini_rest import preparer_client
+        client = preparer_client(args.registre, args.profil, args.budget_state)
+        client.garde()
+        result = lire(client._cle, client.budget)
     except urllib.error.HTTPError as exc:
         print(f"Arrêt : Gemini HTTP {exc.code} ; aucun corps d'erreur affiché", file=sys.stderr)
         return 2

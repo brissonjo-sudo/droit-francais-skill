@@ -37,6 +37,9 @@ def main(argv=None) -> int:
         p.add_argument("--famille", choices=campaign.FAMILLES, required=True)
         if action == "collecter":
             p.add_argument("--phase", choices=("pilote", "principale"), required=True)
+    entrelace = sub.add_parser("collecter-entrelace")
+    entrelace.add_argument("--gel", type=Path, required=True)
+    entrelace.add_argument("--phase", choices=("pilote", "principale"), required=True)
     review = sub.add_parser("paquet-revue")
     review.add_argument("--resultats", type=Path, nargs="+", required=True)
     review.add_argument("--sortie", type=Path, required=True)
@@ -91,9 +94,14 @@ def main(argv=None) -> int:
             gel = campaign.figer(args.config, args.sortie)
             print(gel["series_sha256"])
         elif args.action == "preflight":
-            print(campaign.preflight(campaign.read_json(args.gel), args.famille))
+            receipt = campaign.preflight(campaign.read_json(args.gel), args.famille)
+            print(receipt)
+            if any(r["statut_technique"] != "ok" for r in campaign.read_json(receipt)["runs"]):
+                return 2
         elif args.action == "collecter":
             print(f"{campaign.collecter(campaign.read_json(args.gel), args.famille, args.phase)} réponses écrites")
+        elif args.action == "collecter-entrelace":
+            print(f"{campaign.collecter_entrelace(campaign.read_json(args.gel), args.phase)} réponses écrites")
         elif args.action == "paquet-revue":
             campaign.paquet_revue(args.resultats, args.sortie)
         elif args.action == "juger":

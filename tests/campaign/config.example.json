@@ -21,26 +21,34 @@
       "modele_demande": "",
       "executable": "",
       "raisonnement": "reglage_a_qualifier",
-      "preflight": "a_faire"
+      "preflight": "a_faire",
+      "auth": "abonnement",
+      "moteur": "cli-native"
     },
     {
       "nom": "codex",
       "modele_demande": "",
       "executable": "",
       "raisonnement": "reglage_a_qualifier",
-      "preflight": "a_faire"
+      "preflight": "a_faire",
+      "auth": "abonnement",
+      "moteur": "cli-native"
     },
     {
       "nom": "gemini",
       "modele_demande": "",
       "executable": "",
       "raisonnement": "reglage_a_qualifier",
-      "preflight": "a_faire"
+      "preflight": "a_faire",
+      "auth": "cle_api_gratuite",
+      "moteur": "gemini-rest-v1_non_qualifie"
     }
   ],
   "ablation": {
     "max_modes": 6,
     "repetitions": 2,
     "statut": "apres_analyse_principale"
-  }
+  },
+  "ordre_collecte": "blocs_de_quatre_entrelaces",
+  "max_tentatives_par_identite": 2
 }

@@ -59,7 +59,11 @@ def collecter(gel: dict, plan_path: Path, famille: str, *, state: Path = campaig
     if not all(campaign.gold_pret(c) for c in cases):
         raise ValueError("corrigés non validés")
     target = state / gel["series_sha256"] / f"ablation-{plan['plan_sha256']}-{famille}.jsonl"
-    done = {r["identite"] for r in campaign.lire_strict(target)}
+    historique = campaign.lire_strict(target)
+    from collections import Counter
+    tentatives = Counter(r["identite"] for r in historique)
+    done = {r["identite"] for r in campaign.dernieres_tentatives(historique)
+            if r["statut_technique"] == "ok"}
     count = 0
     with campaign.verrou(state):
         for variant in plan["variantes"]:
@@ -74,8 +78,12 @@ def collecter(gel: dict, plan_path: Path, famille: str, *, state: Path = campaig
                     key = campaign.identite(plan["plan_sha256"], famille, c["id"], "C", rep, "ablation")
                     if key in done:
                         continue
+                    if tentatives[key] >= 2:
+                        raise campaign.ArretCollecte("deux pannes d'ablation : examen de la série requis")
+                    if hashlib.sha256(path.read_bytes()).hexdigest() != variant["sha256"]:
+                        raise ValueError("variante modifiée avant exécution")
                     campaign.reserver_budget(state, key)
-                    execution = agents.backend(famille).executer(prompt=campaign.prompt_cas(c), bras="C",
+                    execution = campaign.executer_fige(gel, f, prompt=campaign.prompt_cas(c), bras="C",
                                                                  plafond=12, options=options)
                     row = campaign.ligne_execution(execution, f=f, bras="C")
                     if row["modele_effectif"] != f["modele_demande"]:
@@ -84,8 +92,9 @@ def collecter(gel: dict, plan_path: Path, famille: str, *, state: Path = campaig
                     row.update(identite=key, series_sha256=gel["series_sha256"], id=c["id"], mode=c["mode"],
                                bras="C", repetition=rep, phase="ablation", variante_sha256=variant["sha256"],
                                plan_sha256=plan["plan_sha256"])
+                    row["tentative"] = tentatives[key] + 1
                     Journal(target).ajouter(row)
                     count += 1
                     if row["statut_technique"] != "ok" or not row["controles_procedure"]["isolation_appels"]:
-                        return count
+                        raise campaign.ArretCollecte("ablation interrompue ; tentative conservée")
     return count

@@ -7,45 +7,48 @@ import json
 import math
 import os
 import time
+import uuid
 from pathlib import Path
 
 from bench import gemini_http, native, profils_gemini, quotas_gemini
 from bench.budget_gemini import ArretBudget, Budget
 from bench.flux import Appel, PREFIXE_MCP, Trace
+from bench import campaign
+from bench.confidentialite import verifier
 
 
 def verifier_secrets(client, valeur) -> None:
     """Arrêter avant journalisation ou transmission si un secret connu apparaît."""
-    secrets = [v for k, v in os.environ.items() if len(v) >= 8 and (
-        any(m in k.upper() for m in ("TOKEN", "SECRET", "API_KEY"))
-        or k in ("LEGIFRANCE_CLIENT_ID", "JUDILIBRE_KEY_ID", "PISTE_KEY_ID"))]
     key = getattr(client, "_cle", None)
-    if isinstance(key, str) and len(key) >= 8:
-        secrets.append(key)
-    texte = json.dumps(valeur, ensure_ascii=False)
-    if any(secret in texte for secret in secrets):
-        raise ValueError("secret détecté : contenu non transmis et non journalisé")
+    verifier(valeur, key if isinstance(key, str) else None)
 
 
 class Client:
     """Profil fixe ; chaque tokenizer et génération est réservé et compté."""
 
-    def __init__(self, cle: str, modele: str, budget: Budget, garde=None):
+    def __init__(self, cle: str, modele: str, budget: Budget, garde=None,
+                 etat_etude: Path = campaign.STATE):
         self._cle, self.modele, self.budget = cle, modele, budget
         self.requetes = 0
         self.garde = garde or (lambda: None)
+        self.etat_etude = etat_etude
+        self.cas_reserve = False
 
-    def generer(self, charge: dict) -> tuple[dict, int]:
+    def generer(self, charge: dict, *, echeance: float | None = None) -> tuple[dict, int]:
         """Mesure préalable puis génération ; aucun repli, retry ou remboursement."""
         # countTokens est compté comme une requête RPM/RPD par prudence.
         # Son coût éventuel en TPM ou quota propre reste à vérifier : ces
         # compteurs ne constituent donc pas encore une qualification fournisseur.
         verifier_secrets(self, charge)
         self.garde()
+        if not self.cas_reserve:
+            with campaign.verrou(self.etat_etude):
+                campaign.reserver_budget(self.etat_etude, "gemini-rest-" + uuid.uuid4().hex)
+            self.cas_reserve = True
         with self.budget.tentative(0, "countTokens"):
             self.requetes += 1
             try:
-                tokens = gemini_http.compter(self._cle, self.modele, charge)
+                tokens = gemini_http.compter(self._cle, self.modele, charge, echeance=echeance)
             except gemini_http.ErreurGemini as exc:
                 if exc.statut == 429:
                     self.budget.bloquer(429)
@@ -55,7 +58,7 @@ class Client:
         with self.budget.tentative(reserve, "generateContent") as at:
             self.requetes += 1
             try:
-                response = gemini_http.appeler(self._cle, self.modele, "generateContent", charge)
+                response = gemini_http.appeler(self._cle, self.modele, "generateContent", charge, echeance=echeance)
             except gemini_http.ErreurGemini as exc:
                 if exc.statut == 429:
                     self.budget.bloquer(429)
@@ -120,7 +123,8 @@ async def boucle(client: Client, *, prompt: str, bras: str, plafond: int,
         for turn in range(plafond + 2):
             if time.monotonic() - start >= timeout_s:
                 raise ValueError("temps de cas atteint")
-            response, counted = await asyncio.to_thread(client.generer, copy.deepcopy(charge))
+            response, counted = await asyncio.to_thread(client.generer, copy.deepcopy(charge),
+                                                        echeance=start + timeout_s)
             verifier_secrets(client, response)
             trace.num_turns += 1
             observed = response.get("modelVersion")
@@ -200,7 +204,8 @@ async def executer_mcp(client: Client, *, prompt: str, bras: str, plafond: int,
     """Assainir aussi les erreurs d'ouverture et de fermeture du transport MCP."""
     from bench.agents import Execution
     try:
-        return await _executer_mcp(client, prompt=prompt, bras=bras, plafond=plafond, options=options)
+        async with asyncio.timeout(options.timeout_s):
+            return await _executer_mcp(client, prompt=prompt, bras=bras, plafond=plafond, options=options)
     except Exception:
         return Execution(Trace(is_error=True), "", 2, statut="infra_error",
                          motif_infra="initialisation ou fermeture REST/MCP impossible ; examen requis")
@@ -223,8 +228,8 @@ async def _executer_mcp(client: Client, *, prompt: str, bras: str, plafond: int,
                                   args=[str(RACINE / "mcp_server/server.py")], cwd=str(RACINE), env=env)
     async with stdio_client(params) as (reader, writer):
         async with ClientSession(reader, writer) as session:
-            await session.initialize()
-            tools = await session.list_tools()
+            await asyncio.wait_for(session.initialize(), timeout=min(30, options.timeout_s))
+            tools = await asyncio.wait_for(session.list_tools(), timeout=min(30, options.timeout_s))
             declarations = [{"name": t.name, "description": t.description or "",
                              "parametersJsonSchema": t.input_schema} for t in tools.tools]
 

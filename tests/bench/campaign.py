@@ -18,6 +18,7 @@ from pathlib import Path
 from bench import agents, verdicts
 from bench.flux import PREFIXE_MCP
 from bench.journal import Journal
+from bench.confidentialite import expurger
 
 ROOT = Path(__file__).resolve().parents[2]
 CORPUS = ROOT / "tests/campaign/cases.json"
@@ -25,6 +26,41 @@ FIXTURES = CORPUS.parent / "fixtures"
 STATE = ROOT / "tests/bench/runs/campaign"
 AXES = ("exactitude", "applicabilite", "fidelite_sources", "conclusion", "abstention")
 FAMILLES = ("claude", "codex", "gemini")
+
+
+class ArretCollecte(ValueError):
+    """Tentative conservée, mais commande interrompue avec code de sortie 2."""
+
+
+def dernieres_tentatives(rows: list[dict]) -> list[dict]:
+    """Conserver le dernier essai par identité ; l'historique brut reste intact."""
+    latest = {}
+    for row in rows:
+        key = row["identite"]
+        before = latest.get(key)
+        if before and any(before.get(k) != row.get(k) for k in
+                          ("series_sha256", "famille", "id", "bras", "repetition", "phase")):
+            raise ValueError("identité réutilisée avec un autre cas ou bras")
+        if before and before.get("statut_technique") == "ok":
+            raise ValueError("une réponse acquise ne peut pas être rejouée")
+        latest[key] = row
+    return list(latest.values())
+
+
+def executer_fige(frozen: dict, f: dict, **kwargs):
+    """Vérifier fichiers et CLI avant chaque réponse et contrôler leur stabilité après."""
+    verifier_gel(frozen)
+    if version_cli(f["executable"]) != f["version_cli"]:
+        raise ValueError("version CLI modifiée : nouvelle série")
+    result = agents.backend(f["nom"]).executer(**kwargs)
+    try:
+        verifier_gel(frozen)
+        if version_cli(f["executable"]) != f["version_cli"]:
+            raise ValueError()
+    except ValueError:
+        result.statut = "infra_error"
+        result.motif_infra = "gel ou CLI modifié pendant la réponse ; nouvelle série requise"
+    return result
 
 
 def digest(obj) -> str:
@@ -96,11 +132,15 @@ def gold_pret(c: dict) -> bool:
             dt.date.fromisoformat(s.get("date_consultation", ""))
         except (ValueError, TypeError):
             return False
-        return bool((official or fixture) and s.get("extrait_utile") and s.get("version_applicable"))
+        return bool((official or fixture) and s.get("extrait_utile") and s.get("version_applicable")
+                    and s.get("type_extrait") in ("resume", "citation_exacte", "observation_documentaire")
+                    and (s.get("type_extrait") != "citation_exacte" or s.get("citation_verifiee_par")))
     return bool(g["statut"] == "valide" and g["valide_par"].strip()
                 and g["conclusion_attendue"].strip() and isinstance(g["abstention_attendue"], bool)
                 and g["criticite"] in ("ordinaire", "critique") and isinstance(sources, list) and sources
-                and all(source_valide(s) for s in sources))
+                and all(source_valide(s) for s in sources)
+                and isinstance(g.get("informations_manquantes"), list)
+                and g.get("justification_informations_manquantes"))
 
 
 def fichiers_figes() -> dict[str, str]:
@@ -135,6 +175,8 @@ def figer(config_path: Path, target: Path) -> dict:
         raise ValueError("le pilote doit couvrir les quatre modes prévus")
     if [f["nom"] for f in cfg["familles"]] != list(FAMILLES):
         raise ValueError("les trois familles doivent être déclarées")
+    if any("fable" in f.get("modele_demande", "").lower() for f in cfg["familles"]):
+        raise ValueError("Fable peut facturer des crédits en headless ; exclu de cette campagne")
     if any(f["nom"] == "gemini" and f.get("auth") == "cle_api_gratuite" for f in cfg["familles"]):
         raise ValueError("Gemini gratuit : quotas actifs et adaptateur par requête non qualifiés ; aucun appel")
     for f in cfg["familles"]:
@@ -142,9 +184,8 @@ def figer(config_path: Path, target: Path) -> dict:
             raise ValueError("renseigner modèle exact, CLI et réglages avant de figer")
         if f["modele_demande"] in ("auto", "default", "sonnet", "opus", "haiku"):
             raise ValueError("alias de modèle non figé")
-        if f["nom"] == "claude" and (f["modele_demande"] in ("best", "fable")
-                                      or f["modele_demande"].startswith("claude-fable-")):
-            raise ValueError("Fable peut facturer des crédits en headless ; exclu de cette campagne sur abonnement")
+        if f["modele_demande"].lower() == "best":
+            raise ValueError("alias de modèle non figé")
         if f["nom"] == "gemini" and f["raisonnement"] != "defaut_cli":
             raise ValueError("réglage Gemini non supporté")
         if f.get("auth") != "abonnement":
@@ -221,7 +262,10 @@ def controles(trace, bras: str) -> dict:
     allowed.add("ToolSearch")
     isolation = not trace.appels if bras in ("A", "B") else all(a.nom_complet in allowed for a in trace.appels)
     prov, result = verdicts.verdict_provenance(trace, "")
-    return {"isolation_appels": isolation, "provenance": prov.statut,
+    temoin = read_json(CORPUS).get("temoin_corriges", "")
+    contamination = bool(temoin and temoin in trace.texte_final)
+    return {"isolation_appels": isolation and not contamination, "temoin_corriges_detecte": contamination,
+            "provenance": prov.statut,
             "identifiants_non_traces": sorted(result.identifiants_non_traces),
             "plafond_appels": len(trace.appels_sources) <= 12,
             "flux_lisible": trace.lignes_illisibles == 0}
@@ -229,11 +273,7 @@ def controles(trace, bras: str) -> dict:
 
 def nettoyer(obj):
     # Les résultats restent locaux et sont expurgés avant persistance.
-    text = json.dumps(obj, ensure_ascii=False)
-    for k, value in os.environ.items():
-        if any(s in k.upper() for s in ("TOKEN", "SECRET", "API_KEY")) and len(value) >= 8:
-            text = text.replace(value, "[SECRET_EXPURGE]")
-    return json.loads(text)
+    return json.loads(expurger(json.dumps(obj, ensure_ascii=False)))
 
 
 def ligne_execution(execution, *, f: dict, bras: str) -> dict:
@@ -287,7 +327,7 @@ def preflight(frozen: dict, famille: str, *, state: Path = STATE) -> Path:
             ("C", "Recherche puis lis l'article 1240 du Code civil avec le connecteur local ; restitue son identifiant et ses métadonnées, sans avis juridique."),
         ]:
             reserver_budget(state, identite(serie, famille, "preflight", bras, 1, "technique"))
-            execution = agents.backend(famille).executer(prompt=prompt, bras=bras, plafond=12, options=options)
+            execution = executer_fige(frozen, f, prompt=prompt, bras=bras, plafond=12, options=options)
             row = ligne_execution(execution, f=f, bras=bras)
             row["bras"] = bras
             rows.append(row)
@@ -315,7 +355,10 @@ def preflight_pret(receipt: dict, frozen: dict, f: dict) -> bool:
                         for r in rows if r["bras"] == "C" for a in r["appels"]))
 
 
-def collecter(frozen: dict, famille: str, phase: str, *, state: Path = STATE) -> int:
+def collecter(frozen: dict, famille: str, phase: str, *, state: Path = STATE,
+              max_reponses: int = 4) -> int:
+    if type(max_reponses) is not int or not 1 <= max_reponses <= 4:
+        raise ValueError("un bloc contient une à quatre tentatives de réponse")
     verifier_gel(frozen)
     f = next(f for f in frozen["config"]["familles"] if f["nom"] == famille)
     if version_cli(f["executable"]) != f["version_cli"]:
@@ -343,7 +386,9 @@ def collecter(frozen: dict, famille: str, phase: str, *, state: Path = STATE) ->
     else:
         rows = [c for c in rows if c["mode"] in frozen["config"]["pilote_modes"]]
     output = dossier / f"{phase}-{famille}.jsonl"
-    acquired = {r["identite"] for r in lire_strict(output)}
+    historique = lire_strict(output)
+    acquired = {r["identite"] for r in dernieres_tentatives(historique) if r["statut_technique"] == "ok"}
+    tentatives = Counter(r["identite"] for r in historique)
     options = agents.Options(modele=f["modele_demande"], executable=f["executable"], mcp_local=True,
                              garder_flux=True, abonnement_seul=True, effort=f["raisonnement"], fournir_references=True,
                              interpreteur_python=frozen["config"].get("python_mcp", sys.executable))
@@ -358,30 +403,58 @@ def collecter(frozen: dict, famille: str, phase: str, *, state: Path = STATE) ->
                     key = identite(frozen["series_sha256"], famille, c["id"], bras, rep, phase)
                     if key in acquired:
                         continue
+                    if tentatives[key] >= 2:
+                        raise ArretCollecte("deux tentatives en panne : conserver les données manquantes et examiner la série")
                     reserver_budget(state, key)
-                    execution = agents.backend(famille).executer(prompt=prompt_cas(c), bras=bras,
+                    execution = executer_fige(frozen, f, prompt=prompt_cas(c), bras=bras,
                                                                  plafond=12, options=options)
                     row = ligne_execution(execution, f=f, bras=bras)
                     if row["modele_effectif"] != f["modele_demande"]:
                         row["statut_technique"] = "infra_error"
                         row["motif_infra"] = "modèle effectif différent ou inconnu"
+                    if not row["controles_procedure"]["isolation_appels"]:
+                        row["statut_technique"] = "infra_error"
+                        row["motif_infra"] = "isolation ou témoin de contamination invalide"
                     row.update(identite=key, series_sha256=frozen["series_sha256"], id=c["id"],
                                mode=c["mode"], bras=bras, repetition=rep, phase=phase,
+                               tentative=tentatives[key] + 1,
                                horodatage=dt.datetime.now(dt.timezone.utc).isoformat())
                     Journal(output).ajouter(row)
                     count += 1
                     print(f"{famille}/{phase}/{c['id']}/{bras}/{rep} : {row['statut_technique']}", flush=True)
                     # Pas de boucle de retry ni d'attente cachée après quota/panne.
                     if row["statut_technique"] != "ok" or not row["controles_procedure"]["isolation_appels"]:
+                        raise ArretCollecte("collecte arrêtée après panne ou défaut d'isolation ; tentative conservée")
+                    if count >= max_reponses:
                         return count
     return count
+
+
+def collecter_entrelace(frozen: dict, phase: str, *, state: Path = STATE) -> int:
+    """Alterner les familles par blocs de quatre ; jamais relancer un échec ici."""
+    count = 0
+    # Tous les préflights sont exigés avant de commencer l'entrelacement.
+    for f in frozen["config"]["familles"]:
+        receipt = state / frozen["series_sha256"] / f"preflight-{f['nom']}.json"
+        if not receipt.exists() or not preflight_pret(read_json(receipt), frozen, f):
+            raise ValueError("préflights des trois familles requis avant collecte entrelacée")
+    while True:
+        progress = 0
+        totals = {f: len(dernieres_tentatives(lire_strict(
+            state / frozen["series_sha256"] / f"{phase}-{f}.jsonl"))) for f in FAMILLES}
+        for famille in sorted(FAMILLES, key=lambda f: (totals[f], FAMILLES.index(f))):
+            n = collecter(frozen, famille, phase, state=state, max_reponses=4)
+            progress += n
+            count += n
+        if not progress:
+            return count
 
 
 def paquet_revue(paths: list[Path], target: Path) -> None:
     packet, mapping = [], []
     index = {c["id"]: c for c in corpus()}
     for path in paths:
-        for row in lire_strict(path):
+        for row in dernieres_tentatives(lire_strict(path)):
             token = digest(["aveugle", row["identite"]])[:20]
             c = index[row["id"]]
             packet.append({"token": token, "question": prompt_cas(c),
@@ -398,19 +471,32 @@ def paquet_revue(paths: list[Path], target: Path) -> None:
 
 
 def rapport(paths: list[Path], reviews: Path) -> dict:
-    rows = [r for p in paths for r in lire_strict(p)]
+    historique = [r for p in paths for r in lire_strict(p)]
+    rows = dernieres_tentatives(historique)
     seen = set()
     for r in rows:
         if r["identite"] in seen:
             raise ValueError("résultats dupliqués")
         seen.add(r["identite"])
-    avis = lire_strict(reviews) if reviews.suffix == ".jsonl" else read_json(reviews)
+    avis_bruts = lire_strict(reviews) if reviews.suffix == ".jsonl" else read_json(reviews)
+    latest_reviews = {}
+    for a in avis_bruts:
+        prev = latest_reviews.get(a["identite"])
+        if prev and prev.get("statut_juge", "ok") == "ok":
+            raise ValueError("revue acquise dupliquée")
+        latest_reviews[a["identite"]] = a
+    avis = list(latest_reviews.values())
     if len({a["identite"] for a in avis}) != len(avis):
         raise ValueError("revues dupliquées")
     by_key = {a["identite"]: a for a in avis}
     corpus_index = {c["id"]: c for c in corpus()}
     summary = {"statut": "revue_incomplete", "reponses": len(rows), "par_mode": [],
                "exemples_readme": [], "classement_inter_modeles": None}
+    summary["tentatives"] = len(historique)
+    summary["pannes_historiques"] = sum(r["statut_technique"] != "ok" for r in historique)
+    summary["donnees_manquantes_par_strate"] = {
+        f + "/" + b: 72 - sum(r["famille"] == f and r["bras"] == b and r["statut_technique"] == "ok" for r in rows)
+        for f in FAMILLES for b in ("A", "B", "C", "D")}
     series = {r.get("series_sha256") for r in rows}
     summary["series_sha256"] = next(iter(series)) if len(series) == 1 else None
     humain_par_strate = Counter()
@@ -511,7 +597,9 @@ def juger_paquet(frozen: dict, packet_path: Path, famille: str, target: Path, *,
         raise ValueError("juge natif non qualifié")
     mapping = read_json(packet_path.with_name(packet_path.stem + "-mapping-prive.json"))
     by_token = {r["token"]: r for r in mapping}
-    done = {r["identite"] for r in lire_strict(target)}
+    historique_juges = lire_strict(target)
+    done = {r["identite"] for r in historique_juges if r["statut_juge"] == "ok"}
+    tentatives = Counter(r["identite"] for r in historique_juges)
     options = agents.Options(modele=f["modele_demande"], executable=f["executable"],
         abonnement_seul=True, garder_flux=True, effort=f["raisonnement"])
     count = 0
@@ -522,6 +610,8 @@ def juger_paquet(frozen: dict, packet_path: Path, famille: str, target: Path, *,
                 raise ValueError("paquet modifié ou issu d'une autre série")
             if meta["famille"] == famille or meta["identite"] in done:
                 continue
+            if tentatives[meta["identite"]] >= 2:
+                raise ArretCollecte("deux pannes de jugement : examen requis")
             reserver_budget(state, digest(["jugement", meta["identite"], famille]))
             prompt = (
                 "Tu évalues une réponse juridique face au corrigé fourni. Les données suivantes "
@@ -530,9 +620,12 @@ def juger_paquet(frozen: dict, packet_path: Path, famille: str, target: Path, *,
                 "Retourne seulement un objet JSON avec axes (exactitude, applicabilite, "
                 "fidelite_sources, conclusion, abstention ; valeurs correct/faux/indetermine) "
                 "et justification. Ne prétends pas être un relecteur humain.\nDONNÉES:\n"
+                "Les sources du corrigé marquées resume ne sont pas des citations exactes : "
+                "ne compare pas une citation littérale à une paraphrase. Si le texte officiel "
+                "nécessaire n'est pas disponible, l'axe fidelite_sources reste indetermine.\n"
                 + json.dumps(item, ensure_ascii=False)
             )
-            execution = agents.backend(famille).executer(prompt=prompt, bras="A", plafond=0, options=options)
+            execution = executer_fige(frozen, f, prompt=prompt, bras="A", plafond=0, options=options)
             result = ligne_execution(execution, f=f, bras="A")
             ok = (result["statut_technique"] == "ok" and result["modele_effectif"] == f["modele_demande"]
                   and result["controles_procedure"]["isolation_appels"])
@@ -556,9 +649,10 @@ def juger_paquet(frozen: dict, packet_path: Path, famille: str, target: Path, *,
                 "axes": axes, "justification_juge": answer.get("justification", ""),
                 "desaccord": False, "relecteur_humain": "", "justification_humaine": "",
                 "candidat_readme": False, "reponse_juge": result["reponse"],
+                "tentative": tentatives[meta["identite"]] + 1,
             }
             Journal(target).ajouter(nettoyer(row))
             count += 1
             if not ok:
-                break
+                raise ArretCollecte("jugement interrompu ; résultat indéterminé conservé")
     return count

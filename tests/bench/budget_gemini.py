@@ -73,7 +73,7 @@ class Budget:
                         or row["instant"] > now.timestamp()
                         or type(row["requetes"]) is not int or row["requetes"] not in (0, 1)
                         or type(row["tokens"]) is not int or row["tokens"] < 0
-                        or row["type"] not in ("countTokens", "generateContent", "surplus")
+                        or row["type"] not in ("countTokens", "generateContent", "models.list", "surplus")
                         or row["jour"] != jour_pacifique(dt.datetime.fromtimestamp(row["instant"], dt.timezone.utc))):
                     raise ValueError()
             return rows
@@ -95,7 +95,7 @@ class Budget:
     @contextlib.contextmanager
     def tentative(self, tokens_entree: int, kind: str):
         """Réserver sous verrou conservé pendant HTTP ; l'interruption garde le débit."""
-        if type(tokens_entree) is not int or tokens_entree < 0 or kind not in ("countTokens", "generateContent"):
+        if type(tokens_entree) is not int or tokens_entree < 0 or kind not in ("countTokens", "generateContent", "models.list"):
             raise ValueError("réservation invalide")
         self.dossier.mkdir(parents=True, exist_ok=True)
         lock = self.dossier / "requete.lock"

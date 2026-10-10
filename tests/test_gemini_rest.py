@@ -121,7 +121,7 @@ class ClientGeminiTests(unittest.TestCase):
                              {"rpm": 100, "tpm_entree": 100000, "rpd": 100})
 
     def test_tokenizer_et_generation_reserves_et_compte_avant_envoi(self):
-        client = gemini_rest.Client("secret-test", "gemini-3.8-flash", self.budget)
+        client = gemini_rest.Client("secret-test", "gemini-3.8-flash", self.budget, etat_etude=self.root / "etude")
         with (mock.patch.object(gemini_http, "compter", return_value=100),
               mock.patch.object(gemini_http, "appeler", return_value=response([{"text": "ok"}]))):
             client.generer({"contents": []})
@@ -131,7 +131,7 @@ class ClientGeminiTests(unittest.TestCase):
         self.assertEqual(2, client.requetes)
 
     def test_429_tokenizer_nactive_pas_generation_ni_autre_cle(self):
-        client = gemini_rest.Client("secret-test", "gemini-3.8-flash", self.budget)
+        client = gemini_rest.Client("secret-test", "gemini-3.8-flash", self.budget, etat_etude=self.root / "etude")
         with (mock.patch.object(gemini_http, "compter", side_effect=gemini_http.ErreurGemini(429)),
               mock.patch.object(gemini_http, "appeler") as generate):
             with self.assertRaises(gemini_http.ErreurGemini):
@@ -141,7 +141,7 @@ class ClientGeminiTests(unittest.TestCase):
         self.assertEqual(1, client.requetes)
 
     def test_secret_source_bloque_avant_tokenizer(self):
-        client = gemini_rest.Client("secret-test", "gemini-3.8-flash", self.budget)
+        client = gemini_rest.Client("secret-test", "gemini-3.8-flash", self.budget, etat_etude=self.root / "etude")
         with (mock.patch.dict("os.environ", {"PISTE_KEY_ID": "secret-source-test"}),
               mock.patch.object(gemini_http, "compter") as compter):
             with self.assertRaises(ValueError):

@@ -224,9 +224,11 @@ Les identifiants PISTE restent fournis par variables d'environnement ou `.env`,
 jamais dans le manifeste. Voir le [guide MCP](docs/mcp-app.md) et
 l'[architecture progressive](docs/architecture-plugin.md).
 
-Cette version est directement testable comme plugin local dans Codex. Le même
-serveur est déployé en HTTPS à l'adresse
-`https://droit-francais-skill.onrender.com/mcp`, avec contrôle de configuration,
+Cette version est directement testable comme plugin local dans Codex. Un service
+distant distinct est déployé en HTTPS à l'adresse
+`https://droit-francais-skill.onrender.com/mcp`. Sa version historique expose six
+outils ; le candidat local en expose huit. Une recette de ce service ne qualifie
+pas le candidat local. Le service comporte un contrôle de configuration,
 limitation de charge et journaux sans arguments ni secrets. Voir le
 [guide de déploiement](docs/deployment.md) et le
 [guide de connexion/soumission ChatGPT](docs/chatgpt-submission.md). L'accès
@@ -374,7 +376,7 @@ droit-francais-skill/
 │   └── plugin.json                ← manifeste du plugin OpenAI
 ├── assets/
 │   └── logo.png                   ← logo original de distribution
-├── .mcp.json                       ← lancement local du serveur MCP
+├── .mcp.json                       ← connexion au service MCP distant
 ├── mcp_server/
 │   ├── server.py                   ← outils MCP stdio ou HTTP /mcp
 │   └── catalog.py                  ← liste des outils publiés (source unique)

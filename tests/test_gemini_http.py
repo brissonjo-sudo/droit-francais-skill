@@ -72,7 +72,7 @@ class GeminiHttpTests(unittest.TestCase):
         before = mesure_tokens_gemini.preparer()
         self.assertEqual(before, mesure_tokens_gemini.preparer())
         with mock.patch.object(gemini_http, "compter", return_value=321) as count:
-            result = mesure_tokens_gemini.mesurer("secret-test")
+            result = mesure_tokens_gemini.mesurer("secret-test", mock.MagicMock())
         count.assert_called_once()
         self.assertEqual(321, result["tokens_entree"])
         self.assertEqual(0, result["generations"])

@@ -32,10 +32,17 @@ def preparer() -> tuple[dict, dict]:
     return request, metadata
 
 
-def mesurer(cle: str) -> dict:
+def mesurer(cle: str, budget) -> dict:
     """Une requête de tokenizer, sans lire de corrigé ni générer de réponse."""
     request, result = preparer()
-    result.update(tokens_entree=gemini_http.compter(cle, MODELE, request),
+    with budget.tentative(0, "countTokens"):
+        try:
+            tokens = gemini_http.compter(cle, MODELE, request)
+        except gemini_http.ErreurGemini as exc:
+            if exc.statut == 429:
+                budget.bloquer(429)
+            raise
+    result.update(tokens_entree=tokens,
                   observe_le=dt.datetime.now(dt.timezone.utc).isoformat(),
                   requetes_HTTP=1, generations=0, collecte_autorisee=False,
                   quotas_actifs_et_projet_attestes=False)
@@ -45,12 +52,20 @@ def mesurer(cle: str) -> dict:
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--sortie", required=True, type=Path)
+    parser.add_argument("--registre", required=True, type=Path)
+    parser.add_argument("--profil", required=True)
+    parser.add_argument("--budget-state", required=True, type=Path)
     args = parser.parse_args(argv)
     try:
         target = quotas_gemini.chemin_local(args.sortie)
         if target.exists():
             raise ValueError("sortie existante : aucune écriture")
-        result = mesurer(os.environ.get("GEMINI_API_KEY", ""))
+        from bench.gemini_rest import preparer_client
+        client = preparer_client(args.registre, args.profil, args.budget_state)
+        client.garde()
+        if client.modele != MODELE:
+            raise ValueError("profil incompatible avec cette mesure")
+        result = mesurer(client._cle, client.budget)
         target.parent.mkdir(parents=True, exist_ok=True)
         with target.open("x", encoding="utf-8", newline="\n") as handle:
             json.dump(result, handle, ensure_ascii=False, indent=2)

@@ -24,7 +24,7 @@ class CatalogueGeminiTests(unittest.TestCase):
         opener = mock.Mock()
         opener.open.return_value = io.BytesIO(json.dumps(data).encode())
         with mock.patch.object(catalogue_gemini.urllib.request, "build_opener", return_value=opener):
-            result = catalogue_gemini.lire("secret-test")
+            result = catalogue_gemini.lire("secret-test", mock.MagicMock())
         opener.open.assert_called_once()
         req = opener.open.call_args.args[0]
         self.assertEqual("GET", req.method)
@@ -41,14 +41,14 @@ class CatalogueGeminiTests(unittest.TestCase):
         opener = mock.Mock()
         opener.open.return_value = io.BytesIO(b'{"models": [], "nextPageToken": "suite"}')
         with mock.patch.object(catalogue_gemini.urllib.request, "build_opener", return_value=opener):
-            result = catalogue_gemini.lire("secret-test")
+            result = catalogue_gemini.lire("secret-test", mock.MagicMock())
         opener.open.assert_called_once()
         self.assertFalse(result["catalogue_complet"])
 
     def test_cle_absente_ne_fait_aucun_appel(self):
         with mock.patch.object(catalogue_gemini.urllib.request, "build_opener") as build:
             with self.assertRaises(ValueError):
-                catalogue_gemini.lire("")
+                catalogue_gemini.lire("", mock.MagicMock())
             build.assert_not_called()
 
     def test_redirection_ne_transmet_pas_le_secret(self):
@@ -62,7 +62,7 @@ class CatalogueGeminiTests(unittest.TestCase):
                                                         "secret-test", {}, None)
         with mock.patch.object(catalogue_gemini.urllib.request, "build_opener", return_value=opener):
             with self.assertRaises(urllib.error.HTTPError):
-                catalogue_gemini.lire("secret-test")
+                catalogue_gemini.lire("secret-test", mock.MagicMock())
         opener.open.assert_called_once()
 
     def test_cli_erreur_ne_journalise_pas_la_cle(self):
@@ -71,8 +71,10 @@ class CatalogueGeminiTests(unittest.TestCase):
             messages = io.StringIO()
             with (mock.patch.object(catalogue_gemini, "LOCAL", Path(dossier)),
                   mock.patch.object(catalogue_gemini, "lire", side_effect=erreur),
+                  mock.patch("bench.gemini_rest.preparer_client"),
                   contextlib.redirect_stderr(messages)):
-                code = catalogue_gemini.main(["--sortie", str(Path(dossier) / "catalogue.json")])
+                code = catalogue_gemini.main(["--sortie", str(Path(dossier) / "catalogue.json"), "--registre", "registre.json",
+                                                "--profil", "profil-01", "--budget-state", dossier])
             self.assertEqual(2, code)
             self.assertIn("403", messages.getvalue())
             self.assertNotIn("secret-test", messages.getvalue())

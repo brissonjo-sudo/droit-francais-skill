@@ -2,7 +2,7 @@
 
 La [campagne des 18 modes](../docs/campagne-18-modes.md) utilise
 `run_campaign.py` et `campaign/cases.json` pour les comparaisons A/B/C/D
-sur abonnements actuels. Ses contrôles de préparation restent hors réseau ;
+sur les clients natifs Claude/Codex et un chemin Gemini gratuit encore non qualifié. Ses contrôles de préparation restent hors réseau ;
 ses 36 corrigés ne sont pas encore validés et aucune mesure nouvelle n'est livrée.
 
 Deux jeux d'éval complémentaires, des tests unitaires hors réseau, quatre

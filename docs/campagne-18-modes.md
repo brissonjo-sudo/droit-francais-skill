@@ -35,7 +35,7 @@ version : ses résultats ne sont pas transférables au candidat local.
 
 36 cas × 4 bras × 2 répétitions × 3 familles = **864 réponses principales**.
 Le pilote de quatre modes représente 192 réponses supplémentaires au maximum,
-plus six réponses de préflight. Le jugement LLM consomme lui aussi le quota de
+plus six réponses de préflight. Le jugement LLM consomme lui aussi le quota
 du fournisseur et doit être compté dans le budget journalier. Aucun appel API
 payant ni repli implicite n'est prévu.
 
@@ -87,13 +87,16 @@ python tests/run_campaign.py corriges --sortie docs/corriges-campagne-18-modes.m
 
 Copier [config.example.json](../tests/campaign/config.example.json) vers un
 fichier local sous tests/bench/runs/campaign. Renseigner, pour chaque famille,
-le nom de modèle exact, le chemin de CLI, auth = abonnement et raisonnement.
+le nom de modèle exact, le chemin de CLI, auth = abonnement pour Claude/Codex et raisonnement. Le template Gemini déclare
+cle_api_gratuite et un moteur REST non qualifié : le gel refuse donc ce template
+tant que cette voie n’est pas qualifiée ; ne pas remplacer ce champ par OAuth pour contourner le refus.
 Le réglage defaut_cli doit être attesté lors de la recette ; Claude et Codex
-acceptent également un effort explicite. Gemini n'accepte ici que defaut_cli.
+acceptent également un effort explicite. Le prototype Gemini REST reste bloqué avant qualification ; la recette CLI OAuth est historique.
 python_mcp peut désigner l'interpréteur portant les dépendances du serveur.
 
 Les alias sonnet, opus, auto et default sont refusés. Les trois clients doivent
-être présents avant le gel ; un client manquant ne sera pas remplacé par une API.
+être qualifiés avant le gel. Claude et Codex gardent leurs clients natifs ; Gemini
+est prévu via un moteur REST distinct. Aucun moteur n’est choisi comme repli implicite.
 
 ~~~powershell
 python tests/run_campaign.py figer --config tests/bench/runs/campaign/config.json --sortie tests/bench/runs/campaign/gel.json
@@ -114,9 +117,11 @@ La présence d'un MCP dans une liste ne prouve pas une lecture réussie.
 **Limites connues des adaptateurs :** les commandes et normaliseurs Codex/Gemini
 sont préparés et testés sur contrats synthétiques ; leur qualification native
 reste à faire. Codex peut ne pas annoncer le modèle effectif dans son flux JSON.
-Dans ce cas la série est bloquée : le modèle demandé n'est jamais substitué
-à cette preuve. Gemini doit disposer d'une CLI et d'un cache OAuth Google valides ;
-un abonnement web ne prouve pas à lui seul l'accès au modèle souhaité dans la CLI.
+Dans ce cas la série est bloquée : le modèle demandé n’est jamais substitué
+à cette preuve. Le chemin retenu pour Gemini est une clé gratuite et un moteur REST
+distinct, non qualifié. L’ancienne recette CLI OAuth ne s’applique pas à cette clé.
+Les comparaisons inter-familles confondent moteur et modèle : elles sont exclues.
+Les comparaisons A/B et C/D restent internes à une famille et à son moteur figé.
 
 ## Pilote, collecte et reprise
 
@@ -142,16 +147,29 @@ résultats examinés. Puis :
 python tests/run_campaign.py collecter --gel tests/bench/runs/campaign/gel.json --famille claude --phase principale
 ~~~
 
-Répéter dans chaque famille. Collecte sérieuse uniquement, maximum 100 appels
-modèle réservés par jour UTC, toutes familles confondues dans le même état local.
+Pour l’étude comparative, utiliser collecter-entrelace après les trois préflights :
+
+~~~powershell
+python tests/run_campaign.py collecter-entrelace --gel tests/bench/runs/campaign/gel.json --phase pilote
+python tests/run_campaign.py collecter-entrelace --gel tests/bench/runs/campaign/gel.json --phase principale
+~~~
+
+La commande alterne des blocs de quatre tentatives entre les trois familles.
+L’ordre des bras est tournant par cas/répétition ; la reprise commence par la
+famille la moins avancée. Une collecte individuelle reste limitée à quatre
+tentatives et sert au diagnostic, pas à exécuter une famille entière en premier.
+Maximum 100 **tentatives de réponse par jour UTC**, toutes familles,
+préflights, collectes, jugements et ablations confondus dans le même état local.
 La limite est réservée avant l'appel, même si celui-ci échoue ou si le processus
 s'interrompt. Après quota, le lanceur s'arrête ; aucune attente ou relance cachée.
 La commande juger partage ce budget ; elle exige aussi un client qualifié.
 
-Rejouer la même commande reprend les identités absentes ; les réponses déjà
-écrites ne sont pas dupliquées. Une panne écrite reste une panne acquise et
-conservée. Sa réexécution nécessite une nouvelle série ou une reprise de tentative
-explicitement développée et revue ; le lanceur ne la blanchit pas automatiquement.
+Rejouer explicitement la commande reprend les identités absentes et les erreurs
+techniques, au plus deux tentatives par identité pour la collecte. Les réponses
+ok ne sont jamais rejouées. Chaque essai reste dans le journal append-only et
+consomme du budget ; paquet et rapport utilisent le dernier essai et comptent les
+pannes historiques. Après deux pannes, arrêter et examiner les données manquantes.
+Il n’y a aucune reprise interne après erreur. Une commande arrêtée sort avec 2.
 Un changement de modèle, version CLI, corpus, méthode ou schéma crée une série.
 Un verrou après interruption exige de vérifier que le processus est terminé
 avant son retrait. Un journal tronqué bloque la reprise et doit être réparé
@@ -166,7 +184,10 @@ expurgés avant écriture ; relire toute preuve avant de l'exporter publiquement
 python tests/run_campaign.py paquet-revue --resultats tests/bench/runs/campaign/SERIE/principale-claude.jsonl --sortie tests/bench/runs/campaign/SERIE/paquet.json
 ~~~
 
-Le paquet ne fournit ni bras ni famille au juge. Le mapping reste local et
+Le paquet retire les étiquettes de bras et de famille ; le texte peut néanmoins
+révéler la méthode ou les outils. Il s’agit d’une anonymisation partielle, pas
+d’un double aveugle garanti. Le juge inscrit toute inférence sans s’en servir
+comme critère d’exactitude. Le paquet ne fournit ni bras ni famille au juge. Le mapping reste local et
 privé. Choisir un juge d'une autre famille ; la revue ne présume pas son exactitude.
 La fidélité du texte reste à contrôler face aux sources, pas uniquement par regex.
 
@@ -260,3 +281,36 @@ Documentation native consultée : [Claude headless](https://code.claude.com/docs
 [Gemini headless](https://geminicli.com/docs/cli/headless/),
 [configuration Gemini](https://geminicli.com/docs/reference/configuration/)
 et [prompt système Gemini](https://geminicli.com/docs/cli/system-prompt/).
+
+## Calendrier et données manquantes enregistrés avant collecte
+
+Le minimum prévu est 6 préflights + 192 réponses de pilote + 864 réponses
+principales = 1 062 tentatives, puis au moins 864 jugements : **1 926**,
+soit au moins **20 journées UTC de budget** à 100/jour. L’ablation maximale
+ajoute 72 réponses et 72 jugements : **2 070**, soit au moins **21 journées**.
+Ces minimums excluent les pannes/reprises, les délais de revue humaine et les
+quotas fournisseurs ; ils ne constituent pas un calendrier de livraison.
+Une tentative de réponse peut consommer plusieurs requêtes API : la limite
+interne ne remplace jamais RPM/TPM/RPD ou les quotas propres au tokenizer.
+
+Fixer la règle avant le pilote : pas d’imputation d’une panne en réponse fausse
+ou correcte ; conserver tout texte partiel pour revue séparée. Rapport des
+absences et erreurs par famille/bras, des pannes historiques et des paires
+complètes uniquement. Présenter leur dénominateur ; pas de score comparable
+si la disponibilité diffère entre bras. Après deux pannes, ne pas choisir un
+autre modèle ou une autre clé pour remplir la paire. Toute adaptation de
+ce plan exige un nouveau gel, sans recyclage des scores du pilote.
+
+Les brouillons sont rédigés avec assistance Codex, famille OpenAI GPT-6 ;
+l’identifiant exact de rédaction n’est pas attesté. La revue humaine est
+indépendante et doit contrôler ce biais possible avant validation. Les
+observations préparatoires sont typées comme résumés ou observations de
+pièces : elles ne valent pas citations exactes. L’axe fidelite_sources
+compare une citation produite au texte officiel lu, jamais à une paraphrase.
+
+Les trois lanceurs utilisent un répertoire de travail temporaire sans docs
+ni corrigés. Le serveur MCP lit le candidat avec ses huit outils juridiques ;
+aucun outil filesystem n’est autorisé au modèle. Un témoin figurant seulement
+dans le corpus des corrigés bloque le cas s’il apparaît dans la réponse. Son
+absence ne prouve pas à elle seule l’absence de contamination ; le préflight
+humain doit examiner configuration, permissions et chemins accessibles.

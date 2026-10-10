@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 import re
+import time
 import urllib.error
 import urllib.request
 
@@ -25,7 +26,7 @@ def modele_exact(modele: str) -> None:
         raise ValueError("identifiant Flash exact requis")
 
 
-def appeler(cle: str, modele: str, methode: str, charge: dict) -> dict:
+def appeler(cle: str, modele: str, methode: str, charge: dict, *, echeance: float | None = None) -> dict:
     """Un seul POST HTTPS, délai borné, taille bornée et erreur sans contenu."""
     modele_exact(modele)
     if methode not in ("countTokens", "generateContent"):
@@ -38,9 +39,24 @@ def appeler(cle: str, modele: str, methode: str, charge: dict) -> dict:
     request = urllib.request.Request(
         f"https://generativelanguage.googleapis.com/v1beta/models/{modele}:{methode}",
         data=encoded, headers={"x-goog-api-key": cle, "Content-Type": "application/json"}, method="POST")
+    remaining = min(30, echeance - time.monotonic()) if echeance is not None else 30
+    if remaining <= 0:
+        raise ErreurGemini()
     try:
-        with urllib.request.build_opener(SansRedirection()).open(request, timeout=30) as response:
-            raw = response.read(2_000_001)
+        with urllib.request.build_opener(SansRedirection()).open(request, timeout=remaining) as response:
+            chunks, size = [], 0
+            while True:
+                if echeance is not None and time.monotonic() >= echeance:
+                    raise ValueError()
+                # read1 évite une succession illimitée de lectures internes.
+                chunk = (response.read1 if hasattr(response, "read1") else response.read)(65536)
+                if not chunk:
+                    break
+                chunks.append(chunk)
+                size += len(chunk)
+                if size > 2_000_000:
+                    raise ValueError()
+            raw = b"".join(chunks)
         if len(raw) > 2_000_000 or cle.encode() in raw:
             raise ValueError()
         result = json.loads(raw)
@@ -53,10 +69,10 @@ def appeler(cle: str, modele: str, methode: str, charge: dict) -> dict:
         raise ErreurGemini() from None
 
 
-def compter(cle: str, modele: str, requete: dict) -> int:
+def compter(cle: str, modele: str, requete: dict, *, echeance: float | None = None) -> int:
     """Compter une requête complète, instructions et déclarations incluses."""
     data = appeler(cle, modele, "countTokens", {
-        "generateContentRequest": {**requete, "model": f"models/{modele}"}})
+        "generateContentRequest": {**requete, "model": f"models/{modele}"}}, echeance=echeance)
     value = data.get("totalTokens")
     if type(value) is not int or value <= 0:
         raise ErreurGemini()

@@ -23,6 +23,7 @@ def exporter(sortie: Path) -> int:
     if sortie.resolve() == campaign.CORPUS.resolve():
         raise ValueError("le dossier de revue ne peut pas remplacer le corpus")
     cases = campaign.corpus()
+    provenance = campaign.read_json(campaign.CORPUS).get("provenance_redaction", {})
     empreinte = hashlib.sha256(campaign.CORPUS.read_bytes()).hexdigest()
     lignes = [
         "# Dossier de revue des 36 corrigés",
@@ -33,6 +34,10 @@ def exporter(sortie: Path) -> int:
         "",
         f"Empreinte SHA-256 du corpus : {empreinte}.",
         f"Corrigés humains validés : {sum(campaign.gold_pret(c) for c in cases)}/36.",
+        "",
+        f"Rédaction des brouillons : {provenance.get('outil', 'à préciser')} ; famille {provenance.get('famille', 'à préciser')}.",
+        f"Modèle exact : {provenance.get('modele_exact', 'non attesté')}. Revue humaine : non effectuée.",
+        "Les brouillons sont assistés par LLM ; une revue indépendante doit contrôler le biais de famille.",
         "",
         "## Consignes de revue",
         "",
@@ -48,7 +53,7 @@ def exporter(sortie: Path) -> int:
         "Après correction et accord explicite, inscrire dans le JSON le statut",
         "valide, le nom du relecteur et la date de validation. Régénérer ce dossier",
         "puis commiter avant de figer. Une modification après gel exige une nouvelle",
-        "série. Aucun résultat de modèle n'a servi à établir ces corrigés.",
+        "série. Aucune réponse collectée dans la campagne n'a servi à établir ces brouillons.",
         "",
         "## Limites du corpus",
         "",
@@ -89,6 +94,8 @@ def exporter(sortie: Path) -> int:
             lignes.extend(["", "Alternatives admissibles :", ""])
             lignes.extend(f"- {t}" for t in g["alternatives_admissibles"])
         lignes.extend(["", f"Refus excessif : {g.get('refus_excessif', 'à préciser')}.", "",
+                       "Informations manquantes : " + (" ; ".join(g.get("informations_manquantes", [])) or "aucune pour le point circonscrit") + ".",
+                       g.get("justification_informations_manquantes", "à préciser"), "",
                        "### Sources consultées pour la préparation", ""])
         for s in g["sources_verifiees"]:
             url = s["url"]
@@ -98,7 +105,8 @@ def exporter(sortie: Path) -> int:
                 f"- [{s.get('titre', s['url'])}]({url})",
                 f"  - Consultation : {date.fromisoformat(s['date_consultation']).strftime('%d/%m/%Y')} ; voie : {s.get('mode_consultation', 'à préciser')}.",
                 f"  - Version : {s['version_applicable']}",
-                f"  - Passage ou observation : {s['extrait_utile'].replace(chr(10), ' ')}",
+                f"  - Type : {s.get('type_extrait', 'à préciser')} ; citation exacte vérifiée par : {s.get('citation_verifiee_par') or 'non attestée'}.",
+                f"  - Résumé ou observation (ne vaut pas citation exacte) : {s['extrait_utile'].replace(chr(10), ' ')}",
                 f"  - Limites : {s.get('limites', 'à confirmer en revue humaine')}",
             ])
         lignes.extend(["", "Revue humaine : à compléter dans le corpus après examen.", ""])

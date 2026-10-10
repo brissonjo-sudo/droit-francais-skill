@@ -151,16 +151,14 @@ aucune variable Actions Gemini n'a été trouvée. L'API GitHub ne restitue
 [jamais la valeur d'un secret](https://docs.github.com/en/rest/actions/secrets#get-a-repository-secret).
 La clé est donc utilisable dans le runner, sans extraction vers le poste.
 
-Le workflow manuel existant Sonde fonctionnelle possède désormais un choix
-gemini-catalogue. Ce choix exécute uniquement un GET du catalogue officiel,
-avec la clé dans l'en-tête x-goog-api-key et une destination fixe HTTPS.
-Il refuse les redirections et les reprises. Aucun prompt, génération, source
-juridique, appel Auth0 ou PISTE n'est envoyé par ce job. La sonde MCP habituelle
-reste le choix par défaut et est exclue pour ce contrôle Gemini.
-
-~~~powershell
-gh workflow run sonde-fonctionnelle.yml --repo brissonjo-sudo/droit-francais-skill --ref codex/adoption-evaluation-20261010 -f controle=gemini-catalogue
-~~~
+Les contrôles Actions décrits ci-dessous sont historiques. Ils ont été
+retirés de l’exécution réseau le 10/10/2026 après revue : un runner éphémère
+ne partageait pas le compteur local et un secret de dépôt était accessible
+aux workflows de branches. Le job de préparation exige maintenant main et
+l’environnement gemini-free ; il ne lit aucun secret et refuse tout envoi.
+L’environnement est limité à main et exige une approbation humaine. La clé
+doit être stockée uniquement dans cet environnement, puis retirée du dépôt.
+Ne pas relancer les anciennes commandes de dispatch sur une branche.
 
 Seules les métadonnées du catalogue sont archivées pour un jour : noms,
 tailles de contexte et capacité de génération déclarée. Une lecture réussie
@@ -276,7 +274,7 @@ d'une réponse décevante sous une autre clé.
 
 ## Mesure technique de l'entrée
 
-Le workflow Sonde fonctionnelle accepte gemini-tokens : un POST countTokens
+Le contrôle historique gemini-tokens a effectué un POST countTokens
 vers gemini-3.8-flash, sans génération, retry, Auth0 ou PISTE. La charge est
 la requête du bras B : instructions et références, puis le cas sélectionné
 par taille de prompt UTF-8. Ce critère n'affirme pas un maximum de tokens.
@@ -284,9 +282,19 @@ La [référence REST countTokens](https://ai.google.dev/api/tokens) prévoit
 generateContentRequest pour inclure les instructions système. Aucune clé
 n'est placée dans l'URL, la charge, la sortie ou les arguments CLI.
 
+Les sondes locales exigent désormais registre, profil confirmé et état de
+quota persistant commun :
+
 ~~~powershell
-gh workflow run sonde-fonctionnelle.yml --repo brissonjo-sudo/droit-francais-skill --ref codex/adoption-evaluation-20261010 -f controle=gemini-tokens
+python tests/bench/mesure_tokens_gemini.py --registre tests/bench/runs/gemini/profils.json --profil profil-01 --budget-state tests/bench/runs/gemini/budgets --sortie tests/bench/runs/gemini/tokens-nouvelle-mesure.json
+python tests/bench/catalogue_gemini.py --registre tests/bench/runs/gemini/profils.json --profil profil-01 --budget-state tests/bench/runs/gemini/budgets --sortie tests/bench/runs/gemini/catalogue-nouveau.json
 ~~~
+
+Chaque sonde réserve sa requête dans le même journal que le prototype REST
+et arrête ce budget après 429. Aucune nouvelle sonde n’a été exécutée dans
+cette correction ; le traitement fournisseur des quotas auxiliaires reste
+à qualifier avant tout lancement.
+
 
 L'artefact tokens-gemini ne contient que modèle demandé, cas, date, compteur,
 tailles et empreintes de la charge et du corpus ; pas le texte transmis.
@@ -311,6 +319,11 @@ sans SDK, redirect, retry, changement de modèle ni rotation de clé.
 Les champs REST ont été vérifiés dans le
 [schéma Discovery officiel](https://generativelanguage.googleapis.com/$discovery/rest?version=v1beta).
 Context7 était indisponible (« Monthly quota exceeded »).
+
+Le prototype réserve aussi une tentative de réponse dans le budget commun
+de 100/jour UTC à sa première requête ; les tours suivants ne créent pas
+une nouvelle réponse. Il ne remplace pas le collecteur de campagne, dont
+le gel gratuit reste fermé.
 
 Un profil explicitement sélectionné et ses preuves privées sont revérifiés
 avant chaque appel ; un relevé périmé ou modifié arrête le cas. Les compteurs
@@ -352,3 +365,9 @@ déclarations REST dans un test sans génération Google ni lecture juridique.
 Le prototype reste **non qualifié en conditions réelles** : le gel gratuit
 continue à bloquer avant collecte. Restent les quotas actifs, la validation
 humaine des 36 corrigés, l'accès aux sources et les préflights puis le pilote.
+
+Le délai du cas couvre l’ouverture, l’initialisation et le catalogue MCP.
+Les transports HTTP reçoivent l’échéance et refusent un nouvel envoi après
+celle-ci. Une requête déjà en vol peut finir pendant la terminaison du thread
+(délai de transport plafonné à 30 secondes) ; sa réservation et son verrou
+restent conservés jusque-là. La limite n’annule pas une requête chez Google.

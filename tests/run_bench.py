@@ -235,13 +235,15 @@ def executer(arguments: argparse.Namespace) -> int:
             )
             marqueur = "✓" if ligne["pass"] else "✗"
 
-        journal.ajouter(ligne)
+        from bench.campaign import nettoyer
+        journal.ajouter(nettoyer(ligne))
         print(f"[{fait}/{total}] {marqueur} {bras}/{cas.id} rep{repetition}", flush=True)
 
         if arguments.garder_flux and execution.flux_brut:
             brut = RUNS / "flux" / f"{etiquette}-{bras}-{cas.id}-{repetition}.jsonl"
             brut.parent.mkdir(parents=True, exist_ok=True)
-            brut.write_text(execution.flux_brut, encoding="utf-8")
+            from bench.confidentialite import expurger
+            brut.write_text(expurger(execution.flux_brut), encoding="utf-8")
 
     print(f"\n{journal.ecrites} run(s) écrit(s) dans {sortie}")
     if echecs_infra:
