@@ -1,3 +1,5 @@
+[🇫🇷 Français](README.md) | [🇬🇧 English](README.en.md)
+
 # droit-francais-skill
 
 **Skill LLM — méthodologie de recherche en droit français (v3.5.0)**
@@ -54,9 +56,11 @@ de cassation. »* Vérification en source primaire des trois réponses :
 | Rupture brutale — Com., 20 mars 2012, n° 11-13.245 | Aucun arrêt à ce n° | ⚠️ Introuvable |
 
 Deux références sur trois fausses ou fantômes — dont le **bon nom d'arrêt
-avec une référence entièrement inventée**. C'est exactement ce qui a valu à
-un avocat une mise en garde du **TA d'Orléans** (29 déc. 2025 : « une
-quinzaine de références entièrement fausses »).
+avec une référence entièrement inventée**. Le **TA d'Orléans**, dans son
+[jugement du 29/12/2025, n° 2506461](https://opendata.justice-administrative.fr/recherche/shareFile/TA45/DTA_2506461_20251229),
+relève des décisions citées inexistantes ou dont le numéro ne correspond pas
+à la date, et invite le conseil à vérifier ses références. Ce constat ne
+démontre pas quel outil aurait produit ces références.
 
 **Comportement prescrit par le skill**, à vérifier en exécution :
 > ⚠️ *Je ne produis pas ces numéros de pourvoi sans les avoir vérifiés en
@@ -238,6 +242,11 @@ le [guide OAuth](docs/oauth.md). Le mapping
 identifiant distant fictif n'est placé dans le dépôt.
 
 ### Comme plugin Claude Code — candidat v0.9.0
+
+> **OAuth Claude Code reste bloqué sur une installation neuve** : le client
+> prédéfini et son callback ne sont pas encore configurés dans le plugin
+> ([#88](https://github.com/brissonjo-sudo/droit-francais-skill/issues/88)).
+> Installer le paquet ne suffit donc pas à utiliser ses outils distants.
 
 Le manifeste `.claude-plugin/plugin.json` réutilise les mêmes briques que le
 plugin OpenAI : le point d'entrée `skills/recherche-juridique/` (adaptateur
@@ -452,7 +461,8 @@ invariants de non-régression est documenté dans
 Revue annuelle recommandée le **1er septembre** (rentrée juridique).
 Procédure détaillée → [`skill/references/maintenance.md`](skill/references/maintenance.md).
 
-> **Note de synchronisation :** à chaque release, mettre à jour `README.md`
+> **Note de synchronisation :** à chaque release, mettre à jour `README.md` et
+> sa traduction complète `README.en.md`
 > (version, arborescence) et `skill/CHANGELOG.md` (entrée Ajouté/Modifié/Conservé)
 > avant de pousser le tag, préfixé selon sa série : `skill-v*` (méthodologie)
 > ou `plugin-v*` (empaquetage OpenAI et Claude Code, dont les notes de
