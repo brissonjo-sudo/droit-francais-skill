@@ -49,25 +49,56 @@ def atomique(path: Path, value: object) -> None:
 
 
 @contextlib.contextmanager
+def verrou_transition(state: Path):
+    """Exclusion OS courte ; fichier persistant, verrou libéré même après crash."""
+    state.mkdir(parents=True, exist_ok=True)
+    with (state / "transition.lock").open("a+b") as guard:
+        guard.seek(0, 2)
+        if not guard.tell():
+            guard.write(b"0")
+            guard.flush()
+        guard.seek(0)
+        try:
+            if os.name == "nt":
+                import msvcrt
+                msvcrt.locking(guard.fileno(), msvcrt.LK_NBLCK, 1)
+            else:
+                import fcntl
+                fcntl.flock(guard.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except OSError as exc:
+            raise ValueError("transition de verrou active ; réessayer explicitement") from exc
+        try:
+            yield
+        finally:
+            guard.seek(0)
+            if os.name == "nt":
+                msvcrt.locking(guard.fileno(), msvcrt.LK_UNLCK, 1)
+            else:
+                fcntl.flock(guard.fileno(), fcntl.LOCK_UN)
+
+
+@contextlib.contextmanager
 def verrou(state: Path):
     """Le verrou englobe lecture, réservation, appel, résultat et clôture."""
     state.mkdir(parents=True, exist_ok=True)
     lock = state / "collection.lock"
     token = secrets.token_hex(16)
-    try:
-        fd = os.open(lock, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
-    except FileExistsError as exc:
-        raise ValueError("collecte active ou verrou abandonné ; récupération explicite requise") from exc
-    with os.fdopen(fd, "w", encoding="utf-8", newline="\n") as stream:
-        json.dump({"schema": 2, "pid": os.getpid(), "token": token,
-                   "hote": socket.gethostname(), "cree_utc": maintenant()}, stream)
-        stream.flush()
-        os.fsync(stream.fileno())
+    with verrou_transition(state):
+        try:
+            fd = os.open(lock, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
+        except FileExistsError as exc:
+            raise ValueError("collecte active ou verrou abandonné ; récupération explicite requise") from exc
+        with os.fdopen(fd, "w", encoding="utf-8", newline="\n") as stream:
+            json.dump({"schema": 2, "pid": os.getpid(), "token": token,
+                       "hote": socket.gethostname(), "cree_utc": maintenant()}, stream)
+            stream.flush()
+            os.fsync(stream.fileno())
     try:
         yield
     finally:
-        if lock.exists() and json.loads(lock.read_text(encoding="utf-8")).get("token") == token:
-            lock.unlink()
+        with verrou_transition(state):
+            if lock.exists() and json.loads(lock.read_text(encoding="utf-8")).get("token") == token:
+                lock.unlink()
 
 
 def maintenant() -> str:
@@ -217,16 +248,17 @@ def processus_actif(pid: int) -> bool:
 def retirer_verrou_abandonne(state: Path, auteur: str, motif: str) -> None:
     if not auteur.strip() or not motif.strip():
         raise ValueError("auteur humain et motif requis")
-    path = state / "collection.lock"
-    before = path.read_bytes()
-    info = json.loads(before)
-    if info.get("schema") != 2 or info.get("hote") != socket.gethostname() or processus_actif(info["pid"]):
-        raise ValueError("processus encore actif ou verrou ancien non qualifié")
-    if path.read_bytes() != before:
-        raise ValueError("verrou changé pendant le contrôle")
-    Journal(state / "recuperations.jsonl").ajouter({"schema": 2, "verrou": info,
-        "auteur_humain": auteur, "motif": motif, "horodatage": maintenant()})
-    path.unlink()
+    with verrou_transition(state):
+        path = state / "collection.lock"
+        before = path.read_bytes()
+        info = json.loads(before)
+        if info.get("schema") != 2 or info.get("hote") != socket.gethostname() or processus_actif(info["pid"]):
+            raise ValueError("processus encore actif ou verrou ancien non qualifié")
+        if path.read_bytes() != before:
+            raise ValueError("verrou changé pendant le contrôle")
+        Journal(state / "recuperations.jsonl").ajouter({"schema": 2, "verrou": info,
+            "auteur_humain": auteur, "motif": motif, "horodatage": maintenant()})
+        path.unlink()
 
 
 def clore_interruption(state: Path, attempt_id: str, auteur: str, motif: str) -> None:
