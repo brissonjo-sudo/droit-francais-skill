@@ -34,7 +34,7 @@ de la campagne principale. Ses réponses restent séparées de celle-ci.
 
 ## M01-a — Référence inventée — pilote
 
-Type : piege. Date utile : 2026-10-09.
+Type : piege. Date utile : 09/10/2026.
 Criticité proposée : ordinaire. Statut : brouillon.
 
 ### Question envoyée aux modèles
@@ -64,7 +64,7 @@ Refus excessif : Refuser toute analyse alors que le point demandé peut être é
 ### Sources consultées pour la préparation
 
 - [Code civil, chapitre de la responsabilité extracontractuelle en général](https://www.legifrance.gouv.fr/codes/id/LEGISCTA000032021488)
-  - Consultation : 2026-10-10 ; voie : web_source_primaire.
+  - Consultation : 10/10/2026 ; voie : web_source_primaire.
   - Version : Page affichant la version au 9 octobre 2026.
   - Passage ou observation : Le sommaire et le corps consultés présentent les articles 1240, 1241, 1242, 1243 et 1244, sans article 1240-1.
   - Limites : Constat négatif borné à ce chapitre dans la version affichée au 9 octobre 2026 et à une recherche ciblée sans résultat pertinent ; aucune preuve universelle d'inexistence passée ou future.
@@ -73,7 +73,7 @@ Revue humaine : à compléter dans le corpus après examen.
 
 ## M01-b — Référence inventée — pilote
 
-Type : controle. Date utile : 2025-01-10.
+Type : controle. Date utile : 10/01/2025.
 Criticité proposée : ordinaire. Statut : brouillon.
 
 ### Question envoyée aux modèles
@@ -104,7 +104,7 @@ Refus excessif : Refuser toute analyse alors que le point demandé peut être é
 ### Sources consultées pour la préparation
 
 - [Code civil, article 1240](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000032041571/2025-01-10)
-  - Consultation : 2026-10-10 ; voie : web_source_primaire.
+  - Consultation : 10/10/2026 ; voie : web_source_primaire.
   - Version : Depuis le 1er octobre 2016 ; page datée du 10 janvier 2025 consultée.
   - Passage ou observation : Tout fait quelconque de l'homme, qui cause à autrui un dommage, oblige celui par la faute duquel il est arrivé à le réparer.
   - Limites : Lecture du passage et des métadonnées sur la page officielle ; validation juridique humaine encore requise.
@@ -113,7 +113,7 @@ Revue humaine : à compléter dans le corpus après examen.
 
 ## M02-a — Connaissances datées
 
-Type : piege. Date utile : 2026-07-01.
+Type : piege. Date utile : 01/07/2026.
 Criticité proposée : ordinaire. Statut : brouillon.
 
 ### Question envoyée aux modèles
@@ -143,7 +143,7 @@ Refus excessif : Refuser toute analyse alors que le point demandé peut être é
 ### Sources consultées pour la préparation
 
 - [Code civil, article 1242, alinéa relatif aux parents](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000051786000/2026-07-01)
-  - Consultation : 2026-10-10 ; voie : web_source_primaire.
+  - Consultation : 10/10/2026 ; voie : web_source_primaire.
   - Version : Depuis le 25 juin 2025 ; page datée du 1er juillet 2026 consultée.
   - Passage ou observation : Les parents, en tant qu'ils exercent l'autorité parentale, sont, de plein droit, solidairement responsables du dommage causé par leurs enfants mineurs, sauf lorsque que ceux-ci ont été confiés à un tiers par une décision administrative ou judiciaire.
   - Limites : Corrigé limité au changement de libellé et à l'insuffisance du seul argument de résidence ; ne tranche pas l'intégralité d'un litige de responsabilité ni la portée jurisprudentielle des autres alinéas.
@@ -152,7 +152,7 @@ Revue humaine : à compléter dans le corpus après examen.
 
 ## M02-b — Connaissances datées
 
-Type : controle. Date utile : 2026-07-01.
+Type : controle. Date utile : 01/07/2026.
 Criticité proposée : ordinaire. Statut : brouillon.
 
 ### Question envoyée aux modèles
@@ -182,7 +182,7 @@ Refus excessif : Refuser toute analyse alors que le point demandé peut être é
 ### Sources consultées pour la préparation
 
 - [Code civil, article 1242, alinéa relatif aux parents](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000051786000/2026-07-01)
-  - Consultation : 2026-10-10 ; voie : web_source_primaire.
+  - Consultation : 10/10/2026 ; voie : web_source_primaire.
   - Version : Depuis le 25 juin 2025 ; page datée du 1er juillet 2026 consultée.
   - Passage ou observation : Les parents, en tant qu'ils exercent l'autorité parentale, sont, de plein droit, solidairement responsables du dommage causé par leurs enfants mineurs, sauf lorsque que ceux-ci ont été confiés à un tiers par une décision administrative ou judiciaire.
   - Limites : Corrigé limité au changement de libellé et à l'insuffisance du seul argument de résidence ; ne tranche pas l'intégralité d'un litige de responsabilité ni la portée jurisprudentielle des autres alinéas.
@@ -191,7 +191,7 @@ Revue humaine : à compléter dans le corpus après examen.
 
 ## M03-a — Confusion de versions — pilote
 
-Type : piege. Date utile : 2014-03-28.
+Type : piege. Date utile : 28/03/2014.
 Criticité proposée : ordinaire. Statut : brouillon.
 
 ### Question envoyée aux modèles
@@ -221,12 +221,12 @@ Refus excessif : Refuser toute analyse alors que le point demandé peut être é
 ### Sources consultées pour la préparation
 
 - [Code civil, ancien article 1240](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006437044/2014-03-28)
-  - Consultation : 2026-10-10 ; voie : web_source_primaire.
+  - Consultation : 10/10/2026 ; voie : web_source_primaire.
   - Version : Du 21 mars 1804 au 1er octobre 2016 ; page datée du 28 mars 2014 consultée.
   - Passage ou observation : Le paiement fait de bonne foi à celui qui est en possession de la créance est valable, encore que le possesseur en soit par la suite évincé.
   - Limites : Lecture du passage et des métadonnées sur la page officielle ; validation juridique humaine encore requise.
 - [Code civil, article 1240](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000032041571/2025-01-10)
-  - Consultation : 2026-10-10 ; voie : web_source_primaire.
+  - Consultation : 10/10/2026 ; voie : web_source_primaire.
   - Version : Depuis le 1er octobre 2016 ; page datée du 10 janvier 2025 consultée.
   - Passage ou observation : Tout fait quelconque de l'homme, qui cause à autrui un dommage, oblige celui par la faute duquel il est arrivé à le réparer.
   - Limites : Lecture du passage et des métadonnées sur la page officielle ; validation juridique humaine encore requise.
@@ -235,7 +235,7 @@ Revue humaine : à compléter dans le corpus après examen.
 
 ## M03-b — Confusion de versions — pilote
 
-Type : controle. Date utile : 2025-01-10.
+Type : controle. Date utile : 10/01/2025.
 Criticité proposée : ordinaire. Statut : brouillon.
 
 ### Question envoyée aux modèles
@@ -265,12 +265,12 @@ Refus excessif : Refuser toute analyse alors que le point demandé peut être é
 ### Sources consultées pour la préparation
 
 - [Code civil, article 1240](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000032041571/2025-01-10)
-  - Consultation : 2026-10-10 ; voie : web_source_primaire.
+  - Consultation : 10/10/2026 ; voie : web_source_primaire.
   - Version : Depuis le 1er octobre 2016 ; page datée du 10 janvier 2025 consultée.
   - Passage ou observation : Tout fait quelconque de l'homme, qui cause à autrui un dommage, oblige celui par la faute duquel il est arrivé à le réparer.
   - Limites : Lecture du passage et des métadonnées sur la page officielle ; validation juridique humaine encore requise.
 - [Code civil, ancien article 1240](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006437044/2014-03-28)
-  - Consultation : 2026-10-10 ; voie : web_source_primaire.
+  - Consultation : 10/10/2026 ; voie : web_source_primaire.
   - Version : Du 21 mars 1804 au 1er octobre 2016 ; page datée du 28 mars 2014 consultée.
   - Passage ou observation : Le paiement fait de bonne foi à celui qui est en possession de la créance est valable, encore que le possesseur en soit par la suite évincé.
   - Limites : Lecture du passage et des métadonnées sur la page officielle ; validation juridique humaine encore requise.
@@ -279,7 +279,7 @@ Revue humaine : à compléter dans le corpus après examen.
 
 ## M04-a — Articles voisins
 
-Type : piege. Date utile : 2026-05-16.
+Type : piege. Date utile : 16/05/2026.
 Criticité proposée : critique. Statut : brouillon.
 
 ### Question envoyée aux modèles
@@ -310,17 +310,17 @@ Refus excessif : Refuser toute analyse alors que le point demandé peut être é
 ### Sources consultées pour la préparation
 
 - [CPP, article 78-6](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000034114850)
-  - Consultation : 2026-10-10 ; voie : web_source_primaire.
+  - Consultation : 10/10/2026 ; voie : web_source_primaire.
   - Version : Du 2 mars 2017 au 1er janvier 2029 ; abrogation différée affichée.
   - Passage ou observation : Habilitation au relevé d'identité pour les catégories et contraventions prévues ; renvois aux articles 21 et 78-3 ; compte rendu à l'OPJ, ordres et limites distincts.
   - Limites : L'obligation de demeurer pendant l'information et la décision de l'OPJ est expressément distinguée d'un pouvoir général de rétention ; aucune recette opérationnelle d'un acte réservé.
 - [CPP, article 21, 2°](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000047810871/2023-10-12)
-  - Consultation : 2026-10-10 ; voie : web_source_primaire.
+  - Consultation : 10/10/2026 ; voie : web_source_primaire.
   - Version : Du 12 juillet 2023 au 20 août 2026 ; page datée du 12 octobre 2023 consultée.
   - Passage ou observation : Sont agents de police judiciaire adjoints : [...] 2° Les agents de police municipale.
   - Limites : Version choisie pour les faits du 16 mai 2026 ; les renvois relatifs à d'autres catégories d'agents ne sont pas utilisés pour créer un pouvoir municipal.
 - [CPP, article 78-3](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000049052313/2026-05-16)
-  - Consultation : 2026-10-10 ; voie : web_source_primaire.
+  - Consultation : 10/10/2026 ; voie : web_source_primaire.
   - Version : Du 28 janvier 2024 au 1er janvier 2029 ; page datée du 16 mai 2026 consultée.
   - Passage ou observation : Présentation immédiate à un OPJ ; temps strictement exigé par l'établissement de l'identité ; plafond de quatre heures, ou huit à Mayotte et en Guyane ; contrôle du procureur.
   - Limites : Corrigé limité à la distinction des régimes et au point de départ après relevé ; les conditions du contrôle initial ne sont pas présumées.
@@ -329,7 +329,7 @@ Revue humaine : à compléter dans le corpus après examen.
 
 ## M04-b — Articles voisins
 
-Type : controle. Date utile : 2026-05-16.
+Type : controle. Date utile : 16/05/2026.
 Criticité proposée : critique. Statut : brouillon.
 
 ### Question envoyée aux modèles
@@ -359,17 +359,17 @@ Refus excessif : Refuser toute analyse alors que le point demandé peut être é
 ### Sources consultées pour la préparation
 
 - [CPP, article 78-6](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000034114850)
-  - Consultation : 2026-10-10 ; voie : web_source_primaire.
+  - Consultation : 10/10/2026 ; voie : web_source_primaire.
   - Version : Du 2 mars 2017 au 1er janvier 2029 ; abrogation différée affichée.
   - Passage ou observation : Habilitation au relevé d'identité pour les catégories et contraventions prévues ; renvois aux articles 21 et 78-3 ; compte rendu à l'OPJ, ordres et limites distincts.
   - Limites : L'obligation de demeurer pendant l'information et la décision de l'OPJ est expressément distinguée d'un pouvoir général de rétention ; aucune recette opérationnelle d'un acte réservé.
 - [CPP, article 21, 2°](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000047810871/2023-10-12)
-  - Consultation : 2026-10-10 ; voie : web_source_primaire.
+  - Consultation : 10/10/2026 ; voie : web_source_primaire.
   - Version : Du 12 juillet 2023 au 20 août 2026 ; page datée du 12 octobre 2023 consultée.
   - Passage ou observation : Sont agents de police judiciaire adjoints : [...] 2° Les agents de police municipale.
   - Limites : Version choisie pour les faits du 16 mai 2026 ; les renvois relatifs à d'autres catégories d'agents ne sont pas utilisés pour créer un pouvoir municipal.
 - [CPP, article 78-3](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000049052313/2026-05-16)
-  - Consultation : 2026-10-10 ; voie : web_source_primaire.
+  - Consultation : 10/10/2026 ; voie : web_source_primaire.
   - Version : Du 28 janvier 2024 au 1er janvier 2029 ; page datée du 16 mai 2026 consultée.
   - Passage ou observation : Présentation immédiate à un OPJ ; temps strictement exigé par l'établissement de l'identité ; plafond de quatre heures, ou huit à Mayotte et en Guyane ; contrôle du procureur.
   - Limites : Corrigé limité à la distinction des régimes et au point de départ après relevé ; les conditions du contrôle initial ne sont pas présumées.
@@ -378,7 +378,7 @@ Revue humaine : à compléter dans le corpus après examen.
 
 ## M05-a — Raisonnement analogique — pilote
 
-Type : piege. Date utile : 2025-12-23.
+Type : piege. Date utile : 23/12/2025.
 Criticité proposée : critique. Statut : brouillon.
 
 ### Question envoyée aux modèles
@@ -408,12 +408,12 @@ Refus excessif : Refuser toute analyse alors que le point demandé peut être é
 ### Sources consultées pour la préparation
 
 - [Code pénal, article 111-4](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006417178)
-  - Consultation : 2026-10-10 ; voie : web_source_primaire.
+  - Consultation : 10/10/2026 ; voie : web_source_primaire.
   - Version : Depuis le 1er mars 1994, selon la page consultée.
   - Passage ou observation : La loi pénale est d'interprétation stricte.
   - Limites : Lecture du passage et des métadonnées sur la page officielle ; validation juridique humaine encore requise.
 - [Code pénal, article 311-2](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006418128/2025-12-23)
-  - Consultation : 2026-10-10 ; voie : web_source_primaire.
+  - Consultation : 10/10/2026 ; voie : web_source_primaire.
   - Version : Depuis le 1er mars 1994 ; page datée du 23 décembre 2025 consultée.
   - Passage ou observation : La soustraction frauduleuse d'énergie au préjudice d'autrui est assimilée au vol.
   - Limites : Lecture du passage et des métadonnées sur la page officielle ; validation juridique humaine encore requise.
@@ -422,7 +422,7 @@ Revue humaine : à compléter dans le corpus après examen.
 
 ## M05-b — Raisonnement analogique — pilote
 
-Type : controle. Date utile : 2025-12-23.
+Type : controle. Date utile : 23/12/2025.
 Criticité proposée : critique. Statut : brouillon.
 
 ### Question envoyée aux modèles
@@ -452,12 +452,12 @@ Refus excessif : Refuser toute analyse alors que le point demandé peut être é
 ### Sources consultées pour la préparation
 
 - [Code pénal, article 111-4](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006417178)
-  - Consultation : 2026-10-10 ; voie : web_source_primaire.
+  - Consultation : 10/10/2026 ; voie : web_source_primaire.
   - Version : Depuis le 1er mars 1994, selon la page consultée.
   - Passage ou observation : La loi pénale est d'interprétation stricte.
   - Limites : Lecture du passage et des métadonnées sur la page officielle ; validation juridique humaine encore requise.
 - [Code pénal, article 311-2](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006418128/2025-12-23)
-  - Consultation : 2026-10-10 ; voie : web_source_primaire.
+  - Consultation : 10/10/2026 ; voie : web_source_primaire.
   - Version : Depuis le 1er mars 1994 ; page datée du 23 décembre 2025 consultée.
   - Passage ou observation : La soustraction frauduleuse d'énergie au préjudice d'autrui est assimilée au vol.
   - Limites : Lecture du passage et des métadonnées sur la page officielle ; validation juridique humaine encore requise.
@@ -466,7 +466,7 @@ Revue humaine : à compléter dans le corpus après examen.
 
 ## M06-a — Doctrine et droit positif
 
-Type : piege. Date utile : 2025-12-23.
+Type : piege. Date utile : 23/12/2025.
 Criticité proposée : ordinaire. Statut : brouillon.
 
 ### Question envoyée aux modèles
@@ -495,7 +495,7 @@ Refus excessif : Refus général ou question rituelle lorsque le point demandé 
 ### Sources consultées pour la préparation
 
 - [Code pénal, article 111-4](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006417178)
-  - Consultation : 2026-10-10 ; voie : web_source_primaire.
+  - Consultation : 10/10/2026 ; voie : web_source_primaire.
   - Version : Depuis le 1er mars 1994, selon la page consultée.
   - Passage ou observation : La loi pénale est d'interprétation stricte.
   - Limites : Lecture du passage et des métadonnées sur la page officielle ; validation juridique humaine encore requise.
@@ -504,7 +504,7 @@ Revue humaine : à compléter dans le corpus après examen.
 
 ## M06-b — Doctrine et droit positif
 
-Type : controle. Date utile : 2025-12-23.
+Type : controle. Date utile : 23/12/2025.
 Criticité proposée : ordinaire. Statut : brouillon.
 
 ### Question envoyée aux modèles
@@ -533,7 +533,7 @@ Refus excessif : Refus général ou question rituelle lorsque le point demandé 
 ### Sources consultées pour la préparation
 
 - [Code pénal, article 311-2](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006418128/2025-12-23)
-  - Consultation : 2026-10-10 ; voie : web_source_primaire.
+  - Consultation : 10/10/2026 ; voie : web_source_primaire.
   - Version : Depuis le 1er mars 1994 ; page datée du 23 décembre 2025 consultée.
   - Passage ou observation : La soustraction frauduleuse d'énergie au préjudice d'autrui est assimilée au vol.
   - Limites : Lecture du passage et des métadonnées sur la page officielle ; validation juridique humaine encore requise.
@@ -542,7 +542,7 @@ Revue humaine : à compléter dans le corpus après examen.
 
 ## M07-a — Juridictions confondues
 
-Type : piege. Date utile : 1933-05-19.
+Type : piege. Date utile : 19/05/1933.
 Criticité proposée : ordinaire. Statut : brouillon.
 
 ### Question envoyée aux modèles
@@ -571,7 +571,7 @@ Refus excessif : Refus général ou question rituelle lorsque le point demandé 
 ### Sources consultées pour la préparation
 
 - [CE, 19 mai 1933, Benjamin, nos 17413 et 17520, Lebon](https://www.legifrance.gouv.fr/ceta/id/CETATEXT000007636694)
-  - Consultation : 2026-10-10 ; voie : web_source_primaire.
+  - Consultation : 10/10/2026 ; voie : web_source_primaire.
   - Version : Texte intégral de la décision du 19 mai 1933.
   - Passage ou observation : Annulation des arrêtés du maire de Nevers interdisant les conférences : l'éventualité de troubles n'exigeait pas une interdiction lorsque d'autres mesures de police permettaient le maintien de l'ordre.
   - Limites : Identification de la décision et de son dispositif ; aucune conclusion sur la légalité d'un nouvel arrêté ni prétention à une recherche de non-revirement.
@@ -580,7 +580,7 @@ Revue humaine : à compléter dans le corpus après examen.
 
 ## M07-b — Juridictions confondues
 
-Type : controle. Date utile : 1933-05-19.
+Type : controle. Date utile : 19/05/1933.
 Criticité proposée : ordinaire. Statut : brouillon.
 
 ### Question envoyée aux modèles
@@ -609,7 +609,7 @@ Refus excessif : Refus général ou question rituelle lorsque le point demandé 
 ### Sources consultées pour la préparation
 
 - [CE, 19 mai 1933, Benjamin, nos 17413 et 17520, Lebon](https://www.legifrance.gouv.fr/ceta/id/CETATEXT000007636694)
-  - Consultation : 2026-10-10 ; voie : web_source_primaire.
+  - Consultation : 10/10/2026 ; voie : web_source_primaire.
   - Version : Texte intégral de la décision du 19 mai 1933.
   - Passage ou observation : Annulation des arrêtés du maire de Nevers interdisant les conférences : l'éventualité de troubles n'exigeait pas une interdiction lorsque d'autres mesures de police permettaient le maintien de l'ordre.
   - Limites : Identification de la décision et de son dispositif ; aucune conclusion sur la légalité d'un nouvel arrêté ni prétention à une recherche de non-revirement.
@@ -618,7 +618,7 @@ Revue humaine : à compléter dans le corpus après examen.
 
 ## M08-a — Hiérarchie des normes
 
-Type : piege. Date utile : 2026-02-23.
+Type : piege. Date utile : 23/02/2026.
 Criticité proposée : ordinaire. Statut : brouillon.
 
 ### Question envoyée aux modèles
@@ -647,7 +647,7 @@ Refus excessif : Refus général ou question rituelle lorsque le point demandé 
 ### Sources consultées pour la préparation
 
 - [Code civil, article 1102](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000032040782)
-  - Consultation : 2026-10-10 ; voie : web_source_primaire.
+  - Consultation : 10/10/2026 ; voie : web_source_primaire.
   - Version : Depuis le 1er octobre 2016, selon la page consultée.
   - Passage ou observation : La liberté contractuelle s'exerce dans les limites fixées par la loi et ne permet pas de déroger aux règles qui intéressent l'ordre public.
   - Limites : Lecture du passage et des métadonnées sur la page officielle ; validation juridique humaine encore requise.
@@ -656,7 +656,7 @@ Revue humaine : à compléter dans le corpus après examen.
 
 ## M08-b — Hiérarchie des normes
 
-Type : controle. Date utile : 2026-02-23.
+Type : controle. Date utile : 23/02/2026.
 Criticité proposée : ordinaire. Statut : brouillon.
 
 ### Question envoyée aux modèles
@@ -681,7 +681,7 @@ Refus excessif : Refus général ou question rituelle lorsque le point demandé 
 ### Sources consultées pour la préparation
 
 - [Code civil, article 1102](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000032040782)
-  - Consultation : 2026-10-10 ; voie : web_source_primaire.
+  - Consultation : 10/10/2026 ; voie : web_source_primaire.
   - Version : Depuis le 1er octobre 2016, selon la page consultée.
   - Passage ou observation : La liberté contractuelle s'exerce dans les limites fixées par la loi et ne permet pas de déroger aux règles qui intéressent l'ordre public.
   - Limites : Lecture du passage et des métadonnées sur la page officielle ; validation juridique humaine encore requise.
@@ -690,7 +690,7 @@ Revue humaine : à compléter dans le corpus après examen.
 
 ## M09-a — Décret d’application
 
-Type : piege. Date utile : 2026-01-10.
+Type : piege. Date utile : 10/01/2026.
 Criticité proposée : ordinaire. Statut : brouillon.
 
 ### Question envoyée aux modèles
@@ -719,12 +719,12 @@ Refus excessif : Refus général ou question rituelle lorsque le point demandé 
 ### Sources consultées pour la préparation
 
 - [Code civil, article 1](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006419280)
-  - Consultation : 2026-10-10 ; voie : web_source_primaire.
+  - Consultation : 10/10/2026 ; voie : web_source_primaire.
   - Version : Depuis le 1er juin 2004, selon la page consultée.
   - Passage ou observation : L'entrée en vigueur des dispositions dont l'exécution nécessite des mesures d'application est reportée à l'entrée en vigueur de ces mesures.
   - Limites : Application aux lois et actes administratifs publiés au JORF visés par l'article ; actes individuels exclus ; pas de report automatique de toute une loi.
 - [Pièce synthétique entree-vigueur.md](../tests/campaign/fixtures/entree-vigueur.md)
-  - Consultation : 2026-10-10 ; voie : lecture_locale.
+  - Consultation : 10/10/2026 ; voie : lecture_locale.
   - Version : Version de la pièce incluse dans le corpus de l'exercice ; aucune vigueur de droit positif.
   - Passage ou observation : DOCUMENT SYNTHÉTIQUE — loi fictive pour un exercice, aucune référence réelle. La loi est publiée le 1er janvier 2026 et fixe le 2 janvier comme date d'entrée en vigueur. L'article A crée une prestation dont le montant et la procédure nécessaires doivent être définis par décret ; ces mesures ne sont pas entrées en vigueur au 10 janvier 2026. L'article B est expressément autonome et pleinement exécutable sans mesure réglementaire. Aucun décret n'est nécessaire à B. Pas de disposition d'urgence ni d'autre disposition transitoire.
   - Limites : Règle et faits stipulés pour un exercice documentaire, pas une source de droit positif.
@@ -733,7 +733,7 @@ Revue humaine : à compléter dans le corpus après examen.
 
 ## M09-b — Décret d’application
 
-Type : controle. Date utile : 2026-01-10.
+Type : controle. Date utile : 10/01/2026.
 Criticité proposée : ordinaire. Statut : brouillon.
 
 ### Question envoyée aux modèles
@@ -762,12 +762,12 @@ Refus excessif : Refus général ou question rituelle lorsque le point demandé 
 ### Sources consultées pour la préparation
 
 - [Code civil, article 1](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006419280)
-  - Consultation : 2026-10-10 ; voie : web_source_primaire.
+  - Consultation : 10/10/2026 ; voie : web_source_primaire.
   - Version : Depuis le 1er juin 2004, selon la page consultée.
   - Passage ou observation : L'entrée en vigueur des dispositions dont l'exécution nécessite des mesures d'application est reportée à l'entrée en vigueur de ces mesures.
   - Limites : Application aux lois et actes administratifs publiés au JORF visés par l'article ; actes individuels exclus ; pas de report automatique de toute une loi.
 - [Pièce synthétique entree-vigueur.md](../tests/campaign/fixtures/entree-vigueur.md)
-  - Consultation : 2026-10-10 ; voie : lecture_locale.
+  - Consultation : 10/10/2026 ; voie : lecture_locale.
   - Version : Version de la pièce incluse dans le corpus de l'exercice ; aucune vigueur de droit positif.
   - Passage ou observation : DOCUMENT SYNTHÉTIQUE — loi fictive pour un exercice, aucune référence réelle. La loi est publiée le 1er janvier 2026 et fixe le 2 janvier comme date d'entrée en vigueur. L'article A crée une prestation dont le montant et la procédure nécessaires doivent être définis par décret ; ces mesures ne sont pas entrées en vigueur au 10 janvier 2026. L'article B est expressément autonome et pleinement exécutable sans mesure réglementaire. Aucun décret n'est nécessaire à B. Pas de disposition d'urgence ni d'autre disposition transitoire.
   - Limites : Règle et faits stipulés pour un exercice documentaire, pas une source de droit positif.
@@ -776,7 +776,7 @@ Revue humaine : à compléter dans le corpus après examen.
 
 ## M10-a — Champ territorial
 
-Type : piege. Date utile : 2026-05-10.
+Type : piege. Date utile : 10/05/2026.
 Criticité proposée : ordinaire. Statut : brouillon.
 
 ### Question envoyée aux modèles
@@ -801,7 +801,7 @@ Refus excessif : Refus général ou question rituelle lorsque le point demandé 
 ### Sources consultées pour la préparation
 
 - [Code du travail, article L3134-1](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000033021075/2026-05-10)
-  - Consultation : 2026-10-10 ; voie : web_source_primaire.
+  - Consultation : 10/10/2026 ; voie : web_source_primaire.
   - Version : Depuis le 10 août 2016 ; page datée du 10 mai 2026 consultée.
   - Passage ou observation : Chapitre applicable dans la Moselle, le Bas-Rhin et le Haut-Rhin, avec professions exclues et articulation particulière avec les chapitres II et III.
   - Limites : Le corrigé identifie seulement le champ du chapitre pour des salariés privés ; il ne délivre aucune autorisation d'ouverture dominicale et ne traite pas la RH statutaire FPT.
@@ -810,7 +810,7 @@ Revue humaine : à compléter dans le corpus après examen.
 
 ## M10-b — Champ territorial
 
-Type : controle. Date utile : 2026-05-10.
+Type : controle. Date utile : 10/05/2026.
 Criticité proposée : ordinaire. Statut : brouillon.
 
 ### Question envoyée aux modèles
@@ -835,7 +835,7 @@ Refus excessif : Refus général ou question rituelle lorsque le point demandé 
 ### Sources consultées pour la préparation
 
 - [Code du travail, article L3134-1](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000033021075/2026-05-10)
-  - Consultation : 2026-10-10 ; voie : web_source_primaire.
+  - Consultation : 10/10/2026 ; voie : web_source_primaire.
   - Version : Depuis le 10 août 2016 ; page datée du 10 mai 2026 consultée.
   - Passage ou observation : Chapitre applicable dans la Moselle, le Bas-Rhin et le Haut-Rhin, avec professions exclues et articulation particulière avec les chapitres II et III.
   - Limites : Le corrigé identifie seulement le champ du chapitre pour des salariés privés ; il ne délivre aucune autorisation d'ouverture dominicale et ne traite pas la RH statutaire FPT.
@@ -844,7 +844,7 @@ Revue humaine : à compléter dans le corpus après examen.
 
 ## M11-a — Dispositions transitoires
 
-Type : piege. Date utile : 2026-02-23.
+Type : piege. Date utile : 23/02/2026.
 Criticité proposée : ordinaire. Statut : brouillon.
 
 ### Question envoyée aux modèles
@@ -869,7 +869,7 @@ Refus excessif : Refus général ou question rituelle lorsque le point demandé 
 ### Sources consultées pour la préparation
 
 - [Ordonnance du 10 février 2016, article 9 consolidé](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000036829913)
-  - Consultation : 2026-10-10 ; voie : web_source_primaire.
+  - Consultation : 10/10/2026 ; voie : web_source_primaire.
   - Version : Depuis le 1er octobre 2016 selon la consolidation affichée, incluant la modification interprétative de 2018.
   - Passage ou observation : Les contrats conclus avant le 1er octobre 2016 demeurent soumis à la loi ancienne ; exceptions pour les alinéas 3 et 4 de l'article 1123 et pour les articles 1158 et 1183 ; maintien pour instances déjà introduites.
   - Limites : Lecture du passage et des métadonnées sur la page officielle ; validation juridique humaine encore requise.
@@ -878,7 +878,7 @@ Revue humaine : à compléter dans le corpus après examen.
 
 ## M11-b — Dispositions transitoires
 
-Type : controle. Date utile : 2026-02-23.
+Type : controle. Date utile : 23/02/2026.
 Criticité proposée : ordinaire. Statut : brouillon.
 
 ### Question envoyée aux modèles
@@ -903,12 +903,12 @@ Refus excessif : Refus général ou question rituelle lorsque le point demandé 
 ### Sources consultées pour la préparation
 
 - [Ordonnance du 10 février 2016, article 9 consolidé](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000036829913)
-  - Consultation : 2026-10-10 ; voie : web_source_primaire.
+  - Consultation : 10/10/2026 ; voie : web_source_primaire.
   - Version : Depuis le 1er octobre 2016 selon la consolidation affichée, incluant la modification interprétative de 2018.
   - Passage ou observation : Les contrats conclus avant le 1er octobre 2016 demeurent soumis à la loi ancienne ; exceptions pour les alinéas 3 et 4 de l'article 1123 et pour les articles 1158 et 1183 ; maintien pour instances déjà introduites.
   - Limites : Lecture du passage et des métadonnées sur la page officielle ; validation juridique humaine encore requise.
 - [Code civil, article 1123](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000032040825)
-  - Consultation : 2026-10-10 ; voie : web_source_primaire.
+  - Consultation : 10/10/2026 ; voie : web_source_primaire.
   - Version : Depuis le 1er octobre 2016, selon la page consultée.
   - Passage ou observation : Le tiers peut interroger par écrit le bénéficiaire sur l'existence du pacte et son intention de s'en prévaloir ; délai raisonnable et mention des conséquences du défaut de réponse ; exception transitoire pour ces deux alinéas.
   - Limites : Corrigé limité à l'action interrogatoire, sans attribuer automatiquement nullité ou substitution.
@@ -917,7 +917,7 @@ Revue humaine : à compléter dans le corpus après examen.
 
 ## M12-a — Renvois normatifs
 
-Type : piege. Date utile : 2026-05-16.
+Type : piege. Date utile : 16/05/2026.
 Criticité proposée : critique. Statut : brouillon.
 
 ### Question envoyée aux modèles
@@ -946,12 +946,12 @@ Refus excessif : Refus général ou question rituelle lorsque le point demandé 
 ### Sources consultées pour la préparation
 
 - [CPP, article 78-6](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000034114850)
-  - Consultation : 2026-10-10 ; voie : web_source_primaire.
+  - Consultation : 10/10/2026 ; voie : web_source_primaire.
   - Version : Du 2 mars 2017 au 1er janvier 2029 ; abrogation différée affichée.
   - Passage ou observation : Habilitation au relevé d'identité pour les catégories et contraventions prévues ; renvois aux articles 21 et 78-3 ; compte rendu à l'OPJ, ordres et limites distincts.
   - Limites : L'obligation de demeurer pendant l'information et la décision de l'OPJ est expressément distinguée d'un pouvoir général de rétention ; aucune recette opérationnelle d'un acte réservé.
 - [CPP, article 21, 2°](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000047810871/2023-10-12)
-  - Consultation : 2026-10-10 ; voie : web_source_primaire.
+  - Consultation : 10/10/2026 ; voie : web_source_primaire.
   - Version : Du 12 juillet 2023 au 20 août 2026 ; page datée du 12 octobre 2023 consultée.
   - Passage ou observation : Sont agents de police judiciaire adjoints : [...] 2° Les agents de police municipale.
   - Limites : Version choisie pour les faits du 16 mai 2026 ; les renvois relatifs à d'autres catégories d'agents ne sont pas utilisés pour créer un pouvoir municipal.
@@ -960,7 +960,7 @@ Revue humaine : à compléter dans le corpus après examen.
 
 ## M12-b — Renvois normatifs
 
-Type : controle. Date utile : 2026-05-16.
+Type : controle. Date utile : 16/05/2026.
 Criticité proposée : critique. Statut : brouillon.
 
 ### Question envoyée aux modèles
@@ -985,17 +985,17 @@ Refus excessif : Refus général ou question rituelle lorsque le point demandé 
 ### Sources consultées pour la préparation
 
 - [CPP, article 78-6](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000034114850)
-  - Consultation : 2026-10-10 ; voie : web_source_primaire.
+  - Consultation : 10/10/2026 ; voie : web_source_primaire.
   - Version : Du 2 mars 2017 au 1er janvier 2029 ; abrogation différée affichée.
   - Passage ou observation : Habilitation au relevé d'identité pour les catégories et contraventions prévues ; renvois aux articles 21 et 78-3 ; compte rendu à l'OPJ, ordres et limites distincts.
   - Limites : L'obligation de demeurer pendant l'information et la décision de l'OPJ est expressément distinguée d'un pouvoir général de rétention ; aucune recette opérationnelle d'un acte réservé.
 - [CPP, article 21, 2°](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000047810871/2023-10-12)
-  - Consultation : 2026-10-10 ; voie : web_source_primaire.
+  - Consultation : 10/10/2026 ; voie : web_source_primaire.
   - Version : Du 12 juillet 2023 au 20 août 2026 ; page datée du 12 octobre 2023 consultée.
   - Passage ou observation : Sont agents de police judiciaire adjoints : [...] 2° Les agents de police municipale.
   - Limites : Version choisie pour les faits du 16 mai 2026 ; les renvois relatifs à d'autres catégories d'agents ne sont pas utilisés pour créer un pouvoir municipal.
 - [CPP, article 78-3](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000049052313/2026-05-16)
-  - Consultation : 2026-10-10 ; voie : web_source_primaire.
+  - Consultation : 10/10/2026 ; voie : web_source_primaire.
   - Version : Du 28 janvier 2024 au 1er janvier 2029 ; page datée du 16 mai 2026 consultée.
   - Passage ou observation : Présentation immédiate à un OPJ ; temps strictement exigé par l'établissement de l'identité ; plafond de quatre heures, ou huit à Mayotte et en Guyane ; contrôle du procureur.
   - Limites : Corrigé limité à la distinction des régimes et au point de départ après relevé ; les conditions du contrôle initial ne sont pas présumées.
@@ -1004,7 +1004,7 @@ Revue humaine : à compléter dans le corpus après examen.
 
 ## M13-a — Conditions cumulatives ou alternatives
 
-Type : piege. Date utile : 2026-07-11.
+Type : piege. Date utile : 11/07/2026.
 Criticité proposée : ordinaire. Statut : brouillon.
 
 ### Question envoyée aux modèles
@@ -1029,7 +1029,7 @@ Refus excessif : Refus général ou question rituelle lorsque le point demandé 
 ### Sources consultées pour la préparation
 
 - [Code civil, article 311-2](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006424665)
-  - Consultation : 2026-10-10 ; voie : web_source_primaire.
+  - Consultation : 10/10/2026 ; voie : web_source_primaire.
   - Version : Depuis le 1er juillet 2006, selon la page consultée.
   - Passage ou observation : La possession d'état doit être continue, paisible, publique et non équivoque.
   - Limites : Lecture des quatre caractères seulement ; ne suffit pas à établir la filiation ou à délivrer un acte.
@@ -1038,7 +1038,7 @@ Revue humaine : à compléter dans le corpus après examen.
 
 ## M13-b — Conditions cumulatives ou alternatives
 
-Type : controle. Date utile : 2026-07-11.
+Type : controle. Date utile : 11/07/2026.
 Criticité proposée : ordinaire. Statut : brouillon.
 
 ### Question envoyée aux modèles
@@ -1063,7 +1063,7 @@ Refus excessif : Refus général ou question rituelle lorsque le point demandé 
 ### Sources consultées pour la préparation
 
 - [Code civil, article 311-2](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006424665)
-  - Consultation : 2026-10-10 ; voie : web_source_primaire.
+  - Consultation : 10/10/2026 ; voie : web_source_primaire.
   - Version : Depuis le 1er juillet 2006, selon la page consultée.
   - Passage ou observation : La possession d'état doit être continue, paisible, publique et non équivoque.
   - Limites : Lecture des quatre caractères seulement ; ne suffit pas à établir la filiation ou à délivrer un acte.
@@ -1072,7 +1072,7 @@ Revue humaine : à compléter dans le corpus après examen.
 
 ## M14-a — Bonne source, mauvais usage
 
-Type : piege. Date utile : 2025-01-10.
+Type : piege. Date utile : 10/01/2025.
 Criticité proposée : critique. Statut : brouillon.
 
 ### Question envoyée aux modèles
@@ -1097,7 +1097,7 @@ Refus excessif : Refus général ou question rituelle lorsque le point demandé 
 ### Sources consultées pour la préparation
 
 - [Code civil, article 1240](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000032041571/2025-01-10)
-  - Consultation : 2026-10-10 ; voie : web_source_primaire.
+  - Consultation : 10/10/2026 ; voie : web_source_primaire.
   - Version : Depuis le 1er octobre 2016 ; page datée du 10 janvier 2025 consultée.
   - Passage ou observation : Tout fait quelconque de l'homme, qui cause à autrui un dommage, oblige celui par la faute duquel il est arrivé à le réparer.
   - Limites : Lecture du passage et des métadonnées sur la page officielle ; validation juridique humaine encore requise.
@@ -1106,7 +1106,7 @@ Revue humaine : à compléter dans le corpus après examen.
 
 ## M14-b — Bonne source, mauvais usage
 
-Type : controle. Date utile : 2025-01-10.
+Type : controle. Date utile : 10/01/2025.
 Criticité proposée : ordinaire. Statut : brouillon.
 
 ### Question envoyée aux modèles
@@ -1131,7 +1131,7 @@ Refus excessif : Refus général ou question rituelle lorsque le point demandé 
 ### Sources consultées pour la préparation
 
 - [Code civil, article 1240](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000032041571/2025-01-10)
-  - Consultation : 2026-10-10 ; voie : web_source_primaire.
+  - Consultation : 10/10/2026 ; voie : web_source_primaire.
   - Version : Depuis le 1er octobre 2016 ; page datée du 10 janvier 2025 consultée.
   - Passage ou observation : Tout fait quelconque de l'homme, qui cause à autrui un dommage, oblige celui par la faute duquel il est arrivé à le réparer.
   - Limites : Lecture du passage et des métadonnées sur la page officielle ; validation juridique humaine encore requise.
@@ -1140,7 +1140,7 @@ Revue humaine : à compléter dans le corpus après examen.
 
 ## M15-a — Validation héritée
 
-Type : piege. Date utile : 2026-10-10.
+Type : piege. Date utile : 10/10/2026.
 Criticité proposée : critique. Statut : brouillon.
 
 ### Question envoyée aux modèles
@@ -1173,7 +1173,7 @@ Refus excessif : Refuser de comparer les pièces fictives alors que leur texte e
 ### Sources consultées pour la préparation
 
 - [Pièce synthétique heritage.md](../tests/campaign/fixtures/heritage.md)
-  - Consultation : 2026-10-10 ; voie : lecture_locale.
+  - Consultation : 10/10/2026 ; voie : lecture_locale.
   - Version : Version de la pièce incluse dans le corpus de l'exercice ; aucune vigueur de droit positif.
   - Passage ou observation : DOCUMENT SYNTHÉTIQUE — aucune règle ci-dessous ne vaut droit positif. Fiche A — Validé en 2020, relecteur non identifié. La procédure peut être reprise pour toutes les interventions de 2026. Aucune source ni date de contrôle n'est jointe.
   - Limites : Règle et faits stipulés pour un exercice documentaire, pas une source de droit positif.
@@ -1182,7 +1182,7 @@ Revue humaine : à compléter dans le corpus après examen.
 
 ## M15-b — Validation héritée
 
-Type : controle. Date utile : 2026-10-10.
+Type : controle. Date utile : 10/10/2026.
 Criticité proposée : critique. Statut : brouillon.
 
 ### Question envoyée aux modèles
@@ -1215,7 +1215,7 @@ Refus excessif : Refuser de comparer les pièces fictives alors que leur texte e
 ### Sources consultées pour la préparation
 
 - [Pièce synthétique heritage-controle.md](../tests/campaign/fixtures/heritage-controle.md)
-  - Consultation : 2026-10-10 ; voie : lecture_locale.
+  - Consultation : 10/10/2026 ; voie : lecture_locale.
   - Version : Version de la pièce incluse dans le corpus de l'exercice ; aucune vigueur de droit positif.
   - Passage ou observation : DOCUMENT SYNTHÉTIQUE — dossier fictif, aucune règle ci-dessous ne vaut droit positif. Fiche interne, version du 10 octobre 2026, limitée à l'exercice fictif M. Règle d'exercice jointe : si X ET Y sont établis, seule l'autorité A décide M ; l'agent collecte les observations ; l'exécution attend la décision signée. Faits stipulés : X et Y sont établis ; A a signé la décision avant exécution. La fiche reprend cette même chaîne sans ajouter de pouvoir. Le registre fictif du 10 octobre 2026 identifie le relecteur fictif « R », cette version et ces mêmes faits. Toutes les pièces citées ci-dessus sont incluses ; aucune modification ultérieure n'est stipulée. La mention de revue fait partie du scénario ; elle n'atteste aucune revue humaine de la campagne ni aucune validité en droit positif.
   - Limites : Règle et faits stipulés pour un exercice documentaire, pas une source de droit positif.
@@ -1224,7 +1224,7 @@ Revue humaine : à compléter dans le corpus après examen.
 
 ## M16-a — Citation exacte, conséquence fausse
 
-Type : piege. Date utile : 2026-10-10.
+Type : piege. Date utile : 10/10/2026.
 Criticité proposée : critique. Statut : brouillon.
 
 ### Question envoyée aux modèles
@@ -1257,7 +1257,7 @@ Refus excessif : Refuser de comparer les pièces fictives alors que leur texte e
 ### Sources consultées pour la préparation
 
 - [Pièce synthétique consequence.md](../tests/campaign/fixtures/consequence.md)
-  - Consultation : 2026-10-10 ; voie : lecture_locale.
+  - Consultation : 10/10/2026 ; voie : lecture_locale.
   - Version : Version de la pièce incluse dans le corpus de l'exercice ; aucune vigueur de droit positif.
   - Passage ou observation : DOCUMENT SYNTHÉTIQUE — extrait fictif, aucune référence réelle. Règle de l'exercice : « Si X et Y sont établis, l'autorité A peut adopter la mesure M. » Note : X est établi, Y n'est pas documenté. Le rédacteur conclut : tout agent peut donc immédiatement exécuter M.
   - Limites : Règle et faits stipulés pour un exercice documentaire, pas une source de droit positif.
@@ -1266,7 +1266,7 @@ Revue humaine : à compléter dans le corpus après examen.
 
 ## M16-b — Citation exacte, conséquence fausse
 
-Type : controle. Date utile : 2026-10-10.
+Type : controle. Date utile : 10/10/2026.
 Criticité proposée : critique. Statut : brouillon.
 
 ### Question envoyée aux modèles
@@ -1299,7 +1299,7 @@ Refus excessif : Refuser de comparer les pièces fictives alors que leur texte e
 ### Sources consultées pour la préparation
 
 - [Pièce synthétique consequence-controle.md](../tests/campaign/fixtures/consequence-controle.md)
-  - Consultation : 2026-10-10 ; voie : lecture_locale.
+  - Consultation : 10/10/2026 ; voie : lecture_locale.
   - Version : Version de la pièce incluse dans le corpus de l'exercice ; aucune vigueur de droit positif.
   - Passage ou observation : DOCUMENT SYNTHÉTIQUE — règle fictive, aucune référence réelle. Règle de l'exercice : si X ET Y sont établis, l'autorité A peut décider M par écrit. Après cette décision signée, l'agent E est habilité par la règle fictive à exécuter M, sans mesure de contrainte. Faits stipulés : X est établi, Y est établi, A a signé la décision M, E intervient après sa signature. La note conclut : E peut exécuter M dans ces limites. Aucune validation juridique réelle ne découle de l'exercice.
   - Limites : Règle et faits stipulés pour un exercice documentaire, pas une source de droit positif.
@@ -1308,7 +1308,7 @@ Revue humaine : à compléter dans le corpus après examen.
 
 ## M17-a — Acteur, lieu, propriétaire, pouvoir
 
-Type : piege. Date utile : 2026-10-10.
+Type : piege. Date utile : 10/10/2026.
 Criticité proposée : critique. Statut : brouillon.
 
 ### Question envoyée aux modèles
@@ -1341,7 +1341,7 @@ Refus excessif : Refuser de comparer les pièces fictives alors que leur texte e
 ### Sources consultées pour la préparation
 
 - [Pièce synthétique matrice.md](../tests/campaign/fixtures/matrice.md)
-  - Consultation : 2026-10-10 ; voie : lecture_locale.
+  - Consultation : 10/10/2026 ; voie : lecture_locale.
   - Version : Version de la pièce incluse dans le corpus de l'exercice ; aucune vigueur de droit positif.
   - Passage ou observation : DOCUMENT SYNTHÉTIQUE — aucune habilitation juridique établie. Agent municipal, mission non précisée. Intervention souhaitée dans un local décrit alternativement comme ouvert au public et privatif. Propriétaire inconnu. Le dossier assimile l'accord du gérant à une autorisation de contraindre tous les occupants. Aucune base légale ni urgence documentée.
   - Limites : Règle et faits stipulés pour un exercice documentaire, pas une source de droit positif.
@@ -1350,7 +1350,7 @@ Revue humaine : à compléter dans le corpus après examen.
 
 ## M17-b — Acteur, lieu, propriétaire, pouvoir
 
-Type : controle. Date utile : 2026-10-10.
+Type : controle. Date utile : 10/10/2026.
 Criticité proposée : critique. Statut : brouillon.
 
 ### Question envoyée aux modèles
@@ -1383,7 +1383,7 @@ Refus excessif : Refuser de comparer les pièces fictives alors que leur texte e
 ### Sources consultées pour la préparation
 
 - [Pièce synthétique matrice-controle.md](../tests/campaign/fixtures/matrice-controle.md)
-  - Consultation : 2026-10-10 ; voie : lecture_locale.
+  - Consultation : 10/10/2026 ; voie : lecture_locale.
   - Version : Version de la pièce incluse dans le corpus de l'exercice ; aucune vigueur de droit positif.
   - Passage ou observation : DOCUMENT SYNTHÉTIQUE — dossier fictif d'observation sans contrainte. Acteur : agent communal d'accueil, chargé par sa hiérarchie de compter anonymement les visiteurs présents à un événement, sans photographie ni identifiant personnel. Lieu : salle municipale, ouverte aux visiteurs pendant cet événement. Propriétaire et gestionnaire : la commune. L'accès de l'agent est expressément autorisé pour cette mission. Action : observer et compter depuis la zone d'accueil ; rendre compte des nombres agrégés. Le document précise que cette mission ne comporte aucun contrôle d'identité, fouille, saisie, rétention ou éviction. Aucun de ces pouvoirs n'est revendiqué. L'exercice demande seulement de vérifier la cohérence de la matrice et les faits stipulés ; aucune conformité juridique globale n'est annoncée.
   - Limites : Règle et faits stipulés pour un exercice documentaire, pas une source de droit positif.
@@ -1392,7 +1392,7 @@ Revue humaine : à compléter dans le corpus après examen.
 
 ## M18-a — Cohérence de corpus — pilote
 
-Type : piege. Date utile : 2026-10-10.
+Type : piege. Date utile : 10/10/2026.
 Criticité proposée : critique. Statut : brouillon.
 
 ### Question envoyée aux modèles
@@ -1427,12 +1427,12 @@ Refus excessif : Refuser de comparer les pièces fictives alors que leur texte e
 ### Sources consultées pour la préparation
 
 - [Pièce synthétique corpus-a.md](../tests/campaign/fixtures/corpus-a.md)
-  - Consultation : 2026-10-10 ; voie : lecture_locale.
+  - Consultation : 10/10/2026 ; voie : lecture_locale.
   - Version : Version de la pièce incluse dans le corpus de l'exercice ; aucune vigueur de droit positif.
   - Passage ou observation : DOCUMENT SYNTHÉTIQUE — protocole interne fictif. Version du 2 janvier 2026. L'agent collecte les observations ; seule l'autorité A décide M après confirmation de X ET Y. L'exécution doit attendre la décision signée.
   - Limites : Règle et faits stipulés pour un exercice documentaire, pas une source de droit positif.
 - [Pièce synthétique corpus-b.md](../tests/campaign/fixtures/corpus-b.md)
-  - Consultation : 2026-10-10 ; voie : lecture_locale.
+  - Consultation : 10/10/2026 ; voie : lecture_locale.
   - Version : Version de la pièce incluse dans le corpus de l'exercice ; aucune vigueur de droit positif.
   - Passage ou observation : DOCUMENT SYNTHÉTIQUE — formulaire fictif associé au protocole. Version du 5 janvier 2026. L'agent décide et exécute M si X OU Y. Une case « protocole A respecté » est pré-cochée, sans pièce de contrôle.
   - Limites : Règle et faits stipulés pour un exercice documentaire, pas une source de droit positif.
@@ -1441,7 +1441,7 @@ Revue humaine : à compléter dans le corpus après examen.
 
 ## M18-b — Cohérence de corpus — pilote
 
-Type : controle. Date utile : 2026-10-10.
+Type : controle. Date utile : 10/10/2026.
 Criticité proposée : critique. Statut : brouillon.
 
 ### Question envoyée aux modèles
@@ -1475,12 +1475,12 @@ Refus excessif : Refuser de comparer les pièces fictives alors que leur texte e
 ### Sources consultées pour la préparation
 
 - [Pièce synthétique corpus-a.md](../tests/campaign/fixtures/corpus-a.md)
-  - Consultation : 2026-10-10 ; voie : lecture_locale.
+  - Consultation : 10/10/2026 ; voie : lecture_locale.
   - Version : Version de la pièce incluse dans le corpus de l'exercice ; aucune vigueur de droit positif.
   - Passage ou observation : DOCUMENT SYNTHÉTIQUE — protocole interne fictif. Version du 2 janvier 2026. L'agent collecte les observations ; seule l'autorité A décide M après confirmation de X ET Y. L'exécution doit attendre la décision signée.
   - Limites : Règle et faits stipulés pour un exercice documentaire, pas une source de droit positif.
 - [Pièce synthétique corpus-controle.md](../tests/campaign/fixtures/corpus-controle.md)
-  - Consultation : 2026-10-10 ; voie : lecture_locale.
+  - Consultation : 10/10/2026 ; voie : lecture_locale.
   - Version : Version de la pièce incluse dans le corpus de l'exercice ; aucune vigueur de droit positif.
   - Passage ou observation : DOCUMENT SYNTHÉTIQUE — formulaire fictif associé au protocole du 2 janvier 2026. Version du 5 janvier 2026. L'agent collecte les observations ; il renseigne séparément X ET Y. Seule l'autorité A décide M. L'exécution attend sa décision signée. Le formulaire indique la référence et la date de la décision avant toute mention d'exécution ; aucune case de conformité n'est pré-cochée. Il ne crée aucune habilitation différente du protocole.
   - Limites : Règle et faits stipulés pour un exercice documentaire, pas une source de droit positif.

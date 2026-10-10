@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import hashlib
 import os
+from datetime import date
 from pathlib import Path
 
 from bench import campaign
@@ -65,7 +66,7 @@ def exporter(sortie: Path) -> int:
         lignes.extend([
             f"## {c['id']} — {c['intitule']}{pilote}",
             "",
-            f"Type : {c['type']}. Date utile : {c['date_reference']}.",
+            f"Type : {c['type']}. Date utile : {date.fromisoformat(c['date_reference']).strftime('%d/%m/%Y')}.",
             f"Criticité proposée : {g['criticite']}. Statut : {g['statut']}.",
             "",
             "### Question envoyée aux modèles",
@@ -95,7 +96,7 @@ def exporter(sortie: Path) -> int:
                 url = lien_fixture(url[8:], sortie)
             lignes.extend([
                 f"- [{s.get('titre', s['url'])}]({url})",
-                f"  - Consultation : {s['date_consultation']} ; voie : {s.get('mode_consultation', 'à préciser')}.",
+                f"  - Consultation : {date.fromisoformat(s['date_consultation']).strftime('%d/%m/%Y')} ; voie : {s.get('mode_consultation', 'à préciser')}.",
                 f"  - Version : {s['version_applicable']}",
                 f"  - Passage ou observation : {s['extrait_utile'].replace(chr(10), ' ')}",
                 f"  - Limites : {s.get('limites', 'à confirmer en revue humaine')}",
