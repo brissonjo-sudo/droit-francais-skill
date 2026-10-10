@@ -13,15 +13,25 @@ autorisé et leur qualification. Voir [la préparation](docs/livraison-0.9.0.md)
 [![Release](https://img.shields.io/github/v/release/brissonjo-sudo/droit-francais-skill)](https://github.com/brissonjo-sudo/droit-francais-skill/releases)
 [![License: CC BY-SA 4.0](https://img.shields.io/badge/license-CC%20BY--SA%204.0-blue)](LICENSE)
 
-> **TL;DR (EN).** An LLM skill that stops the model from *making up
-> French law.* It forces every statute, case, or citation through a 9-step
-> verification procedure built against **18 known LLM failure modes** in legal
-> reasoning — primary sources only (Légifrance/PISTE), currency checks, and
-> *traceable* citations. When it can't verify, it says so instead of inventing.
-> Configurable per practitioner via a **profile**. Works without any API key;
-> a free PISTE key unlocks deterministic retrieval. It remains installable as
-> a standalone Claude Code skill and is now packaged as an OpenAI plugin
-> and a Claude Code plugin without duplicating the legal methodology.
+> **Droit français** aide à vérifier les références, les versions applicables
+> et le raisonnement avant de rédiger un avis ou un acte. Il impose une méthode
+> de recherche sur sources primaires et demande de signaler ce qui reste
+> invérifiable. Son apport sur les modèles actuels doit être mesuré ; aucune
+> garantie d'absence d'erreur n'est revendiquée.
+
+**Pour commencer :** choisir un [canal d'installation](docs/installation.md),
+puis vérifier la méthode et, séparément, l'accès aux outils.
+
+| Canal | État au 10 octobre 2026 | Outils |
+|---|---|---|
+| Skill autonome | Noyau 3.5.0 présent dans `main` ; paquet publié distinct | Web officiel si le client le permet ; PISTE facultatif |
+| Plugin depuis le dépôt | Candidat 0.9.0 ; connexion distante dans `.mcp.json` | Service publié antérieur, six outils ; OAuth à qualifier par client |
+| Serveur local du candidat | Huit outils dans le code, avec Python et PISTE | Articles, décisions, sections et textes ; mesure séparée du service distant |
+
+Les nouveaux parcours OAuth Claude Code et ChatGPT restent suivis dans
+[#88](https://github.com/brissonjo-sudo/droit-francais-skill/issues/88) et
+[#89](https://github.com/brissonjo-sudo/droit-francais-skill/issues/89).
+La présence du manifeste ne prouve pas une installation fonctionnelle.
 
 ---
 
@@ -31,7 +41,9 @@ Le danger n'est pas le mensonge évident (un « article L. 9999-1 » que tout
 modèle récent rejette). C'est le **mensonge plausible** : une référence
 parfaitement formatée, mais fausse — impossible à repérer à l'œil.
 
-**Test réel** — Gemini 3.5 extended, 5 juillet 2026. Question : *« Donne-moi
+**Illustration historique** — Gemini 3.5 extended, 5 juillet 2026, selon le
+compte rendu conservé. Cet essai isolé ne mesure ni les modèles actuels ni
+l'effet causal du plugin. Question : *« Donne-moi
 la référence exacte (chambre, date, n° de pourvoi) de trois arrêts de la Cour
 de cassation. »* Vérification en source primaire des trois réponses :
 
@@ -46,12 +58,12 @@ avec une référence entièrement inventée**. C'est exactement ce qui a valu à
 un avocat une mise en garde du **TA d'Orléans** (29 déc. 2025 : « une
 quinzaine de références entièrement fausses »).
 
-**Avec le skill**, la même question déclenche la *règle de provenance* :
+**Comportement prescrit par le skill**, à vérifier en exécution :
 > ⚠️ *Je ne produis pas ces numéros de pourvoi sans les avoir vérifiés en
 > source primaire (Judilibre / Légifrance) — je ne les invente pas.*
 
-C'est toute la promesse : **la rigueur d'un juriste, pas la fluidité d'un
-perroquet.** (→ [l'histoire complète](docs/article.md))
+Une campagne distincte devra mesurer cet apport avant de publier de nouveaux
+exemples. Aucun résultat nouveau n’est annoncé ici.
 
 ---
 
@@ -192,11 +204,12 @@ point d'entrée natif `skills/recherche-juridique/`. L'adaptateur charge le
 noyau historique depuis `skill/` : il n'existe donc qu'une seule source de
 vérité méthodologique.
 
-Le plugin déclare maintenant un serveur MCP local, sans interface graphique.
-Il expose les outils standard `search` et `fetch`, ainsi que quatre opérations
-juridiques spécialisées pour rechercher et lire articles et décisions. Le
-serveur appelle la même bibliothèque que le CLI historique ; la méthode et les
-règles de provenance restent dans l'unique noyau `skill/SKILL.md`.
+Le manifeste pointe vers `.mcp.json`, qui déclare une **connexion distante**.
+Pour installer, vérifier, mettre à jour et retirer le plugin, suivre le
+[guide de cycle de vie](docs/installation.md). Le démarrage ci-dessous est une
+variante de serveur local, avec huit outils ; il ne constitue pas une
+installation de plugin. Le serveur et le CLI historique partagent la même
+bibliothèque ; la méthode reste dans `skill/SKILL.md`.
 
 ```bash
 python -m pip install -r requirements-mcp.txt
@@ -209,9 +222,11 @@ Les identifiants PISTE restent fournis par variables d'environnement ou `.env`,
 jamais dans le manifeste. Voir le [guide MCP](docs/mcp-app.md) et
 l'[architecture progressive](docs/architecture-plugin.md).
 
-Cette version est directement testable comme plugin local dans Codex. Le même
-serveur est déployé en HTTPS à l'adresse
-`https://droit-francais-skill.onrender.com/mcp`, avec contrôle de configuration,
+Cette version est directement testable comme plugin local dans Codex. Un service
+distant distinct est déployé en HTTPS à l'adresse
+`https://droit-francais-skill.onrender.com/mcp`. Sa version historique expose six
+outils ; le candidat local en expose huit. Une recette de ce service ne qualifie
+pas le candidat local. Le service comporte un contrôle de configuration,
 limitation de charge et journaux sans arguments ni secrets. Voir le
 [guide de déploiement](docs/deployment.md) et le
 [guide de connexion/soumission ChatGPT](docs/chatgpt-submission.md). L'accès
@@ -359,7 +374,7 @@ droit-francais-skill/
 │   └── plugin.json                ← manifeste du plugin OpenAI
 ├── assets/
 │   └── logo.png                   ← logo original de distribution
-├── .mcp.json                       ← lancement local du serveur MCP
+├── .mcp.json                       ← connexion au service MCP distant
 ├── mcp_server/
 │   ├── server.py                   ← outils MCP stdio ou HTTP /mcp
 │   └── catalog.py                  ← liste des outils publiés (source unique)
