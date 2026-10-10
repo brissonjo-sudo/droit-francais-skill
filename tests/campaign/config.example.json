@@ -1,5 +1,5 @@
 {
-  "schema": 1,
+  "schema": 2,
   "series": "utilite-18-modes-20261010",
   "repetitions": 2,
   "bras": [
@@ -21,7 +21,6 @@
       "modele_demande": "",
       "executable": "",
       "raisonnement": "reglage_a_qualifier",
-      "preflight": "a_faire",
       "auth": "abonnement",
       "moteur": "cli-native"
     },
@@ -30,7 +29,6 @@
       "modele_demande": "",
       "executable": "",
       "raisonnement": "reglage_a_qualifier",
-      "preflight": "a_faire",
       "auth": "abonnement",
       "moteur": "cli-native"
     },
@@ -39,9 +37,10 @@
       "modele_demande": "",
       "executable": "",
       "raisonnement": "reglage_a_qualifier",
-      "preflight": "a_faire",
       "auth": "cle_api_gratuite",
-      "moteur": "gemini-rest-v1_non_qualifie"
+      "moteur": "gemini-rest-v2",
+      "gemini_registre": "",
+      "gemini_profil": ""
     }
   ],
   "ablation": {
@@ -49,6 +48,7 @@
     "repetitions": 2,
     "statut": "apres_analyse_principale"
   },
-  "ordre_collecte": "blocs_de_quatre_entrelaces",
-  "max_tentatives_par_identite": 2
+  "ordre_collecte": "cas_repetitions_familles_entrelaces_v2",
+  "max_tentatives_par_identite": 2,
+  "timeout_s": 300
 }

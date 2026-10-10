@@ -35,7 +35,7 @@ def exporter(sortie: Path) -> int:
         f"Empreinte SHA-256 du corpus : {empreinte}.",
         f"Corrigés humains validés : {sum(campaign.gold_pret(c) for c in cases)}/36.",
         "",
-        f"Rédaction des brouillons : {provenance.get('outil', 'à préciser')} ; famille {provenance.get('famille', 'à préciser')}.",
+        f"Rédaction des brouillons : {provenance.get('outil', 'à préciser')} ; famille {provenance.get('famille', 'non attestée')}.",
         f"Modèle exact : {provenance.get('modele_exact', 'non attesté')}. Revue humaine : non effectuée.",
         "Les brouillons sont assistés par LLM ; une revue indépendante doit contrôler le biais de famille.",
         "",
@@ -98,6 +98,7 @@ def exporter(sortie: Path) -> int:
                        g.get("justification_informations_manquantes", "à préciser"), "",
                        "### Sources consultées pour la préparation", ""])
         for s in g["sources_verifiees"]:
+            proof = s.get("preuve_preparation", {})
             url = s["url"]
             if url.startswith("fixture:"):
                 url = lien_fixture(url[8:], sortie)
@@ -108,6 +109,8 @@ def exporter(sortie: Path) -> int:
                 f"  - Type : {s.get('type_extrait', 'à préciser')} ; citation exacte vérifiée par : {s.get('citation_verifiee_par') or 'non attestée'}.",
                 f"  - Résumé ou observation (ne vaut pas citation exacte) : {s['extrait_utile'].replace(chr(10), ' ')}",
                 f"  - Limites : {s.get('limites', 'à confirmer en revue humaine')}",
+                f"  - Preuve de cette préparation : {proof.get('statut', 'non vérifiée dans cette session')} ; {proof.get('limites', '')}",
+                f"  - Vérification humaine de cette source : {s.get('verification_humaine', {}).get('valide_par') or 'non effectuée'}.",
             ])
         lignes.extend(["", "Revue humaine : à compléter dans le corpus après examen.", ""])
     sortie.parent.mkdir(parents=True, exist_ok=True)

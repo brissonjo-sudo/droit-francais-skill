@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 """agents.py — exécution d'un cas par un agent réel, en headless.
 
-Les backends historiques pilotent les CLI réelles. Le prototype Gemini REST
-est un moteur distinct, explicitement sélectionné et encore non qualifié.
-Ses résultats éventuels ne valent pas qualification de Gemini CLI ; le gel
-gratuit de la campagne reste fermé.
+Les backends natifs pilotent les CLI réelles. Gemini REST v2 est un moteur
+distinct, explicitement sélectionné. Son reçu de qualification technique
+et sa revue humaine sont requis avant le gel d'une campagne gratuite.
 
 Quatre bras :
 
@@ -100,7 +99,7 @@ class Options:
 
     modele: str = "sonnet"
     url_mcp: str = "https://droit-francais-skill.onrender.com/mcp"
-    timeout_s: int = 300
+    timeout_s: float = 300
     executable: str | None = None
     interpreteur_python: str | None = None
     mcp_local: bool = False
@@ -110,6 +109,9 @@ class Options:
     effort: str = "defaut_cli"
     fournir_references: bool = False
     methode_experimentale: str | None = None
+    moteur: str = "cli-native"
+    gemini_registre: str | None = None
+    gemini_profil: str | None = None
     contexte: ContexteExecution | None = None
 
 
@@ -404,7 +406,25 @@ BACKENDS: dict[str, type] = {
 }
 
 
-def backend(nom: str) -> Agent:
+class GeminiREST:
+    """Moteur explicitement sélectionné ; le lanceur possède la réservation."""
+
+    nom = "gemini"
+
+    def executer(self, *, prompt: str, bras: str, plafond: int, options: Options) -> Execution:
+        import asyncio
+        from bench import gemini_rest
+        if options.contexte is None or not options.gemini_registre or not options.gemini_profil:
+            raise ValueError("contexte réservé et profil Gemini qualifié requis")
+        client = gemini_rest.preparer_client(Path(options.gemini_registre), options.gemini_profil)
+        return asyncio.run(gemini_rest.executer_mcp(client, prompt, bras, plafond, options))
+
+
+def backend(nom: str, *, moteur: str = "cli-native") -> Agent:
+    if moteur == "gemini-rest-v2" and nom == "gemini":
+        return GeminiREST()
+    if moteur != "cli-native":
+        raise ValueError("moteur non pris en charge ; aucun repli implicite")
     if nom not in BACKENDS:
         raise ValueError(f"backend inconnu : {nom} (connus : {', '.join(BACKENDS)})")
     return BACKENDS[nom]()  # type: ignore[return-value]
