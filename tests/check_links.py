@@ -25,7 +25,7 @@ ROOT = Path(__file__).resolve().parent.parent
 # `.claude` : worktrees d'agents, copies complètes du dépôt — les vérifier
 # revient à contrôler deux fois le même contenu, et à faire échouer le dépôt
 # sur l'état transitoire d'une copie de travail voisine.
-EXCLUDE_DIRS = {".git", ".claude", ".venv", "vault", "__pycache__", ".github"}
+EXCLUDE_DIRS = {".git", ".claude", ".venv", "vault", "__pycache__", ".github", "node_modules"}
 LINK_RE = re.compile(r"(?<!!)\[[^\]]*\]\(([^)]+)\)")
 
 
@@ -33,6 +33,8 @@ def iter_markdown() -> list[Path]:
     files = []
     for path in ROOT.rglob("*.md"):
         if any(part in EXCLUDE_DIRS for part in path.relative_to(ROOT).parts):
+            continue
+        if path.relative_to(ROOT).parts[:3] == ("tests", "bench", "runs"):
             continue
         files.append(path)
     return sorted(files)

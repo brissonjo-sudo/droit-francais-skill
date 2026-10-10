@@ -62,8 +62,10 @@ quinzaine de références entièrement fausses »).
 > ⚠️ *Je ne produis pas ces numéros de pourvoi sans les avoir vérifiés en
 > source primaire (Judilibre / Légifrance) — je ne les invente pas.*
 
-Une campagne distincte devra mesurer cet apport avant de publier de nouveaux
-exemples. Aucun résultat nouveau n’est annoncé ici.
+La [nouvelle campagne des 18 modes](docs/campagne-18-modes.md) comparera
+méthode, outils et leur combinaison. Trois exemples issus de cette campagne
+(gain, abstention justifiée, limite) remplaceront progressivement cette
+illustration après revue ; aucun résultat nouveau n'est annoncé ici.
 
 ---
 
