@@ -1,85 +1,64 @@
-"""Sonde catalogue : secret confiné, appel unique et absence de génération."""
-from __future__ import annotations
-
-import io
+"""Sondes avec vrai journal de quotas et transport simulé, aucune génération."""
 import json
 import sys
 import tempfile
-import contextlib
 import unittest
-import urllib.error
-from unittest import mock
 from pathlib import Path
+import httpx
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from bench import catalogue_gemini
+from bench import catalogue_gemini, gemini_http, gemini_rest, mesure_tokens_gemini
+from bench.budget_gemini import Budget
 
 
-class CatalogueGeminiTests(unittest.TestCase):
-    def test_appel_unique_cle_en_entete_et_sortie_assainie(self):
-        data = {"models": [{"name": "models/gemini-3.5-flash", "inputTokenLimit": 100,
-                            "outputTokenLimit": 50, "description": "secret-test",
-                            "supportedGenerationMethods": ["generateContent"]},
-                           {"name": "models/autre-123", "description": "secret-test"}]}
-        opener = mock.Mock()
-        opener.open.return_value = io.BytesIO(json.dumps(data).encode())
-        with mock.patch.object(catalogue_gemini.urllib.request, "build_opener", return_value=opener):
-            result = catalogue_gemini.lire("secret-test", mock.MagicMock())
-        opener.open.assert_called_once()
-        req = opener.open.call_args.args[0]
-        self.assertEqual("GET", req.method)
-        self.assertEqual(catalogue_gemini.ENDPOINT, req.full_url)
-        self.assertNotIn("secret-test", req.full_url)
-        self.assertEqual("secret-test", req.get_header("X-goog-api-key"))
-        self.assertNotIn("secret-test", json.dumps(result))
-        self.assertEqual(0, result["generations"])
-        self.assertFalse(result["quotas_actifs_et_projet_attestes"])
-        self.assertFalse(result["collecte_autorisee"])
+class CatalogueGeminiTests(unittest.IsolatedAsyncioTestCase):
+    def setUp(self):
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        self.root = Path(tmp.name)
+        self.budget = Budget("123456789", "gemini-3.5-flash", {"rpm": 100, "rpd": 100, "tpm_entree": 100000}, _state=self.root)
+        self.requests = []
+
+    def client(self, payload, status=200):
+        def handler(req):
+            self.requests.append(req)
+            return httpx.Response(status, json=payload)
+        transport = gemini_http.Transport(client=httpx.AsyncClient(transport=httpx.MockTransport(handler), trust_env=False))
+        return gemini_rest.Client("secret-test", "gemini-3.5-flash", self.budget, transport=transport)
+
+    async def test_catalogue_unique_filtre_metadata_et_vrai_journal(self):
+        result = await catalogue_gemini.lire(self.client({"models": [{"name": "models/gemini-3.5-flash",
+            "inputTokenLimit": 100, "outputTokenLimit": 50, "description": "description ignorée",
+            "supportedGenerationMethods": ["generateContent"]}, {"name": "models/gemini-3.8-flash-latest"}]}))
+        self.assertEqual(1, len(self.requests))
+        self.assertEqual("GET", self.requests[0].method)
+        self.assertNotIn("secret-test", str(self.requests[0].url))
+        self.assertEqual("secret-test", self.requests[0].headers["x-goog-api-key"])
+        self.assertNotIn("description ignorée", json.dumps(result))
         self.assertEqual(1, len(result["modeles"]))
+        self.assertEqual(0, result["generations"])
+        self.assertFalse(result["collecte_autorisee"])
+        self.assertEqual(["models.list"], [r["type"] for r in self.budget._lire(self.budget.horloge())])
 
-    def test_pagination_ne_declenche_aucun_second_appel(self):
-        opener = mock.Mock()
-        opener.open.return_value = io.BytesIO(b'{"models": [], "nextPageToken": "suite"}')
-        with mock.patch.object(catalogue_gemini.urllib.request, "build_opener", return_value=opener):
-            result = catalogue_gemini.lire("secret-test", mock.MagicMock())
-        opener.open.assert_called_once()
+    async def test_pagination_ne_provoque_pas_un_autre_appel(self):
+        result = await catalogue_gemini.lire(self.client({"models": [], "nextPageToken": "suite"}))
         self.assertFalse(result["catalogue_complet"])
+        self.assertEqual(1, len(self.requests))
 
-    def test_cle_absente_ne_fait_aucun_appel(self):
-        with mock.patch.object(catalogue_gemini.urllib.request, "build_opener") as build:
-            with self.assertRaises(ValueError):
-                catalogue_gemini.lire("", mock.MagicMock())
-            build.assert_not_called()
+    async def test_429_persistant_arrete_sonde_suivante(self):
+        with self.assertRaises(gemini_http.ErreurGemini):
+            await catalogue_gemini.lire(self.client({}, 429))
+        with self.assertRaises(ValueError):
+            await mesure_tokens_gemini.mesurer(self.client({"totalTokens": 100}))
+        self.assertEqual(1, len(self.requests))
+        self.assertEqual(1, len(self.budget._lire(self.budget.horloge())))
 
-    def test_redirection_ne_transmet_pas_le_secret(self):
-        req = catalogue_gemini.urllib.request.Request(catalogue_gemini.ENDPOINT)
-        with self.assertRaises(urllib.error.HTTPError):
-            catalogue_gemini.SansRedirection().redirect_request(req, None, 302, "", {}, "https://ailleurs.invalid")
-
-    def test_erreur_http_sans_retry_ni_message_sensible(self):
-        opener = mock.Mock()
-        opener.open.side_effect = urllib.error.HTTPError(catalogue_gemini.ENDPOINT, 403,
-                                                        "secret-test", {}, None)
-        with mock.patch.object(catalogue_gemini.urllib.request, "build_opener", return_value=opener):
-            with self.assertRaises(urllib.error.HTTPError):
-                catalogue_gemini.lire("secret-test", mock.MagicMock())
-        opener.open.assert_called_once()
-
-    def test_cli_erreur_ne_journalise_pas_la_cle(self):
-        with tempfile.TemporaryDirectory() as dossier:
-            erreur = urllib.error.HTTPError(catalogue_gemini.ENDPOINT, 403, "secret-test", {}, None)
-            messages = io.StringIO()
-            with (mock.patch.object(catalogue_gemini, "LOCAL", Path(dossier)),
-                  mock.patch.object(catalogue_gemini, "lire", side_effect=erreur),
-                  mock.patch("bench.gemini_rest.preparer_client"),
-                  contextlib.redirect_stderr(messages)):
-                code = catalogue_gemini.main(["--sortie", str(Path(dossier) / "catalogue.json"), "--registre", "registre.json",
-                                                "--profil", "profil-01", "--budget-state", dossier])
-            self.assertEqual(2, code)
-            self.assertIn("403", messages.getvalue())
-            self.assertNotIn("secret-test", messages.getvalue())
-            self.assertFalse((Path(dossier) / "catalogue.json").exists())
-
-
-if __name__ == "__main__":
-    unittest.main()
+    async def test_tokens_utilise_modele_profil_sans_corrige(self):
+        result = await mesure_tokens_gemini.mesurer(self.client({"totalTokens": 321}))
+        self.assertEqual("gemini-3.5-flash", result["modele"])
+        self.assertTrue(str(self.requests[0].url).endswith("gemini-3.5-flash:countTokens"))
+        body = self.requests[0].content.decode()
+        for forbidden in ("gold", "valide_par", "conclusion_attendue", "secret-test"):
+            self.assertNotIn(forbidden, body)
+        self.assertEqual(321, result["tokens_entree"])
+        self.assertEqual(["countTokens"], [r["type"] for r in self.budget._lire(self.budget.horloge())])

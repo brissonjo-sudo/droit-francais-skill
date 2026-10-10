@@ -1,7 +1,9 @@
 {
-  "schema": 1,
+  "schema": 2,
   "auth": "cle_api_gratuite",
   "projet_ref": "",
+  "numero_projet": "",
+  "rattachement_valide_par": "",
   "cle_projet_confirmee": false,
   "niveau": "free",
   "modele": "",

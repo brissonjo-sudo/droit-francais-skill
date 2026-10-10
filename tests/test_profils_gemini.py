@@ -34,6 +34,7 @@ class ProfilsGeminiTests(unittest.TestCase):
             piece.write_text("QUOTAS SYNTHETIQUES HORS RESEAU", encoding="utf-8")
             record = json.loads(quotas_gemini.EXEMPLE.read_text(encoding="utf-8"))
             record.update(projet_ref=f"projet-prive-{i}", cle_projet_confirmee=True,
+                          numero_projet=str(123456789+i), rattachement_valide_par="Titulaire synthétique",
                           modele="gemini-3.8-flash", observe_le=NOW.isoformat(),
                           autres_limites_verifiees=True, limites={"rpm": 3, "tpm_entree": 500, "rpd": 10},
                           preuve={"fichier": "preuve.txt", "sha256": hashlib.sha256(piece.read_bytes()).hexdigest()})
@@ -64,6 +65,7 @@ class ProfilsGeminiTests(unittest.TestCase):
 
     def test_meme_projet_ne_cree_pas_un_quota_par_cle(self):
         self.records[1]["projet_ref"] = self.records[0]["projet_ref"]
+        self.records[1]["numero_projet"] = self.records[0]["numero_projet"]
         self.save()
         result = self.check()
         self.assertEqual(1, result["groupes_quota_declares"])
@@ -74,6 +76,7 @@ class ProfilsGeminiTests(unittest.TestCase):
 
     def test_quotas_contradictoires_du_meme_projet_bloquent(self):
         self.records[1]["projet_ref"] = self.records[0]["projet_ref"]
+        self.records[1]["numero_projet"] = self.records[0]["numero_projet"]
         self.records[1]["limites"]["rpm"] = 9
         self.save()
         result = self.check("profil-01")
@@ -91,31 +94,26 @@ class ProfilsGeminiTests(unittest.TestCase):
                 original = self.registry["profils"][1][field]
                 self.registry["profils"][1][field] = self.registry["profils"][0][field]
                 self.path.write_text(json.dumps(self.registry), encoding="utf-8")
-                with self.assertRaises(ValueError):
-                    self.check()
+                self.assertTrue(self.check()["problemes_registre"])
                 self.registry["profils"][1][field] = original
 
     def test_secret_en_clair_refuse_sans_echo(self):
         self.registry["profils"][0]["cle"] = "secret-interdit"
         self.path.write_text(json.dumps(self.registry), encoding="utf-8")
-        with self.assertRaises(ValueError) as error:
-            self.check()
-        self.assertNotIn("secret-interdit", str(error.exception))
+        self.assertNotIn("secret-interdit", json.dumps(self.check()))
 
     def test_profil_absent_et_releve_hors_etat_refuses(self):
-        with self.assertRaises(ValueError):
-            self.check("profil-99")
+        self.assertTrue(self.check("profil-99")["problemes_registre"])
         self.registry["profils"][0]["releve"] = "../hors-etat.json"
         self.path.write_text(json.dumps(self.registry), encoding="utf-8")
-        with self.assertRaises(ValueError):
-            self.check()
+        self.assertTrue(self.check()["problemes_registre"])
 
     def test_releve_manquant_ne_selectionne_pas_un_autre_profil(self):
         (self.root / self.registry["profils"][0]["releve"]).unlink()
         result = self.check("profil-01")
-        self.assertEqual("profil-01", result["profil_selectionne"])
+        self.assertEqual("profils_incomplets_ou_invalides", result["statut"])
         self.assertFalse(result["selection_explicitement_coherente"])
-        self.assertTrue(result["profils"][1]["releve_coherent"])
+        self.assertTrue(result["problemes_registre"])
 
     def test_initialisation_necrase_pas_un_registre(self):
         target = self.root / "nouveau.json"

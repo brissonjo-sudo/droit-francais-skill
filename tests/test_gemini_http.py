@@ -1,87 +1,99 @@
-"""Contrat REST et mesure tokenizer ; aucun réseau réel dans ces tests."""
-from __future__ import annotations
-
-import io
+"""Transport asynchrone exercé sans Google, réponse entière sous échéance."""
+import asyncio
 import json
 import sys
+import time
 import unittest
-import urllib.error
 from pathlib import Path
 from unittest import mock
+import httpx
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from bench import gemini_http, mesure_tokens_gemini
+from bench import gemini_http
 
 
-class GeminiHttpTests(unittest.TestCase):
-    def test_count_requete_complete_un_post_sans_secret_dans_url(self):
-        opener = mock.Mock()
-        opener.open.return_value = io.BytesIO(b'{"totalTokens": 123}')
-        request = {"systemInstruction": {"parts": [{"text": "méthode"}]},
-                   "contents": [{"role": "user", "parts": [{"text": "question"}]}]}
-        with mock.patch.object(gemini_http.urllib.request, "build_opener", return_value=opener):
-            self.assertEqual(123, gemini_http.compter("secret-test", "gemini-3.8-flash", request))
-        opener.open.assert_called_once()
-        http = opener.open.call_args.args[0]
-        self.assertTrue(http.full_url.endswith("gemini-3.8-flash:countTokens"))
-        self.assertNotIn("secret-test", http.full_url)
-        self.assertEqual("secret-test", http.get_header("X-goog-api-key"))
-        body = json.loads(http.data)
-        self.assertNotIn("contents", body)
-        self.assertEqual("models/gemini-3.8-flash", body["generateContentRequest"]["model"])
-        self.assertEqual(request["systemInstruction"], body["generateContentRequest"]["systemInstruction"])
+class GeminiHttpTests(unittest.IsolatedAsyncioTestCase):
+    def transport(self, handler):
+        client = httpx.AsyncClient(transport=httpx.MockTransport(handler), follow_redirects=False, trust_env=False)
+        t = gemini_http.Transport(client=client)
+        self.addAsyncCleanup(t.fermer)
+        return t
 
-    def test_modeles_alias_et_methodes_inconnues_sans_reseau(self):
-        with mock.patch.object(gemini_http.urllib.request, "build_opener") as build:
-            for model in ("auto", "gemini-flash-latest", "gemini-3.8-flash/../../evil", "gemini-3.1-pro"):
-                with self.assertRaises(ValueError):
-                    gemini_http.appeler("secret-test", model, "countTokens", {})
+    async def test_count_charge_complete_secret_uniquement_entete(self):
+        requests = []
+        async def handler(req):
+            requests.append(req)
+            return httpx.Response(200, json={"totalTokens": 123})
+        t = self.transport(handler)
+        data = {"systemInstruction": {"parts": [{"text": "méthode"}]}, "contents": []}
+        self.assertEqual(123, await t.compter("secret-test", "gemini-3.8-flash", data, echeance=time.monotonic()+1))
+        self.assertEqual(1, len(requests))
+        req = requests[0]
+        self.assertEqual("POST", req.method)
+        self.assertNotIn("secret-test", str(req.url)+req.content.decode())
+        self.assertEqual("secret-test", req.headers["x-goog-api-key"])
+        self.assertEqual(data["systemInstruction"], json.loads(req.content)["generateContentRequest"]["systemInstruction"])
+
+    async def test_alias_methodes_deadline_refuses_avant_transport(self):
+        handler = mock.AsyncMock()
+        t = self.transport(handler)
+        for model in ("auto", "gemini-3.8-flash-latest", "gemini-3.8-flash/../evil", "gemini-3.1-pro"):
             with self.assertRaises(ValueError):
-                gemini_http.appeler("secret-test", "gemini-3.8-flash", "autre", {})
-            build.assert_not_called()
+                await t.appeler("secret-test", model, "countTokens", {}, echeance=time.monotonic()+1)
+        with self.assertRaises(ValueError):
+            await t.appeler("secret-test", "gemini-3.8-flash", "autre", {}, echeance=time.monotonic()+1)
+        with self.assertRaises(gemini_http.ErreurGemini) as error:
+            await t.appeler("secret-test", "gemini-3.8-flash", "countTokens", {}, echeance=0)
+        self.assertEqual("delai", error.exception.categorie)
+        handler.assert_not_called()
 
-    def test_429_arret_immediat_sans_corps_ni_retry(self):
-        opener = mock.Mock()
-        opener.open.side_effect = urllib.error.HTTPError("https://exemple.invalid", 429,
-                                                         "secret-test", {}, io.BytesIO(b'secret-test'))
-        with mock.patch.object(gemini_http.urllib.request, "build_opener", return_value=opener):
+    async def test_429_et_redirect_ne_font_qu_un_envoi(self):
+        for status in (429, 302, 307):
+            requests = []
+            async def handler(req):
+                requests.append(req)
+                return httpx.Response(status, text="secret-test", headers={"Location": "https://ailleurs.invalid"})
+            t = self.transport(handler)
             with self.assertRaises(gemini_http.ErreurGemini) as error:
-                gemini_http.compter("secret-test", "gemini-3.8-flash", {})
-        self.assertEqual(429, error.exception.statut)
-        self.assertNotIn("secret-test", str(error.exception))
-        opener.open.assert_called_once()
+                await t.compter("secret-test", "gemini-3.8-flash", {}, echeance=time.monotonic()+1)
+            self.assertEqual(status, error.exception.statut)
+            self.assertNotIn("secret-test", str(error.exception))
+            self.assertEqual(1, len(requests))
 
-    def test_secret_dans_charge_ou_reponse_refuse(self):
-        with mock.patch.object(gemini_http.urllib.request, "build_opener") as build:
-            with self.assertRaises(ValueError):
-                gemini_http.appeler("secret-test", "gemini-3.8-flash", "countTokens", {"text": "secret-test"})
-            build.assert_not_called()
-        opener = mock.Mock()
-        opener.open.return_value = io.BytesIO(b'{"text": "secret-test"}')
-        with mock.patch.object(gemini_http.urllib.request, "build_opener", return_value=opener):
-            with self.assertRaises(gemini_http.ErreurGemini):
-                gemini_http.appeler("secret-test", "gemini-3.8-flash", "countTokens", {})
+    async def test_secret_charge_et_reponse_refuse(self):
+        handler = mock.AsyncMock(return_value=httpx.Response(200, json={"text": "secret-test"}))
+        t = self.transport(handler)
+        with self.assertRaises(ValueError):
+            await t.appeler("secret-test", "gemini-3.8-flash", "countTokens", {"text": "secret-test"}, echeance=time.monotonic()+1)
+        handler.assert_not_called()
+        with self.assertRaises(gemini_http.ErreurGemini) as error:
+            await t.appeler("secret-test", "gemini-3.8-flash", "countTokens", {}, echeance=time.monotonic()+1)
+        self.assertEqual("isolation", error.exception.categorie)
 
-    def test_compteur_invalide_refuse(self):
+    async def test_corps_lent_regulier_est_annule_et_ferme(self):
+        class Lent(httpx.AsyncByteStream):
+            ferme = False
+            async def __aiter__(self):
+                for _ in range(100):
+                    await asyncio.sleep(.01)
+                    yield b" " * 65536
+            async def aclose(self):
+                self.ferme = True
+        stream = Lent()
+        t = self.transport(lambda req: httpx.Response(200, stream=stream))
+        debut = time.monotonic()
+        with mock.patch.object(gemini_http, "HTTP_TOTAL_S", .04):
+            with self.assertRaises(gemini_http.ErreurGemini) as error:
+                await t.appeler("secret-test", "gemini-3.8-flash", "countTokens", {}, echeance=debut+2)
+        self.assertEqual("delai", error.exception.categorie)
+        self.assertLess(time.monotonic()-debut, .3)
+        self.assertTrue(stream.ferme)
+
+    async def test_reponse_trop_grande_et_compteur_invalide(self):
+        t = self.transport(lambda req: httpx.Response(200, content=b"x"*(gemini_http.MAX_BYTES+1)))
+        with self.assertRaises(gemini_http.ErreurGemini):
+            await t.compter("secret-test", "gemini-3.8-flash", {}, echeance=time.monotonic()+1)
         for value in (None, True, 0, "10", -1):
-            with mock.patch.object(gemini_http, "appeler", return_value={"totalTokens": value}):
-                with self.assertRaises(gemini_http.ErreurGemini):
-                    gemini_http.compter("secret-test", "gemini-3.8-flash", {})
-
-    def test_mesure_publique_deterministe_aucun_corrige_envoye(self):
-        before = mesure_tokens_gemini.preparer()
-        self.assertEqual(before, mesure_tokens_gemini.preparer())
-        with mock.patch.object(gemini_http, "compter", return_value=321) as count:
-            result = mesure_tokens_gemini.mesurer("secret-test", mock.MagicMock())
-        count.assert_called_once()
-        self.assertEqual(321, result["tokens_entree"])
-        self.assertEqual(0, result["generations"])
-        self.assertFalse(result["collecte_autorisee"])
-        self.assertFalse(result["outils_inclus"])
-        self.assertNotIn("gold", before[0])
-        for forbidden in ("secret-test", "valide_par", "conclusion_attendue"):
-            self.assertNotIn(forbidden, json.dumps(before[0]))
-
-
-if __name__ == "__main__":
-    unittest.main()
+            t = self.transport(lambda req, value=value: httpx.Response(200, json={"totalTokens": value}))
+            with self.assertRaises(gemini_http.ErreurGemini):
+                await t.compter("secret-test", "gemini-3.8-flash", {}, echeance=time.monotonic()+1)

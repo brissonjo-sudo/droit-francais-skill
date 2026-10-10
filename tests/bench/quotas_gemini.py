@@ -7,13 +7,14 @@ import json
 import os
 import re
 from pathlib import Path
+from bench.identite_gemini import modele_exact, numero_projet
 
 ROOT = Path(__file__).resolve().parents[2]
 LOCAL = ROOT / "tests/bench/runs"
 EXEMPLE = ROOT / "tests/campaign/quotas-gemini.example.json"
 CHAMPS = {"schema", "auth", "projet_ref", "cle_projet_confirmee", "niveau",
           "modele", "observe_le", "source", "preuve", "limites",
-          "autres_limites_verifiees", "autres_limites"}
+          "autres_limites_verifiees", "autres_limites", "numero_projet", "rattachement_valide_par"}
 
 
 def chemin_local(path: Path) -> Path:
@@ -39,13 +40,19 @@ def verifier(preuve: Path, *, maintenant: dt.datetime | None = None) -> dict:
     """Contrôler la cohérence déclarée et les octets de preuve, sans authentifier."""
     path = chemin_local(preuve)
     try:
-        data = json.loads(path.read_text(encoding="utf-8"))
+        data = json.loads(path.read_bytes())
     except (ValueError, UnicodeError) as exc:
         raise ValueError("relevé JSON illisible ; son contenu n'est pas affiché") from exc
+    return verifier_donnees(data, path, maintenant=maintenant)
+
+
+def verifier_donnees(data: dict, path: Path, *, maintenant: dt.datetime | None = None,
+                     preuve_octets: bytes | None = None) -> dict:
+    """Valider les octets déjà capturés ; pas de fenêtre validation/instantané."""
     if not isinstance(data, dict) or set(data) != CHAMPS:
         raise ValueError("structure de relevé invalide ; ne pas inclure de secret")
     erreurs = []
-    if type(data["schema"]) is not int or data["schema"] != 1:
+    if type(data["schema"]) is not int or data["schema"] != 2:
         erreurs.append("schéma inconnu")
     if data["auth"] != "cle_api_gratuite" or data["niveau"] != "free":
         erreurs.append("clé gratuite et niveau free requis")
@@ -53,9 +60,16 @@ def verifier(preuve: Path, *, maintenant: dt.datetime | None = None) -> dict:
             or not re.fullmatch(r"[a-z][a-z0-9-]{4,28}[a-z0-9]", data["projet_ref"])
             or data["cle_projet_confirmee"] is not True):
         erreurs.append("rattachement de la clé au projet non confirmé")
+    try:
+        numero_projet(data["numero_projet"])
+    except ValueError:
+        erreurs.append("numéro de projet Google confirmé requis")
+    if not isinstance(data["rattachement_valide_par"], str) or not data["rattachement_valide_par"].strip():
+        erreurs.append("titulaire ayant validé le rattachement requis")
     modele = data["modele"]
-    if (not isinstance(modele, str) or not re.fullmatch(r"gemini-[0-9][a-z0-9.-]*flash[a-z0-9.-]*", modele)
-            or modele.endswith("-latest")):
+    try:
+        modele_exact(modele)
+    except ValueError:
         erreurs.append("identifiant Flash exact requis, sans alias auto")
     if data["source"] != "https://aistudio.google.com/rate-limit":
         erreurs.append("relevé des limites actives AI Studio requis")
@@ -84,7 +98,8 @@ def verifier(preuve: Path, *, maintenant: dt.datetime | None = None) -> dict:
             if not isinstance(piece["fichier"], str) or not piece["fichier"] or not re.fullmatch(r"[a-f0-9]{64}", piece["sha256"]):
                 raise ValueError()
             artifact = chemin_local(path.parent / piece["fichier"])
-            if artifact == path or not artifact.is_file() or hashlib.sha256(artifact.read_bytes()).hexdigest() != piece["sha256"]:
+            octets = preuve_octets if preuve_octets is not None else artifact.read_bytes()
+            if artifact == path or hashlib.sha256(octets).hexdigest() != piece["sha256"]:
                 raise ValueError()
         except (ValueError, OSError, TypeError):
             erreurs.append("preuve absente, hors état local ou empreinte différente")

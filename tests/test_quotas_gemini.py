@@ -31,6 +31,7 @@ class QuotasGeminiTests(unittest.TestCase):
         self.piece.write_text("PIECE SYNTHETIQUE DE TEST, AUCUN QUOTA REEL", encoding="utf-8")
         self.data = json.loads(quotas_gemini.EXEMPLE.read_text(encoding="utf-8"))
         self.data.update(projet_ref="projet-synthetique", cle_projet_confirmee=True,
+                         numero_projet="123456789", rattachement_valide_par="Titulaire synthétique",
                          modele="gemini-3.5-flash", observe_le=NOW.isoformat(),
                          autres_limites_verifiees=True,
                          preuve={"fichier": "capture.txt", "sha256": hashlib.sha256(self.piece.read_bytes()).hexdigest()},

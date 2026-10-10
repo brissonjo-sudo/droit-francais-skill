@@ -4,6 +4,8 @@ from __future__ import annotations
 import copy
 import sys
 import tempfile
+import time
+import asyncio
 import unittest
 from pathlib import Path
 from unittest import mock
@@ -12,6 +14,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from bench import agents, gemini_http, gemini_rest, native, quotas_gemini
 from bench.budget_gemini import Budget
 from mcp_server.catalog import EXPECTED_TOOLS
+from _gemini_test_helpers import reserver
 
 
 def response(parts, model="gemini-3.8-flash", finish="STOP"):
@@ -22,10 +25,10 @@ def response(parts, model="gemini-3.8-flash", finish="STOP"):
 class BoucleGeminiTests(unittest.IsolatedAsyncioTestCase):
     async def run_case(self, responses, bras="A", outils=None, callback=None):
         client = mock.Mock(modele="gemini-3.8-flash", requetes=0)
-        client.generer.side_effect = [(copy.deepcopy(r), 100) for r in responses]
+        client.generer = mock.AsyncMock(side_effect=[(copy.deepcopy(r), 100) for r in responses])
         result = await gemini_rest.boucle(client, prompt="contrôle synthétique", bras=bras, plafond=12,
                                          instructions="instruction synthétique", outils=outils or [],
-                                         appeler_outil=callback)
+                                         appeler_outil=callback, echeance=time.monotonic()+300)
         return result, client
 
     async def test_reponse_neutre_sans_outils(self):
@@ -86,6 +89,7 @@ class BoucleGeminiTests(unittest.IsolatedAsyncioTestCase):
             with mock.patch.dict("os.environ", {"PISTE_KEY_ID": "secret-source-test"}):
                 result, client = await self.run_case([row], "C", tools, callback)
             self.assertEqual("infra_error", result.statut)
+            self.assertTrue(result.flux_brut)
             self.assertNotIn("secret-source-test", result.flux_brut)
             self.assertFalse(result.trace.appels)
             client.generer.assert_called_once()
@@ -97,19 +101,9 @@ class BoucleGeminiTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual("infra_error", result.statut)
         self.assertNotIn("secret-source-test", result.motif_infra + result.flux_brut)
 
-    async def test_catalogue_stdio_reel_converti_sans_generation_google(self):
-        client = mock.Mock(modele="gemini-3.8-flash", requetes=0)
-        client.generer.return_value = (response([{"text": "contrôle synthétique"}]), 100)
-        options = agents.Options(mcp_local=True, interpreteur_python=sys.executable, effort="high")
-        result = await gemini_rest.executer_mcp(client, prompt="contrôle synthétique", bras="C",
-                                               plafond=1, options=options)
-        self.assertEqual("ok", result.statut, result.motif_infra)
-        declarations = client.generer.call_args.args[0]["tools"][0]["functionDeclarations"]
-        self.assertEqual(EXPECTED_TOOLS, {t["name"] for t in declarations})
-        self.assertTrue(all(isinstance(t["parametersJsonSchema"], dict) for t in declarations))
 
 
-class ClientGeminiTests(unittest.TestCase):
+class ClientGeminiTests(unittest.IsolatedAsyncioTestCase):
     def setUp(self):
         tmp = tempfile.TemporaryDirectory()
         self.addCleanup(tmp.cleanup)
@@ -117,35 +111,41 @@ class ClientGeminiTests(unittest.TestCase):
         patch = mock.patch.object(quotas_gemini, "LOCAL", self.root)
         patch.start()
         self.addCleanup(patch.stop)
-        self.budget = Budget(self.root, "projet-test", "gemini-3.8-flash",
-                             {"rpm": 100, "tpm_entree": 100000, "rpd": 100})
+        self.budget = Budget("123456789", "gemini-3.8-flash",
+                             {"rpm": 100, "tpm_entree": 100000, "rpd": 100}, _state=self.root)
 
-    def test_tokenizer_et_generation_reserves_et_compte_avant_envoi(self):
-        client = gemini_rest.Client("secret-test", "gemini-3.8-flash", self.budget, etat_etude=self.root / "etude")
-        with (mock.patch.object(gemini_http, "compter", return_value=100),
-              mock.patch.object(gemini_http, "appeler", return_value=response([{"text": "ok"}]))):
-            client.generer({"contents": []})
+    async def test_tokenizer_et_generation_reserves_et_compte_avant_envoi(self):
+        transport = mock.Mock(compter=mock.AsyncMock(return_value=100), appeler=mock.AsyncMock(return_value=response([{ "text": "ok"}])))
+        client = gemini_rest.Client("secret-test", "gemini-3.8-flash", self.budget, transport=transport)
+        client.contexte = reserver(self.root)
+        with (mock.patch.object(transport, "compter", new_callable=mock.AsyncMock, return_value=100),
+              mock.patch.object(transport, "appeler", new_callable=mock.AsyncMock, return_value=response([{"text": "ok"}]))):
+            await client.generer({"contents": []}, echeance=client.contexte.echeance_monotone)
         rows = self.budget._lire(self.budget.horloge())
         self.assertEqual(2, len(rows))
         self.assertEqual(["countTokens", "generateContent"], [r["type"] for r in rows])
         self.assertEqual(2, client.requetes)
 
-    def test_429_tokenizer_nactive_pas_generation_ni_autre_cle(self):
-        client = gemini_rest.Client("secret-test", "gemini-3.8-flash", self.budget, etat_etude=self.root / "etude")
-        with (mock.patch.object(gemini_http, "compter", side_effect=gemini_http.ErreurGemini(429)),
-              mock.patch.object(gemini_http, "appeler") as generate):
+    async def test_429_tokenizer_nactive_pas_generation_ni_autre_cle(self):
+        transport = mock.Mock(compter=mock.AsyncMock(return_value=100), appeler=mock.AsyncMock(return_value=response([{ "text": "ok"}])))
+        client = gemini_rest.Client("secret-test", "gemini-3.8-flash", self.budget, transport=transport)
+        client.contexte = reserver(self.root)
+        with (mock.patch.object(transport, "compter", new_callable=mock.AsyncMock, side_effect=gemini_http.ErreurGemini(429)),
+              mock.patch.object(transport, "appeler", new_callable=mock.AsyncMock) as generate):
             with self.assertRaises(gemini_http.ErreurGemini):
-                client.generer({})
+                await client.generer({}, echeance=client.contexte.echeance_monotone)
         generate.assert_not_called()
         self.assertTrue(self.budget.arret.exists())
         self.assertEqual(1, client.requetes)
 
-    def test_secret_source_bloque_avant_tokenizer(self):
-        client = gemini_rest.Client("secret-test", "gemini-3.8-flash", self.budget, etat_etude=self.root / "etude")
+    async def test_secret_source_bloque_avant_tokenizer(self):
+        transport = mock.Mock(compter=mock.AsyncMock(return_value=100), appeler=mock.AsyncMock(return_value=response([{ "text": "ok"}])))
+        client = gemini_rest.Client("secret-test", "gemini-3.8-flash", self.budget, transport=transport)
+        client.contexte = reserver(self.root)
         with (mock.patch.dict("os.environ", {"PISTE_KEY_ID": "secret-source-test"}),
-              mock.patch.object(gemini_http, "compter") as compter):
+              mock.patch.object(transport, "compter", new_callable=mock.AsyncMock) as compter):
             with self.assertRaises(ValueError):
-                client.generer({"contents": ["secret-source-test"]})
+                await client.generer({"contents": ["secret-source-test"]}, echeance=client.contexte.echeance_monotone)
         compter.assert_not_called()
         self.assertFalse(self.budget.journal.exists())
 
@@ -155,7 +155,7 @@ class ClientGeminiTests(unittest.TestCase):
             run.assert_called_once()
         with mock.patch.object(gemini_rest.profils_gemini, "verifier", return_value={"statut": "incomplet"}):
             with self.assertRaises(ValueError):
-                gemini_rest.preparer_client(self.root / "profil.json", "profil-01", self.root)
+                gemini_rest.preparer_client(self.root / "profil.json", "profil-01")
 
     def test_cles_multiprofils_exclues_des_processus_abonnement_et_mcp(self):
         with mock.patch.dict("os.environ", {"GEMINI_API_KEY_COMPTE_2": "secret-test", "LEGIFRANCE_CLIENT_ID": "source-test"}, clear=True):

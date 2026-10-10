@@ -23,19 +23,22 @@ jobs:
         run: python -m pip install -r requirements-mcp.txt
 
       - name: Installer les données de fuseau du harnais
-        run: python -m pip install -r requirements-bench.txt
+        run: python -m pip install --require-hashes -r requirements-bench.txt
 
       - name: Auditer les dépendances et produire le SBOM CycloneDX
         run: |
           python -m pip install -r requirements-audit.txt
           python -m pip_audit -r requirements-mcp.txt --strict --format cyclonedx-json --output sbom.cdx.json
+          python -m pip_audit -r requirements-bench.txt --strict --format cyclonedx-json --output sbom-bench.cdx.json
 
       - name: Archiver le SBOM
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: sbom-cyclonedx
-          path: sbom.cdx.json
+          path: |
+            sbom.cdx.json
+            sbom-bench.cdx.json
           if-no-files-found: ignore
           retention-days: 30
 
@@ -48,6 +51,7 @@ jobs:
 
       - name: Compiler les scripts Python (py_compile)
         run: |
+          python -m compileall -q tests/bench tests/campaign tests/run_campaign.py
           python -m py_compile skill/scripts/legifrance.py
           python -m py_compile skill/scripts/droit_francais/__init__.py
           python -m py_compile skill/scripts/droit_francais/errors.py
@@ -96,6 +100,11 @@ jobs:
 
       - name: Tester la bibliothèque et le serveur MCP hors réseau
         run: python -m unittest discover -s tests -v
+
+      - name: Recette explicite SDK MCP des moteurs de campagne
+        env:
+          BENCH_TEST_MCP_INTEGRATION: "1"
+        run: python -m unittest discover -s tests -p 'test_integration*.py' -v
 
       - name: Tester le transport MCP HTTP réel
         env:

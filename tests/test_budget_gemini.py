@@ -23,8 +23,8 @@ class BudgetGeminiTests(unittest.TestCase):
         self.now = dt.datetime(2026, 10, 10, 12, tzinfo=dt.timezone.utc)
         self.limits = {"rpm": 5, "tpm_entree": 1000, "rpd": 5}
 
-    def budget(self, projet="projet-test", modele="gemini-3.8-flash"):
-        return budget_gemini.Budget(self.root, projet, modele, self.limits, horloge=lambda: self.now)
+    def budget(self, projet="123456789", modele="gemini-3.8-flash"):
+        return budget_gemini.Budget(projet, modele, self.limits, horloge=lambda: self.now, _state=self.root)
 
     def test_deux_cles_du_meme_projet_partagent_rpm(self):
         a, b = self.budget(), self.budget()
@@ -37,7 +37,7 @@ class BudgetGeminiTests(unittest.TestCase):
             with b.tentative(0, "countTokens"):
                 self.fail("aucun envoi ne doit être possible")
         self.assertEqual(a.journal, b.journal)
-        self.assertNotEqual(a.journal, self.budget("autre-projet").journal)
+        self.assertNotEqual(a.journal, self.budget("987654321").journal)
 
     def test_tpm_bloque_avant_envoi_et_fenetre_glissante_expire(self):
         budget = self.budget()
@@ -72,7 +72,7 @@ class BudgetGeminiTests(unittest.TestCase):
                                     ("2026-01-10T07:59:00+00:00", "2026-01-10T08:00:00+00:00")):
             with self.subTest(previous=previous):
                 self.now = dt.datetime.fromisoformat(previous)
-                budget = self.budget("projet-ete" if "07-10" in previous else "projet-hiver")
+                budget = self.budget("123457" if "07-10" in previous else "123458")
                 for _ in range(4):
                     with budget.tentative(0, "countTokens"):
                         pass
