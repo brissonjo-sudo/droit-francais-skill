@@ -1,8 +1,14 @@
 # Traitement de la revue de la PR 114 — 10/10/2026
 
-La PR reste en brouillon. Corrections techniques et documentaires ne valent
-ni validation juridique des 36 corrigés ni qualification de Gemini gratuit.
-Le noyau méthodologique et le déploiement ne sont pas modifiés.
+Ce bilan décrit le candidat historique `c071041` du 10/10/2026. La PR 114
+est fermée comme remplacée par les PR 115, 116 et 117 ; sa revue et sa branche
+sont conservées. Les nouvelles revues ont révélé des limites supplémentaires,
+notamment pour les reprises et les délais : les lignes ci-dessous ne valent
+pas preuve des garanties du candidat actuel.
+
+Le [suivi des trois revues](reponse-relectures-115-117.md) décrit les corrections
+suivantes. Aucune correction technique ne valide les 36 corrigés ni Gemini
+gratuit. Le noyau méthodologique et le déploiement ne sont pas modifiés.
 
 | Constat | Traitement et preuve | Limite restante |
 |---|---|---|
