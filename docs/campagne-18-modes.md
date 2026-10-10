@@ -5,6 +5,13 @@ corrigés sourcés, zéro réponse mesurée, zéro corrigé humain validé.**
 Le noyau du skill n'est pas modifié.
 Les tests logiciels du harnais ne prouvent pas une performance juridique.
 
+**Gemini gratuit :** le titulaire a précisé l'usage d'une clé API gratuite,
+qui remplace l'hypothèse Gemini sur abonnement dans la recette ci-dessous.
+La [vérification préalable des quotas](quotas-gemini-gratuit.md) distingue
+RPM, TPM, RPD et requêtes internes à une réponse. Le gel actuel exige encore
+un abonnement : adapter ce chemin et observer les quotas actifs avant de
+paramétrer ou de lancer Gemini. Les recettes Claude/Codex restent applicables.
+
 ## Ce que la campagne comparera
 
 | Bras | Méthode | Outils juridiques |
@@ -29,7 +36,7 @@ version : ses résultats ne sont pas transférables au candidat local.
 36 cas × 4 bras × 2 répétitions × 3 familles = **864 réponses principales**.
 Le pilote de quatre modes représente 192 réponses supplémentaires au maximum,
 plus six réponses de préflight. Le jugement LLM consomme lui aussi le quota de
-l'abonnement et doit être compté dans le budget journalier. Aucun appel API
+du fournisseur et doit être compté dans le budget journalier. Aucun appel API
 payant ni repli implicite n'est prévu.
 
 C/D mesure l'apport de la méthode à outils constants ; B/A mesure son apport

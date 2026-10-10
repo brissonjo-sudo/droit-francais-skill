@@ -5,11 +5,19 @@ clients. **Aucune réponse de modèle, aucun préflight comportemental ni score
 d'utilité n'est acquis.** La sélection des trois modèles demeure à renseigner
 avant le gel.
 
+**Correction du 10 octobre :** le titulaire précise que Gemini doit utiliser
+une clé API gratuite. La recette OAuth ci-dessous décrit le chemin initial,
+qui n'est plus celui retenu pour Gemini. Voir la
+[vérification des quotas gratuits](quotas-gemini-gratuit.md) : les valeurs
+actives et le projet de la clé restent à établir ; le harnais n'est pas
+encore adapté à cette authentification. Aucun appel Gemini n'est autorisé par
+le seul constat d'installation.
+
 | Client | Observation locale | Reste à établir |
 |---|---|---|
 | Claude Code | Version 2.1.288 ; abonnement claude.ai constaté lors de la première livraison | Modèle exact accessible au compte, effort, absence de crédits supplémentaires et preuve de préflight |
 | Codex | Version 0.162.0-alpha.2 ; connexion ChatGPT constatée lors de la première livraison | Modèle exact et preuve du modèle effectif dans le flux |
-| Gemini CLI | Version 0.63.0 installée localement, aide et version exécutées depuis Python sous Windows | Authentification Google, droits du compte, modèle exact et qualification native |
+| Gemini CLI | Version 0.63.0 installée localement, aide et version exécutées depuis Python sous Windows ; clé gratuite déclarée par le titulaire | Projet et quotas actifs, modèle Flash exact, adaptation à la clé et qualification native |
 
 Les états d'authentification de la première livraison ne valent pas un appel
 réussi aujourd'hui. Le préflight les contrôle à nouveau, sans repli API.
@@ -31,9 +39,10 @@ Cela vérifie le lancement du client, pas l'isolation d'un appel de modèle.
 La CLI requiert Node >= 20 selon le paquet et la
 [documentation officielle d'installation](https://geminicli.com/docs/get-started/installation/).
 
-Pour la connexion interactive, lancer ce même gemini.cmd, puis choisir
+Pour le chemin OAuth initial, lancer ce même gemini.cmd, puis choisir
 la connexion Google de l'abonnement. Cette étape doit être accomplie par
 le titulaire du compte ; aucun jeton ni mot de passe n'est demandé dans le chat.
+Cette recette n'est pas à exécuter pour la clé gratuite désormais retenue.
 Le cache oauth_creds.json n'était pas présent au chemin utilisateur standard
 lors du contrôle. Le harnais recopie seulement les caches d'authentification
 dans sa session isolée.
