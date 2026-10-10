@@ -64,6 +64,7 @@ from pathlib import Path
 from typing import Protocol
 
 from bench.flux import PREFIXE_MCP, Trace, analyser
+from bench.contexte import ContexteExecution
 
 RACINE = Path(__file__).resolve().parent.parent.parent
 PROMPTS = Path(__file__).resolve().parent / "prompts"
@@ -109,6 +110,7 @@ class Options:
     effort: str = "defaut_cli"
     fournir_references: bool = False
     methode_experimentale: str | None = None
+    contexte: ContexteExecution | None = None
 
 
 @dataclass
@@ -121,6 +123,7 @@ class Execution:
     erreur: str = ""
     statut: str = "ok"  # "ok" | "infra_error"
     motif_infra: str = ""
+    categorie_infra: str = ""
 
 
 class Agent(Protocol):
