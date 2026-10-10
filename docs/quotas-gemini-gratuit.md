@@ -225,3 +225,51 @@ allonger le calendrier. Les calculs de 35 ou 89 minutes correspondent seulement
 Le réglage reste à concurrence 1, sans fallback ni changement de facturation.
 Un intervalle fixe de 10 à 15 secondes ne suffit pas à qualifier le TPM :
 la cadence doit résulter des quotas observés et des entrées mesurées par tour.
+
+## Plusieurs clés et profils privés
+
+Les limites Gemini sont appliquées au projet. Deux clés du même projet ne
+créent donc pas deux budgets indépendants. Pour des projets distincts, les
+conditions générales [Google APIs, section 2(d)](https://developers.google.com/terms#section_2_using_our_apis)
+interdisent le contournement des limitations. Le simple rattachement à des
+projets distincts ne prouve pas l'autorisation de cumuler des quotas gratuits
+pour une même campagne. L'usage envisagé doit être compatible avec ces limites ;
+une extension au-delà requiert l'accord exprès prévu dans ces conditions.
+
+Le harnais prépare un registre privé de profils pour identifier les clés,
+leurs projets et leurs relevés sans les divulguer. Il ne réalise aucune
+rotation automatique ni bascule après un 429. Le plafond global de 100
+tentatives de réponse par jour UTC reste commun à toute l'étude, quel que
+soit le nombre de profils. Aucun cumul de capacité gratuite n'est annoncé.
+
+~~~powershell
+python tests/run_campaign.py profils-gemini --initialiser tests/bench/runs/gemini/profils.json
+python tests/run_campaign.py quotas-gemini --initialiser tests/bench/runs/gemini/profil-01/releve.json
+python tests/run_campaign.py quotas-gemini --initialiser tests/bench/runs/gemini/profil-02/releve.json
+python tests/run_campaign.py profils-gemini --registre tests/bench/runs/gemini/profils.json --profil profil-01
+~~~
+
+Chaque entrée contient un identifiant neutre profil-01, le **nom** d'une
+variable d'environnement (GEMINI_API_KEY ou GEMINI_API_KEY_COMPTE_2), et le
+chemin d'un relevé privé. Aucun secret en clair n'est accepté dans ce registre.
+Les valeurs restent dans l'environnement ou les secrets Actions, jamais dans
+le chat, les arguments CLI, le gel ou les fichiers suivis. Le titulaire peut
+préparer d'autres profils sans créer de clé depuis le harnais.
+
+Le contrôle réutilise les exigences du relevé individuel : projet confirmé,
+modèle exact, quotas actifs, preuve avec empreinte et fraîcheur de 24 heures.
+Il regroupe les déclarations cohérentes par projet, détecte les relevés
+contradictoires et les noms de profil ou variable dupliqués. Des modèles
+différents exigent des séries distinctes. Sa sortie expose seulement des
+identifiants neutres, groupes de quotas déclarés, problèmes et booléens de
+présence des clés ; pas les projets, chemins privés ni valeurs de secrets.
+
+La sélection exige --profil ; aucun profil disponible ne remplace un profil
+absent ou incomplet. Ce contrôle reste hors réseau et collecte_autorisee
+reste false, même avec des profils cohérents. Il prépare la configuration,
+sans qualifier l'adaptateur gratuit ni le gel. L'exécuteur devra attacher un
+profil fixe à chaque lot, garder le même profil pour tous les tours d'un cas,
+compter RPM/TPM/RPD par projet et modèle, et partager les compteurs entre clés
+d'un même projet. Un changement explicite de profil devra être tracé et pris
+en compte dans l'équilibrage des bras et répétitions ; pas de nouveau tirage
+d'une réponse décevante sous une autre clé.
