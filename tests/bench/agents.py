@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 """agents.py — exécution d'un cas par un agent réel, en headless.
 
-Le harnais pilote la **vraie CLI**, pas une boucle d'API reconstituée : ce qui
-est mesuré est la méthodologie telle qu'elle s'applique dans la chaîne
-d'outils distribuée, pas une approximation.
+Les backends historiques pilotent les CLI réelles. Le prototype Gemini REST
+est un moteur distinct, explicitement sélectionné et encore non qualifié.
+Ses résultats éventuels ne valent pas qualification de Gemini CLI ; le gel
+gratuit de la campagne reste fermé.
 
-Trois bras :
+Quatre bras :
 
 ===== ===================================== ==========================
 Bras  Prompt système                        Outils
@@ -13,6 +14,7 @@ Bras  Prompt système                        Outils
 A     neutre (`prompts/bras-A.md`)          aucun
 B     `skill/SKILL.md` + préambule B        aucun
 C     `skill/SKILL.md` + préambule C        MCP `droit-francais` seul
+D     neutre                               même MCP que C
 ===== ===================================== ==========================
 
 Options relevées sur la CLI 2.1.133 de ce poste (`claude --help` et runs
@@ -46,7 +48,8 @@ Le jeton d'accès ne transite **que** par l'environnement du sous-processus :
 jamais en argument de ligne de commande (visible dans la liste des processus),
 jamais dans un fichier commité.
 
-Stdlib uniquement.
+Le socle utilise la stdlib ; le prototype REST charge à la demande le SDK
+MCP et les données de fuseau des dépendances du harnais.
 """
 
 from __future__ import annotations
