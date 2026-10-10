@@ -13,6 +13,8 @@ from unittest import mock
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "tests"))
 from bench import campaign, quotas_gemini
+from bench import budget_gemini, preconditions
+from _gemini_test_helpers import ecrire_profil
 
 NOW = dt.datetime(2026, 10, 10, 12, tzinfo=dt.timezone.utc)
 
@@ -109,16 +111,57 @@ class QuotasGeminiTests(unittest.TestCase):
             self.verifier()
         self.assertNotIn("secret-test", str(error.exception))
 
-    def test_gel_gratuit_arrete_avant_cli_ou_catalogue(self):
+    def test_gel_v2_gratuit_incomplet_arrete_avant_cli_runtime_ou_catalogue(self):
         config = campaign.read_json(ROOT / "tests/campaign/config.example.json")
-        config["familles"][2]["auth"] = "cle_api_gratuite"
+        self.assertEqual(2, config["schema"])
+        self.assertEqual("cle_api_gratuite", config["familles"][2]["auth"])
         path = self.local / "config.json"
         campaign.write_json(path, config)
-        with mock.patch.object(campaign, "version_cli") as version:
-            with self.assertRaisesRegex(ValueError, "par requête non qualifiés"):
+        with (mock.patch.object(campaign, "version_cli") as version,
+              mock.patch.object(campaign.runtime_v2, "relever") as runtime,
+              mock.patch.object(preconditions, "catalogue") as catalogue):
+            with self.assertRaisesRegex(ValueError, "renseigner modèle exact"):
                 campaign.figer(path, self.local / "gel.json")
             version.assert_not_called()
+            runtime.assert_not_called()
+            catalogue.assert_not_called()
         self.assertFalse((self.local / "gel.json").exists())
+
+    def test_gel_v2_gratuit_complet_sans_quotas_ou_qualification_refuse(self):
+        for missing in ("registre", "quotas", "qualification"):
+            with self.subTest(preuve_absente=missing):
+                state = self.local / missing
+                state.mkdir()
+                registry = state / "profils.json"
+                if missing == "quotas":
+                    registry.write_text(json.dumps({"schema": 2, "profils": [{"profil": "profil-01",
+                        "cle_env": "GEMINI_API_KEY", "releve": "absent.json", "qualification": "absente.json"}]}))
+                elif missing == "qualification":
+                    registry = ecrire_profil(state)
+                config = campaign.read_json(ROOT / "tests/campaign/config.example.json")
+                for family in config["familles"]:
+                    family["modele_demande"] = family["nom"] + "-synthetique-20261010"
+                    family["executable"] = "CLI_SYNTHETIQUE"
+                    family["raisonnement"] = "high"
+                config["familles"][2].update(modele_demande="gemini-3.8-flash",
+                    gemini_registre=str(registry), gemini_profil="profil-01")
+                campaign.valider_config(config)
+                path, target = state / "config.json", state / "gel.json"
+                campaign.write_json(path, config)
+                with (mock.patch.object(campaign, "STATE", state),
+                      mock.patch.object(budget_gemini, "etat_canonique", return_value=state),
+                      mock.patch.object(campaign, "version_cli", return_value="VERSION_SYNTHETIQUE") as version,
+                      mock.patch.object(campaign.runtime_v2, "relever", return_value={"runtime": "SYNTHETIQUE"}) as runtime,
+                      mock.patch.object(preconditions, "catalogue") as catalogue,
+                      mock.patch.object(campaign.subprocess, "run") as subprocess_run):
+                    with self.assertRaisesRegex(ValueError, "registre ou preuves|qualification REST"):
+                        campaign.figer(path, target)
+                    self.assertEqual(2, version.call_count)
+                    runtime.assert_called_once()
+                    catalogue.assert_not_called()
+                    subprocess_run.assert_not_called()
+                self.assertFalse(target.exists())
+                self.assertFalse((state / "budget.jsonl").exists())
 
 
 if __name__ == "__main__":
