@@ -273,3 +273,23 @@ compter RPM/TPM/RPD par projet et modèle, et partager les compteurs entre clés
 d'un même projet. Un changement explicite de profil devra être tracé et pris
 en compte dans l'équilibrage des bras et répétitions ; pas de nouveau tirage
 d'une réponse décevante sous une autre clé.
+
+## Mesure technique de l'entrée
+
+Le workflow Sonde fonctionnelle accepte gemini-tokens : un POST countTokens
+vers gemini-3.8-flash, sans génération, retry, Auth0 ou PISTE. La charge est
+la requête du bras B : instructions et références, puis le cas sélectionné
+par taille de prompt UTF-8. Ce critère n'affirme pas un maximum de tokens.
+La [référence REST countTokens](https://ai.google.dev/api/tokens) prévoit
+generateContentRequest pour inclure les instructions système. Aucune clé
+n'est placée dans l'URL, la charge, la sortie ou les arguments CLI.
+
+~~~powershell
+gh workflow run sonde-fonctionnelle.yml --repo brissonjo-sudo/droit-francais-skill --ref codex/adoption-evaluation-20261010 -f controle=gemini-tokens
+~~~
+
+L'artefact tokens-gemini ne contient que modèle demandé, cas, date, compteur,
+tailles et empreintes de la charge et du corpus ; pas le texte transmis.
+Sa rétention est d'un jour. Ni les outils des bras C/D ni leur historique
+ne sont inclus dans cette mesure. Aucun résultat juridique, quota actif,
+modèle effectif d'une génération ou autorisation de collecte n'est déduit.

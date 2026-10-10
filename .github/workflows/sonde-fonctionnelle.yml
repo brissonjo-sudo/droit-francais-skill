@@ -29,6 +29,7 @@ on:
         options:
           - mcp
           - gemini-catalogue
+          - gemini-tokens
       url:
         description: "URL complète du endpoint MCP à sonder (sert aussi d'audience du jeton)"
         required: false
@@ -50,7 +51,7 @@ concurrency:
 
 jobs:
   sonde:
-    if: inputs.controle != 'gemini-catalogue'
+    if: inputs.controle == 'mcp' || inputs.controle == ''
     runs-on: ubuntu-latest
     # La sonde enchaîne six appels réels vers deux API amont, dont des
     # reprises bornées sur erreur transitoire, et peut tomber sur un réveil
@@ -187,5 +188,29 @@ jobs:
         with:
           name: catalogue-gemini
           path: tests/bench/runs/catalogue-gemini.json
+          retention-days: 1
+          if-no-files-found: error
+
+  gemini-tokens:
+    if: inputs.controle == 'gemini-tokens'
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: "3.12"
+      - name: Compter une entrée publique sans génération
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python tests/bench/mesure_tokens_gemini.py --sortie tests/bench/runs/tokens-gemini.json
+      - name: Archiver uniquement les compteurs et empreintes
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: tokens-gemini
+          path: tests/bench/runs/tokens-gemini.json
           retention-days: 1
           if-no-files-found: error
