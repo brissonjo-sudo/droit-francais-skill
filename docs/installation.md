@@ -3,6 +3,12 @@
 État du guide : 10 octobre 2026. Les commandes sont relevées sur Claude Code
 2.1.288 et Codex CLI 0.162.0-alpha.2. Leur aide a été contrôlée ; le parcours
 complet d'installation puis OAuth n'est pas encore qualifié sur ces versions.
+Un smoke local du paquet a réussi le 10/10/2026 dans des profils temporaires
+vides : installation, liste et retrait sur les deux CLI, réinstallation
+Codex et contrôle de mise à jour Claude sans changement de version. Il porte
+sur une copie locale des fichiers du dépôt, pas sur l'acquisition GitHub,
+la mise à niveau vers une autre version, une nouvelle session ou OAuth.
+Voir les [preuves et limites du correctif](correctifs-pr115.md).
 
 Le noyau présent dans le dépôt est 3.5.0 ; le plugin 0.9.0 est un candidat.
 La dernière release plugin relevée lors de l'audit porte le numéro 0.7.0.
@@ -21,6 +27,12 @@ Pour une recette reproductible, noter le commit et la version réellement instal
   Les huit outils du candidat ne sont pas automatiquement ceux du service distant.
 
 ## Claude Code
+
+> **Connexion OAuth bloquée pour une installation neuve du plugin** : le
+> client prédéfini et le callback restent à configurer
+> ([#88](https://github.com/brissonjo-sudo/droit-francais-skill/issues/88)).
+> L'installation du paquet et le chargement de la méthode peuvent être
+> vérifiés séparément ; ils ne donnent pas accès aux outils distants.
 
 Installation depuis la marketplace du dépôt :
 
@@ -59,9 +71,21 @@ codex plugin add droit-francais-skill@droit-francais
 codex plugin list --json
 ~~~
 
-Ces commandes ne seront utilisables sur main qu'après intégration de ce
-catalogue. Pour tester le candidat avant intégration, remplacer la source
-GitHub par le chemin absolu du checkout de la branche de recette.
+Le catalogue est présent dans main depuis l'intégration de
+[#115](https://github.com/brissonjo-sudo/droit-francais-skill/pull/115).
+Pour tester une branche de recette, remplacer la source GitHub par son
+checkout absolu, ou figer la source Git avec --ref COMMIT.
+
+Le catalogue indique l'origine, le nom et la politique d'installation. La
+version 0.9.0 et la description du plugin se trouvent dans
+.codex-plugin/plugin.json, conformément aux exemples officiels OpenAI ;
+elles ne sont pas dupliquées dans les entrées du catalogue. Le chemin ./
+est relatif à la racine de la marketplace, pas à .agents/plugins/.
+
+Au 10/10/2026, codex --version et l'aide de chaque sous-commande ci-dessus
+ont été relus sur Codex CLI 0.162.0-alpha.2. Les liens officiels en fin de
+guide répondent et documentent ces commandes. Ce contrôle d'aide et de
+documentation ne constitue pas une recette d'installation ou d'OAuth.
 
 Dans l'application, ajouter la marketplace dans le répertoire des plugins,
 installer Droit français puis ouvrir une nouvelle tâche. Vérifier séparément
@@ -85,6 +109,8 @@ codex plugin list --json
 ## OAuth et dépannage
 
 Les nouveaux clients Claude Code et ChatGPT restent en qualification.
+Pour Codex, l'installation complète et le parcours OAuth de cette version
+restent également à qualifier ; un succès dans un autre client ne les valide pas.
 Voir la [proposition de recette OAuth](recette-oauth-clients.md), le
 [guide OAuth](oauth.md) et les issues
 [#88](https://github.com/brissonjo-sudo/droit-francais-skill/issues/88) et
