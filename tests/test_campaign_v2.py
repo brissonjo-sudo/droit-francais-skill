@@ -67,11 +67,13 @@ class CampaignV2(unittest.TestCase):
             gel, stack, engine, calls = self.contexte(state)
             with stack:
                 self.assertEqual(4, campaign.collecter(gel, "claude", "pilote", state=state))
-                self.assertEqual(4, campaign.collecter(gel, "claude", "pilote", state=state))
+                with self.assertRaisesRegex(ValueError, "prochain bloc"):
+                    campaign.collecter(gel, "claude", "pilote", state=state)
+                self.assertEqual(20, campaign.collecter_entrelace(gel, "pilote", state=state))
                 self.assertEqual(0, campaign.collecter(gel, "claude", "pilote", state=state))
             ids = [c[2].identite for c in calls]
-            self.assertEqual(8, len(set(ids)))
-            self.assertEqual(8, len(etude_v2.reservations(state)))
+            self.assertEqual(24, len(set(ids)))
+            self.assertEqual(24, len(etude_v2.reservations(state)))
 
     def test_entrelacement_reel_familles_et_repetitions(self):
         with tempfile.TemporaryDirectory() as d:
@@ -114,7 +116,7 @@ class CampaignV2(unittest.TestCase):
                     worker.join(5)
                 self.assertFalse(worker.is_alive())
                 self.assertEqual([], errors)
-                self.assertEqual(4, campaign.collecter(gel, "claude", "pilote", state=state))
+                self.assertEqual(4, campaign.collecter(gel, "codex", "pilote", state=state))
             self.assertEqual(8, len(calls))
             self.assertEqual(8, len({x[2].identite for x in calls}))
 
@@ -191,18 +193,18 @@ class CampaignV2(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     etude_v2.declarer_manquant(state, "s", key, "", "motif")
                 etude_v2.declarer_manquant(state, "s", key, "Relecteur", "Deux pannes, sans imputation")
-                self.assertEqual(4, campaign.collecter(gel, "claude", "pilote", state=state))
+                self.assertEqual(3, campaign.collecter(gel, "claude", "pilote", state=state))
 
     def test_budget100_global_avant_appel_et_reprise_lendemain(self):
         with tempfile.TemporaryDirectory() as d:
             state = Path(d)
             with etude_v2.verrou(state):
                 for n in range(100):
-                    r = etude_v2.reserver(state, str(n), serie="s", meta={}, jour="2026-10-10")
+                    r = etude_v2.reserver(state, str(n), serie="s", meta={"phase": "pilote"}, jour="2026-10-10")
                     etude_v2.clore(state, r, statut="infra_error", categorie="transport")
                 with self.assertRaisesRegex(ValueError, "100"):
-                    etude_v2.reserver(state, "autre", serie="s", meta={}, jour="2026-10-10")
-                etude_v2.reserver(state, "autre", serie="s", meta={}, jour="2026-10-11")
+                    etude_v2.reserver(state, "autre", serie="s", meta={"phase": "pilote"}, jour="2026-10-10")
+                etude_v2.reserver(state, "autre", serie="s", meta={"phase": "pilote"}, jour="2026-10-11")
             self.assertEqual(101, len(etude_v2.reservations(state)))
 
     def test_gel_ou_runtime_changes_arret_avant_appel(self):
@@ -214,7 +216,8 @@ class CampaignV2(unittest.TestCase):
                     with self.assertRaises(ValueError):
                         campaign.collecter(gel, "claude", "pilote", state=state)
                 engine.executer.assert_not_called()
-                self.assertEqual(category, etude_v2.lire(state / "s/invalidations.jsonl")[0]["categorie_infra"])
+                self.assertEqual([], etude_v2.lire(state / "s/invalidations.jsonl"))
+                self.assertEqual([], etude_v2.reservations(state))
 
     def test_runtime_change_pendant_reponse_invalide(self):
         with tempfile.TemporaryDirectory() as d:
@@ -302,7 +305,7 @@ class CampaignV2(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d:
             state = Path(d)
             result = {"identite": "id", "reponse": "texte"}
-            judge = {"identite": "id", "axes": {a: "faux" for a in campaign.AXES}}
+            judge = {"identite": "id", "statut_juge": "ok", "axes": {a: "faux" for a in campaign.AXES}}
             row = {"schema": 2, "identite": "id", "relecteur_humain": "Juriste", "justification_humaine": "Source et faits relus",
                 "date_validation": "2026-10-10", "validation_humaine": True, "avis_final": True,
                 "arbitrage": "corriger_juge", "axes": {a: "correct" for a in campaign.AXES},
@@ -417,6 +420,7 @@ class CampaignV2(unittest.TestCase):
                 plan["plan_sha256"] = campaign.digest(plan)
                 plan_path = state / "plan.json"
                 campaign.write_json(plan_path, plan)
+                campaign.write_json(state / "s/ablation-plan.json", plan)
                 engine.executer.return_value = agents.Execution(Trace(modele="claude-exact",
                     texte_final=campaign.read_json(campaign.CORPUS)["temoin_corriges"]), '{"type":"result"}', 0)
                 engine.executer.side_effect = None
@@ -559,7 +563,66 @@ class CampaignV2(unittest.TestCase):
             path = Path(d) / "humains.jsonl"
             path.write_text(json.dumps({"schema": 2, "identite": "id", "date_validation": "2999-01-01"}) + "\n", encoding="utf-8")
             with self.assertRaisesRegex(ValueError, "date humaine"):
-                revue_v2.avis(path, {"id": {}}, {"id": {}})
+                revue_v2.avis(path, {"id": {}}, {"id": {"statut_juge": "ok"}})
+
+    def test_annexes_ne_modifient_pas_rapport_ni_etat_principal(self):
+        with tempfile.TemporaryDirectory() as d:
+            state = Path(d)
+            gel, stack, engine, calls = self.contexte(state)
+            with stack, mock.patch.object(campaign, "pret_collecte"):
+                campaign.collecter(gel, "claude", "principale", state=state)
+                paths = [state / "s/principale-claude.jsonl"]
+                baseline = campaign.rapport(paths, state / "juges.jsonl", frozen=gel, state=state)
+                for _ in range(2):
+                    with etude_v2.verrou(state):
+                        r = etude_v2.reserver(state, "annexe", serie="s", meta={"phase": "ablation:test"})
+                        etude_v2.clore(state, r, statut="infra_error", categorie="transport")
+                etude_v2.declarer_manquant(state, "s", "annexe", "Humain", "Deux pannes annexes")
+                with etude_v2.verrou(state):
+                    etude_v2.invalider(state, "s", "modele", "Juge différent", phase="jugement:principale")
+                self.assertEqual(baseline, campaign.rapport(paths, state / "juges.jsonl", frozen=gel, state=state))
+                etude_v2.sain(state, "s", phase="principale")
+                with self.assertRaises(ValueError):
+                    etude_v2.sain(state, "s", phase="jugement:principale")
+
+    def test_recuperation_refuse_resultat_sans_engagement_ou_modifie(self):
+        from bench.journal import Journal
+        with tempfile.TemporaryDirectory() as d:
+            state = Path(d)
+            output = state / "s/out.jsonl"
+            with etude_v2.verrou(state):
+                reservation = self.reservation(state, output=output)
+                row = {**reservation, "statut_technique": "ok", "categorie_infra": "", "reponse": "réponse originale"}
+                Journal(output).ajouter(row)
+            with self.assertRaisesRegex(ValueError, "engagement préalable"):
+                etude_v2.clore_interruption(state, reservation["attempt_id"], "Humain", "PID terminé")
+            with etude_v2.verrou(state):
+                etude_v2.engager_resultat(state, reservation, campaign.digest(row))
+            output.write_text(json.dumps({**row, "reponse": "fabriquée"}) + "\n", encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "engagement préalable"):
+                etude_v2.clore_interruption(state, reservation["attempt_id"], "Humain", "PID terminé")
+            output.write_text(json.dumps(row) + "\n", encoding="utf-8")
+            etude_v2.clore_interruption(state, reservation["attempt_id"], "Humain", "PID terminé")
+            self.assertEqual("ok", etude_v2.clotures(state)[reservation["attempt_id"]]["statut"])
+
+    def test_racine_os_independante_variables_et_ancre_ancienne_refusee(self):
+        from bench import contexte
+        actual = contexte.etat_canonique()
+        with mock.patch.dict("os.environ", {"HOME": "ailleurs", "LOCALAPPDATA": "ailleurs", "XDG_STATE_HOME": "ailleurs"}):
+            self.assertEqual(actual, contexte.etat_canonique())
+        with tempfile.TemporaryDirectory() as d:
+            state = Path(d) / "etat"
+            state.mkdir()
+            with etude_v2.verrou(state):
+                r = self.reservation(state)
+                etude_v2.clore(state, r, statut="infra_error", categorie="transport")
+            original = (state / "budget.jsonl").read_bytes()
+            with mock.patch.object(contexte, "etat_canonique", return_value=state):
+                with self.assertRaisesRegex(ValueError, "sans ancre"):
+                    contexte.assurer_ancre(state)
+                contexte.assurer_ancre(state, auteur="Humain", motif="Rattachement sans remboursement")
+                contexte.assurer_ancre(state)
+            self.assertEqual(original, (state / "budget.jsonl").read_bytes())
 
 
 if __name__ == "__main__":

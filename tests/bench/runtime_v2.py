@@ -9,6 +9,10 @@ import sys
 from pathlib import Path
 
 
+class ControleIndisponible(ValueError):
+    """Sonde passagère indisponible, sans preuve d'une dérive de runtime."""
+
+
 def executable(path: str) -> dict:
     """Résoudre un chemin puis figer ses octets ; aucun alias système implicite."""
     found = shutil.which(path)
@@ -22,11 +26,14 @@ def executable(path: str) -> dict:
 
 def python_runtime(path: str) -> dict:
     """Figer toutes les versions de distributions du Python choisi pour MCP."""
-    result = subprocess.run([path, "-c", (
-        "import sys,json,importlib.metadata as m;"
-        "print(json.dumps({'version':sys.version,'executable':sys.executable,"
-        "'distributions':sorted((d.metadata['Name'].lower(),d.version) for d in m.distributions())}))"
-    )], capture_output=True, encoding="utf-8", timeout=15, shell=False)
+    try:
+        result = subprocess.run([path, "-c", (
+            "import sys,json,importlib.metadata as m;"
+            "print(json.dumps({'version':sys.version,'executable':sys.executable,"
+            "'distributions':sorted((d.metadata['Name'].lower(),d.version) for d in m.distributions())}))"
+        )], capture_output=True, encoding="utf-8", timeout=15, shell=False)
+    except (subprocess.TimeoutExpired, OSError) as exc:
+        raise ControleIndisponible("sonde runtime indisponible ; réessayer sans invalidation") from exc
     if result.returncode:
         raise ValueError("environnement Python non inspectable")
     try:
