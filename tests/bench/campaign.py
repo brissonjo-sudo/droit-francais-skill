@@ -140,6 +140,9 @@ def figer(config_path: Path, target: Path) -> dict:
             raise ValueError("renseigner modèle exact, CLI et réglages avant de figer")
         if f["modele_demande"] in ("auto", "default", "sonnet", "opus", "haiku"):
             raise ValueError("alias de modèle non figé")
+        if f["nom"] == "claude" and (f["modele_demande"] in ("best", "fable")
+                                      or f["modele_demande"].startswith("claude-fable-")):
+            raise ValueError("Fable peut facturer des crédits en headless ; exclu de cette campagne sur abonnement")
         if f["nom"] == "gemini" and f["raisonnement"] != "defaut_cli":
             raise ValueError("réglage Gemini non supporté")
         if f.get("auth") != "abonnement":

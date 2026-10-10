@@ -28,6 +28,17 @@ class CampagneTests(unittest.TestCase):
         self.assertEqual(len(cases), 36)
         self.assertFalse(any(campaign.gold_pret(c) for c in cases))
 
+    def test_gel_refuse_fable_avant_tout_appel_modele(self):
+        config = campaign.read_json(ROOT / "tests/campaign/config.example.json")
+        config["familles"][0].update(modele_demande="claude-fable-5-1",
+                                    executable="claude", raisonnement="high")
+        with tempfile.TemporaryDirectory() as dossier:
+            path = Path(dossier) / "config.json"
+            campaign.write_json(path, config)
+            with self.assertRaisesRegex(ValueError, "crédits"), mock.patch.object(campaign, "version_cli") as version:
+                campaign.figer(path, Path(dossier) / "gel.json")
+            version.assert_not_called()
+
     def test_nom_humain_seul_ne_valide_pas_le_gold(self):
         c = copy.deepcopy(campaign.corpus()[0])
         c["gold"]["valide_par"] = "relecteur"

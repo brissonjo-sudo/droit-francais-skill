@@ -1,7 +1,8 @@
 # Campagne d'utilité des 18 modes
 
-Préparation du 10 octobre 2026. **36 cas brouillons, zéro réponse mesurée,
-zéro corrigé humain validé.** Le noyau du skill n'est pas modifié.
+Préparation du 10 octobre 2026. **36 cas circonstanciés avec propositions de
+corrigés sourcés, zéro réponse mesurée, zéro corrigé humain validé.**
+Le noyau du skill n'est pas modifié.
 Les tests logiciels du harnais ne prouvent pas une performance juridique.
 
 ## Ce que la campagne comparera
@@ -39,13 +40,22 @@ configuration ; aucun classement général de LLM n'est calculé.
 ## Relire le corpus avant collecte
 
 Ouvrir [cases.json](../tests/campaign/cases.json). Deux cas par mode : un piège
-et un contrôle destiné à détecter le refus excessif. Les modes 15 à 18 utilisent
-des pièces synthétiques, marquées comme telles et injectées à tous les bras.
+et un contrôle destiné à détecter le refus excessif. Les modes 9 et 15 à 18
+utilisent des pièces synthétiques, marquées comme telles et injectées à tous
+les bras. Les pièces de contrôle des modes 15 à 18 permettent une conclusion
+positive sur leur seule cohérence documentaire.
 
-Les critères proposés sont des hypothèses de correction. Plusieurs questions
-doivent être précisées en cas réel avant validation, notamment réformes,
-renvois, textes territoriaux et conditions cumulatives. Une URL de portail ou
-de code est une piste de recherche, pas un corrigé vérifié.
+Lire le [dossier de revue des corrigés](corriges-campagne-18-modes.md), généré
+depuis le corpus, et les [prérequis clients](preparation-clients-campagne.md).
+Les propositions comprennent conclusions, réserves ciblées, alternatives,
+criticité et observations des sources officielles consultées. Les dates de
+droit sont propres à chaque cas ; la date de consultation ne les remplace pas.
+Les observations de préparation ne constituent pas une validation humaine.
+
+Deux situations par mode restent exploratoires. Certains cas réutilisent
+les mêmes sources ; les modes ne sont donc pas statistiquement indépendants.
+Le pilote devra identifier les questions saturées, ambiguës ou trop faciles
+avant le gel de la campagne principale.
 
 Pour chaque gold, renseigner avant les réponses :
 
@@ -63,6 +73,7 @@ commiter le corrigé, puis figer : changer le corpus après gel crée une autre 
 
 ~~~powershell
 python tests/run_campaign.py verifier
+python tests/run_campaign.py corriges --sortie docs/corriges-campagne-18-modes.md
 ~~~
 
 ## Figer le candidat et les clients
