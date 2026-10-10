@@ -9,7 +9,7 @@
 The local version prepares two additional reading tools: code sections and
 consolidated legislation. The remote service still runs the earlier published
 version; the new tools become available only after an explicitly authorized
-deployment and qualification. See the [preparation notes](docs/livraison-0.9.0.md).
+deployment and qualification. See the [preparation notes (in French)](docs/livraison-0.9.0.md).
 
 [![CI](https://github.com/brissonjo-sudo/droit-francais-skill/actions/workflows/ci.yml/badge.svg)](https://github.com/brissonjo-sudo/droit-francais-skill/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/brissonjo-sudo/droit-francais-skill)](https://github.com/brissonjo-sudo/droit-francais-skill/releases)
@@ -21,7 +21,7 @@ deployment and qualification. See the [preparation notes](docs/livraison-0.9.0.m
 > cannot be verified. Its contribution on current models still needs to be
 > measured; no guarantee of error-free output is claimed.
 
-**Getting started:** choose an [installation channel](docs/installation.md),
+**Getting started:** choose an [installation channel (in French)](docs/installation.md),
 then check the methodology and access to tools separately.
 
 | Channel | Status on 10 October 2026 | Tools |
@@ -209,7 +209,7 @@ core from `skill/`, keeping a single source of methodological truth.
 
 The manifest points to `.mcp.json`, which declares a **remote connection**.
 For installation, verification, updates and removal, follow the
-[lifecycle guide](docs/installation.md). The startup commands below are a local
+[lifecycle guide (in French)](docs/installation.md). The startup commands below are a local
 server variant, with eight tools; they do not install a plugin. The server
 and historical CLI share the same library; the methodology remains in
 `skill/SKILL.md`.
@@ -222,8 +222,8 @@ docker build -t droit-francais-mcp .
 ```
 
 PISTE credentials are supplied through environment variables or `.env`, never
-through the manifest. See the [MCP guide](docs/mcp-app.md) and
-[progressive architecture](docs/architecture-plugin.md).
+through the manifest. See the [MCP guide (in French)](docs/mcp-app.md) and
+[progressive architecture (in French)](docs/architecture-plugin.md).
 
 This version can be tested directly as a local plugin in Codex. A distinct
 remote service is deployed over HTTPS at
@@ -231,12 +231,12 @@ remote service is deployed over HTTPS at
 six tools; the local candidate exposes eight. Testing this service does not
 qualify the local candidate. The service has configuration checks, rate
 limiting and logs without arguments or secrets. See the
-[deployment guide](docs/deployment.md) and
-[ChatGPT connection/submission guide](docs/chatgpt-submission.md). Public access
+[deployment guide (in French)](docs/deployment.md) and
+[ChatGPT connection/submission guide (in French)](docs/chatgpt-submission.md). Public access
 is protected by OAuth 2.1: the server verifies a bearer token issued by an
 external authorization server and enforces a per-user quota, so that the
 owner's PISTE keys cannot be used anonymously — see the
-[OAuth guide](docs/oauth.md). The `.app.json` mapping will be added only after
+[OAuth guide (in French)](docs/oauth.md). The `.app.json` mapping will be added only after
 a real integration is created; the repository contains no fictitious remote
 identifier.
 
@@ -265,7 +265,7 @@ droit-francais-skill@droit-francais`.
 
 **No workstation prerequisites**: no Python, dependencies or PISTE credentials.
 The remote service holds its own keys and access is protected by OAuth 2.1
-with a per-user quota — see the [OAuth guide](docs/oauth.md).
+with a per-user quota — see the [OAuth guide (in French)](docs/oauth.md).
 
 **Connection: a client identifier must be entered.** The authorization server
 does not allow automatic registration of new clients; connection therefore
@@ -278,7 +278,7 @@ uses a predefined client.
 - **From Claude Code**: the plugin's `.mcp.json` declaration does not yet
   include a client identifier, and connection will fail with “Incompatible
   auth server: does not support dynamic client registration”. This route is
-  not yet configured — see section 4 of the [OAuth guide](docs/oauth.md).
+  not yet configured — see section 4 of the [OAuth guide (in French)](docs/oauth.md).
 
 #### Variant — local MCP server
 
@@ -450,7 +450,7 @@ droit-francais-skill/
 
 The target `skill + library + app/plugin` architecture and its regression
 invariants are documented in
-[`docs/architecture-plugin.md`](docs/architecture-plugin.md).
+[`docs/architecture-plugin.md` (in French)](docs/architecture-plugin.md).
 
 ---
 
