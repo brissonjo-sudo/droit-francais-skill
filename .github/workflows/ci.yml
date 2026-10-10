@@ -19,20 +19,34 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Installer les roues primaires SDK et auth vérifiées
+        run: python -m pip install --require-hashes --no-deps -r requirements-mcp-wheels.txt
+
       - name: Installer le SDK MCP
         run: python -m pip install -r requirements-mcp.txt
+
+      - name: Installer les données de fuseau du harnais
+        run: python -m pip install --require-hashes -r requirements-bench.txt
+
+      - name: Vérifier la cohérence SDK et transport
+        run: |
+          python -m pip check
+          python -c 'from importlib.metadata import version; assert version("mcp") == "2.2.0"; assert version("PyJWT") == "2.15.0"; assert version("httpx") == "0.28.1"'
 
       - name: Auditer les dépendances et produire le SBOM CycloneDX
         run: |
           python -m pip install -r requirements-audit.txt
           python -m pip_audit -r requirements-mcp.txt --strict --format cyclonedx-json --output sbom.cdx.json
+          python -m pip_audit -r requirements-bench.txt --strict --format cyclonedx-json --output sbom-bench.cdx.json
 
       - name: Archiver le SBOM
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: sbom-cyclonedx
-          path: sbom.cdx.json
+          path: |
+            sbom.cdx.json
+            sbom-bench.cdx.json
           if-no-files-found: ignore
           retention-days: 30
 
@@ -45,6 +59,7 @@ jobs:
 
       - name: Compiler les scripts Python (py_compile)
         run: |
+          python -m compileall -q tests/bench tests/campaign tests/run_campaign.py
           python -m py_compile skill/scripts/legifrance.py
           python -m py_compile skill/scripts/droit_francais/__init__.py
           python -m py_compile skill/scripts/droit_francais/errors.py
@@ -97,10 +112,10 @@ jobs:
       - name: Tester la bibliothèque et le serveur MCP hors réseau
         run: python -m unittest discover -s tests -v
 
-      - name: Recette distincte du catalogue MCP stdio réel
+      - name: Recette explicite SDK MCP des moteurs de campagne
         env:
           BENCH_TEST_MCP_INTEGRATION: "1"
-        run: python -m unittest discover -s tests -p 'test_integration_campaign.py' -v
+        run: python -m unittest discover -s tests -p 'test_integration*.py' -v
 
       - name: Tester le transport MCP HTTP réel
         env:
@@ -240,3 +255,6 @@ jobs:
       # ne se découvre pas au milieu d'un run de plusieurs heures.
       - name: Corpus du benchmark agentique (hors réseau)
         run: python tests/run_bench.py --verifier-corpus
+
+      - name: Préparation de la campagne des 18 modes (sans appel LLM)
+        run: python tests/run_campaign.py verifier

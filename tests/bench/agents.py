@@ -399,8 +399,9 @@ class CodexHeadless:
 
 
 class GeminiHeadless(CodexHeadless):
-    nom = "gemini"
+    """Chemin CLI historique, sans sélection implicite du moteur REST."""
 
+    nom = "gemini"
 
 
 BACKENDS: dict[str, type] = {
@@ -419,7 +420,8 @@ class GeminiREST:
         if options.contexte is None or not options.gemini_registre or not options.gemini_profil:
             raise ValueError("contexte réservé et profil Gemini qualifié requis")
         client = gemini_rest.preparer_client(Path(options.gemini_registre), options.gemini_profil)
-        return asyncio.run(gemini_rest.executer_mcp(client, prompt, bras, plafond, options))
+        return asyncio.run(gemini_rest.executer_mcp(client, prompt=prompt, bras=bras,
+                                                  plafond=plafond, options=options))
 
 
 def backend(nom: str, *, moteur: str = "cli-native") -> Agent:

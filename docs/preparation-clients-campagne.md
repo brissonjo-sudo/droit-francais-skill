@@ -92,3 +92,14 @@ reste fermé. CLI, Python et dépendances sont figés puis contrôlés avant/apr
 chaque réponse ; conserver des environnements isolés et empêcher leurs mises
 à jour automatiques durant la série. Une modification détectée exige une
 nouvelle série sans transfert de qualification.
+
+Installer les dépendances du harnais avec leurs empreintes avant ses tests :
+
+~~~powershell
+python -m pip install --require-hashes -r requirements-bench.txt
+~~~
+
+Le [parcours Gemini](quotas-gemini-gratuit.md) décrit les quotas et la recette
+REST préalable. Aucun cas juridique n'a été soumis au modèle ; aucun score
+n'est disponible. La mesure historique de 31 558 jetons ne qualifie pas le
+corpus corrigé.
