@@ -70,6 +70,24 @@ class RelectureGeminiTests(unittest.IsolatedAsyncioTestCase):
         self.assertTrue(self.budget.arret.exists())
         self.assertEqual(1, len(etude_v2.reservations(self.root)))
 
+    async def test_usage_surplus_garde_attempt_id_et_pas_remboursement(self):
+        ctx = self.contexte()
+        self.transport.appeler.return_value = {"usageMetadata": {"promptTokenCount": 200}}
+        response, _ = await self.client.generer({}, echeance=ctx.echeance_monotone)
+        self.assertTrue(response["budget_arret"])
+        rows = self.budget._lire(self.budget.horloge())
+        self.assertEqual(2, sum(r["requetes"] for r in rows))
+        self.assertEqual(200, sum(r["tokens"] for r in rows))
+        self.assertTrue(all(r["attempt_id"] == ctx.attempt_id for r in rows))
+        self.assertEqual(ctx.attempt_id, json.loads(self.budget.arret.read_bytes())["attempt_id"])
+
+    async def test_variable_token_sans_rapport_ne_cree_pas_faux_secret(self):
+        ctx = self.contexte()
+        with mock.patch.dict(os.environ, {"TASK_TOKEN_DESCRIPTION": "article 1240"}, clear=True):
+            await self.client.generer({"contents": ["article 1240"]}, echeance=ctx.echeance_monotone)
+        self.transport.compter.assert_awaited_once()
+        self.transport.appeler.assert_awaited_once()
+
     async def test_count_finit_apres_deadline_aucune_generation(self):
         ctx = self.contexte(secondes=.01)
         async def lent(*args, **kwargs):
@@ -131,6 +149,20 @@ class RelectureGeminiTests(unittest.IsolatedAsyncioTestCase):
         with self.assertRaises(ValueError):
             liaisons_gemini.lier("secret-test", "987654321", "gemini-3.8-flash", limits, self.root)
         self.assertNotIn("secret-test", (self.root / "liaisons-gemini.json").read_text())
+        self.assertNotIn(__import__("hashlib").sha256(b"secret-test").hexdigest(), (self.root / "liaisons-gemini.json").read_text())
+        self.assertEqual(32, len((self.root / "liaisons-gemini.hmac").read_bytes()))
+        if os.name != "nt":
+            self.assertEqual(0, (self.root / "liaisons-gemini.hmac").stat().st_mode & 0o077)
+
+    def test_liaison_ancienne_non_migree_refuse_sans_reset(self):
+        path = self.root / "liaisons-gemini.json"
+        path.write_text(json.dumps({"schema": 2, "cles": {}, "limites": {"ancien": {"rpd": 5}}}))
+        before = path.read_bytes()
+        with self.assertRaises(ValueError):
+            liaisons_gemini.lier("secret-test", "123456789", "gemini-3.8-flash",
+                {"rpm": 100, "rpd": 100, "tpm_entree": 100000}, self.root)
+        self.assertEqual(before, path.read_bytes())
+        self.assertFalse((self.root / "liaisons-gemini.hmac").exists())
 
     def test_verrou_orphelin_et_tzdata_differente_bloquent(self):
         self.budget.dossier.mkdir(parents=True)

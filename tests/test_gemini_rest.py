@@ -39,6 +39,37 @@ class BoucleGeminiTests(unittest.IsolatedAsyncioTestCase):
         self.assertNotIn("tools", client.generer.call_args.args[0])
         self.assertEqual("gemini-3.8-flash", result.trace.modele)
 
+    async def test_statut_http_et_finish_reason_assainis(self):
+        for status in (400, 403, 429, 500, 503):
+            client = mock.Mock(modele="gemini-3.8-flash", requetes=1,
+                generer=mock.AsyncMock(side_effect=gemini_http.ErreurGemini(status)))
+            result = await gemini_rest.boucle(client, prompt="TEST", bras="A", plafond=1,
+                instructions="TEST", outils=[], echeance=time.monotonic()+300)
+            self.assertEqual(status, result.statut_http)
+            self.assertEqual("quota_429" if status == 429 else "transport", result.categorie_infra)
+        for finish, category in (("MAX_TOKENS", "reponse_tronquee"), ("SAFETY", "reponse_bloquee")):
+            result, client = await self.run_case([response([{"text": "PARTIEL SYNTHETIQUE"}], finish=finish)])
+            self.assertEqual(category, result.categorie_infra)
+            self.assertEqual(finish, result.trace.usage["finish_reason"])
+            self.assertEqual(200, result.statut_http)
+            self.assertEqual("PARTIEL SYNTHETIQUE", result.trace.texte_final)
+
+    async def test_gemini_25_refuse_thinking_level_avant_mcp_et_http(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            ctx = reserver(root, modele="gemini-2.5-flash")
+            budget = Budget("123456789", ctx.modele, {"rpm": 100, "rpd": 100, "tpm_entree": 100000}, _state=root)
+            transport = mock.Mock(fermer=mock.AsyncMock(), appeler=mock.AsyncMock(), compter=mock.AsyncMock())
+            client = gemini_rest.Client("secret-test", ctx.modele, budget, transport=transport)
+            with mock.patch.object(gemini_rest, "_executer_mcp") as mcp:
+                result = await gemini_rest.executer_mcp(client, prompt="TEST", bras="C", plafond=1,
+                    options=agents.Options(contexte=ctx, effort="high"))
+            self.assertEqual("profil", result.categorie_infra)
+            mcp.assert_not_called()
+            transport.appeler.assert_not_called()
+            transport.compter.assert_not_called()
+            transport.fermer.assert_awaited_once()
+
     async def test_outil_neutre_interdit_avant_execution(self):
         result, client = await self.run_case([response([{"functionCall": {"name": "search", "args": {}}}])])
         self.assertEqual("infra_error", result.statut)
@@ -97,9 +128,18 @@ class BoucleGeminiTests(unittest.IsolatedAsyncioTestCase):
             client.generer.assert_called_once()
 
     async def test_erreur_initialisation_mcp_assainie(self):
-        with mock.patch.object(gemini_rest, "_executer_mcp", side_effect=RuntimeError("secret-source-test")):
-            result = await gemini_rest.executer_mcp(mock.Mock(), prompt="test", bras="C", plafond=1,
-                                                   options=agents.Options())
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            registry = ecrire_profil(root)
+            ctx = reserver(root)
+            with (mock.patch.object(quotas_gemini, "LOCAL", root),
+                  mock.patch.object(budget_gemini, "etat_canonique", return_value=root),
+                  mock.patch.dict("os.environ", {"GEMINI_API_KEY": "secret-test"}, clear=True)):
+                client = gemini_rest.preparer_client(registry, "profil-01")
+                with mock.patch.object(gemini_rest, "_executer_mcp", side_effect=RuntimeError("secret-source-test")) as execute:
+                    result = await gemini_rest.executer_mcp(client, prompt="test", bras="C", plafond=1,
+                        options=agents.Options(effort="high", contexte=ctx))
+                    execute.assert_awaited_once()
         self.assertEqual("infra_error", result.statut)
         self.assertNotIn("secret-source-test", result.motif_infra + result.flux_brut)
 
@@ -155,9 +195,17 @@ class ClientGeminiTests(unittest.IsolatedAsyncioTestCase):
         with mock.patch.object(native, "executer", return_value="natif") as run:
             self.assertEqual("natif", agents.GeminiHeadless().executer(options=agents.Options()))
             run.assert_called_once()
-        with mock.patch.object(gemini_rest.profils_gemini, "verifier", return_value={"statut": "incomplet"}):
-            with self.assertRaises(ValueError):
-                gemini_rest.preparer_client(self.root / "profil.json", "profil-01")
+        registry = ecrire_profil(self.root)
+        with (mock.patch.object(budget_gemini, "etat_canonique", return_value=self.root),
+              mock.patch.dict("os.environ", {"GEMINI_API_KEY": "secret-test"}, clear=True)):
+            client = gemini_rest.preparer_client(registry, "profil-01")
+            try:
+                with mock.patch.object(gemini_rest.profils_gemini, "verifier", return_value={"statut": "incomplet"}) as verifier:
+                    with self.assertRaises(ValueError):
+                        client.garde()
+                    verifier.assert_called_once_with(registry, "profil-01")
+            finally:
+                asyncio.run(client.transport.fermer())
 
     def test_cles_multiprofils_exclues_des_processus_abonnement_et_mcp(self):
         with mock.patch.dict("os.environ", {"GEMINI_API_KEY_COMPTE_2": "secret-test", "LEGIFRANCE_CLIENT_ID": "source-test"}, clear=True):

@@ -51,7 +51,7 @@ class ProfilsGeminiTests(unittest.TestCase):
 
     def test_selection_explicite_sans_rotation_ni_divulgation(self):
         with mock.patch.dict("os.environ", {"GEMINI_API_KEY": "secret-un",
-                                             "GEMINI_API_KEY_COMPTE_2": "secret-deux"}, clear=True):
+                                             "GEMINI_API_KEY_PROJET_B": "secret-deux"}, clear=True):
             result = self.check("profil-02")
         self.assertEqual("profils_declares_coherents", result["statut"])
         self.assertTrue(result["selection_explicitement_coherente"])
@@ -62,6 +62,12 @@ class ProfilsGeminiTests(unittest.TestCase):
         self.assertTrue(all(r["cle_disponible"] for r in result["profils"]))
         for private in ("secret-un", "secret-deux", "projet-prive", str(self.root), "GEMINI_API_KEY"):
             self.assertNotIn(private, json.dumps(result))
+
+    def test_disponibilite_cle_du_profil_ne_reprend_pas_variable_du_premier(self):
+        with mock.patch.dict("os.environ", {"GEMINI_API_KEY": "secret-un"}, clear=True):
+            result = self.check("profil-02")
+        self.assertTrue(result["profils"][0]["cle_disponible"])
+        self.assertFalse(result["profils"][1]["cle_disponible"])
 
     def test_meme_projet_ne_cree_pas_un_quota_par_cle(self):
         self.records[1]["projet_ref"] = self.records[0]["projet_ref"]

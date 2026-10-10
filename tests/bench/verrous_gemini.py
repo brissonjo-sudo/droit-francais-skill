@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import contextlib
 import json
+import hashlib
 import os
 import socket
 import sys
@@ -54,7 +55,7 @@ def verrou(racine: Path, path: Path, *, attempt_id: str = "liaison"):
                 path.unlink()
 
 
-def retirer(racine: Path, path: Path, auteur: str, motif: str) -> None:
+def retirer(racine: Path, path: Path, auteur: str, motif: str, *, preuve_absence_processus: Path | None = None) -> None:
     """PID mort sur ce poste, reçu humain durable ; aucune expiration automatique."""
     if not auteur.strip() or not motif.strip():
         raise ValueError("auteur humain et motif requis")
@@ -63,16 +64,48 @@ def retirer(racine: Path, path: Path, auteur: str, motif: str) -> None:
         raise ValueError("verrou Gemini privé requis")
     with transition(racine):
         raw = path.read_bytes()
-        info = json.loads(raw)
-        if (info.get("schema") != 2 or info.get("hote") != socket.gethostname()
+        if not raw:
+            if preuve_absence_processus is None:
+                raise ValueError("verrou vide : preuve humaine d'absence de processus requise")
+            from bench.quotas_gemini import chemin_local
+            proof = chemin_local(preuve_absence_processus).read_bytes()
+            if not proof:
+                raise ValueError("preuve humaine vide")
+            info = {"verrou_vide": True, "preuve_absence_processus_sha256": hashlib.sha256(proof).hexdigest()}
+        else:
+            info = json.loads(raw)
+        if raw and (info.get("schema") != 2 or info.get("hote") != socket.gethostname()
                 or type(info.get("pid")) is not int or info["pid"] <= 0
                 or not isinstance(info.get("nonce"), str) or not info["nonce"]
                 or etude_v2.processus_actif(info["pid"])):
             raise ValueError("processus actif, distant ou verrou non qualifié : aucun retrait")
         Journal(racine / "recuperations-gemini.jsonl").ajouter({"schema": 2,
             "verrou": info, "type_verrou": path.name, "auteur_humain": auteur,
+            "verrou_sha256": hashlib.sha256(raw).hexdigest(),
             "motif": motif, "horodatage": etude_v2.maintenant()})
         path.unlink()
+
+
+def lever_arret(budget, auteur: str, motif: str) -> None:
+    """Reprise explicite après examen : journaliser avant retrait, aucun reset."""
+    if not auteur.strip() or not motif.strip():
+        raise ValueError("auteur humain et motif requis")
+    with transition(budget.racine):
+        for lock in (budget.dossier / "requete.lock", budget.racine / "profils.lock", budget.racine / "collection.lock"):
+            if lock.exists():
+                raise ValueError("requête, collecte ou liaison active/ambiguë : récupérer son verrou avant reprise")
+        raw = budget.arret.read_bytes()
+        info = json.loads(raw)
+        if (not isinstance(info, dict) or info.get("schema") != 2 or info.get("hote") != socket.gethostname()
+                or type(info.get("pid")) is not int or info["pid"] <= 0
+                or type(info.get("statut")) is not int or info["statut"] not in (0, 429)
+                or etude_v2.processus_actif(info["pid"])):
+            raise ValueError("créateur actif ou arrêt ancien/ambigu : examen requis")
+        Journal(budget.racine / "reprises-gemini.jsonl").ajouter({"schema": 2,
+            "numero_projet": budget.projet, "modele": budget.modele,
+            "arret_sha256": hashlib.sha256(raw).hexdigest(), "arret": info,
+            "auteur_humain": auteur, "motif": motif, "horodatage": etude_v2.maintenant()})
+        budget.arret.unlink()
 
 
 def main(argv=None) -> int:
@@ -81,16 +114,22 @@ def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--registre", type=Path, required=True)
     parser.add_argument("--profil", required=True)
-    parser.add_argument("--type", choices=("requete", "profils"), required=True)
+    parser.add_argument("--operation", choices=("retirer-verrou", "lever-arret"), default="retirer-verrou")
+    parser.add_argument("--type", choices=("requete", "profils"), default="requete")
+    parser.add_argument("--preuve-absence-processus", type=Path)
     parser.add_argument("--auteur", required=True)
     parser.add_argument("--motif", required=True)
     args = parser.parse_args(argv)
     try:
-        row = profils_gemini.charger(args.registre, args.profil)["selection"]
+        row = profils_gemini.identite_maintenance(args.registre, args.profil)
         budget = Budget(row["numero"], row["declare"]["modele"], row["declare"]["limites"])
         path = budget.dossier / "requete.lock" if args.type == "requete" else budget.racine / "profils.lock"
-        retirer(budget.racine, path, args.auteur, args.motif)
-        print("Verrou abandonné retiré ; budgets, résultats et arrêt de quota conservés")
+        if args.operation == "lever-arret":
+            lever_arret(budget, args.auteur, args.motif)
+            print("Arrêt levé explicitement ; budgets et résultats conservés, aucune requête")
+        else:
+            retirer(budget.racine, path, args.auteur, args.motif, preuve_absence_processus=args.preuve_absence_processus)
+            print("Verrou abandonné retiré ; budgets, résultats et arrêt de quota conservés")
         return 0
     except (ValueError, OSError, KeyError):
         print("Retrait refusé : profil, preuve ou processus à examiner")

@@ -22,7 +22,7 @@ on:
   workflow_dispatch:
     inputs:
       controle:
-        description: "Sonde MCP ou lecture du catalogue Gemini (aucune génération)"
+        description: "Sonde MCP ou contrôle de préparation Gemini sans accès API"
         type: choice
         required: false
         default: "mcp"

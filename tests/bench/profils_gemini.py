@@ -8,7 +8,7 @@ import re
 from pathlib import Path
 
 from bench import quotas_gemini
-from bench.identite_gemini import numero_projet
+from bench.identite_gemini import numero_projet, modele_exact
 
 EXEMPLE = Path(__file__).resolve().parents[2] / "tests/campaign/profils-gemini.example.json"
 
@@ -21,6 +21,39 @@ def initialiser(sortie: Path) -> None:
             handle.write(EXEMPLE.read_text(encoding="utf-8"))
     except OSError:
         raise ValueError("registre existant ou création impossible ; aucun chemin affiché") from None
+
+
+def identite_maintenance(registre: Path, profil: str) -> dict:
+    """Identifier un ancien état sans fraîcheur de quota ni accès à une clé.
+
+    Cette lecture ne permet jamais de préparer un client ou d'envoyer un appel.
+    """
+    try:
+        path = quotas_gemini.chemin_local(registre)
+        registry = json.loads(path.read_bytes())
+        if set(registry) != {"schema", "profils"} or registry["schema"] != 2 or not isinstance(registry["profils"], list):
+            raise ValueError()
+        rows = [r for r in registry["profils"] if r.get("profil") == profil]
+        if len(rows) != 1:
+            raise ValueError()
+        row = rows[0]
+        if (set(row) != {"profil", "cle_env", "releve", "qualification"}
+                or not re.fullmatch(r"profil-[0-9]{2}", row["profil"])
+                or not re.fullmatch(r"GEMINI_API_KEY(?:_[A-Z0-9_]{1,60})?", row["cle_env"])):
+            raise ValueError()
+        data = json.loads(quotas_gemini.chemin_local(path.parent / row["releve"]).read_bytes())
+        if (set(data) != quotas_gemini.CHAMPS or data["schema"] != 2
+                or data["auth"] != "cle_api_gratuite" or data["niveau"] != "free"
+                or data["cle_projet_confirmee"] is not True
+                or not isinstance(data["rattachement_valide_par"], str) or not data["rattachement_valide_par"].strip()
+                or set(data["limites"]) != {"rpm", "tpm_entree", "rpd"}
+                or any(type(v) is not int or v <= 0 for v in data["limites"].values())
+                or dt.datetime.fromisoformat(data["observe_le"]).utcoffset() is None):
+            raise ValueError()
+        modele_exact(data["modele"])
+        return {"numero": numero_projet(data["numero_projet"]), "declare": data, "row": row}
+    except (ValueError, TypeError, KeyError, AttributeError, OSError):
+        raise ValueError("identité privée de maintenance incohérente ; aucune opération") from None
 
 
 def charger(registre: Path, profil: str | None = None, *, maintenant: dt.datetime | None = None) -> dict:
@@ -57,7 +90,7 @@ def charger(registre: Path, profil: str | None = None, *, maintenant: dt.datetim
             declared = json.loads(lire(evidence))
             piece = quotas_gemini.chemin_local(evidence.parent / declared["preuve"]["fichier"])
             check = quotas_gemini.verifier_donnees(declared, evidence,
-                maintenant=maintenant, preuve_octets=lire(piece))
+                maintenant=maintenant, preuve_octets=lire(piece), cle_env=row["cle_env"])
             if check["problemes_releve"]:
                 raise ValueError("relevé incomplet, périmé ou preuve invalide")
             number = numero_projet(declared["numero_projet"])

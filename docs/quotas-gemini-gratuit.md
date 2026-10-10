@@ -37,11 +37,16 @@ Ne transmettre aucune clé dans le chat, les arguments CLI, les gels ou les
 fichiers suivis. Un registre cohérent conserve `collecte_autorisee=false`.
 
 Le numéro Google normalisé identifie le budget. Une liaison privée de
-l'empreinte SHA-256 de la clé au numéro bloque la redéclaration de cette clé
+l'empreinte HMAC-SHA-256 de la clé au numéro bloque la redéclaration de cette clé
 sous un autre projet. Deux clés déclarées au même numéro/modèle partagent
 un compteur, même dans des worktrees différents. Le rattachement repose
 toujours sur l'attestation du titulaire : cette liaison locale n'est pas
 une preuve cryptographique Google.
+
+Le sel privé de 32 octets et les liaisons sont créés en mode 0600 sous POSIX.
+Sous Windows, la protection repose aussi sur les ACL du dossier utilisateur.
+Une liaison ancienne non salée ou un sel manquant bloque pour migration
+humaine ; les anciens fichiers et plafonds ne sont ni effacés ni recréés.
 
 Le [cadre Google APIs](https://developers.google.com/terms#section_2_using_our_apis)
 doit être respecté. Plusieurs profils ne donnent aucune autorisation de
@@ -51,8 +56,13 @@ ou bascule après 429 n'est implémentée.
 ## État canonique et deux unités distinctes
 
 Le lanceur utilise une seule racine utilisateur, commune aux worktrees :
-`%LOCALAPPDATA%/droit-francais/bench-v2` sous Windows et le dossier utilisateur
-XDG state sous Linux. Il n'existe plus d'option CLI `--budget-state`.
+le dossier LocalAppData obtenu auprès de Windows et `.local/state` sous le
+répertoire utilisateur obtenu auprès de l'OS sous Linux. Modifier HOME,
+XDG_STATE_HOME ou LOCALAPPDATA ne choisit aucun autre compteur. Une ancre
+persistante enregistre la racine ; un ancien état sans ancre exige un
+rattachement humain audité, sans reset. Avant une migration, conserver et
+inventorier les anciens compteurs, arrêts et liaisons ; ne pas substituer un
+répertoire vide. Il n'existe plus d'option CLI `--budget-state`.
 Les preuves privées restent dans `tests/bench/runs`, ignoré par Git.
 
 Le lanceur réserve une tentative de réponse dans le plafond commun de
@@ -81,17 +91,36 @@ d'anciens états ou de données ambiguës nécessite un examen explicite.
 Après constat d'un PID mort sur le même poste, le retrait humain dispose
 d'une commande limitée à l'état canonique ; elle journalise auteur et motif.
 L'acquisition, le retrait et les récupérateurs concurrents utilisent le même
-verrou OS court. Un processus actif ou une preuve de verrou ambiguë bloque
+verrou OS court, avec attente bornée à deux secondes en cas de contention.
+Un processus actif ou une preuve de verrou ambiguë bloque
 le retrait. Par exemple, pour un verrou de requête abandonné :
 
 ```powershell
-python tests/bench/verrous_gemini.py --registre tests/bench/runs/profils.json --profil profil-01 --type requete --auteur "Responsable" --motif "Processus arrêté après interruption contrôlée"
+python tests/bench/verrous_gemini.py --registre tests/bench/runs/gemini/profils.json --profil profil-01 --type requete --auteur "Responsable" --motif "Processus arrêté après interruption contrôlée"
 ```
 
 Le type `profils` traite seulement le verrou des liaisons privées. Cette
 commande conserve les budgets, les réponses et l'arrêt après HTTP 429.
 Un retrait manuel de fichier hors de cette commande contourne l'exclusion
 et ne constitue pas une reprise prise en charge.
+
+La maintenance identifie le numéro de projet et le modèle dans le relevé
+ancien, sans exiger un quota observé dans les dernières 24 heures. Elle ne
+charge aucune clé et n'autorise aucune génération : celle-ci conserve tous
+les contrôles de fraîcheur. Un verrou vide laissé avant écriture exige une
+preuve humaine locale d'absence de processus, passée avec
+`--preuve-absence-processus` ; son empreinte est auditée avant le retrait.
+
+Après examen d'un arrêt 429 ou d'un dépassement, la levée explicite exige
+auteur, motif, absence de verrou actif/ambigu et créateur de l'arrêt mort sur
+ce poste. Elle journalise l'empreinte et le contenu de l'arrêt avant retrait :
+
+```powershell
+python tests/bench/verrous_gemini.py --operation lever-arret --registre tests/bench/runs/gemini/profils.json --profil profil-01 --auteur "Responsable" --motif "Usages et quotas du projet examinés avant reprise"
+```
+
+Les réservations HTTP et les 100 tentatives quotidiennes restent consommées.
+Un ancien arrêt sans métadonnées de processus bloque pour examen et migration.
 
 ## Transport, délai et confidentialité
 
@@ -105,6 +134,13 @@ bornée à deux millions d'octets. Après délai/annulation, aucun nouvel envoi
 n'est lancé. La fermeture locale bénéficie de cinq secondes au maximum,
 sans nouveau modèle ni outil. Une requête déjà reçue par Google peut
 continuer côté fournisseur ; le lanceur ne prétend pas l'annuler à distance.
+Python **3.11 ou supérieur** est requis. L'annulation du SDK stdio a été
+exercée localement avec un vrai processus Windows et un transport modèle
+simulé : le processus est terminé et sa réservation reste acquise.
+
+Le transport ignore les variables de proxy et de CA, avec `trust_env=False`.
+Il utilise sa chaîne de certificats vérifiée ; un proxy imposé ou une CA
+privée exige une adaptation explicite puis une nouvelle qualification.
 
 Chaque génération est précédée du comptage de la requête complète,
 instructions, schémas et historique compris. La réservation d'entrée est
@@ -112,12 +148,22 @@ majorée de 10 % puis de 32 jetons. L'usage réel absent ou excédentaire arrêt
 le budget, sans remboursement. Les thoughtSignature sont conservées dans
 l'historique nécessaire ; leurs valeurs et les blocs de raisonnement ne
 sont pas journalisés. Les erreurs ont des catégories fermées et assainies.
+Le statut HTTP numérique est conservé sans corps d'erreur. MAX_TOKENS est
+classé `reponse_tronquee`, SAFETY et autres blocages `reponse_bloquee`, avec
+finish_reason. Un dépassement conserve l'usage excédentaire et l'attempt_id.
+La marge n'est pas une garantie de consommation ; seul le pilote peut
+qualifier sa pertinence avec signatures et tours successifs.
 
 Le sous-processus MCP reçoit une liste blanche OS/Python et les seuls
 identifiants sources Légifrance/Judilibre prévus. Les clés de modèles,
 tokens GitHub, OAuth Claude, Auth0 et MCP_ACCESS_TOKEN sont exclus. Le garde
 bench `LEGIFRANCE_NO_DOTENV=1` empêche leur réintroduction par les `.env` du
 checkout ; les lancements habituels du serveur conservent leur comportement.
+Les identifiants sources doivent donc être exportés dans l'environnement du
+lanceur : LEGIFRANCE_CLIENT_ID/LEGIFRANCE_CLIENT_SECRET et, selon la source,
+JUDILIBRE_KEY_ID ou PISTE_KEY_ID. Les `.env` ne les fournissent pas au bench.
+Le filtrage recherche les secrets connus du harnais et des sources ; une
+variable TOKEN sans rapport avec ces intégrations ne bloque pas une réponse.
 
 Les profils et preuves sont capturés puis validés sur les mêmes octets.
 Une modification/péremption pendant le cas arrête avant la requête suivante.
@@ -135,6 +181,20 @@ python -m pip install --require-hashes -r requirements-bench.txt
 python tests/bench/catalogue_gemini.py --registre tests/bench/runs/gemini/profils.json --profil profil-01 --sortie tests/bench/runs/gemini/catalogue.json
 python tests/bench/mesure_tokens_gemini.py --registre tests/bench/runs/gemini/profils.json --profil profil-01 --sortie tests/bench/runs/gemini/tokens.json
 ~~~
+
+Les roues primaires du SDK MCP et de PyJWT sont aussi vérifiées :
+
+```powershell
+python -m pip install --require-hashes --no-deps -r requirements-mcp-wheels.txt
+python -m pip install -r requirements-mcp.txt
+python -m pip check
+```
+
+Ce second fichier d'empreintes ne verrouille pas les dépendances transitives
+du SDK. Elles sont incluses dans son audit/SBOM et dans le runtime figé.
+Le SDK mcp 2.2 utilise httpx2 ; le transport Gemini utilise httpx 0.28.1.
+La coexistence et le maintien des versions primaires après la seconde
+installation ont été vérifiés localement. La CI les contrôle également.
 
 Ces commandes envoient réellement une requête Google : les lancer seulement
 après rattachement et quotas confirmés. Les sondes utilisent le même vrai
@@ -162,6 +222,30 @@ preuves durables concordantes, le candidat et le runtime identiques ; il
 n'accepte ni un simple booléen de configuration ni un résultat Gemini CLI.
 Ce reçu technique ne valide aucun corrigé et n'autorise pas seul le pilote.
 
+Le délai de qualification reprend `timeout_s` du fichier de configuration.
+Les sondes finales respectent la même échéance. Une sonde indisponible
+conserve le résultat, son engagement et sa clôture avec catégorie `delai` ;
+elle ne prouve pas une dérive et n'invalide pas la phase. Une empreinte
+effectivement différente après exposition invalide la phase technique.
+Le paramètre thinkingLevel de ce transport GenerateContent est réservé aux
+modèles Gemini 3. Les modèles 2.5 sont refusés avant MCP/HTTP : la
+[documentation GenerateContent](https://ai.google.dev/gemini-api/docs/generate-content/thinking)
+décrit thinkingBudget pour cette famille. Aucune conversion implicite du
+réglage n'est faite ; une configuration dédiée exigerait sa qualification.
+
+Après deux pannes transitoires clôturées d'un bras, une requalification
+humaine explicite crée une nouvelle série technique avec nonce daté audité :
+
+```powershell
+python tests/bench/qualification_gemini.py --registre tests/bench/runs/gemini/profils.json --profil profil-01 --config tests/bench/runs/campagne-config.json --sortie tests/bench/runs/gemini/qualification-suivante.json --requalifier-depuis tests/bench/runs/gemini/qualification.json --auteur "Responsable" --motif "Deux pannes transitoires examinées"
+```
+
+L'ancien reçu reste conservé ; le nouveau exige quatre nouveaux bras et une
+nouvelle revue. Cette opération ne lève aucun arrêt ni ne rembourse aucun
+quota. Les phases invalidées après exposition restent invalidées. Chaque
+raw est engagé par empreinte durable avant son écriture ; le gate exige
+engagement, réservation et clôture concordants, avec phase/identité exactes.
+
 Le protocole v2 prévoit **358 réponses Gemini** : quatre qualifications,
 deux préflights, 64 réponses de pilote et 288 principales. Cela représente
 **au moins 716 requêtes HTTP** avec tokenizer par tour. Le prototype
@@ -171,6 +255,11 @@ et erreurs allongent ce minimum. Le quota RPD effectif est 80 % du quota
 observé, avec l'arrondi décrit ci-dessus ; le calendrier se calcule sur les
 valeurs actives. Le plafond UTC de 100 réponses reste indépendant du RPD
 Pacifique. Aucune durée finale n'est promise avant le pilote.
+Dans ce calendrier, countTokens consomme par prudence une unité RPM/RPD.
+Sans outil supplémentaire, deux requêtes sont donc réservées pour chaque
+réponse : un RPD effectif de N permet au plus floor(N/2) réponses quotidiennes,
+avant sondes et reprises. Les 716 requêtes sont un minimum local conservateur,
+pas une affirmation du comptage fournisseur de countTokens.
 
 ## GitHub et preuves historiques
 

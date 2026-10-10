@@ -7,15 +7,16 @@ import hashlib
 import json
 import math
 import os
+import socket
 from functools import lru_cache
 from importlib import metadata, resources
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
-from bench.contexte import etat_canonique
+from bench.contexte import etat_canonique, assurer_ancre
 from bench.identite_gemini import modele_exact, numero_projet
 from bench.journal import Journal
-from bench.verrous_gemini import verrou, ErreurVerrou
+from bench.verrous_gemini import verrou, ErreurVerrou, transition
 
 TZDATA_VERSION = "2026.5"
 
@@ -63,6 +64,8 @@ class Budget:
         identity = hashlib.sha256(f"{self.projet}\n{modele}".encode()).hexdigest()
         # _state est une injection réservée aux tests, jamais une option CLI.
         self.racine = (_state if _state is not None else etat_canonique()).resolve()
+        with transition(self.racine):
+            assurer_ancre(self.racine)
         self.dossier = self.racine / "gemini" / identity
         self.journal = self.dossier / "requetes.jsonl"
         self.arret = self.dossier / "arret.json"
@@ -103,13 +106,18 @@ class Budget:
             raise ArretBudget("projet/modèle arrêté : reprise explicite requise",
                               "quota_429" if status == 429 else "budget")
 
-    def bloquer(self, statut: int) -> None:
+    def bloquer(self, statut: int, *, attempt_id: str = "sonde") -> None:
         """Persistant après 429 ou dépassement mesuré ; aucune autre clé ne l'efface."""
-        if not self.arret.exists():
+        self.dossier.mkdir(parents=True, exist_ok=True)
+        try:
             with self.arret.open("x", encoding="utf-8", newline="\n") as handle:
-                json.dump({"statut": statut, "reprise": "examen_explicite_requis"}, handle)
+                json.dump({"schema": 2, "statut": statut, "reprise": "examen_explicite_requis",
+                           "pid": os.getpid(), "hote": socket.gethostname(),
+                           "cree_le": self.horloge().isoformat(), "attempt_id": attempt_id}, handle)
                 handle.flush()
                 os.fsync(handle.fileno())
+        except FileExistsError:
+            pass
 
     @contextlib.contextmanager
     def tentative(self, tokens_entree: int, kind: str, *, attempt_id: str = "sonde"):
@@ -139,13 +147,13 @@ class Budget:
         except ErreurVerrou as exc:
             raise ArretBudget("requête concurrente ou verrou interrompu : examen explicite requis") from exc
 
-    def usage(self, reservation: dt.datetime, reserve: int, mesure: int) -> None:
+    def usage(self, reservation: dt.datetime, reserve: int, mesure: int, *, attempt_id: str = "sonde") -> None:
         """Ne jamais rembourser ; inscrire le surplus et arrêter avant un nouvel appel."""
         if type(mesure) is not int or mesure < 0:
-            self.bloquer(0)
+            self.bloquer(0, attempt_id=attempt_id)
             raise ArretBudget("usage d'entrée absent ou invalide")
         if mesure > reserve:
             # Prendre la date la plus récente si la réponse franchit minuit.
-            self._ajouter(self.horloge(), 0, mesure - reserve, "surplus")
-            self.bloquer(0)
+            self._ajouter(self.horloge(), 0, mesure - reserve, "surplus", attempt_id)
+            self.bloquer(0, attempt_id=attempt_id)
             raise ArretBudget("usage supérieur à la réservation : arrêt pour examen")

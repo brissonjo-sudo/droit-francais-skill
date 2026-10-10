@@ -28,6 +28,12 @@ def verifier_secrets(client, valeur) -> None:
         raise ArretBudget("secret connu : transfert ou journalisation interdits", "isolation") from None
 
 
+def verifier_thinking(modele: str) -> None:
+    """GenerateContent : thinkingLevel est réservé à Gemini 3 dans ce harnais."""
+    if not modele.startswith("gemini-3"):
+        raise ArretBudget("modèle incompatible avec thinkingLevel ; configuration dédiée à qualifier", "profil")
+
+
 class Client:
     """Profil fixe ; chaque tokenizer et génération est réservé et compté."""
 
@@ -58,7 +64,7 @@ class Client:
                 tokens = await self.transport.compter(self._cle, self.modele, charge, echeance=echeance)
             except gemini_http.ErreurGemini as exc:
                 if exc.statut == 429:
-                    self.budget.bloquer(429)
+                    self.budget.bloquer(429, attempt_id=self.contexte.attempt_id)
                 raise
         reserve = math.ceil(tokens * 1.10) + 32
         self.avant(echeance)
@@ -68,11 +74,12 @@ class Client:
                 response = await self.transport.appeler(self._cle, self.modele, "generateContent", charge, echeance=echeance)
             except gemini_http.ErreurGemini as exc:
                 if exc.statut == 429:
-                    self.budget.bloquer(429)
+                    self.budget.bloquer(429, attempt_id=self.contexte.attempt_id)
                 raise
             usage = response.get("usageMetadata", {})
             try:
-                self.budget.usage(at, reserve, usage.get("promptTokenCount") if isinstance(usage, dict) else None)
+                self.budget.usage(at, reserve, usage.get("promptTokenCount") if isinstance(usage, dict) else None,
+                                  attempt_id=self.contexte.attempt_id)
             except ArretBudget:
                 response["budget_arret"] = True
         return response, tokens
@@ -89,6 +96,7 @@ def preparer_client(registre: Path, profil: str) -> Client:
     checked = profils_gemini.charger(registre, profil)
     selected = checked["selection"]
     declared = selected["declare"]
+    verifier_thinking(declared["modele"])
     budget = Budget(selected["numero"], declared["modele"], declared["limites"])
     budget.verifier_arret()
     key = os.environ.get(selected["row"]["cle_env"], "")
@@ -117,6 +125,7 @@ async def boucle(client: Client, *, prompt: str, bras: str, plafond: int,
     from mcp_server.catalog import EXPECTED_TOOLS
     if bras not in ("A", "B", "C", "D") or effort not in ("low", "medium", "high"):
         raise ValueError("bras ou thinking explicite invalide")
+    verifier_thinking(client.modele)
     with_tools = bras in ("C", "D")
     names = {t["name"] for t in outils}
     if (with_tools and (names != EXPECTED_TOOLS or len(outils) != len(EXPECTED_TOOLS) or appeler_outil is None)
@@ -148,12 +157,16 @@ async def boucle(client: Client, *, prompt: str, bras: str, plafond: int,
             candidate = candidates[0]
             if not isinstance(candidate, dict):
                 raise ValueError("candidat invalide")
+            finish = candidate.get("finishReason")
+            trace.usage["finish_reason"] = finish if finish in {"STOP", "MAX_TOKENS", "SAFETY", "RECITATION", "BLOCKLIST", "PROHIBITED_CONTENT", "SPII"} else "AUTRE"
             content = candidate.get("content", {})
             if not isinstance(content, dict):
                 raise ValueError("contenu Gemini invalide")
             parts = content.get("parts", [])
             if (not isinstance(content, dict) or content.get("role") != "model"
                     or not isinstance(parts, list) or not parts or any(not isinstance(p, dict) for p in parts)):
+                if finish and finish != "STOP":
+                    raise ArretBudget("réponse bloquée ou tronquée", "reponse_tronquee" if finish == "MAX_TOKENS" else "reponse_bloquee")
                 raise ValueError("contenu Gemini invalide")
             text = "".join(p["text"] for p in parts if isinstance(p.get("text"), str) and not p.get("thought"))
             calls = [p["functionCall"] for p in parts if "functionCall" in p]
@@ -163,17 +176,19 @@ async def boucle(client: Client, *, prompt: str, bras: str, plafond: int,
                            "tokens_countTokens": counted, "usage": response.get("usageMetadata", {}),
                            "appels": calls, "texte": text})
             trace.usage = {"requêtes_HTTP": client.requetes, "tours": events,
+                           "finish_reason": trace.usage.get("finish_reason"),
                            "catalogue_sha256": hashlib.sha256(json.dumps(outils, sort_keys=True).encode()).hexdigest()}
             if response.get("budget_arret"):
                 raise ArretBudget("budget arrêté après réponse", "budget")
             if trace.modele != client.modele:
                 raise ArretBudget("modèle effectif absent ou différent : arrêt sans repli", "modele")
-            if candidate.get("finishReason") != "STOP":
-                raise ValueError("réponse bloquée ou tronquée")
+            if finish != "STOP":
+                raise ArretBudget("réponse bloquée ou tronquée", "reponse_tronquee" if finish == "MAX_TOKENS" else "reponse_bloquee")
             if not calls:
                 if not text:
                     raise ValueError("réponse visible absente")
                 execution = Execution(trace, json.dumps(events, ensure_ascii=False), 0)
+                execution.statut_http = 200
                 _classer(execution, bras)
                 if execution.statut != "ok":
                     execution.categorie_infra = "transport"
@@ -210,8 +225,10 @@ async def boucle(client: Client, *, prompt: str, bras: str, plafond: int,
         # Aucun message d'exception provenant du serveur ou du transport.
         trace.is_error = True
         categorie = getattr(exc, "categorie", "delai" if isinstance(exc, (TimeoutError, asyncio.CancelledError)) else "outil")
-        return Execution(trace, json.dumps(events, ensure_ascii=False), 2, statut="infra_error",
-                         motif_infra="arrêt REST ; examen requis", categorie_infra=categorie)
+        result = Execution(trace, json.dumps(events, ensure_ascii=False), 2, statut="infra_error",
+                           motif_infra="arrêt REST ; examen requis", categorie_infra=categorie)
+        result.statut_http = getattr(exc, "statut", None) or (200 if trace.num_turns else None)
+        return result
     finally:
         trace.duration_ms = int((time.monotonic() - start) * 1000)
 
@@ -230,6 +247,7 @@ async def executer_mcp(client: Client, *, prompt: str, bras: str, plafond: int,
             raise ArretBudget("contexte du lanceur absent ou incohérent", "profil")
         if options.effort not in ("low", "medium", "high"):
             raise ArretBudget("effort REST explicite requis", "profil")
+        verifier_thinking(client.modele)
         client.contexte = ctx
         client.avant(ctx.echeance_monotone)
         from bench.etude_v2 import verifier_contexte
@@ -244,6 +262,7 @@ async def executer_mcp(client: Client, *, prompt: str, bras: str, plafond: int,
         result = Execution(Trace(is_error=True), "", 2, statut="infra_error",
                          motif_infra="initialisation ou fermeture REST/MCP impossible ; examen requis",
                          categorie_infra=categorie)
+        result.statut_http = getattr(exc, "statut", None)
     finally:
         try:
             fin_nettoyage = getattr(client, "fin_nettoyage", None)

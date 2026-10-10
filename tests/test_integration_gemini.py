@@ -5,12 +5,14 @@ import subprocess
 import sys
 import tempfile
 import unittest
+import time
 from pathlib import Path
 from unittest import mock
 import httpx
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from bench import agents, gemini_http, gemini_rest
+from bench import etude_v2
 from bench.budget_gemini import Budget
 from mcp_server.catalog import EXPECTED_TOOLS
 from _gemini_test_helpers import reserver
@@ -58,3 +60,35 @@ class IntegrationGeminiTests(unittest.IsolatedAsyncioTestCase):
                 env=env, cwd=root, capture_output=True, encoding="utf-8", timeout=10)
             self.assertEqual(0, result.returncode, result.stderr)
             self.assertNotIn("sentinelle", result.stdout+result.stderr)
+
+    async def test_annulation_stdio_reel_termine_processus_et_conserve_reservation(self):
+        import mcp.client.stdio as stdio
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            budget = Budget("123456789", "gemini-3.8-flash", {"rpm": 100, "rpd": 100, "tpm_entree": 100000}, _state=root)
+            started = asyncio.Event()
+            async def tokenizer(*args, **kwargs):
+                started.set()
+                await asyncio.Event().wait()
+            transport = mock.Mock(compter=tokenizer, appeler=mock.AsyncMock(), fermer=mock.AsyncMock())
+            client = gemini_rest.Client("secret-test", "gemini-3.8-flash", budget, transport=transport)
+            ctx = reserver(root, bras="C")
+            options = agents.Options(mcp_local=True, interpreteur_python=sys.executable, effort="high", contexte=ctx)
+            original, processes = stdio._create_platform_compatible_process, []
+            async def spawn(*args, **kwargs):
+                process = await original(*args, **kwargs)
+                processes.append(process)
+                return process
+            with mock.patch.object(stdio, "_create_platform_compatible_process", new=spawn):
+                task = asyncio.create_task(gemini_rest.executer_mcp(client, prompt="TEST", bras="C", plafond=1, options=options))
+                await asyncio.wait_for(started.wait(), timeout=10)
+                start = time.monotonic()
+                task.cancel()
+                result = await asyncio.wait_for(task, timeout=6)
+            self.assertLess(time.monotonic()-start, 6)
+            self.assertEqual("delai", result.categorie_infra)
+            self.assertEqual(1, len(processes))
+            self.assertFalse(etude_v2.processus_actif(processes[0].pid))
+            transport.appeler.assert_not_called()
+            transport.fermer.assert_awaited_once()
+            self.assertEqual(1, sum(r["requetes"] for r in budget._lire(budget.horloge())))

@@ -7,9 +7,11 @@ import os
 
 def valeurs_secretes(supplement: str | None = None) -> tuple[str, ...]:
     """Inclure aussi les identifiants d'accès des API juridiques."""
+    connus = {"LEGIFRANCE_CLIENT_ID", "LEGIFRANCE_CLIENT_SECRET", "JUDILIBRE_KEY_ID", "PISTE_KEY_ID",
+              "CLAUDE_CODE_OAUTH_TOKEN", "OPENAI_API_KEY", "ANTHROPIC_API_KEY", "GOOGLE_API_KEY",
+              "GITHUB_TOKEN", "GH_TOKEN", "MCP_ACCESS_TOKEN", "MCP_TOKEN", "AUTH0_CLIENT_SECRET"}
     values = {v for k, v in os.environ.items() if len(v) >= 8 and (
-        any(m in k.upper() for m in ("TOKEN", "SECRET", "API_KEY"))
-        or k in ("LEGIFRANCE_CLIENT_ID", "JUDILIBRE_KEY_ID", "PISTE_KEY_ID"))}
+        k.upper() in connus or k.upper() == "GEMINI_API_KEY" or k.upper().startswith("GEMINI_API_KEY_"))}
     if isinstance(supplement, str) and len(supplement) >= 8:
         values.add(supplement)
     return tuple(sorted(values, key=len, reverse=True))

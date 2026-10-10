@@ -36,21 +36,23 @@ def initialiser(sortie: Path) -> None:
         handle.write(EXEMPLE.read_text(encoding="utf-8"))
 
 
-def verifier(preuve: Path, *, maintenant: dt.datetime | None = None) -> dict:
+def verifier(preuve: Path, *, maintenant: dt.datetime | None = None, cle_env: str = "GEMINI_API_KEY") -> dict:
     """Contrôler la cohérence déclarée et les octets de preuve, sans authentifier."""
     path = chemin_local(preuve)
     try:
         data = json.loads(path.read_bytes())
     except (ValueError, UnicodeError) as exc:
         raise ValueError("relevé JSON illisible ; son contenu n'est pas affiché") from exc
-    return verifier_donnees(data, path, maintenant=maintenant)
+    return verifier_donnees(data, path, maintenant=maintenant, cle_env=cle_env)
 
 
 def verifier_donnees(data: dict, path: Path, *, maintenant: dt.datetime | None = None,
-                     preuve_octets: bytes | None = None) -> dict:
+                     preuve_octets: bytes | None = None, cle_env: str = "GEMINI_API_KEY") -> dict:
     """Valider les octets déjà capturés ; pas de fenêtre validation/instantané."""
     if not isinstance(data, dict) or set(data) != CHAMPS:
         raise ValueError("structure de relevé invalide ; ne pas inclure de secret")
+    if not isinstance(cle_env, str) or not re.fullmatch(r"GEMINI_API_KEY(?:_[A-Z0-9_]{1,60})?", cle_env):
+        raise ValueError("variable de clé de profil inconnue")
     erreurs = []
     if type(data["schema"]) is not int or data["schema"] != 2:
         erreurs.append("schéma inconnu")
@@ -106,7 +108,7 @@ def verifier_donnees(data: dict, path: Path, *, maintenant: dt.datetime | None =
     # Ne restituer ni projet, clé, chemin privé, pièce brute ou contenu du relevé.
     return {"statut": "releve_declare_coherent" if not erreurs else "releve_incomplet_ou_invalide",
             "controle_hors_reseau": True, "collecte_autorisee": False,
-            "cle_chargee_environnement": bool(os.environ.get("GEMINI_API_KEY")),
+            "cle_chargee_environnement": bool(os.environ.get(cle_env)),
             "problemes_releve": erreurs,
             "reste_a_qualifier": ["authentification gratuite et correspondance de la clé",
                                   "cadence et tokens à chaque requête, reprises internes incluses",
