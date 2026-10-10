@@ -142,3 +142,28 @@ Lors de la reprise, AI Studio a redirigé vers sa page d'erreur /520. Aucun
 quota actif supplémentaire n'a donc été acquis. Le Python local ne dispose
 pas non plus des données ZoneInfo America/Los_Angeles : leur fourniture
 reproductible sous Windows reste nécessaire avant d'implémenter le compteur.
+
+## Clé GitHub Actions
+
+Le titulaire autorise l'utilisation de GEMINI_API_KEY du dépôt GitHub.
+La vérification des métadonnées constate un **secret Actions** de ce nom ;
+aucune variable Actions Gemini n'a été trouvée. L'API GitHub ne restitue
+[jamais la valeur d'un secret](https://docs.github.com/en/rest/actions/secrets#get-a-repository-secret).
+La clé est donc utilisable dans le runner, sans extraction vers le poste.
+
+Le workflow manuel existant Sonde fonctionnelle possède désormais un choix
+gemini-catalogue. Ce choix exécute uniquement un GET du catalogue officiel,
+avec la clé dans l'en-tête x-goog-api-key et une destination fixe HTTPS.
+Il refuse les redirections et les reprises. Aucun prompt, génération, source
+juridique, appel Auth0 ou PISTE n'est envoyé par ce job. La sonde MCP habituelle
+reste le choix par défaut et est exclue pour ce contrôle Gemini.
+
+~~~powershell
+gh workflow run sonde-fonctionnelle.yml --repo brissonjo-sudo/droit-francais-skill --ref codex/adoption-evaluation-20261010 -f controle=gemini-catalogue
+~~~
+
+Seules les métadonnées du catalogue sont archivées pour un jour : noms,
+tailles de contexte et capacité de génération déclarée. Une lecture réussie
+ne prouve ni l'accès à une génération gratuite, ni les quotas actifs,
+ni l'association de cette clé au projet consulté dans AI Studio. Les tailles
+de contexte inputTokenLimit/outputTokenLimit ne sont pas des limites TPM.

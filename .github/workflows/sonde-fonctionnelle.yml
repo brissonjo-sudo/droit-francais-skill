@@ -21,6 +21,14 @@ name: Sonde fonctionnelle
 on:
   workflow_dispatch:
     inputs:
+      controle:
+        description: "Sonde MCP ou lecture du catalogue Gemini (aucune génération)"
+        type: choice
+        required: false
+        default: "mcp"
+        options:
+          - mcp
+          - gemini-catalogue
       url:
         description: "URL complète du endpoint MCP à sonder (sert aussi d'audience du jeton)"
         required: false
@@ -42,6 +50,7 @@ concurrency:
 
 jobs:
   sonde:
+    if: inputs.controle != 'gemini-catalogue'
     runs-on: ubuntu-latest
     # La sonde enchaîne six appels réels vers deux API amont, dont des
     # reprises bornées sur erreur transitoire, et peut tomber sur un réveil
@@ -156,3 +165,27 @@ jobs:
         # MCP_ACCESS_TOKEN vient de l'étape précédente par GITHUB_ENV : la sonde
         # le lit dans l'environnement et refuse de l'accepter en argument.
         run: python tests/check_live_tools.py "${{ inputs.url }}"
+
+  gemini-catalogue:
+    if: inputs.controle == 'gemini-catalogue'
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: "3.12"
+      - name: Lire le catalogue sans génération ni extraction de clé
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python tests/bench/catalogue_gemini.py --sortie tests/bench/runs/catalogue-gemini.json
+      - name: Archiver uniquement les métadonnées assainies
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: catalogue-gemini
+          path: tests/bench/runs/catalogue-gemini.json
+          retention-days: 1
+          if-no-files-found: error
