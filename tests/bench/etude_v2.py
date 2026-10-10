@@ -8,6 +8,7 @@ import os
 import secrets
 import tempfile
 import socket
+import time
 from pathlib import Path
 
 from bench.contexte import IRRECUPERABLES
@@ -58,15 +59,21 @@ def verrou_transition(state: Path):
             guard.write(b"0")
             guard.flush()
         guard.seek(0)
-        try:
-            if os.name == "nt":
-                import msvcrt
-                msvcrt.locking(guard.fileno(), msvcrt.LK_NBLCK, 1)
-            else:
-                import fcntl
-                fcntl.flock(guard.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
-        except OSError as exc:
-            raise ValueError("transition de verrou active ; réessayer explicitement") from exc
+        deadline = time.monotonic() + 2
+        while True:
+            try:
+                if os.name == "nt":
+                    import msvcrt
+                    msvcrt.locking(guard.fileno(), msvcrt.LK_NBLCK, 1)
+                else:
+                    import fcntl
+                    fcntl.flock(guard.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+                break
+            except OSError as exc:
+                remaining = deadline - time.monotonic()
+                if remaining <= 0:
+                    raise ValueError("transition de verrou active après deux secondes ; examen explicite") from exc
+                time.sleep(min(.01, remaining))
         try:
             yield
         finally:
