@@ -6,7 +6,8 @@ import datetime as dt
 import re
 import time
 
-from . import texts
+from . import article_versions, texts
+from .section_diagnostics import interval_detail
 
 # S01 : inventaire officiel du 05/10/2026 = 11 sections + 56 articles.
 # Observation précédente : 40 appels / 50 s ; 67 à cette cadence ≈ 84 s.
@@ -36,10 +37,11 @@ def _date(value) -> str:
         texts._fail("Bornes de structure illisibles : récupération complète refusée.")
 
 
-def _active(node, date, start="dateDebut", end="dateFin"):
+def _active(node, date, start="dateDebut", end="dateFin", *, role="version", path=()):
     lower, upper = _date(node.get(start)), _date(node.get(end))
     if lower >= upper:
-        texts._fail("Intervalle de structure invalide.")
+        texts._fail("Intervalle de structure invalide.",
+                    detail=interval_detail(node, lower, upper, start, end, role, path))
     return lower <= date < upper
 
 
@@ -50,6 +52,8 @@ def retrieve(section_id: str, text_id: str, date: str, parent: dict,
     seen = set()
     calls = []
     pending_articles = []
+    pending_version_checks = []
+    excluded_versions = []
     planned_requests = None
     total_bytes = total_nodes = 0
     started = time.monotonic()
@@ -80,12 +84,13 @@ def retrieve(section_id: str, text_id: str, date: str, parent: dict,
         calls.append({"endpoint": endpoint, "arguments": arguments, "volume": stats})
         return payload
 
-    def parent_context(node):
+    def parent_context(node, path):
         context = node.get("context")
         if not isinstance(context, dict):
             texts._fail("Contexte parent absent de la structure officielle.")
         titles = texts._children(context, "titreTxt")
-        active = [item for item in titles if _active(item, date, "debut", "fin")]
+        active = [item for index, item in enumerate(titles) if _active(
+            item, date, "debut", "fin", role="context", path=path + ("context", "titreTxt", index))]
         if len(active) != 1 or text_id not in (
             active[0].get("id"),
             active[0].get("cid"),
@@ -138,17 +143,18 @@ def retrieve(section_id: str, text_id: str, date: str, parent: dict,
                 texts._metadata(index, date, root=True)["applicable_at_as_of_date"] is not True):
             texts._fail("Sommaire et parent de versions différentes ou non datées.")
         matches = []
-        stack = [(item, True) for item in texts._children(index, "sections")]
+        stack = [(item, True, ("sections", i)) for i, item in enumerate(texts._children(index, "sections"))]
         visited = set()
         while stack:
-            node, path_active = stack.pop()
+            node, path_active, path = stack.pop()
             if id(node) in visited:
                 texts._fail("Sommaire de section dupliqué ou cyclique.")
             visited.add(id(node))
-            active = _active(node, date) and path_active
+            active = _active(node, date, role="contents", path=path) and path_active
             if node.get("id") == section_id:
                 matches.append((node, active))
-            stack.extend((item, active) for item in texts._children(node, "sections"))
+            stack.extend((item, active, path + ("sections", i))
+                         for i, item in enumerate(texts._children(node, "sections")))
         if len(matches) != 1 or not matches[0][1]:
             texts._fail("ID de version demandé absent, ambigu ou non applicable dans le sommaire.")
         node = matches[0][0]
@@ -163,7 +169,7 @@ def retrieve(section_id: str, text_id: str, date: str, parent: dict,
         }
         return cid
 
-    def read_section(cid, expected_id=None, depth=0):
+    def read_section(cid, expected_id=None, depth=0, path=()):
         if depth > texts.MAX_DEPTH:
             texts._limit_fail("depth", depth, texts.MAX_DEPTH, "selected_section")
         payload = call("/consult/getSectionByCid", {"cid": cid})
@@ -173,14 +179,15 @@ def retrieve(section_id: str, text_id: str, date: str, parent: dict,
             # le CID est relu à la source, l'ID de version original reste exigé.
             if depth == 0 and expected_id is None and cid == section_id:
                 resolved = resolve_version_cid()
-                return read_section(resolved, expected_id=section_id)
+                return read_section(resolved, expected_id=section_id, path=path)
             texts._fail(
                 "Liste des versions de section absente ou différente de la demande."
             )
-        candidates = [v for v in versions if _active(v, date)]
+        candidates = [(v, path + ("listSection", i)) for i, v in enumerate(versions)
+                      if _active(v, date, role="version", path=path + ("listSection", i))]
         if len(candidates) != 1:
             texts._fail("Version de section applicable absente ou ambiguë.")
-        node = candidates[0]
+        node, node_path = candidates[0]
         record_id = node.get("id")
         # Le CID, déjà contrôlé, désigne la section demandée ; l'ID de version
         # peut être distinct. Retenir exactement le nom de record XML, sans
@@ -199,7 +206,7 @@ def retrieve(section_id: str, text_id: str, date: str, parent: dict,
         if expected_id is not None and node.get("id") != expected_id:
             texts._fail("Identité de sous-section différente du lien officiel.")
         register(node.get("id"), texts._SECTION_ID)
-        parent_context(node)
+        parent_context(node, node_path)
         converted = {
             **node,
             "title": node.get("titre"),
@@ -211,14 +218,29 @@ def retrieve(section_id: str, text_id: str, date: str, parent: dict,
         }
         # Les liens historiques restent inventoriés ; seuls ceux dont la
         # période couvre la date demandée sont lus, sans substitution d'ID.
-        for link in texts._children(node, "liensArticle"):
-            if not _active(link, date):
+        for index, link in enumerate(texts._children(node, "liensArticle")):
+            link_path = node_path + ("liensArticle", index)
+            lower, upper = _date(link.get("dateDebut")), _date(link.get("dateFin"))
+            if lower > upper:
+                # Différer uniquement un lien potentiellement morte-née. Ne pas
+                # lire son corps avant l'inventaire/admission du plan complet.
+                # L'absence d'état n'est pas une preuve : getArticle doit confirmer.
+                if "etat" in link and link["etat"] != article_versions.MORT_NE:
+                    _active(link, date, role="article_link", path=link_path)
+                identifier = link.get("id")
+                register(identifier, texts._ARTICLE_ID)
+                pending_version_checks.append((node, record_id, link, link_path, lower, upper))
+                continue
+            if link.get("etat") == article_versions.MORT_NE:
+                texts._fail("Version morte-née aux bornes non inversées : confirmation refusée.")
+            if not _active(link, date, role="article_link", path=link_path):
                 continue
             identifier = link.get("id")
             register(identifier, texts._ARTICLE_ID)
-            pending_articles.append((converted, node, record_id, identifier))
-        for link in texts._children(node, "liensSection"):
-            if not _active(link, date):
+            pending_articles.append((converted, node, record_id, identifier, link_path))
+        for index, link in enumerate(texts._children(node, "liensSection")):
+            link_path = node_path + ("liensSection", index)
+            if not _active(link, date, role="section_link", path=link_path):
                 continue
             child_cid = link.get("cid")
             if not isinstance(child_cid, str) or not texts._SECTION_ID.fullmatch(
@@ -229,48 +251,65 @@ def retrieve(section_id: str, text_id: str, date: str, parent: dict,
                 link["id"]
             ):
                 texts._fail("Identifiant de sous-section absent du lien officiel.")
-            child = read_section(child_cid, link.get("id"), depth + 1)
+            child = read_section(child_cid, link.get("id"), depth + 1, path=link_path)
             child["intOrdre"] = link.get("ordre")
             converted["sections"].append(child)
         return converted
 
-    def read_articles():
-        for converted, node, record_id, identifier in pending_articles:
-            article = call("/consult/getArticle", {"id": identifier}).get("article")
-            direct_parent = (
-                (article.get("idTexte"), article.get("cidTexte"))
-                if isinstance(article, dict)
-                else (None, None)
+    def bound_article(node, record_id, identifier, *, strict_parent=False):
+        """Même contrôle d'identité/parent pour contenu actif et version exclue."""
+        article = call("/consult/getArticle", {"id": identifier}).get("article")
+        direct_parent = (
+            (article.get("idTexte"), article.get("cidTexte"))
+            if isinstance(article, dict) else (None, None)
+        )
+        parent_fields_present = any(value not in (None, "") for value in direct_parent)
+        parent_matches = any(value in (text_id, text_id + ".xml") for value in direct_parent)
+        if strict_parent and parent_fields_present:
+            parent_matches = all(
+                value in (text_id, text_id + ".xml")
+                for value in direct_parent if value not in (None, "")
             )
-            parent_fields_present = any(
-                value not in (None, "") for value in direct_parent
-            )
-            parent_matches = any(
-                value in (text_id, text_id + ".xml") for value in direct_parent
-            )
-            public_parents = [
-                value
-                if isinstance(value, str)
-                and re.fullmatch(r"(?:LEGI|JORF)TEXT[0-9]{12}(?:\.xml)?", value)
-                else type(value).__name__
-                for value in direct_parent
-            ]
-            if (
-                not isinstance(article, dict)
-                or article.get("id") != identifier
+        public_parents = [
+            value if isinstance(value, str)
+            and re.fullmatch(r"(?:LEGI|JORF)TEXT[0-9]{12}(?:\.xml)?", value)
+            else type(value).__name__ for value in direct_parent
+        ]
+        diagnostic = (
+            "Article non conforme au lien, au parent ou à la date officielle "
+            f"(objet={isinstance(article, dict)}, "
+            f"id={isinstance(article, dict) and article.get('id') == identifier}, "
+            f"champs_parent_presents={parent_fields_present}, texte_parent={parent_matches}, "
+            f"champs_parent_publics={public_parents}, "
+            f"section_parent={isinstance(article, dict) and article.get('sectionParentId') in (node['id'], record_id)})."
+        )
+        if (not isinstance(article, dict) or article.get("id") != identifier
                 or (parent_fields_present and not parent_matches)
-                or article.get("sectionParentId") not in (node["id"], record_id)
-                or not _active(article, date)
-            ):
-                texts._fail(
-                    "Article non conforme au lien, au parent ou à la date officielle "
-                    f"(objet={isinstance(article, dict)}, "
-                    f"id={isinstance(article, dict) and article.get('id') == identifier}, "
-                    f"champs_parent_presents={parent_fields_present}, texte_parent={parent_matches}, "
-                    f"champs_parent_publics={public_parents}, "
-                    f"section_parent={isinstance(article, dict) and article.get('sectionParentId') in (node['id'], record_id)})."
-                )
-            parent_context(article)
+                or article.get("sectionParentId") not in (node["id"], record_id)):
+            texts._fail(diagnostic)
+        return article, parent_fields_present, diagnostic
+
+    def confirm_excluded_versions():
+        for node, record_id, link, link_path, lower, upper in pending_version_checks:
+            article, _, _ = bound_article(node, record_id, link["id"], strict_parent=True)
+            if not article_versions.confirms_mort_ne(link, article):
+                # Restituer le refus diagnostique initial ; aucune exemption
+                # pour l'absence d'état ou des dates seulement proches.
+                _active(link, date, role="article_link", path=link_path)
+                texts._fail("Version morte-née non confirmée : confirmation refusée.")
+            parent_context(article, link_path + ("article",))
+            excluded_versions.append(article_versions.exclusion_record(
+                link, lower, upper, link_path, node["id"], text_id, date,
+            ))
+
+    def read_articles():
+        for converted, node, record_id, identifier, link_path in pending_articles:
+            article, parent_fields_present, diagnostic = bound_article(node, record_id, identifier)
+            if article.get("etat") == article_versions.MORT_NE:
+                texts._fail("Version morte-née annoncée applicable par un lien : confirmation refusée.")
+            if not _active(article, date, role="article", path=link_path + ("article",)):
+                texts._fail(diagnostic)
+            parent_context(article, link_path + ("article",))
             converted["articles"].append(
                 {
                     **article,
@@ -294,13 +333,17 @@ def retrieve(section_id: str, text_id: str, date: str, parent: dict,
         }
     structure_calls = len(calls)
     section_count = sum(bool(texts._SECTION_ID.fullmatch(identifier)) for identifier in seen)
-    planned_requests = structure_calls + len(pending_articles)
+    planned_requests = structure_calls + len(pending_articles) + len(pending_version_checks)
     if planned_requests > MAX_REQUESTS:
         texts._fail(
             f"Inventaire officiel complet : sections={section_count}, articles={len(pending_articles)}, "
             f"appels_requis={planned_requests}, plafond={MAX_REQUESTS}. Aucun corps partiel lu ou retourné."
         )
+    confirm_excluded_versions()
     read_articles()
+    if excluded_versions:
+        # Les octets de la trace font aussi partie du plafond de restitution.
+        raw["excluded_article_versions"] = excluded_versions
     stats = {}
     texts._bounded(raw, scope="selected_section", stats=stats)
     result = texts._section(raw, text_id, date)
@@ -334,4 +377,7 @@ def retrieve(section_id: str, text_id: str, date: str, parent: dict,
         result["metadata"]["retrieval_plan"]["identity_requests"] = structure_calls - section_count
     if lookup_cid is not None:
         result["metadata"]["requested_cid"] = lookup_cid
+    if excluded_versions:
+        result["metadata"]["excluded_article_versions"] = excluded_versions
+        result["metadata"]["retrieval_plan"]["version_checks"] = len(pending_version_checks)
     return result

@@ -107,15 +107,26 @@ def _metadata(
     malformed = False
     for value in (start, end):
         try:
+            if isinstance(value, bool):
+                raise ValueError("Borne de version booléenne.")
+            if isinstance(value, (int, float)):
+                # PISTE retourne aussi des millisecondes Unix dans les articles
+                # inclus de /consult/code. Calcul UTC indépendant du gmtime
+                # de la plateforme, y compris pour la borne sentinelle 2999.
+                instant = dt.datetime(1970, 1, 1, tzinfo=dt.timezone.utc) + dt.timedelta(
+                    milliseconds=value
+                )
+                parsed.append(instant.date().isoformat())
+                continue
             if not isinstance(value, str):
-                raise ValueError("Borne de version non textuelle.")
+                raise ValueError("Format de borne de version non reconnu.")
             # Accepter une date ISO ou un horodatage ISO, pas un préfixe
             # ressemblant à une date suivi d'un contenu arbitraire.
             if len(value) == 10:
                 parsed.append(dt.date.fromisoformat(value).isoformat())
             else:
                 parsed.append(dt.datetime.fromisoformat(value).date().isoformat())
-        except (TypeError, ValueError):
+        except (TypeError, ValueError, OverflowError):
             parsed.append(None)
             malformed = malformed or value not in (None, "")
     dating = _article_dating(*parsed, date)
@@ -393,10 +404,12 @@ def get_section(
             result["metadata"]["primary_consultation_refused"] = diagnostic
             return result
         except LegifranceError as failure:
+            from .section_diagnostics import combined_detail
+
             raise LegifranceError(
                 f"{limit} Récupération structurée refusée : {failure}",
                 exit_code=5,
-                detail=limit.detail,
+                detail=combined_detail(diagnostic, failure.detail, limit.detail),
             ) from failure
     _validate_text(payload, text_id)
     matches = []
@@ -483,4 +496,11 @@ def get_text(text_id: str, date: str | None = None) -> dict[str, Any]:
     if not result["articles"] and not result["sections"]:
         _fail("Texte sans articles : consultation complète non confirmée.")
     result["text"] = _render(result)
-    return _aggregate(result)
+    result = _aggregate(result)
+    # Observation ciblée, après le calcul : aucun héritage de bornes,
+    # aucune requête supplémentaire et aucun nouveau paramètre MCP.
+    if text_id == "LEGITEXT000005627880" and date == "2026-10-05":
+        from .text_diagnostics import s30_dating_diagnostic
+
+        result["metadata"]["source_dating_diagnostic"] = s30_dating_diagnostic(payload)
+    return result
