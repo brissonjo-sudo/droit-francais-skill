@@ -59,7 +59,11 @@ des commandes, du vault et du corpus historique passent. run_eval.py ne fait
 qu'afficher sa checklist hors ligne ; il n'apporte aucune mesure de réponse
 LLM. La CI distante et la revue de la PR corrective restent distinctes.
 
-## Suivi de la relecture de #118 — 10/10/2026
+## Relevé historique de la relecture de #118 — 10/10/2026
+
+Cette section conserve l'état du suivi au 10/10/2026. Les mentions de preuve
+« current » du tableau se rapportent à cette date, pas à une release future.
+Ce relevé historique ne vaut pas approbation de fusion.
 
 La [relecture de #118](https://github.com/brissonjo-sudo/droit-francais-skill/pull/118#pullrequestreview-5480374724)
 porte sur le commit 0560a7c, avant ce suivi. Son avis est « approuvable »,
@@ -80,8 +84,9 @@ modifié, une colonne/ligne de tableau ou un bloc retiré et une navigation
 altérée. Ils acceptent la prose et les commentaires traduits, et un lien
 vers le même titre traduit. Le contrôle est aussi joué sur les deux README
 réels. Il complète check_links.py, qui contrôle l'existence des cibles locales.
-La CI verte citée dans la relecture concerne 0560a7c ; une CI de ce suivi
-reste à obtenir après publication du commit.
+La CI verte citée dans la relecture du 10/10/2026 concerne 0560a7c. Au
+13/10/2026, le check distant `checks` est également vert sur 728b339a ; cette
+observation ne qualifie pas les commits préparés ensuite ni leur CI future.
 
 check_links.py ignore désormais exactement tests/bench/runs, qui contient
 des artefacts privés non suivis, après calcul du chemin relatif à la racine
@@ -92,6 +97,19 @@ Au 10/10/2026, les huit tests ciblés passent ; la compilation des quatre
 scripts, les contrôles parité, liens (77 fichiers), plugin, affirmations
 et commandes passent localement. Ces preuves statiques ne renouvellent
 ni le smoke d'installation, ni la qualification OAuth, ni une mesure LLM.
+
+### Revue de lecture du 13/10/2026 — tête 728b339a
+
+La [revue de Claude](https://github.com/brissonjo-sudo/droit-francais-skill/pull/118#pullrequestreview-5500512560)
+juge cette tête techniquement saine, sans bloquant propre à la PR, mais pas
+encore prête. OAuth et installation depuis GitHub restent non qualifiés ;
+la parité structurelle ne prouve pas l'équivalence de sens FR/EN. La recette
+de mise à niveau, la relecture humaine du README anglais et la relecture
+finale de distribution restent distinctes des contrôles statiques.
+
+Les deux mentions de suivi précédentes sont désormais datées. Le contrôle
+de parité force sa sortie console en UTF-8 pour Windows. Ces changements
+ne modifient ni la configuration OAuth ni les preuves du smoke du 10/10/2026.
 
 ### Actualiser les branches dépendantes après chaque squash
 
