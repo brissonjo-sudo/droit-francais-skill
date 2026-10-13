@@ -2,4 +2,4 @@
 # Installer d'abord avec --require-hashes --no-deps, puis requirements-mcp.txt.
 # Ce fichier ne constitue pas un verrou transitif complet.
 mcp==2.2.0 --hash=sha256:bde982589473a060ae145e3406e9a5333fe538c97229ba841f5a7f92be004f81
-PyJWT==2.15.0 --hash=sha256:7a3742debf6b879e912dbb9819ceec1594be812452b78c5f2e2dfc56564954f8
+PyJWT==2.15.1 --hash=sha256:42d59d631f7768a1028a64c7ff581a9bf7519804daf91fc5b6c56e30eec5e193

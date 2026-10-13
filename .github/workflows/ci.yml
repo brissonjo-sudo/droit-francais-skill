@@ -31,7 +31,7 @@ jobs:
       - name: Vérifier la cohérence SDK et transport
         run: |
           python -m pip check
-          python -c 'from importlib.metadata import version; assert version("mcp") == "2.2.0"; assert version("PyJWT") == "2.15.0"; assert version("httpx") == "0.28.1"'
+          python -c 'from importlib.metadata import version; assert version("mcp") == "2.2.0"; assert version("PyJWT") == "2.15.1"; assert version("httpx") == "0.28.1"'
 
       - name: Auditer les dépendances et produire le SBOM CycloneDX
         run: |
