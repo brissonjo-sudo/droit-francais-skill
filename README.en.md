@@ -263,7 +263,7 @@ Or, in an interactive session: `/plugin marketplace add
 brissonjo-sudo/droit-francais-skill` followed by `/plugin install
 droit-francais-skill@droit-francais`.
 
-**No workstation prerequisites**: no Python, dependencies or PISTE credentials.
+**No local installation required**: no Python, dependencies or PISTE credentials.
 The remote service holds its own keys and access is protected by OAuth 2.1
 with a per-user quota — see the [OAuth guide (in French)](docs/oauth.md).
 
@@ -274,7 +274,7 @@ uses a predefined client.
 - **From claude.ai or the Claude application**: when adding the connector,
   open *Advanced settings* and enter `UydR0hHVgqArHoQpoonkYUN1vSLfaptD` in
   “OAuth Client ID”, leaving the secret empty. Connection fails without this
-  identifier. This route has been in service since 16 September 2026.
+  identifier. Route verified on 16 September 2026.
 - **From Claude Code**: the plugin's `.mcp.json` declaration does not yet
   include a client identifier, and connection will fail with “Incompatible
   auth server: does not support dynamic client registration”. This route is
@@ -301,8 +301,7 @@ This variant requires `python` on PATH with dependencies
 (`python -m pip install -r requirements-mcp.txt`) and PISTE credentials supplied
 through environment variables or a `.env` file selected using
 `LEGIFRANCE_DOTENV`. As `.env` is not tracked, it does not travel with the
-plugin. Without credentials, the methodological skill remains fully
-functional; only the MCP tools for deterministic retrieval are unavailable.
+plugin. Without credentials, the methodological skill remains usable; only the MCP tools for deterministic retrieval are unavailable.
 
 ### As a Claude Code skill — unchanged
 

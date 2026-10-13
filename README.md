@@ -18,7 +18,7 @@ autorisé et leur qualification. Voir [la préparation](docs/livraison-0.9.0.md)
 > **Droit français** aide à vérifier les références, les versions applicables
 > et le raisonnement avant de rédiger un avis ou un acte. Il impose une méthode
 > de recherche sur sources primaires et demande de signaler ce qui reste
-> invérifiable. Son apport sur les modèles actuels doit être mesuré ; aucune
+> invérifiable. Son apport sur les modèles actuels reste à mesurer ; aucune
 > garantie d'absence d'erreur n'est revendiquée.
 
 **Pour commencer :** choisir un [canal d'installation](docs/installation.md),
@@ -264,7 +264,7 @@ Ou, en session interactive : `/plugin marketplace add
 brissonjo-sudo/droit-francais-skill` puis `/plugin install
 droit-francais-skill@droit-francais`.
 
-**Aucun prérequis côté poste** : ni Python, ni dépendances, ni identifiants
+**Aucune installation locale requise** : ni Python, ni dépendances, ni identifiants
 PISTE. Le service distant porte ses propres clés et l'accès est protégé par
 OAuth 2.1 avec quota par utilisateur — voir le [guide OAuth](docs/oauth.md).
 
@@ -275,7 +275,7 @@ passe donc par un client prédéfini.
 - **Depuis claude.ai ou l'application Claude** : à l'ajout du connecteur,
   ouvrir *Advanced settings* et saisir `UydR0hHVgqArHoQpoonkYUN1vSLfaptD` dans
   « OAuth Client ID », en laissant le secret vide. Sans cet identifiant, la
-  connexion échoue. Voie en service depuis le 16 septembre 2026.
+  connexion échoue. Voie vérifiée le 16 septembre 2026.
 - **Depuis Claude Code** : la déclaration `.mcp.json` du plugin ne porte pas
   encore d'identifiant de client, et la connexion échouera avec « Incompatible
   auth server: does not support dynamic client registration ». Voie non encore
@@ -302,8 +302,7 @@ Cette variante, elle, suppose un `python` dans le PATH avec les dépendances
 (`python -m pip install -r requirements-mcp.txt`) et les identifiants PISTE
 fournis par variables d'environnement ou par un `.env` désigné via
 `LEGIFRANCE_DOTENV` — le `.env` n'étant pas versionné, il ne voyage pas avec
-le plugin. Sans identifiants, le skill méthodologique reste pleinement
-fonctionnel ; seuls les outils MCP de récupération déterministe sont
+le plugin. Sans identifiants, le skill méthodologique reste utilisable ; seuls les outils MCP de récupération déterministe sont
 indisponibles.
 
 ### Comme skill Claude Code — inchangé
