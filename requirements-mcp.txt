@@ -9,4 +9,4 @@
 mcp==2.2.0
 # Vérification locale des jetons OAuth 2.1 (JWKS de l'émetteur, RS256 exact).
 # Correctif amont du parseur de payload récursif (GHSA-42vr-xj54-vc7v).
-PyJWT[crypto]==2.15.0
+PyJWT[crypto]==2.15.1
