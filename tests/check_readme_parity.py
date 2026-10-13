@@ -8,6 +8,7 @@ from __future__ import annotations
 from collections import Counter
 from pathlib import Path
 import re
+import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 NAVIGATION = "[🇫🇷 Français](README.md) | [🇬🇧 English](README.en.md)"
@@ -92,6 +93,8 @@ def check_pair(french: str, english: str) -> list[str]:
 
 
 def main() -> int:
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8")
     problems = check_pair((ROOT / "README.md").read_text(encoding="utf-8"),
                           (ROOT / "README.en.md").read_text(encoding="utf-8"))
     for problem in problems:
