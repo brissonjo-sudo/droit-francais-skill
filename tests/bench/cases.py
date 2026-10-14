@@ -42,7 +42,7 @@ COLONNES = (
     "Valide par",
 )
 
-BRAS_CONNUS = ("A", "B", "C")
+BRAS_CONNUS = ("A", "B", "C", "D")
 PLAFOND_DEFAUT = 12
 MOTIF_ID = re.compile(r"^[A-Za-z][A-Za-z0-9]*-?[a-z0-9]*$")
 MOTIF_DATE = re.compile(r"^\d{4}-\d{2}-\d{2}$")

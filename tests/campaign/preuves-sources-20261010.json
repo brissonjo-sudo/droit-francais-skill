@@ -1,0 +1,209 @@
+{
+  "schema": 2,
+  "date_preparation": "2026-10-10",
+  "validation_juridique": false,
+  "sources": [
+    {
+      "url": "fixture:consequence-controle.md",
+      "statut": "piece_synthetique_lue",
+      "sha256": "1ff7302ecd8655ac91fc3ca093dd20692652f93f2040dbf507ff80c43fd28671",
+      "date_consultation": "2026-10-10",
+      "limites": "Document synthétique, jamais une source de droit positif."
+    },
+    {
+      "url": "fixture:consequence.md",
+      "statut": "piece_synthetique_lue",
+      "sha256": "c387ba18e5301f4662a95f942290852f5ce2a238e296fdb31eab729ab75a58b7",
+      "date_consultation": "2026-10-10",
+      "limites": "Document synthétique, jamais une source de droit positif."
+    },
+    {
+      "url": "fixture:corpus-a.md",
+      "statut": "piece_synthetique_lue",
+      "sha256": "740d862f7483c749b962f54613838d1e26afc2f6ed9a07dd38d09c0e0e726bae",
+      "date_consultation": "2026-10-10",
+      "limites": "Document synthétique, jamais une source de droit positif."
+    },
+    {
+      "url": "fixture:corpus-b.md",
+      "statut": "piece_synthetique_lue",
+      "sha256": "abe7b908421abb32b997ee27eae616963f6175ac04390e4d0bf11b87e96920f8",
+      "date_consultation": "2026-10-10",
+      "limites": "Document synthétique, jamais une source de droit positif."
+    },
+    {
+      "url": "fixture:corpus-controle.md",
+      "statut": "piece_synthetique_lue",
+      "sha256": "55d520ef738d03c56e94df175494d536e1a55f869cc68fe80f0045c1e31a9fb4",
+      "date_consultation": "2026-10-10",
+      "limites": "Document synthétique, jamais une source de droit positif."
+    },
+    {
+      "url": "fixture:entree-vigueur.md",
+      "statut": "piece_synthetique_lue",
+      "sha256": "80b8abbe3e003b66f6f3df649081b4f30cbba93cc1c8115a95ce1175f1df1610",
+      "date_consultation": "2026-10-10",
+      "limites": "Document synthétique, jamais une source de droit positif."
+    },
+    {
+      "url": "fixture:heritage-controle.md",
+      "statut": "piece_synthetique_lue",
+      "sha256": "48e770cbee72d5af1e3c83d705caad0d3bb0870a59ca58c2df7dfeeb23f9e5f8",
+      "date_consultation": "2026-10-10",
+      "limites": "Document synthétique, jamais une source de droit positif."
+    },
+    {
+      "url": "fixture:heritage.md",
+      "statut": "piece_synthetique_lue",
+      "sha256": "2fc6c4cae454a993e17ad60065ead96110385ac3ba997a9f65ef8d6538f1bda5",
+      "date_consultation": "2026-10-10",
+      "limites": "Document synthétique, jamais une source de droit positif."
+    },
+    {
+      "url": "fixture:matrice-controle.md",
+      "statut": "piece_synthetique_lue",
+      "sha256": "1cfdb28c468a82df042d287dacbcf1338369379eb8a7cb72527f87733e16e35a",
+      "date_consultation": "2026-10-10",
+      "limites": "Document synthétique, jamais une source de droit positif."
+    },
+    {
+      "url": "fixture:matrice.md",
+      "statut": "piece_synthetique_lue",
+      "sha256": "eb2d91ab336705965d204c6a7cf54e43b5bbcb0d8ea02ffbaac8bba2f9a3b908",
+      "date_consultation": "2026-10-10",
+      "limites": "Document synthétique, jamais une source de droit positif."
+    },
+    {
+      "url": "https://www.legifrance.gouv.fr/ceta/id/CETATEXT000007636694",
+      "statut": "texte_et_version_recuperes",
+      "voie": "web officiel, session de préparation du 10/10/2026",
+      "date_consultation": "2026-10-10",
+      "texte_officiel_fragment": "Article 2 : Les arrêtés susvisés du maire de Nevers sont annulés.",
+      "texte_sha256": "1d87d455b4a3f387379b621cad3f53d22d9c2d15781c999bd0b4f9489439d59a",
+      "version_debut": "1933-05-19",
+      "version_fin_exclue": null,
+      "limites": "Texte intégral de la décision historique lu, Conseil d’État, numéros 17413 et 17520, Lebon. Aucun contrôle d’actualité jurisprudentielle pour un acte actuel."
+    },
+    {
+      "url": "https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006417178",
+      "statut": "non_verifie_dans_cette_session",
+      "date_consultation": null,
+      "limites": "Référence historique embarquée : texte et version à récupérer à la date utile avant validation humaine."
+    },
+    {
+      "url": "https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006418128/2025-12-23",
+      "statut": "non_verifie_dans_cette_session",
+      "date_consultation": null,
+      "limites": "Référence historique embarquée : texte et version à récupérer à la date utile avant validation humaine."
+    },
+    {
+      "url": "https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006419280",
+      "statut": "non_verifie_dans_cette_session",
+      "date_consultation": null,
+      "limites": "Référence historique embarquée : texte et version à récupérer à la date utile avant validation humaine."
+    },
+    {
+      "url": "https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006424665",
+      "statut": "non_verifie_dans_cette_session",
+      "date_consultation": null,
+      "limites": "Référence historique embarquée : texte et version à récupérer à la date utile avant validation humaine."
+    },
+    {
+      "url": "https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006437044/2014-03-28",
+      "statut": "non_verifie_dans_cette_session",
+      "date_consultation": null,
+      "limites": "Référence historique embarquée : texte et version à récupérer à la date utile avant validation humaine."
+    },
+    {
+      "url": "https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000029000766/2026-05-16",
+      "statut": "texte_et_version_recuperes",
+      "voie": "web officiel, session de préparation du 10/10/2026",
+      "date_consultation": "2026-10-10",
+      "texte_officiel_fragment": "Dans les cas de crime flagrant ou de délit flagrant puni d'une peine d'emprisonnement, toute personne a qualité",
+      "texte_sha256": "4e4c80d6aa0d1d72ab43e6d48143f5fe60c06bfff487fa1df5e91a87a7929fd3",
+      "version_debut": "2014-06-02",
+      "version_fin_exclue": "2029-01-01",
+      "limites": "Page au 16/05/2026 lue ; intervalle affiché couvre la date utile du 10/01/2025, sans récupération de l’URL à cette date. Fragment conservé partiel."
+    },
+    {
+      "url": "https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000032040782",
+      "statut": "non_verifie_dans_cette_session",
+      "date_consultation": null,
+      "limites": "Référence historique embarquée : texte et version à récupérer à la date utile avant validation humaine."
+    },
+    {
+      "url": "https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000032040825",
+      "statut": "non_verifie_dans_cette_session",
+      "date_consultation": null,
+      "limites": "Référence historique embarquée : texte et version à récupérer à la date utile avant validation humaine."
+    },
+    {
+      "url": "https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000032041571/2025-01-10",
+      "statut": "non_verifie_dans_cette_session",
+      "date_consultation": null,
+      "limites": "Référence historique embarquée : texte et version à récupérer à la date utile avant validation humaine."
+    },
+    {
+      "url": "https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000033021075/2026-05-10",
+      "statut": "non_verifie_dans_cette_session",
+      "date_consultation": null,
+      "limites": "Référence historique embarquée : texte et version à récupérer à la date utile avant validation humaine."
+    },
+    {
+      "url": "https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000034114850",
+      "statut": "texte_et_version_recuperes",
+      "voie": "web officiel, session de préparation du 10/10/2026",
+      "date_consultation": "2026-10-10",
+      "texte_officiel_fragment": "A défaut de cet ordre, l'agent de police judiciaire adjoint mentionné au premier alinéa ne peut retenir le contrevenant.",
+      "texte_sha256": "ffbce3b0d5ef6915516318479fd203188002cd283389f491d99c32d039cfb075",
+      "version_debut": "2017-03-02",
+      "version_fin_exclue": "2029-01-01",
+      "limites": "Page et trois alinéas lus ; distinguer attente pendant décision OPJ et rétention sur ordre. Fragment conservé partiel."
+    },
+    {
+      "url": "https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000036829913",
+      "statut": "non_verifie_dans_cette_session",
+      "date_consultation": null,
+      "limites": "Référence historique embarquée : texte et version à récupérer à la date utile avant validation humaine."
+    },
+    {
+      "url": "https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000047810871/2023-10-12",
+      "statut": "texte_et_version_recuperes",
+      "voie": "web officiel, session de préparation du 10/10/2026",
+      "date_consultation": "2026-10-10",
+      "texte_officiel_fragment": "2° Les agents de police municipale ;",
+      "texte_sha256": "b8793571304b26dba10a1e4db69ce99a8bc2f05dd7bbdedf920b5a6a0514945f",
+      "version_debut": "2023-07-12",
+      "version_fin_exclue": "2026-08-20",
+      "limites": "Page au 12/10/2023 lue avec borne de version couvrant le 16/05/2026. URL à cette dernière date inaccessible dans cette session ; ne pas présenter la page datée comme récupérée."
+    },
+    {
+      "url": "https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000049052313/2026-05-16",
+      "statut": "texte_et_version_recuperes",
+      "voie": "web officiel, session de préparation du 10/10/2026",
+      "date_consultation": "2026-10-10",
+      "texte_officiel_fragment": "La rétention ne peut excéder quatre heures, ou huit heures à Mayotte et dans la collectivité territoriale de Guyane,",
+      "texte_sha256": "c39e7af4408f6af0c16d8cc4773c60a59b71aa607d88419b287c73393b2a66cb",
+      "version_debut": "2024-01-28",
+      "version_fin_exclue": "2029-01-01",
+      "limites": "Page datée du 16/05/2026 lue ; plafond soumis au temps strictement nécessaire et à l’autorité compétente. Fragment conservé partiel."
+    },
+    {
+      "url": "https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000051786000/2026-07-01",
+      "statut": "texte_et_version_recuperes",
+      "voie": "web officiel, session de préparation du 10/10/2026",
+      "date_consultation": "2026-10-10",
+      "texte_officiel_fragment": "Les parents, en tant qu'ils exercent l'autorité parentale, sont, de plein droit, solidairement responsables du dommage causé par leurs enfants mineurs,",
+      "texte_sha256": "d63fcd556974c5352729c9a84d7894a8717768d47609a1def9646ad3182db86f",
+      "version_debut": "2025-06-25",
+      "version_fin_exclue": null,
+      "limites": "Exception de placement auprès d’un tiers confirmée dans le paragraphe lu ; le fragment conservé ne couvre pas toute la disposition."
+    },
+    {
+      "url": "https://www.legifrance.gouv.fr/codes/id/LEGISCTA000032021488",
+      "statut": "non_verifie_dans_cette_session",
+      "date_consultation": null,
+      "limites": "Référence historique embarquée : texte et version à récupérer à la date utile avant validation humaine."
+    }
+  ]
+}

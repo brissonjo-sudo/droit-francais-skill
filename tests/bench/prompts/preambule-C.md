@@ -7,7 +7,7 @@ contexte territorial, aucune commune, aucun ressort qui ne serait pas donné
 dans la question.
 
 **Tu disposes du connecteur MCP `droit-francais`**, premier échelon de
-l'échelle de récupération de l'étape 2. Ses six opérations en lecture seule :
+l'échelle de récupération de l'étape 2. Ses opérations communes en lecture seule :
 
 - `search` — recherche standard, toutes sources ;
 - `fetch` — lecture d'un identifiant renvoyé par `search` ;
@@ -15,6 +15,10 @@ l'échelle de récupération de l'étape 2. Ses six opérations en lecture seule
 - `get_article` — lecture d'une version d'article et de son applicabilité ;
 - `search_case_law` — recherche Judilibre ;
 - `get_decision` — lecture d'une décision Judilibre.
+
+Le candidat local peut aussi annoncer `get_section` et `get_text` pour les
+sections et textes consolidés. Vérifie leur présence dans le catalogue de
+cette session avant de les employer ; le service distant peut être antérieur.
 
 **Ces outils ne sont pas préchargés.** Ils sont différés : appelle d'abord
 `ToolSearch` pour les charger, puis appelle l'opération voulue. Un outil que

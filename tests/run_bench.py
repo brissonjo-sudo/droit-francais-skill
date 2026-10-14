@@ -156,7 +156,7 @@ def executer(arguments: argparse.Namespace) -> int:
         return 2
 
     bras_demandes = [b.strip() for b in arguments.bras.split(",") if b.strip()]
-    besoin_mcp = "C" in bras_demandes
+    besoin_mcp = bool(set(bras_demandes) & {"C", "D"})
 
     secrets = secrets_surveilles()
     if besoin_mcp and not arguments.mcp_local:
@@ -202,7 +202,7 @@ def executer(arguments: argparse.Namespace) -> int:
         if cle in acquis:
             continue
 
-        if bras == "C":
+        if bras in agents.BRAS_AVEC_OUTILS:
             cadence.reserver(cas.plafond_appels)
 
         prompt = composer_prompt(cas)
@@ -210,7 +210,7 @@ def executer(arguments: argparse.Namespace) -> int:
             prompt=prompt, bras=bras, plafond=cas.plafond_appels, options=options
         )
 
-        if bras == "C":
+        if bras in agents.BRAS_AVEC_OUTILS:
             cadence.corriger(cas.plafond_appels, len(execution.trace.appels))
 
         marqueur = "·"
@@ -235,13 +235,15 @@ def executer(arguments: argparse.Namespace) -> int:
             )
             marqueur = "✓" if ligne["pass"] else "✗"
 
-        journal.ajouter(ligne)
+        from bench.campaign import nettoyer
+        journal.ajouter(nettoyer(ligne))
         print(f"[{fait}/{total}] {marqueur} {bras}/{cas.id} rep{repetition}", flush=True)
 
         if arguments.garder_flux and execution.flux_brut:
             brut = RUNS / "flux" / f"{etiquette}-{bras}-{cas.id}-{repetition}.jsonl"
             brut.parent.mkdir(parents=True, exist_ok=True)
-            brut.write_text(execution.flux_brut, encoding="utf-8")
+            from bench.confidentialite import expurger
+            brut.write_text(expurger(execution.flux_brut), encoding="utf-8")
 
     print(f"\n{journal.ecrites} run(s) écrit(s) dans {sortie}")
     if echecs_infra:

@@ -25,7 +25,7 @@ ROOT = Path(__file__).resolve().parent.parent
 # `.claude` : worktrees d'agents, copies complètes du dépôt — les vérifier
 # revient à contrôler deux fois le même contenu, et à faire échouer le dépôt
 # sur l'état transitoire d'une copie de travail voisine.
-EXCLUDE_DIRS = {".git", ".claude", ".venv", "vault", "__pycache__", ".github"}
+EXCLUDE_DIRS = {".git", ".claude", ".venv", "vault", "__pycache__", ".github", "node_modules"}
 # Artefacts privés ignorés par Git ; exclure ce chemin depuis la racine,
 # sans ignorer un clone dont un répertoire parent s'appelle « runs ».
 PRIVATE_RUNS = ("tests", "bench", "runs")
