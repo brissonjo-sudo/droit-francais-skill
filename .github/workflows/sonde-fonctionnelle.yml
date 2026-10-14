@@ -21,6 +21,15 @@ name: Sonde fonctionnelle
 on:
   workflow_dispatch:
     inputs:
+      controle:
+        description: "Sonde MCP ou contrôle de préparation Gemini sans accès API"
+        type: choice
+        required: false
+        default: "mcp"
+        options:
+          - mcp
+          - gemini-catalogue
+          - gemini-tokens
       url:
         description: "URL complète du endpoint MCP à sonder (sert aussi d'audience du jeton)"
         required: false
@@ -42,6 +51,7 @@ concurrency:
 
 jobs:
   sonde:
+    if: inputs.controle == 'mcp' || inputs.controle == ''
     runs-on: ubuntu-latest
     # La sonde enchaîne six appels réels vers deux API amont, dont des
     # reprises bornées sur erreur transitoire, et peut tomber sur un réveil
@@ -155,4 +165,17 @@ jobs:
       - name: Sonder les six outils
         # MCP_ACCESS_TOKEN vient de l'étape précédente par GITHUB_ENV : la sonde
         # le lit dans l'environnement et refuse de l'accepter en argument.
-        run: python tests/check_live_tools.py "${{ inputs.url }}"
+        env:
+          MCP_PROBE_URL: ${{ inputs.url }}
+        run: python tests/check_live_tools.py "$MCP_PROBE_URL"
+
+  gemini-preparation:
+    if: github.ref == 'refs/heads/main' && (inputs.controle == 'gemini-catalogue' || inputs.controle == 'gemini-tokens')
+    environment: gemini-free
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+    steps:
+      - name: Refuser les sondes sans compteur persistant partagé
+        run: |
+          echo "::error::Sondes Gemini Actions désactivées. Utiliser le lanceur local avec profil confirmé et journal de quotas persistant."
+          exit 2
