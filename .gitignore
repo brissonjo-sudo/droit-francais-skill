@@ -38,3 +38,6 @@ skill/.recherche-juridique-update.json
 # Sorties de travail du benchmark agentique. Les baselines retenues sont
 # commitées explicitement sous tests/bench/baselines/.
 tests/bench/runs/
+
+# Index Graphify local régénérable, distinct des sources du connecteur.
+/graphify-out/
