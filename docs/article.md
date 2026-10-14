@@ -11,11 +11,12 @@ neutralise, un par un, les mensonges des IA appliquées au droit.*
 En décembre 2025, coup sur coup, la justice française a nommé le problème.
 Le **tribunal administratif de Grenoble** (3 puis 9 décembre 2025) a rejeté
 des requêtes truffées de ce qu'il a appelé des « **fantaisies
-jurisprudentielles** ». Quelques jours plus tard, le **tribunal administratif
-d'Orléans** (29 décembre 2025) adressait sa première mise en garde à un
-**avocat** : ses conclusions contenaient « **une quinzaine de références
-entièrement fausses** », et le tribunal l'invitait à vérifier que ses
-citations ne sont pas des « hallucinations » ou des « confabulations ».
+jurisprudentielles** ». Dans son
+[jugement du 29/12/2025, n° 2506461](https://opendata.justice-administrative.fr/recherche/shareFile/TA45/DTA_2506461_20251229),
+le **tribunal administratif d'Orléans** relève des décisions citées
+inexistantes ou dont le numéro ne correspond pas à la date. Il invite le
+conseil à vérifier les références trouvées par quelque moyen que ce soit.
+Le texte ne permet pas d'attribuer leur production à une IA particulière.
 
 Rien de nouveau sous le soleil : dès juin 2023, l'affaire américaine *Mata
 v. Avianca* voyait deux avocats sanctionnés pour avoir déposé un mémoire
@@ -150,7 +151,7 @@ praticiens.*
 
 ### Sources
 - TA Grenoble, 3 déc. 2025, n° 2509827 ; 9 déc. 2025, n° 2512468.
-- TA Orléans, 29 déc. 2025, n° 2506461.
+- [TA Orléans, 29/12/2025, n° 2506461](https://opendata.justice-administrative.fr/recherche/shareFile/TA45/DTA_2506461_20251229), section « Sur les décisions juridictionnelles citées », consultée le 10/10/2026 via le texte indexé du portail officiel.
 - *Mata v. Avianca*, S.D.N.Y., juin 2023.
 - P.-H. Levivier, « Les hallucinations d'intelligence artificielle devant les
   juridictions françaises », *Village de la Justice*, 2025.
