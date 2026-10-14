@@ -26,13 +26,17 @@ ROOT = Path(__file__).resolve().parent.parent
 # revient à contrôler deux fois le même contenu, et à faire échouer le dépôt
 # sur l'état transitoire d'une copie de travail voisine.
 EXCLUDE_DIRS = {".git", ".claude", ".venv", "vault", "__pycache__", ".github"}
+# Artefacts privés ignorés par Git ; exclure ce chemin depuis la racine,
+# sans ignorer un clone dont un répertoire parent s'appelle « runs ».
+PRIVATE_RUNS = ("tests", "bench", "runs")
 LINK_RE = re.compile(r"(?<!!)\[[^\]]*\]\(([^)]+)\)")
 
 
 def iter_markdown() -> list[Path]:
     files = []
     for path in ROOT.rglob("*.md"):
-        if any(part in EXCLUDE_DIRS for part in path.relative_to(ROOT).parts):
+        parts = path.relative_to(ROOT).parts
+        if parts[:3] == PRIVATE_RUNS or any(part in EXCLUDE_DIRS for part in parts):
             continue
         files.append(path)
     return sorted(files)

@@ -1,3 +1,5 @@
+[🇫🇷 Français](README.md) | [🇬🇧 English](README.en.md)
+
 # droit-francais-skill
 
 **Skill LLM — méthodologie de recherche en droit français (v3.5.0)**
@@ -16,7 +18,7 @@ autorisé et leur qualification. Voir [la préparation](docs/livraison-0.9.0.md)
 > **Droit français** aide à vérifier les références, les versions applicables
 > et le raisonnement avant de rédiger un avis ou un acte. Il impose une méthode
 > de recherche sur sources primaires et demande de signaler ce qui reste
-> invérifiable. Son apport sur les modèles actuels doit être mesuré ; aucune
+> invérifiable. Son apport sur les modèles actuels reste à mesurer ; aucune
 > garantie d'absence d'erreur n'est revendiquée.
 
 **Pour commencer :** choisir un [canal d'installation](docs/installation.md),
@@ -54,9 +56,11 @@ de cassation. »* Vérification en source primaire des trois réponses :
 | Rupture brutale — Com., 20 mars 2012, n° 11-13.245 | Aucun arrêt à ce n° | ⚠️ Introuvable |
 
 Deux références sur trois fausses ou fantômes — dont le **bon nom d'arrêt
-avec une référence entièrement inventée**. C'est exactement ce qui a valu à
-un avocat une mise en garde du **TA d'Orléans** (29 déc. 2025 : « une
-quinzaine de références entièrement fausses »).
+avec une référence entièrement inventée**. Le **TA d'Orléans**, dans son
+[jugement du 29/12/2025, n° 2506461](https://opendata.justice-administrative.fr/recherche/shareFile/TA45/DTA_2506461_20251229),
+relève des décisions citées inexistantes ou dont le numéro ne correspond pas
+à la date, et invite le conseil à vérifier ses références. Ce constat ne
+démontre pas quel outil aurait produit ces références.
 
 **Comportement prescrit par le skill**, à vérifier en exécution :
 > ⚠️ *Je ne produis pas ces numéros de pourvoi sans les avoir vérifiés en
@@ -239,6 +243,11 @@ identifiant distant fictif n'est placé dans le dépôt.
 
 ### Comme plugin Claude Code — candidat v0.9.0
 
+> **OAuth Claude Code reste bloqué sur une installation neuve** : le client
+> prédéfini et son callback ne sont pas encore configurés dans le plugin
+> ([#88](https://github.com/brissonjo-sudo/droit-francais-skill/issues/88)).
+> Installer le paquet ne suffit donc pas à utiliser ses outils distants.
+
 Le manifeste `.claude-plugin/plugin.json` réutilise les mêmes briques que le
 plugin OpenAI : le point d'entrée `skills/recherche-juridique/` (adaptateur
 vers le noyau `skill/`). Le serveur MCP est déclaré une seule fois, dans le
@@ -255,7 +264,7 @@ Ou, en session interactive : `/plugin marketplace add
 brissonjo-sudo/droit-francais-skill` puis `/plugin install
 droit-francais-skill@droit-francais`.
 
-**Aucun prérequis côté poste** : ni Python, ni dépendances, ni identifiants
+**Aucune installation locale requise** : ni Python, ni dépendances, ni identifiants
 PISTE. Le service distant porte ses propres clés et l'accès est protégé par
 OAuth 2.1 avec quota par utilisateur — voir le [guide OAuth](docs/oauth.md).
 
@@ -266,7 +275,7 @@ passe donc par un client prédéfini.
 - **Depuis claude.ai ou l'application Claude** : à l'ajout du connecteur,
   ouvrir *Advanced settings* et saisir `UydR0hHVgqArHoQpoonkYUN1vSLfaptD` dans
   « OAuth Client ID », en laissant le secret vide. Sans cet identifiant, la
-  connexion échoue. Voie en service depuis le 16 septembre 2026.
+  connexion échoue. Voie vérifiée le 16 septembre 2026.
 - **Depuis Claude Code** : la déclaration `.mcp.json` du plugin ne porte pas
   encore d'identifiant de client, et la connexion échouera avec « Incompatible
   auth server: does not support dynamic client registration ». Voie non encore
@@ -293,8 +302,7 @@ Cette variante, elle, suppose un `python` dans le PATH avec les dépendances
 (`python -m pip install -r requirements-mcp.txt`) et les identifiants PISTE
 fournis par variables d'environnement ou par un `.env` désigné via
 `LEGIFRANCE_DOTENV` — le `.env` n'étant pas versionné, il ne voyage pas avec
-le plugin. Sans identifiants, le skill méthodologique reste pleinement
-fonctionnel ; seuls les outils MCP de récupération déterministe sont
+le plugin. Sans identifiants, le skill méthodologique reste utilisable ; seuls les outils MCP de récupération déterministe sont
 indisponibles.
 
 ### Comme skill Claude Code — inchangé
@@ -452,7 +460,8 @@ invariants de non-régression est documenté dans
 Revue annuelle recommandée le **1er septembre** (rentrée juridique).
 Procédure détaillée → [`skill/references/maintenance.md`](skill/references/maintenance.md).
 
-> **Note de synchronisation :** à chaque release, mettre à jour `README.md`
+> **Note de synchronisation :** à chaque release, mettre à jour `README.md` et
+> sa traduction complète `README.en.md`
 > (version, arborescence) et `skill/CHANGELOG.md` (entrée Ajouté/Modifié/Conservé)
 > avant de pousser le tag, préfixé selon sa série : `skill-v*` (méthodologie)
 > ou `plugin-v*` (empaquetage OpenAI et Claude Code, dont les notes de
