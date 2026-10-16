@@ -84,6 +84,9 @@ Ne jamais inventer un appel d'outil MCP ou natif, ni présumer la disponibilité
 
 Pour chaque texte déterminant, vérifier les bornes de validité, l'historique, les renvois nécessaires et les dispositions transitoires. Si l'utilisateur fournit un identifiant `LEGIARTI`, le vérifier et lire la version désignée ; ne pas le remplacer silencieusement par la version actuelle. Conserver le code et la date exprimés dans la demande. Évaluer à la date utile ; n'utiliser la date du jour que si c'est bien la date d'évaluation demandée.
 
+Établir le champ territorial et matériel, les exceptions et les conditions cumulatives ou alternatives ; ne pas transformer un « et » en « ou ».
+Séparer `source consultée`, `version applicable à la date` et `conclusion sur les faits`.
+
 Présenter séparément les éléments suivants lorsqu'ils sont disponibles :
 
 | Champ | Signification |

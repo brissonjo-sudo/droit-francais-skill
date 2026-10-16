@@ -24,6 +24,8 @@ class ManusSkillTests(unittest.TestCase):
         self.assertIn("applicable_at_as_of_date", self.skill)
 
     def test_search_and_fetch_only_appear_in_mcp_connector_section(self):
+        for heading in ("**1. Connecteur MCP dédié", "**2. Capacité web native de Manus"):
+            self.assertIn(heading, self.skill, f"Intitulé de voie introuvable dans SKILL.md : {heading}")
         start = self.skill.index("**1. Connecteur MCP dédié")
         end = self.skill.index("**2. Capacité web native de Manus", start)
         mcp_section = self.skill[start:end]
@@ -34,6 +36,10 @@ class ManusSkillTests(unittest.TestCase):
         self.assertNotIn("`fetch`", outside_mcp)
         self.assertIn("l'identifiant renvoyé par `search`", mcp_section)
         self.assertIn("ne prend pas une URL", mcp_section)
+
+    def test_step_2_scope_and_fact_register_checks_are_present(self):
+        self.assertIn("conditions cumulatives ou alternatives", self.skill)
+        self.assertIn("`conclusion sur les faits`", self.skill)
 
     def test_application_fields_and_verified_caveat_are_present(self):
         for field in (

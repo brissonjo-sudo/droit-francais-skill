@@ -39,4 +39,4 @@ Le noyau Manus vise à prévenir ces erreurs par ses principes, sa procédure
 et ses modules. Pour les modes 15 à 18, appliquer en particulier la voie
 DOC-AUDIT et le protocole `audit-documentaire.md`. Lorsqu'une information
 manquante est décisionnelle, la faire préciser ou borner explicitement
-l'analyse à une hypothèse conditionnelle, conformément à l'étape 0 du noyau.
+l'analyse à une hypothèse conditionnelle, conformément à l'étape 0 de `SKILL.md`.
