@@ -11,7 +11,7 @@ Ces niveaux organisent la recherche et la qualité de provenance. Ils ne remplac
 | EUR-Lex | https://eur-lex.europa.eu | Droit de l’Union ; vérifier séparément la transposition française |
 | HUDOC / CEDH | https://hudoc.echr.coe.int | Convention EDH, protocoles et arrêts |
 
-Lire le texte intégral lorsque cela est possible. Capturer l’identifiant officiel et la date de version. Voir SKILL.md § Étape 1 pour l'échelle de récupération : connecteur MCP dédié en priorité, capacité web de Manus en repli.
+Lire le texte intégral lorsque cela est possible. Capturer l’identifiant officiel et la date de version. Utiliser `search` pour le repérage puis `fetch` pour la vérification ; utiliser le navigateur Manus si la page est dynamique ou inaccessible par extraction simple.
 
 ## Niveau 2 — Décisions juridictionnelles officielles
 

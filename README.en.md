@@ -342,7 +342,7 @@ standalone and documented in its own README:
 | [`gemini_agent/`](gemini_agent) | Gemini (`google-genai`) | Programmatic Python client, temperature 0.0, system prompt aligned with v3.3.0 methodology |
 | [`grok_skill/`](grok_skill) | Grok (xAI) | Condensed core for French law, retrieval with native web tools (`web_search`, `open_page`) instead of the MCP connector and PISTE APIs |
 | [`vibe_skill/`](vibe_skill) | Vibe (Mistral) | Condensed core, native `web_search`/`web_fetch` tools checked against public source code; Python wrapper provided as an unconnected scaffold |
-| [`manus_skill/`](manus_skill) | Manus | Condensed core; this repository's custom MCP connector first (verified tools), with fallback to Manus's native web capability without assuming tool names |
+| [`manus_skill/`](manus_skill) | Manus | Condensed adaptation based on 3.5.0; `search` → `fetch`, browser/MCP if available without assuming a connector; strengthened DOC-AUDIT checks |
 
 They reuse the core principles but do not synchronize themselves with it:
 `skill/` remains the source of methodological truth.
