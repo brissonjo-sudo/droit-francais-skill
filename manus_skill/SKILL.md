@@ -20,7 +20,7 @@ metadata:
 
 N'inventer aucune référence juridique. Toute proposition normative, citation, date, montant, seuil ou délai doit être contrôlé à partir d'une source officielle effectivement consultée dans la session. Distinguer la provenance de la source, le contenu du texte, sa vigueur et son applicabilité aux faits. Si un élément décisif n'est pas vérifié, le signaler et s'abstenir sur ce point.
 
-Cette adaptation est conçue pour les capacités disponibles dans Manus. Les noms d'outils, connecteurs, scripts PISTE et serveurs MCP du dépôt amont ne sont pas présumés disponibles.
+Cette adaptation est conçue pour les capacités disponibles dans Manus. Ne présumer ni la présence d'un connecteur MCP juridique ni celle de scripts PISTE locaux.
 
 ## Déclenchement et modes
 
@@ -57,42 +57,66 @@ Pour prévenir les erreurs récurrentes (référence inventée, confusion de ver
 
 Déterminer l'objet de la demande, le résultat attendu, le domaine et le régime possibles, les faits connus et manquants, les acteurs, le territoire et les dates pertinentes. Ne poser une question préalable que si une information manquante est décisionnelle ; sinon, annoncer une hypothèse limitée et conditionnelle.
 
-### Étape 1 — Repérer puis lire les sources
+### Étape 1 — Récupérer les sources
 
-1. Utiliser `search` pour repérer les sources officielles, en conservant autant que possible le code, l'article, l'identifiant, la juridiction et la date demandés.
-2. Utiliser `fetch` pour ouvrir et lire la page officielle ou le texte intégral ; un extrait de recherche ne suffit pas. La recherche repère une source, elle ne confirme pas à elle seule le contenu.
-3. Si une page est dynamique, mal extraite ou inaccessible, découvrir les outils de navigateur/MCP effectivement disponibles et leur schéma avant de les appeler. Ne jamais inventer le nom ou les paramètres d'un outil.
-4. Si aucune voie ne permet une vérification suffisante, appliquer P7.
+Suivre les voies ci-dessous dans l'ordre ; n'utiliser que les outils effectivement exposés dans la session.
 
-Prioriser les sources selon `references/sources-autorisees.md`. Ne pas présumer qu'un serveur MCP juridique personnalisé, une API Légifrance/Judilibre ou des identifiants PISTE sont connectés.
+**1. Connecteur MCP dédié de ce dépôt — s'il est exposé dans la session.** Ses six outils et paramètres sont ceux vérifiés dans `mcp_server/server.py` :
 
-### Étape 2 — Vérifier texte, version et applicabilité
+| Outil MCP | Paramètres | Usage |
+|---|---|---|
+| `search` | `query` | Recherche générique : route vers un article si la requête en contient un, sinon vers la jurisprudence |
+| `fetch` | `id` | Lit le résultat désigné par l'identifiant renvoyé par `search` ; ne prend pas une URL |
+| `search_articles` | `number`, `code`, `date` | Recherche ciblée d'un article, avec code et date |
+| `get_article` | `id`, `date` | Lit un article via son identifiant `LEGIARTI` et évalue `applicable_at_as_of_date` |
+| `search_case_law` | `query`, `jurisdiction`, `date_start`, `date_end` | Recherche de jurisprudence |
+| `get_decision` | `id` | Lit une décision désignée par son identifiant |
 
-Pour chaque disposition déterminante :
+Dès qu'un numéro d'article est identifié, préférer `search_articles` → `get_article` à `search` → `fetch` : cette voie est plus précise pour la provenance et l'applicabilité. Ne jamais passer une URL à `fetch`. Ne supposer ni que ce connecteur est configuré, ni que ces outils sont présents ; confirmer leur disponibilité dans la session avant l'appel.
 
-- relever le texte et l'identifiant officiel effectivement trouvés, l'URL canonique et la date de consultation ;
-- vérifier la version correspondant à la date utile, ses bornes de vigueur, une éventuelle abrogation, les modifications et les dispositions transitoires ;
-- suivre les renvois nécessaires jusqu'aux textes d'application ou définitions utiles ;
-- établir le champ territorial et matériel, les exceptions et les conditions cumulatives ou alternatives ;
-- séparer `source consultée`, `version applicable à la date` et `conclusion sur les faits`.
+**2. Capacité web native de Manus — si aucun connecteur MCP dédié n'est disponible.** Constater les outils réellement exposés dans la session sans en supposer le nom ni les paramètres. Limiter la recherche aux domaines officiels de `references/sources-autorisees.md`. Lire la page officielle elle-même, pas seulement l'extrait de recherche. Si la page est dynamique, interactive ou mal extraite, utiliser le navigateur Manus lorsqu'il est effectivement disponible.
 
-Ne jamais remplacer silencieusement un identifiant historique fourni par l'utilisateur par la version actuelle. Un identifiant non récupéré dans la session n'est pas à reconstituer de mémoire.
+**3. Abstention.** Si aucune des deux voies ne permet une vérification suffisante, appliquer P7.
 
-### Étape 3 — Contrôler la jurisprudence pertinente
+Ne jamais inventer un appel d'outil MCP ou natif, ni présumer la disponibilité d'un connecteur. Les scripts locaux PISTE du dépôt ne sont pas une voie disponible dans Manus, sauf si leur accès est établi dans l'environnement concerné.
 
-Rechercher les décisions officielles qui précisent, confirment ou contredisent l'interprétation lorsque la solution est contestable, contentieuse ou porteuse de conséquences importantes. Identifier la juridiction, la date, le numéro/ECLI s'il est récupéré, la formation et la portée utile. Distinguer le dispositif, le motif décisif et les observations incidentes ; vérifier les évolutions ultérieures lorsque nécessaire.
+### Étape 2 — Vérifier la version et l’applicabilité
 
-### Étape 4 — Qualifier et articuler
+Pour chaque texte déterminant, vérifier les bornes de validité, l'historique, les renvois nécessaires et les dispositions transitoires. Si l'utilisateur fournit un identifiant `LEGIARTI`, le vérifier et lire la version désignée ; ne pas le remplacer silencieusement par la version actuelle. Conserver le code et la date exprimés dans la demande. Évaluer à la date utile ; n'utiliser la date du jour que si c'est bien la date d'évaluation demandée.
 
-Appliquer les sources aux seuls faits établis. Examiner compétence, procédure, opposabilité, preuve, exceptions, régimes spéciaux, dispositions transitoires et conséquences opérationnelles. Pour une mesure administrative ou de police, analyser l'adaptation, la nécessité et la proportionnalité lorsque ces critères sont pertinents. Pour une interprétation controversée, trianguler les sources et présenter les objections sérieuses.
+Présenter séparément les éléments suivants lorsqu'ils sont disponibles :
 
-### Étape 5 — Rédiger et contrôler
+| Champ | Signification |
+|---|---|
+| `verified` | La source officielle a été retrouvée et lue |
+| `as_of_date` | Date à laquelle l'applicabilité est évaluée |
+| `version_start_date` / `version_end_date` | Bornes de la version consultée |
+| `applicable_at_as_of_date` | La version couvre ou non la date évaluée |
+| `caveat` | Écart, version historique ou incertitude à signaler |
+
+`verified: true` signifie seulement que la source officielle a répondu ; cela ne prouve pas, à lui seul, que la version s'applique aux faits.
+
+### Étape 3 — Vérifier la jurisprudence
+
+Rechercher les décisions qui confirment, précisent ou contredisent l'interprétation lorsque la solution est contestable, contentieuse ou porteuse de conséquences importantes. Relever juridiction, formation, date, identifiant s'il a été récupéré, dispositif et motifs utiles. Distinguer motif décisif et observation incidente. L'absence de décision localisable doit être signalée, sans la présenter comme preuve d'incertitude du texte.
+
+### Étape 4 — Trianguler lorsque requis
+
+Rendre la triangulation obligatoire en cas d'élément constitutif discutable, de qualification concurrente, d'analogie apparente, de divergence ou revirement connu, d'articulation de compétences, de proportionnalité interprétative, ou de citation officielle portant une interprétation discutable. Lorsque c'est possible, vérifier la source primaire par deux chemins indépendants et rechercher la jurisprudence qui confirme ou contredit l'analyse.
+
+Une décision est requise pour présenter comme établie une interprétation contentieuse. Une lecture claire d'un texte, une constatation matérielle non ambiguë ou la reproduction d'une règle claire ne requiert pas automatiquement une décision. En cas d'échec, produire une sortie dégradée balisée par P7.
+
+### Étape 5 — Articuler et qualifier
+
+Appliquer les sources aux seuls faits établis. Examiner compétence, procédure, opposabilité, preuve, exceptions, régimes spéciaux, dispositions transitoires et conséquences opérationnelles. Pour une mesure administrative ou de police, analyser l'adaptation, la nécessité et la proportionnalité lorsque ces critères sont pertinents.
+
+### Étape 6 — Rédiger et contrôler
 
 Adapter le format au livrable. Une réponse simple donne la conclusion conditionnelle, la source officielle consultée, la date pertinente et les réserves utiles. Une note de fond, un audit ou `[complet]` expose les textes, leur fonction, la jurisprudence utile, l'application aux faits, les limites et les objections restantes.
 
 Avant livraison, vérifier que chaque référence est issue de la session, que les citations correspondent au texte réellement lu, que les dates et montants ne sont pas extrapolés et qu'aucune hypothèse n'est devenue un fait.
 
-### Étape 6 — Auto-critique ciblée
+### Étape 7 — Auto-critique ciblée
 
 Tester la conclusion du point de vue d'un contradicteur, d'un juge ou contrôleur exigeant la preuve et, si pertinent, d'un praticien du métier concerné. Revenir à l'étape utile si l'un de ces contrôles révèle une faille. Ne pas afficher une auto-critique de pure forme.
 
@@ -134,4 +158,4 @@ Employer exactement cette réserve lorsqu'une source déterminante n'a pas pu ê
 
 ## Mise à jour et installation
 
-Le dépôt décrit le skill mais n'effectue pas son installation dans un compte Manus. Ne pas lancer `npx skills update` ni modifier les fichiers du compte pour une installation gérée par Manus ; suivre le mécanisme de mise à jour de l'hôte. N'utiliser un gestionnaire CLI que si le skill est effectivement installé et suivi par ce gestionnaire, et si l'utilisateur l'a demandé ou a activé explicitement son mode automatique.
+Dans Manus, mettre à jour ce skill en réimportant le dossier `manus_skill/` (avec son `SKILL.md` et son dossier `references/`) dans la gestion des skills du compte.

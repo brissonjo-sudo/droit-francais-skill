@@ -344,7 +344,7 @@ son propre README :
 | [`gemini_agent/`](gemini_agent) | Gemini (`google-genai`) | Client programmatique Python, température 0.0, prompt système aligné sur la méthodologie v3.3.0 |
 | [`grok_skill/`](grok_skill) | Grok (xAI) | Noyau condensé, droit français, récupération par les outils web natifs (`web_search`, `open_page`) au lieu du connecteur MCP et des API PISTE |
 | [`vibe_skill/`](vibe_skill) | Vibe (Mistral) | Noyau condensé, outils natifs `web_search`/`web_fetch` vérifiés contre le code source public ; wrapper Python fourni en squelette non connecté |
-| [`manus_skill/`](manus_skill) | Manus | Adaptation condensée basée sur 3.5.0 ; recherche `search` → lecture `fetch`, navigateur/MCP si disponible, sans présumer d'un connecteur ; contrôles DOC-AUDIT renforcés |
+| [`manus_skill/`](manus_skill) | Manus | Adaptation condensée basée sur 3.5.0 ; connecteur MCP du dépôt s'il est exposé, capacité web native constatée sans nom supposé, sinon abstention ; contrôles DOC-AUDIT renforcés |
 
 Elles reprennent les principes du noyau mais ne s'y synchronisent pas
 d'elles-mêmes : `skill/` reste la source de vérité méthodologique.

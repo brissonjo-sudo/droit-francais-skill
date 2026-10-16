@@ -35,13 +35,8 @@
     un article, une date, un montant, un acteur, une procédure, un indicateur
     ou une qualification.
 
-Tout le noyau et, pour les modes 15 à 18, la route DOC-AUDIT sont conçus
-pour bloquer ces dix-huit modes. Chaque principe
-et chaque étape mentionnent les modes qu'ils neutralisent (« → Bloque
-modes… »).
-
-**Note (v2.1.0).** L'étape 0 bis n'ajoute pas un mode supplémentaire : elle agit
-en amont, comme **garde procédurale** empêchant de déclencher les modes 10
-et 14 (analyse du mauvais régime ou du mauvais champ territorial sur une
-hypothèse décisionnelle non levée). Elle prolonge P2 et P7 au stade de
-l'entrée.
+Le noyau Manus vise à prévenir ces erreurs par ses principes, sa procédure
+et ses modules. Pour les modes 15 à 18, appliquer en particulier la voie
+DOC-AUDIT et le protocole `audit-documentaire.md`. Lorsqu'une information
+manquante est décisionnelle, la faire préciser ou borner explicitement
+l'analyse à une hypothèse conditionnelle, conformément à l'étape 0 du noyau.
