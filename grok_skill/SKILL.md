@@ -1,37 +1,40 @@
 ---
 name: recherche-juridique
-description: Méthodologie rigoureuse de recherche en droit français — sources primaires Légifrance et Judilibre, vérification de vigueur et d'applicabilité, citations traçables. Active dès qu'une requête cite ou demande un article, code, décret, arrêté, circulaire, qualification (pénale, admin, civile), jurisprudence (Cass., CE, CC, CJUE, CEDH), vérification de vigueur, rédaction d'acte/note/mémoire, audit juridique ou préparation de concours. Ne pas activer pour droit étranger non européen ni questions purement doctrinales.
+description: Méthodologie rigoureuse de recherche en droit français (sources primaires Légifrance, vérification de vigueur, citation traçable). Active ce skill dès que l'utilisateur cite ou demande un article de loi, code, décret, arrêté ou circulaire ; demande une qualification pénale, administrative ou civile ; demande une jurisprudence (Cass., CE, CC, CJUE, CEDH) ; demande de vérifier si un texte est en vigueur, abrogé ou modifié ; rédige un acte, une note, un mémoire, des conclusions ou une réponse institutionnelle ; audite ou corrige juridiquement un document ou un corpus de documents ; prépare un écrit ou oral de concours avec références juridiques. Ne pas activer pour le droit étranger non européen ni les questions doctrinales sans citation.
 metadata:
-  version: 3.3.0-grok
-  date_derniere_revue_methodologique: 2026-09-05
+  version: 3.5.0-grok
+  date_derniere_revue_methodologique: 2026-09-14
   date_derniere_verification_sources: 2026-09-04
   langue: français
   adapted_for: grok
 ---
 
-# Skill : recherche-juridique (v3.3.0-grok)
+# Skill : recherche-juridique (v3.5.0-grok)
 
 **Objet** : empêcher toute invention de droit français. Toute référence (article, décision, date, identifiant) doit provenir d'une source primaire vérifiée. Abstention informée prime sur complétion spéculative.
 
-Conçu contre les modes d'erreur LLM courants en droit (hallucination d'identifiants, confusion version historique / en vigueur, confusion authenticité / applicabilité, interprétation sans jurisprudence, etc.).
+Conçu contre **dix-huit modes d'erreur** du LLM en droit (hallucination de référence, confusion de versions, analogie non vérifiée, oubli de hiérarchie / territorialité / décret d'application, faux positif textuel, etc.). Liste complète : `references/modes-erreur.md`.
 
 ## Déclenchement
 
-Activer pour toute demande impliquant :
-- citation ou lecture d'article de code/loi/décret/arrêté/circulaire ;
-- qualification juridique ;
-- vérification de vigueur, abrogation ou modification ;
-- jurisprudence officielle ;
-- rédaction ou audit d'acte, note, mémoire, conclusions ;
-- préparation de concours avec références juridiques.
+Activer dès que l'utilisateur :
+- cite ou demande un article de loi, de code, un décret, un arrêté, une circulaire ;
+- demande une qualification juridique (pénale, administrative, civile) ;
+- demande de vérifier si un texte est en vigueur, abrogé ou modifié ;
+- demande une jurisprudence (Cass., CE, CC, CJUE, CEDH) ;
+- rédige un acte, une note, un mémoire, des conclusions ou une réponse institutionnelle ;
+- audite, relit ou corrige juridiquement un document existant ou un corpus ;
+- prépare un oral ou écrit de concours impliquant des références juridiques.
 
-Ne pas activer pour pure doctrine sans citation, ni droit non européen.
+**Ne pas activer** pour des questions purement doctrinales sans besoin de citation vérifiable, ni pour du droit étranger non européen.
 
 ## Principes invariants (P1–P7)
 
 **P1 — Primarité des sources.** Aucune affirmation normative sans source primaire officielle (Légifrance, Judilibre, sites des juridictions). Doctrine privée = outil de repérage uniquement.
 
-**P2 — Date de référence explicite.** Toujours préciser la date d'évaluation (`as_of`). Distinguer version officielle récupérée et applicabilité à cette date (`applicable_at_as_of_date`).
+**Règle de provenance (impérative).** Tout identifiant officiel (`LEGIARTI…`, `JORFTEXT…`, `NOR`, n° de pourvoi, n° de requête, n° de décision) doit provenir d'un **appel d'outil de la session courante**. Un identifiant non récupéré est omis ou marqué `⚠️ non vérifié — identifiant non récupéré`. Jamais reconstitué de mémoire.
+
+**P2 — Date de référence explicite.** Toujours préciser la date d'évaluation (`as_of`). Distinguer version officielle récupérée et applicabilité à cette date (`applicable_at_as_of_date`). Une source officielle peut être historique.
 
 **P3 — Autorité, authenticité et articulation.** Ne pas confondre :
 1. authenticité de la source ;
@@ -46,16 +49,25 @@ Ordre de recherche (pas hiérarchie abstraite) :
 
 **P4 — Citation traçable.** Identifiant officiel + URL canonique + date de version. Pas de citation « article X du Code Y » sans ID ou lien vérifié.
 
-**P5 — Séparation des registres.** Distinguer clairement droit positif, interprétation, opinion, hypothèse.
+**P5 — Séparation des registres.** Distinguer clairement :
+- (a) texte / paraphrase fidèle
+- (b) jurisprudence (ratio / obiter)
+- (c) déduction (« J'en déduis que… »)
+- (d) incertitude (`⚠️ À VÉRIFIER`)
 
-**P6 — Légalité criminelle stricte.** En matière pénale, texte d'incrimination + éléments constitutifs exacts ; pas d'analogie.
+**P6 — Légalité criminelle stricte et application de la loi pénale dans le temps.**
+Texte d'incrimination + éléments constitutifs exacts ; pas d'analogie (art. 111-3 et 111-4 CP).
+S'applique aussi aux sanctions administratives à caractère punitif.
+- Non-rétroactivité de la loi plus sévère (version à la date des faits).
+- Rétroactivité *in mitius* de la loi plus douce (art. 112-1 al. 3 CP) quand applicable.
+En cas de doute sérieux non résolu → aucune qualification affirmative présentée comme certaine.
 
-**P7 — Abstention informée.** Si vérification impossible → le dire explicitement et s'abstenir sur le point concerné. Pas de « probablement » déguisé en certitude.
+**P7 — Abstention informée.** Si vérification impossible → le dire explicitement et s'abstenir sur le point concerné. Pas de « probablement » déguisé en certitude. L'abstention porte sur le point précis, pas nécessairement sur toute la réponse.
 
 ## Procédure (exécutée en interne)
 
 Les contrôles sont obligatoires. Leur affichage est proportionné au livrable :
-- réponse courte / lookup → sources, date applicable, réserves, confiance ;
+- réponse courte / `[lookup]` → sources, date applicable, réserves, confiance ;
 - note de fond / audit / `[complet]` → encart récapitulatif + auto-critique si utile.
 
 ### Étape 0 — Qualification et désambiguïsation
@@ -77,8 +89,7 @@ Utiliser en priorité les outils Grok :
 - `open_page` / `open_page_with_find` / `browser_tab` sur les URLs Légifrance
 - Pour jurisprudence : `site:courdecassation.fr` ou Judilibre, sites CE / CC
 
-Conserver code + date + numéro d'article reconnus dans la requête (ex. « L. 2212-2 CGCT », « article 1240 Code civil au 1er janvier 2010 »).
-
+Conserver code + date + numéro d'article reconnus dans la requête.
 Vérifier tout identifiant LEGIARTI fourni avant de le restituer.
 
 ### Étape 2 — Vérification de vigueur et d'applicabilité
@@ -88,7 +99,7 @@ Pour chaque version récupérée :
 - évaluer `applicable_at_as_of_date`
 - si non applicable → caveat explicite + rechercher la version correcte
 
-Une source officielle peut être historique. `verified: true` atteste seulement la réponse officielle, pas l'applicabilité.
+`verified: true` atteste seulement la réponse officielle, pas l'applicabilité.
 
 ### Étape 3 — Jurisprudence pertinente
 
@@ -150,19 +161,25 @@ Pour toute citation :
 
 En cas de doute ou d'échec de vérification : « Source non confirmée — abstention sur ce point. »
 
+Balises utiles :
+- `[lookup]` — voie rapide (référence ponctuelle non controversée, sortie minimale)
+- `[express]` — allège les activations automatiques de modules (PÉNAL et DOC-AUDIT restent actifs)
+- `[complet]` — mode B (tous modules + encart récapitulatif)
+
 ## Notes d'adaptation Grok
 
-- Pas de serveur MCP local supposé. Les outils natifs (`web_search`, `open_page`, `browser_tab`) remplacent les appels PISTE/Judilibre directs.
+- Pas de serveur MCP local ni d'API PISTE. Les outils natifs (`web_search`, `open_page`, `open_page_with_find`, `browser_tab`) remplacent les appels directs.
 - Préférer toujours les domaines officiels `.gouv.fr` et sites des juridictions.
 - Conserver le code et la date dans les requêtes de recherche.
-- Distinguer explicitement provenance officielle et applicabilité temporelle (héritage v3.3.0).
+- Distinguer explicitement provenance officielle et applicabilité temporelle.
 - Traçabilité proportionnée : ne pas réciter les étapes internes dans une réponse simple.
+- Pas de mécanisme `npx skills` ni de profil.md local supposé ici (le noyau reste la source de vérité pour les profils métier détaillés).
 
 ## Modules activables (mode A)
 
-Chaque module se déclenche automatiquement selon des critères explicites.  
-**Règle conservatrice** : en cas de doute, le module s’active.  
-Le mode B / `[complet]` force tous les modules.  
+Chaque module se déclenche automatiquement selon des critères explicites.
+**Règle conservatrice** : en cas de doute, le module s’active.
+Le mode B / `[complet]` force tous les modules.
 `[express]` allège les activations automatiques (exceptions : PÉNAL et DOC-AUDIT restent actifs).
 
 Lire `references/modules.md` dès qu’un module s’active.
@@ -178,10 +195,22 @@ Lire `references/modules.md` dès qu’un module s’active.
 | **CONTENTIEUX** | Risque de recours, stratégie procédurale | — |
 | **DOC-AUDIT** | Audit / relecture / correction de document(s) | Non désactivable par `[express]` |
 
+Pour le module **DOC-AUDIT**, exécuter intégralement le protocole `references/audit-documentaire.md`.
+Deux contrôles obligatoires (nouveauté 3.5.0) déclenchent une **analyse**, pas une conclusion automatique sur la légalité :
+
+**a) Exécution forcée d'office.**
+Si un document prévoit ou recommande de couper, retirer, évacuer, détruire, confisquer ou attribuer à la personne publique un bien privé, tester cette opération **séparément** de l'interdiction ou de la sanction qui la précède. Identifier :
+1. une habilitation législative expresse **ou** une urgence caractérisée ;
+2. à défaut : l'absence d'autre voie de droit ou sanction, la base légale de la décision à exécuter, la résistance de l'intéressé et la stricte nécessité de la mesure.
+
+Une compétence de police, une contravention, un affichage ou une clause locale ne créent pas, à eux seuls, le pouvoir de disposer du bien. Vérifier la jurisprudence et le régime sectoriel avant de conclure.
+
+**b) Montants répressifs.**
+Distinguer toujours la classe de contravention, le maximum légal encouru et, si la procédure le permet, l'amende forfaitaire. Vérifier **chacun séparément** ; aucun ne se déduit des autres.
+
 ### Mode A / Mode B
 
 - **Mode A** (défaut) : noyau + modules utiles détectés.
 - **Mode B** / `[complet]` : tous les modules + encart récapitulatif.
-- Profil utilisateur (`profil.md`) : défauts métier uniquement, jamais certitudes.
 
 En cas de conflit entre fluidité et rigueur, choisir la rigueur.
