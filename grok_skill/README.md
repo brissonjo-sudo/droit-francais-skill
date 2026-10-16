@@ -36,14 +36,20 @@ citation reconstituée.
   affichage suit le livrable ; une réponse simple ne récite pas les étapes ;
 - la **triangulation ciblée** sur les interprétations discutables : l'absence
   de jurisprudence localisable ne rend pas incertain un texte clair ;
-- les **six modules activables** et la règle conservatrice de déclenchement.
+- les **six modules activables** et la règle conservatrice de déclenchement ;
+- le protocole **DOC-AUDIT** complet (`references/audit-documentaire.md`, repris
+  du noyau), avec les deux contrôles de la 3.5.0 : examen distinct de
+  l'exécution forcée d'office visant un bien privé, et distinction entre classe
+  de contravention, maximum légal encouru et amende forfaitaire ;
+- la liste des **dix-huit modes d'erreur** (`references/modes-erreur.md`).
 
 ## Ce qu'elle laisse de côté
 
 La condensation est assumée : le noyau tient en une dizaine de fichiers, cette
-déclinaison en trois. Ne sont pas repris ici les profils métier, les gabarits
+déclinaison en cinq. Ne sont pas repris ici les profils métier, les gabarits
 de sortie détaillés, la checklist de vigueur en quatorze points, les gabarits
-de requêtes Légifrance ni le détail des dix-huit modes d'erreur. Pour ces
+de requêtes Légifrance, ni la détection des mises à jour par `npx skills`
+(3.4.0), sans objet dans Grok. Pour ces
 éléments, le noyau reste la source de vérité :
 [`skill/SKILL.md`](../skill/SKILL.md) et [`skill/references/`](../skill/references).
 
@@ -54,7 +60,9 @@ grok_skill/
 ├── SKILL.md                      ← noyau condensé, adapté aux outils Grok
 ├── references/
 │   ├── sources-autorisees.md     ← ordre de recherche et autorité (P3)
-│   └── modules.md                ← six modules activables, détail
+│   ├── modules.md                ← six modules activables, détail
+│   ├── audit-documentaire.md     ← protocole DOC-AUDIT, contrôles 3.5.0
+│   └── modes-erreur.md           ← dix-huit modes d'erreur
 └── README.md                     ← ce document
 ```
 
@@ -67,7 +75,7 @@ personnalisées, en conservant l'arborescence — `SKILL.md` renvoie à
 
 ## Versionnement
 
-Le frontmatter porte `version: 3.3.0-grok`. Le suffixe marque la déclinaison ;
+Le frontmatter porte `version: 3.5.0-grok`. Le suffixe marque la déclinaison ;
 le numéro suit la version du noyau dont elle reprend la méthodologie. Une
 évolution du noyau qui touche les principes ou l'échelle de récupération
 appelle une reprise ici — les deux ne se synchronisent pas d'eux-mêmes.

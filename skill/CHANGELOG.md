@@ -11,6 +11,31 @@ conservés tels quels pour ne pas casser les liens publiés.
 
 ---
 
+### [3.5.0-grok] — 2026-10-16
+
+Mise à jour de la déclinaison **Grok** (`grok_skill/`) sur la base 3.5.0. Le
+noyau `skill/` n'est pas modifié.
+
+#### Ajouté
+- Module DOC-AUDIT : les deux contrôles obligatoires de la 3.5.0 (exécution
+  forcée d'office visant un bien privé ; classe de contravention, maximum
+  légal et amende forfaitaire vérifiés séparément), dans `SKILL.md` et
+  `references/modules.md`.
+- `grok_skill/references/audit-documentaire.md`, repris du noyau (seul le
+  renvoi d'en-tête est adapté), et `grok_skill/references/modes-erreur.md`
+  (liste des dix-huit modes).
+- `tests/test_grok_skill.py` : garde-fous de contenu de la déclinaison.
+
+#### Modifié
+- `SKILL.md` rapproché du noyau : règle de provenance impérative, registres
+  séparés (P5), application de la loi pénale dans le temps (P6), abstention
+  ciblée (P7), balises `[lookup]` / `[express]` / `[complet]`, description
+  alignée sur celle du noyau.
+- Titre de `references/modules.md` sans suffixe de version (règle 3.4.1).
+
+#### Non repris
+- Détection des mises à jour par `npx skills` (3.4.0) : sans objet dans Grok.
+
 ### [Non publié — extension MCP] — 2026-10-04
 
 Préparation de livraison : candidat plugin 0.9.0, manifestes et serveur alignés.

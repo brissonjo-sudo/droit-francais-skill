@@ -1,7 +1,7 @@
-# Modules activables — détail (v3.3.0-grok)
+# Modules activables — détail
 
-Référencé depuis `SKILL.md`. Lire ce fichier dès qu’un module s’active.  
-**Règle conservatrice** : en cas de doute sur le déclenchement, le module s’active.  
+Référencé depuis `SKILL.md`. Lire ce fichier dès qu’un module s’active.
+**Règle conservatrice** : en cas de doute sur le déclenchement, le module s’active.
 Le mode B force l’activation de tous les modules.
 
 ---
@@ -102,7 +102,7 @@ Toujours qualifier explicitement l’opération selon ces quatre critères avant
 
 **Statut** : **non désactivable par `[express]`**. Un audit antérieur ne réduit pas le périmètre de revérification.
 
-**Contenu obligatoire** :
+**Contenu obligatoire** — exécuter intégralement le protocole `references/audit-documentaire.md` :
 1. **Indépendance** : reprendre depuis les sources primaires toutes les affirmations à risque élevé. Établir un delta temporel si le document est antérieur.
 2. **Qualification du livrable** : nature réelle, auteur, destinataires, effet recherché, dates (faits / application / audit). Qualifier par le contenu et les effets, jamais par le seul titre.
 3. **Inventaire du corpus** : lister fichiers, versions, annexes, doublons. Séparer faits confirmés / hypothèses / recommandations.
@@ -110,6 +110,25 @@ Toujours qualifier explicitement l’opération selon ces quatre critères avant
 5. **Vérification à 100 % du risque élevé** (compétence, qualification d’infraction, peines/montants/délais, contrôles/interpellations/fouilles, accès lieux privés, données personnelles, etc.). Aucun échantillonnage pour le risque élevé.
 6. **Matrice acteur–lieu–propriétaire–pouvoir** pour chaque action sensible.
 7. **Double test source / conséquence** + cohérence interdocuments.
-8. **Contrôle post-correction** : relire le document corrigé pour vérifier qu’aucune affirmation à risque n’a été introduite ou laissée.
+8. **Audit négatif des pouvoirs** (voir ci-dessous) + **contrôle post-correction**.
+
+### Contrôles obligatoires DOC-AUDIT (nouveauté 3.5.0)
+
+Ces contrôles **déclenchent une analyse**, pas une conclusion automatique sur la légalité.
+
+**a) Exécution forcée d'office.**
+Si un document prévoit ou recommande de couper, retirer, évacuer, détruire, confisquer ou attribuer à la personne publique un bien privé, tester cette opération **séparément** de l'interdiction ou de la sanction qui la précède. Identifier :
+1. une habilitation législative expresse **ou** une urgence caractérisée ;
+2. à défaut : l'absence d'autre voie de droit ou sanction, la base légale de la décision à exécuter, la résistance de l'intéressé et la stricte nécessité de la mesure.
+
+Une compétence de police, une contravention, un affichage ou une clause locale ne créent pas, à eux seuls, le pouvoir de disposer du bien. Vérifier la jurisprudence et le régime sectoriel avant de conclure.
+
+**b) Montants répressifs.**
+Distinguer toujours :
+- la classe de contravention,
+- le maximum légal encouru,
+- et, si la procédure le permet, l'amende forfaitaire.
+
+Vérifier **chacun séparément** ; aucun ne se déduit des autres.
 
 Sortie typique : registre des affirmations + liste des corrections + réserves restantes.
