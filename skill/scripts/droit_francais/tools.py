@@ -108,12 +108,18 @@ ADMIN_SORT_MODES: dict[str, str] = {
 }
 _HTML_TAG = re.compile(r"<[^>]+>")
 _ARTICLE_ID = re.compile(r"\bLEGIARTI\d{12}\b", flags=re.IGNORECASE)
+#: Suffixe officiel séparé par une espace : « L80 A », « 200 quater A ». Une
+#: majuscule suivie d'un point n'en est pas un (« art. 1240 C. civ. »).
+_ARTICLE_SUFFIX = (
+    r"(?:\s+(?:bis|ter|quater|quinquies|sexies|septies|octies|nonies|decies)\b"
+    r"|\s+(?-i:[A-Z])(?![\w.]))*"
+)
 _ARTICLE_QUERY = re.compile(
-    r"\b(?:article|art\.?)\s+([LRDA]?\.?\s*\d[\w.-]*)",
+    rf"\b(?:article|art\.?)\s+([LRDA]?\.?\s*\d[\w.-]*{_ARTICLE_SUFFIX})",
     flags=re.IGNORECASE,
 )
 _BARE_ARTICLE_QUERY = re.compile(
-    r"\b([LRDA]\.\s*\d[\w.-]*|[LRDA]\d[\w.-]*)\b",
+    rf"\b([LRDA]\.\s*\d[\w.-]*{_ARTICLE_SUFFIX}|[LRDA]\d[\w.-]*{_ARTICLE_SUFFIX})(?!\w)",
     flags=re.IGNORECASE,
 )
 _ISO_DATE_IN_QUERY = re.compile(r"\b(\d{4}-\d{2}-\d{2})\b")
@@ -183,6 +189,12 @@ _CODE_ALIASES = {
     "code de la santé publique": "Code de la santé publique",
     "code de la sante publique": "Code de la santé publique",
     "code de l'urbanisme": "Code de l'urbanisme",
+    "livre des procédures fiscales": "Livre des procédures fiscales",
+    "livre des procedures fiscales": "Livre des procédures fiscales",
+    "lpf": "Livre des procédures fiscales",
+    "code général des impôts": "Code général des impôts",
+    "code general des impots": "Code général des impôts",
+    "cgi": "Code général des impôts",
 }
 
 
@@ -442,11 +454,19 @@ def _epoch_ms(value: str) -> int:
 
 
 def _article_number_variants(number: str) -> list[str]:
-    compact = "".join(number.split())
-    match = re.match(r"^([LRDA])\.?([0-9].*)$", compact, flags=re.IGNORECASE)
+    """Formes à chercher, la graphie officielle espacée en premier.
+
+    L'espace interne est significatif pour Légifrance : « L80 A » et
+    « 200 quater A » existent, « L80A » ne renvoie rien. Seule l'espace entre
+    le préfixe et le numéro (« L. 2212-2 ») est retirée.
+    """
+    spaced = " ".join(number.split())
+    match = re.match(r"^([LRDA])\.?\s*([0-9].*)$", spaced, flags=re.IGNORECASE)
     if match:
-        return [f"{match.group(1).upper()}{match.group(2)}"]
-    return [compact, *(f"{prefix}{compact}" for prefix in "LRDA")]
+        forms = [f"{match.group(1).upper()}{match.group(2)}"]
+    else:
+        forms = [spaced, *(f"{prefix}{spaced}" for prefix in "LRDA")]
+    return list(dict.fromkeys(forms + ["".join(form.split()) for form in forms]))
 
 
 def _first_prefixed_id(value: Any, prefix: str) -> str | None:

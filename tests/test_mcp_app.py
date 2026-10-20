@@ -144,6 +144,28 @@ class LegalToolsTests(unittest.TestCase):
         self.assertEqual("2014-12-22", metadata["version_end_date"])
         self.assertIn("n'est pas applicable", metadata["caveat"])
 
+    def test_article_numbers_keep_the_official_inner_space(self):
+        self.assertEqual(["L80 A", "L80A"], legal_tools._article_number_variants("L80  A"))
+        self.assertEqual(["L2212-2"], legal_tools._article_number_variants("L. 2212-2"))
+        self.assertEqual("200 quater A", legal_tools._article_number_variants("200 quater A")[0])
+
+    @mock.patch("droit_francais.tools.search_articles")
+    def test_standard_search_reads_suffixed_numbers_without_eating_abbreviations(
+        self, search_articles
+    ):
+        search_articles.return_value = {"results": []}
+        for query, number, code in (
+            ("article L80 A du LPF", "L80 A", "Livre des procédures fiscales"),
+            ("art. 200 quater A du CGI", "200 quater A", "Code général des impôts"),
+            ("Vérifie l'art. 1240 C. civ.", "1240", None),
+            ("article L2212-2 a pour objet", "L2212-2", None),
+        ):
+            with self.subTest(query=query):
+                legal_tools.search(query)
+                self.assertEqual(
+                    mock.call(number, code=code, date=None), search_articles.call_args
+                )
+
     @mock.patch("droit_francais.tools.judilibre_get")
     def test_case_law_search_and_fetch_are_traceable(self, judilibre_get):
         judilibre_get.side_effect = [
