@@ -11,6 +11,12 @@ conservés tels quels pour ne pas casser les liens publiés.
 
 ---
 
+### [Non publié — citations internes] — 2026-10-21
+
+- Les gabarits imposent de citer les fichiers de skill ou de référence par le
+  nom du skill et la section, sans lien Markdown ni chemin relatif ou absolu.
+  Les liens sont réservés aux sources officielles.
+
 ### [Non publié — jurisprudence administrative] — 2026-10-21
 
 - Nouvel outil MCP `search_admin_case_law` : fonds Légifrance CETAT (Conseil

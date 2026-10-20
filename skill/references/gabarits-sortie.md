@@ -9,6 +9,11 @@ Chaque gabarit débute obligatoirement par un **en-tête standardisé**
 (absence = défaut bloquant) et se termine par un **encart final
 récapitulatif**.
 
+Dans une réponse, un fichier de skill ou de référence se cite par le nom du
+skill et la section (ex. « dcp-fpt, §5.5 »), jamais par un lien Markdown ni
+par un chemin, relatif ou absolu. Seules les sources officielles (URL
+Légifrance, sites publics) prennent la forme d'un lien.
+
 ### En-tête standardisé (obligatoire)
 
 ```
