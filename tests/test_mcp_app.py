@@ -280,10 +280,86 @@ class LegalToolsTests(unittest.TestCase):
         for nom in ("Rapporteure-Témoin", "Rapporteur-Public-Témoin", "Avocat-Témoin"):
             self.assertNotIn(nom, rendu)
 
-    def test_admin_decision_refuses_a_malformed_identifier(self):
+    def test_juri_decision_refuses_a_malformed_identifier(self):
+        for identifier in ("CETATEXT0000", "CONSTEXT0000", "JUFITEXT00000000000x"):
+            with self.subTest(identifier=identifier):
+                with self.assertRaises(LegifranceError) as caught:
+                    legal_tools.get_juri_decision(identifier)
+                self.assertEqual(2, caught.exception.exit_code)
+
+    @mock.patch("droit_francais.tools.get_token", return_value="token")
+    @mock.patch("droit_francais.tools.api_call")
+    def test_constitutional_search_targets_constit_and_filters_by_type(
+        self, api_call, _get_token
+    ):
+        api_call.return_value = {
+            "totalResultNumber": 1,
+            "results": [
+                {"titles": [{"id": "CONSTEXT000054998621",
+                             "title": "Décision 2026-1227 <mark>QPC</mark> - 16 octobre 2026"}]},
+                {"titles": [{"id": "CETATEXT000048527634", "title": "Hors fonds"}]},
+            ],
+        }
+
+        found = legal_tools.search_constitutional_decisions(
+            "collectivité territoriale", decision_type="QPC"
+        )
+
+        body = api_call.call_args.args[1]
+        self.assertEqual("CONSTIT", body["fond"])
+        self.assertEqual(
+            [{"typeRecherche": "EXACTE", "valeur": "QPC", "operateur": "ET"}],
+            body["recherche"]["champs"][1]["criteres"],
+        )
+        self.assertEqual(["CONSTEXT000054998621"], [r["id"] for r in found["results"]])
+        self.assertEqual(
+            "https://www.legifrance.gouv.fr/cons/id/CONSTEXT000054998621",
+            found["results"][0]["url"],
+        )
+        self.assertEqual("qpc", found["query"]["decision_type"])
+        self.assertEqual("CONSTIT", found["provenance"]["fund"])
+
+    @mock.patch("droit_francais.tools.api_call")
+    def test_financial_search_refuses_an_unknown_jurisdiction(self, api_call):
         with self.assertRaises(LegifranceError) as caught:
-            legal_tools.get_admin_decision("CETATEXT0000")
+            legal_tools.search_financial_case_law("gestion de fait", jurisdiction="crc")
         self.assertEqual(2, caught.exception.exit_code)
+        self.assertIn("ccomptes", str(caught.exception))
+        api_call.assert_not_called()
+
+    @mock.patch("droit_francais.tools.get_token", return_value="token")
+    @mock.patch("droit_francais.tools.api_call")
+    def test_financial_decision_fetch_drops_named_people(self, api_call, _get_token):
+        api_call.return_value = {
+            "text": {
+                "id": "JUFITEXT000054782208",
+                "titre": "COUR DES COMPTES - CHAMBRE DU CONTENTIEUX - Arrêt - 28/08/2026",
+                "juridiction": "COUR DES COMPTES",
+                "formation": "CHAMBRE DU CONTENTIEUX",
+                "dateTexte": 1787875200000,
+                "num": "S-2026-0975",
+                "nature": "Arrêt",
+                "publicationRecueil": "C",
+                "rapporteur": "Mme Rapporteure-Témoin",
+                "commissaire": "M. Procureur-Témoin",
+                "demandeur": "M. Demandeur-Témoin",
+                "texte": "Texte intégral",
+            }
+        }
+
+        decision = legal_tools.fetch("JUFITEXT000054782208")
+
+        self.assertEqual("/consult/juri", api_call.call_args.args[0])
+        self.assertEqual(
+            "https://www.legifrance.gouv.fr/jufi/id/JUFITEXT000054782208", decision["url"]
+        )
+        metadata = decision["metadata"]
+        self.assertEqual("JUFI", metadata["fund"])
+        self.assertEqual("2026-08-28", metadata["decision_date"])
+        self.assertEqual("Arrêt", metadata["nature"])
+        rendu = repr(decision)
+        for nom in ("Rapporteure-Témoin", "Procureur-Témoin", "Demandeur-Témoin"):
+            self.assertNotIn(nom, rendu)
 
     @mock.patch("droit_francais.tools.judilibre_get")
     def test_case_law_search_refuses_a_jurisdiction_name(self, judilibre_get):
@@ -775,6 +851,19 @@ class McpProtocolTests(unittest.TestCase):
                         sorted(legal_tools.ADMIN_SORT_MODES),
                         sorted(_schema_enum(admin_properties["sort"])),
                     )
+                    for tool_name, field, expected in (
+                        ("search_constitutional_decisions", "decision_type",
+                         legal_tools.CONSTIT_DECISION_TYPES),
+                        ("search_financial_case_law", "jurisdiction",
+                         legal_tools.FINANCIAL_JURISDICTIONS),
+                    ):
+                        tool = next(t for t in listed.tools if t.name == tool_name)
+                        tool_properties = getattr(
+                            tool, "inputSchema", getattr(tool, "input_schema", None)
+                        )["properties"]
+                        self.assertEqual(
+                            sorted(expected), sorted(_schema_enum(tool_properties[field]))
+                        )
                     refused = await session.call_tool(
                         "search_case_law",
                         {"query": "responsabilité", "jurisdiction": "Cour de cassation"},

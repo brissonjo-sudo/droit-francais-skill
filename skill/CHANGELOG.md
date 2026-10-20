@@ -11,6 +11,17 @@ conservés tels quels pour ne pas casser les liens publiés.
 
 ---
 
+### [Non publié — Conseil constitutionnel et juridictions financières] — 2026-10-21
+
+- Nouveaux outils MCP `search_constitutional_decisions` (fonds CONSTIT, filtre
+  `qpc`, `dc`, `l`) et `search_financial_case_law` (fonds JUFI, filtre
+  `ccomptes`, `crtc`, `caf`, `cdbf`). Même mécanique que CETAT : titre,
+  facette `DATE_DECISION`, tri `DATE_DESC`, lecture `/consult/juri`.
+- `fetch` lit `CONSTEXT` et `JUFITEXT`. Liste blanche étendue : `demandeur`
+  n'est pas non plus recopié. Métadonnées `nature` et `solution` ajoutées ;
+  `lebon_publication` devient `publication`, commune aux trois fonds.
+- Contrat vérifié par appels réels le 21/10/2026.
+
 ### [Non publié — jurisprudence administrative] — 2026-10-21
 
 - Nouvel outil MCP `search_admin_case_law` : fonds Légifrance CETAT (Conseil

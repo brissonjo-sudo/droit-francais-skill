@@ -325,6 +325,28 @@ async def sonder(url: str, token: str) -> None:
                     )
                 print(f"✅ Jurisprudence administrative : {decisions_admin[0]['id']}.")
 
+                # ---- 5 ter. Conseil constitutionnel et juridictions financières
+                for nom, arguments, prefixe in (
+                    ("search_constitutional_decisions",
+                     {"query": "collectivité territoriale", "decision_type": "qpc", "limit": 3},
+                     "CONSTEXT"),
+                    ("search_financial_case_law",
+                     {"query": "gestion de fait", "jurisdiction": "ccomptes", "limit": 3},
+                     "JUFITEXT"),
+                ):
+                    # Appels littéraux pour le contrôle de couverture AST.
+                    if nom == "search_constitutional_decisions":
+                        resultat, _ = await appeler("search_constitutional_decisions", arguments)
+                    else:
+                        resultat, _ = await appeler("search_financial_case_law", arguments)
+                    charge = _exiger_succes(resultat, nom)
+                    _verifier_absence_de_secrets(_texte(resultat), nom)
+                    _exiger_provenance(charge, "Légifrance API", nom)
+                    trouves = charge.get("results") or []
+                    if not trouves or not str(trouves[0].get("id", "")).startswith(prefixe):
+                        raise SondeError(f"{nom} : aucune décision {prefixe}")
+                    print(f"✅ {nom} : {trouves[0]['id']}.")
+
                 # ---- 6. Parcours standard search → fetch ------------------
                 resultat, _ = await appeler(
                     "search", {"query": f"article {ARTICLE_TEMOIN}"}

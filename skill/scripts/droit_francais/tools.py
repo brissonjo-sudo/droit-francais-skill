@@ -50,29 +50,62 @@ SORT_MODES: dict[str, tuple[str, str]] = {
     "relevance": ("score", "desc"),
     "date": ("date", "desc"),
 }
-ADMIN_DECISION_URL = "https://www.legifrance.gouv.fr/ceta/id/{id}"
-_ADMIN_DECISION_ID = re.compile(r"CETATEXT\d{12}", flags=re.IGNORECASE)
-#: Juridictions administratives du fonds Légifrance CETAT → libellés cherchés
-#: dans le titre. Le fonds refuse la facette JURIDICTION_NATURE (constaté le
-#: 21/10/2026) ; le filtre passe donc par le titre, où les arrêts récents de
-#: cours administratives d'appel s'écrivent « CAA de … » et les plus anciens
-#: « Cour administrative d'appel de … ». L'accent est indifférent.
+#: Fonds de jurisprudence Légifrance lus par ``/consult/juri`` : préfixe
+#: d'identifiant, lien public et couverture signalée dans chaque réponse.
+JURI_FUNDS: dict[str, dict[str, str]] = {
+    "CETAT": {
+        "prefix": "CETATEXT",
+        "url": "https://www.legifrance.gouv.fr/ceta/id/{id}",
+        "coverage": (
+            "Fonds Légifrance CETAT : Conseil d'État, cours administratives "
+            "d'appel et Tribunal des conflits. Les jugements de tribunaux "
+            "administratifs n'y figurent que par une sélection antérieure à 2010."
+        ),
+    },
+    "CONSTIT": {
+        "prefix": "CONSTEXT",
+        "url": "https://www.legifrance.gouv.fr/cons/id/{id}",
+        "coverage": "Fonds Légifrance CONSTIT : décisions du Conseil constitutionnel.",
+    },
+    "JUFI": {
+        "prefix": "JUFITEXT",
+        "url": "https://www.legifrance.gouv.fr/jufi/id/{id}",
+        "coverage": (
+            "Fonds Légifrance JUFI : décisions juridictionnelles de la Cour des "
+            "comptes, des chambres régionales et territoriales des comptes, de la "
+            "Cour d'appel financière et de la Cour de discipline budgétaire et "
+            "financière."
+        ),
+    },
+}
+_JURI_DECISION_ID = re.compile(r"(CETATEXT|CONSTEXT|JUFITEXT)\d{12}", flags=re.IGNORECASE)
+#: Filtres → libellés cherchés dans le titre. Ces fonds refusent la facette
+#: JURIDICTION_NATURE (constaté le 21/10/2026) ; l'accent est indifférent. Les
+#: arrêts récents de cours administratives d'appel s'intitulent « CAA de … »,
+#: les plus anciens « Cour administrative d'appel de … ». « CRC » seul est
+#: écarté : il figure aussi dans les arrêts d'appel de la Cour des comptes.
 ADMIN_JURISDICTIONS: dict[str, tuple[str, ...]] = {
     "ce": ("Conseil d'État",),
     "caa": ("Cour administrative d'appel", "CAA"),
     "ta": ("Tribunal administratif",),
     "tc": ("Tribunal des conflits",),
 }
-#: Le fonds CETAT ignore SIGNATURE_DATE_* : seul DATE_DESC trie par date.
+CONSTIT_DECISION_TYPES: dict[str, tuple[str, ...]] = {
+    "qpc": ("QPC",),
+    "dc": ("DC",),
+    "l": ("L",),
+}
+FINANCIAL_JURISDICTIONS: dict[str, tuple[str, ...]] = {
+    "ccomptes": ("COUR DES COMPTES",),
+    "crtc": ("CRTC",),
+    "caf": ("Cour d'appel financière",),
+    "cdbf": ("CDBF",),
+}
+#: Ces fonds ignorent SIGNATURE_DATE_* : seul DATE_DESC trie par date.
 ADMIN_SORT_MODES: dict[str, str] = {
     "relevance": "PERTINENCE",
     "date": "DATE_DESC",
 }
-ADMIN_COVERAGE = (
-    "Fonds Légifrance CETAT : Conseil d'État, cours administratives d'appel et "
-    "Tribunal des conflits. Les jugements de tribunaux administratifs n'y "
-    "figurent que par une sélection antérieure à 2010."
-)
 _HTML_TAG = re.compile(r"<[^>]+>")
 _ARTICLE_ID = re.compile(r"\bLEGIARTI\d{12}\b", flags=re.IGNORECASE)
 _ARTICLE_QUERY = re.compile(
@@ -687,33 +720,36 @@ def get_decision(decision_id: str) -> dict[str, Any]:
     }
 
 
-def _admin_provenance() -> dict[str, Any]:
+def _juri_provenance(fund: str) -> dict[str, Any]:
     return {
         "source": "Légifrance API",
-        "fund": "CETAT",
+        "fund": fund,
         "verified": True,
         "content_trust": UNTRUSTED_CONTENT,
-        "coverage": ADMIN_COVERAGE,
+        "coverage": JURI_FUNDS[fund]["coverage"],
     }
 
 
-def search_admin_case_law(
+def _search_juri_fund(
+    fund: str,
     query: str,
-    jurisdiction: str | None = None,
-    date_start: str | None = None,
-    date_end: str | None = None,
-    limit: int = 10,
-    sort: str = "relevance",
+    filter_name: str,
+    filter_value: str | None,
+    filter_labels: dict[str, tuple[str, ...]],
+    date_start: str | None,
+    date_end: str | None,
+    limit: int,
+    sort: str,
 ) -> dict[str, Any]:
-    """Recherche la jurisprudence administrative dans le fonds Légifrance CETAT."""
+    """Recherche dans un fonds de jurisprudence Légifrance, filtre par le titre."""
     query = query.strip()
     if not query:
         raise LegifranceError("La requête de jurisprudence est obligatoire.", exit_code=2)
-    code = (jurisdiction or "").strip().lower() or None
-    if code is not None and code not in ADMIN_JURISDICTIONS:
+    code = (filter_value or "").strip().lower() or None
+    if code is not None and code not in filter_labels:
         raise LegifranceError(
-            f"Juridiction inconnue : {jurisdiction!r}. Valeurs acceptées : "
-            f"{', '.join(ADMIN_JURISDICTIONS)}.",
+            f"Valeur inconnue pour {filter_name} : {filter_value!r}. Valeurs "
+            f"acceptées : {', '.join(filter_labels)}.",
             exit_code=2,
         )
     mode = (sort or "").strip().lower()
@@ -732,7 +768,7 @@ def search_admin_case_law(
         }
     ]
     if code is not None:
-        labels = ADMIN_JURISDICTIONS[code]
+        labels = filter_labels[code]
         operator = "OU" if len(labels) > 1 else "ET"
         champs.append(
             {
@@ -757,7 +793,7 @@ def search_admin_case_law(
         )
     safe_limit = max(1, min(int(limit), 50))
     body = {
-        "fond": "CETAT",
+        "fond": fund,
         "recherche": {
             "champs": champs,
             "filtres": filters,
@@ -769,17 +805,18 @@ def search_admin_case_law(
         },
     }
     payload = api_call("/search", body, get_token())
+    prefix = JURI_FUNDS[fund]["prefix"]
     results: list[dict[str, Any]] = []
     for item in payload.get("results") or []:
         title = (item.get("titles") or [{}])[0]
         decision_id = str(title.get("id") or "").strip().upper()
-        if not _ADMIN_DECISION_ID.fullmatch(decision_id):
+        if not (_JURI_DECISION_ID.fullmatch(decision_id) and decision_id.startswith(prefix)):
             continue
         results.append(
             {
                 "id": decision_id,
                 "title": _clean_text(title.get("title")),
-                "url": ADMIN_DECISION_URL.format(id=decision_id),
+                "url": JURI_FUNDS[fund]["url"].format(id=decision_id),
                 "excerpt": _clean_text(item.get("text")),
             }
         )
@@ -788,30 +825,78 @@ def search_admin_case_law(
         "total": payload.get("totalResultNumber", len(results)),
         "query": {
             "query": query,
-            "jurisdiction": code,
+            filter_name: code,
             "date_start": date_start,
             "date_end": date_end,
             "sort": mode,
         },
-        "provenance": _admin_provenance(),
+        "provenance": _juri_provenance(fund),
     }
 
 
-def get_admin_decision(decision_id: str) -> dict[str, Any]:
-    """Lit une décision CETAT sans l'identité des magistrats ni des avocats.
+def search_admin_case_law(
+    query: str,
+    jurisdiction: str | None = None,
+    date_start: str | None = None,
+    date_end: str | None = None,
+    limit: int = 10,
+    sort: str = "relevance",
+) -> dict[str, Any]:
+    """Recherche la jurisprudence administrative dans le fonds Légifrance CETAT."""
+    return _search_juri_fund(
+        "CETAT", query, "jurisdiction", jurisdiction, ADMIN_JURISDICTIONS,
+        date_start, date_end, limit, sort,
+    )
 
-    Les champs ``rapporteur``, ``commissaire`` et ``avocats`` de la réponse ne
-    sont jamais recopiés : l'article L10 du code de justice administrative
-    interdit toute réutilisation de l'identité des magistrats visant à évaluer,
-    comparer ou prédire leurs pratiques. Les métadonnées sont donc choisies une
-    à une plutôt que filtrées.
+
+def search_constitutional_decisions(
+    query: str,
+    decision_type: str | None = None,
+    date_start: str | None = None,
+    date_end: str | None = None,
+    limit: int = 10,
+    sort: str = "relevance",
+) -> dict[str, Any]:
+    """Recherche les décisions du Conseil constitutionnel (fonds CONSTIT)."""
+    return _search_juri_fund(
+        "CONSTIT", query, "decision_type", decision_type, CONSTIT_DECISION_TYPES,
+        date_start, date_end, limit, sort,
+    )
+
+
+def search_financial_case_law(
+    query: str,
+    jurisdiction: str | None = None,
+    date_start: str | None = None,
+    date_end: str | None = None,
+    limit: int = 10,
+    sort: str = "relevance",
+) -> dict[str, Any]:
+    """Recherche la jurisprudence des juridictions financières (fonds JUFI)."""
+    return _search_juri_fund(
+        "JUFI", query, "jurisdiction", jurisdiction, FINANCIAL_JURISDICTIONS,
+        date_start, date_end, limit, sort,
+    )
+
+
+def get_juri_decision(decision_id: str) -> dict[str, Any]:
+    """Lit une décision CETAT, CONSTIT ou JUFI sans identité de personnes.
+
+    Les champs ``rapporteur``, ``commissaire``, ``avocats`` et ``demandeur`` de
+    la réponse ne sont jamais recopiés : l'article L10 du code de justice
+    administrative interdit toute réutilisation de l'identité des magistrats
+    visant à évaluer, comparer ou prédire leurs pratiques, et la même prudence
+    vaut pour les autres personnes nommées. Les métadonnées sont donc choisies
+    une à une plutôt que filtrées ; le texte intégral reste inaltéré.
     """
     decision_id = decision_id.strip().upper()
-    if not _ADMIN_DECISION_ID.fullmatch(decision_id):
+    if not _JURI_DECISION_ID.fullmatch(decision_id):
         raise LegifranceError(
-            f"Identifiant attendu CETATEXT suivi de 12 chiffres (reçu {decision_id!r}).",
+            "Identifiant attendu CETATEXT, CONSTEXT ou JUFITEXT suivi de 12 "
+            f"chiffres (reçu {decision_id!r}).",
             exit_code=2,
         )
+    fund = next(name for name, spec in JURI_FUNDS.items() if decision_id.startswith(spec["prefix"]))
     payload = api_call("/consult/juri", {"textId": decision_id}, get_token())
     decision = payload.get("text") or {}
     if not decision.get("id"):
@@ -827,16 +912,18 @@ def get_admin_decision(decision_id: str) -> dict[str, Any]:
         "id": canonical_id,
         "title": _clean_text(decision.get("titre")),
         "text": _clean_text(decision.get("texte") or decision.get("texteHtml")),
-        "url": ADMIN_DECISION_URL.format(id=canonical_id),
+        "url": JURI_FUNDS[fund]["url"].format(id=canonical_id),
         "metadata": {
             "jurisdiction": decision.get("juridiction"),
             "formation": decision.get("formation"),
             "decision_date": decision_date.isoformat() if decision_date else None,
             "number": decision.get("num"),
             "ecli": decision.get("ecli"),
-            "lebon_publication": decision.get("publicationRecueil"),
+            "nature": decision.get("nature"),
+            "solution": decision.get("solution"),
+            "publication": decision.get("publicationRecueil"),
             "summary": summaries,
-            **_admin_provenance(),
+            **_juri_provenance(fund),
         },
     }
 
@@ -902,8 +989,8 @@ def fetch(identifier: str) -> dict[str, Any]:
         return get_article(identifier)
     if identifier.upper().startswith("LEGITEXT"):
         return get_text(identifier)
-    if identifier.upper().startswith("CETATEXT"):
-        return get_admin_decision(identifier)
+    if _JURI_DECISION_ID.match(identifier):
+        return get_juri_decision(identifier)
     if identifier.upper().startswith(("LEGISCTA", "JORF")):
         raise LegifranceError(
             "Pour une section CODE, utiliser get_section avec son LEGITEXT parent. "
