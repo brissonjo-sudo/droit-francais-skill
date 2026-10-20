@@ -96,6 +96,18 @@
         "open_world_justification": "Ne peut modifier aucun état publiquement visible d'internet : l'outil lit une décision depuis la source officielle Judilibre et n'écrit nulle part.",
         "destructive_justification": "La lecture d'une décision n'entraîne aucune action irréversible."
       }
+    },
+    "search_admin_case_law": {
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": false,
+        "destructiveHint": false
+      },
+      "justifications": {
+        "read_only_justification": "Recherche des décisions administratives publiées par Légifrance sans changer la base officielle.",
+        "open_world_justification": "Ne peut modifier aucun état publiquement visible d'internet : l'outil lit la source officielle Légifrance et n'écrit nulle part.",
+        "destructive_justification": "Ne supprime, ne remplace et n'altère aucune décision ou métadonnée."
+      }
     }
   },
   "test_cases": [

@@ -182,6 +182,109 @@ class LegalToolsTests(unittest.TestCase):
         self.assertEqual("untrusted_source_data", decision["metadata"]["content_trust"])
         self.assertEqual("https://www.courdecassation.fr/decision/abc123", decision["url"])
 
+    @mock.patch("droit_francais.tools.get_token", return_value="token")
+    @mock.patch("droit_francais.tools.api_call")
+    def test_admin_case_law_search_builds_the_cetat_request(self, api_call, _get_token):
+        api_call.return_value = {
+            "totalResultNumber": 2,
+            "results": [
+                {
+                    "titles": [
+                        {
+                            "id": "CETATEXT000048527634",
+                            "title": "<mark>CAA</mark> de Nantes, 2ème chambre, 16/10/2026",
+                        }
+                    ],
+                    "text": "[...] agents de <mark>police</mark> municipale [...]",
+                },
+                {"titles": [{"id": "JURITEXT000037999394", "title": "Hors fonds"}]},
+            ],
+        }
+
+        found = legal_tools.search_admin_case_law(
+            "police municipale",
+            jurisdiction=" CAA ",
+            date_end="2026-10-21",
+            sort="date",
+        )
+
+        body = api_call.call_args.args[1]
+        self.assertEqual("/search", api_call.call_args.args[0])
+        self.assertEqual("CETAT", body["fond"])
+        recherche = body["recherche"]
+        self.assertEqual("DATE_DESC", recherche["sort"])
+        titre = recherche["champs"][1]
+        self.assertEqual("TITLE", titre["typeChamp"])
+        self.assertEqual("OU", titre["operateur"])
+        self.assertEqual(
+            ["Cour administrative d'appel", "CAA"],
+            [critere["valeur"] for critere in titre["criteres"]],
+        )
+        self.assertEqual(
+            [{"facette": "DATE_DECISION",
+              "dates": {"start": "1800-01-01", "end": "2026-10-21"}}],
+            recherche["filtres"],
+        )
+        self.assertEqual(1, len(found["results"]))
+        result = found["results"][0]
+        self.assertEqual("CAA de Nantes, 2ème chambre, 16/10/2026", result["title"])
+        self.assertEqual(
+            "https://www.legifrance.gouv.fr/ceta/id/CETATEXT000048527634", result["url"]
+        )
+        self.assertNotIn("<mark>", result["excerpt"])
+        self.assertEqual("CETAT", found["provenance"]["fund"])
+        self.assertIn("tribunaux administratifs", found["provenance"]["coverage"])
+
+    @mock.patch("droit_francais.tools.api_call")
+    def test_admin_case_law_refuses_unknown_filters_before_network(self, api_call):
+        for kwargs in ({"jurisdiction": "Conseil d'État"}, {"sort": "popularité"},
+                       {"date_start": "06/12/2023"}):
+            with self.subTest(kwargs=kwargs):
+                with self.assertRaises(LegifranceError) as caught:
+                    legal_tools.search_admin_case_law("police", **kwargs)
+                self.assertEqual(2, caught.exception.exit_code)
+        api_call.assert_not_called()
+
+    @mock.patch("droit_francais.tools.get_token", return_value="token")
+    @mock.patch("droit_francais.tools.api_call")
+    def test_admin_decision_fetch_drops_magistrates_and_lawyers(self, api_call, _get_token):
+        api_call.return_value = {
+            "text": {
+                "id": "CETATEXT000048527634",
+                "titre": "Conseil d'État, 10ème - 9ème chambres réunies, 06/12/2023, 468626",
+                "juridiction": "Conseil d'État",
+                "formation": "10ème - 9ème chambres réunies",
+                "dateTexte": 1701820800000,
+                "num": "468626",
+                "ecli": "ECLI:FR:CECHR:2023:468626.20231206",
+                "publicationRecueil": "B",
+                "rapporteur": "Mme Rapporteure-Témoin",
+                "commissaire": "M. Rapporteur-Public-Témoin",
+                "avocats": "SCP Avocat-Témoin",
+                "sommaire": [{"resumePrincipal": "<p>Documents de police municipale.</p>"}],
+                "texteHtml": "<p>Texte intégral</p>",
+            }
+        }
+
+        decision = legal_tools.fetch("cetatext000048527634")
+
+        self.assertEqual("/consult/juri", api_call.call_args.args[0])
+        self.assertEqual({"textId": "CETATEXT000048527634"}, api_call.call_args.args[1])
+        self.assertEqual("Texte intégral", decision["text"])
+        metadata = decision["metadata"]
+        self.assertEqual("2023-12-06", metadata["decision_date"])
+        self.assertEqual(["Documents de police municipale."], metadata["summary"])
+        self.assertTrue(metadata["verified"])
+        self.assertEqual("untrusted_source_data", metadata["content_trust"])
+        rendu = repr(decision)
+        for nom in ("Rapporteure-Témoin", "Rapporteur-Public-Témoin", "Avocat-Témoin"):
+            self.assertNotIn(nom, rendu)
+
+    def test_admin_decision_refuses_a_malformed_identifier(self):
+        with self.assertRaises(LegifranceError) as caught:
+            legal_tools.get_admin_decision("CETATEXT0000")
+        self.assertEqual(2, caught.exception.exit_code)
+
     @mock.patch("droit_francais.tools.judilibre_get")
     def test_case_law_search_refuses_a_jurisdiction_name(self, judilibre_get):
         # Le nom en clair produisait un HTTP 400 opaque venu de Judilibre.
@@ -657,6 +760,20 @@ class McpProtocolTests(unittest.TestCase):
                     self.assertEqual(
                         sorted(legal_tools.SORT_MODES),
                         sorted(_schema_enum(properties["sort"])),
+                    )
+                    admin = next(
+                        t for t in listed.tools if t.name == "search_admin_case_law"
+                    )
+                    admin_properties = getattr(
+                        admin, "inputSchema", getattr(admin, "input_schema", None)
+                    )["properties"]
+                    self.assertEqual(
+                        sorted(legal_tools.ADMIN_JURISDICTIONS),
+                        sorted(_schema_enum(admin_properties["jurisdiction"])),
+                    )
+                    self.assertEqual(
+                        sorted(legal_tools.ADMIN_SORT_MODES),
+                        sorted(_schema_enum(admin_properties["sort"])),
                     )
                     refused = await session.call_tool(
                         "search_case_law",
