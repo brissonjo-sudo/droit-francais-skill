@@ -18,9 +18,12 @@ TOOL_NAMES: tuple[str, ...] = (
     "fetch",
     "search_articles",
     "get_article",
+    "get_article_history",
     "search_case_law",
     "get_decision",
     "search_admin_case_law",
+    "search_constitutional_decisions",
+    "search_financial_case_law",
     "get_section",
     "get_text",
 )

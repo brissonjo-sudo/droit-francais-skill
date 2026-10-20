@@ -28,7 +28,7 @@ puis vérifier la méthode et, séparément, l'accès aux outils.
 |---|---|---|
 | Skill autonome | Noyau 3.5.0 présent dans `main` ; paquet publié distinct | Web officiel si le client le permet ; PISTE facultatif |
 | Plugin depuis le dépôt | Candidat 0.9.0 ; connexion distante dans `.mcp.json` | Service publié antérieur, six outils ; OAuth à qualifier par client |
-| Serveur local du candidat | Neuf outils dans le code, avec Python et PISTE | Articles, décisions, sections et textes ; mesure séparée du service distant |
+| Serveur local du candidat | Douze outils dans le code, avec Python et PISTE | Articles, décisions, sections et textes ; mesure séparée du service distant |
 
 Les nouveaux parcours OAuth Claude Code et ChatGPT restent suivis dans
 [#88](https://github.com/brissonjo-sudo/droit-francais-skill/issues/88) et
@@ -211,7 +211,7 @@ vérité méthodologique.
 Le manifeste pointe vers `.mcp.json`, qui déclare une **connexion distante**.
 Pour installer, vérifier, mettre à jour et retirer le plugin, suivre le
 [guide de cycle de vie](docs/installation.md). Le démarrage ci-dessous est une
-variante de serveur local, avec neuf outils ; il ne constitue pas une
+variante de serveur local, avec douze outils ; il ne constitue pas une
 installation de plugin. Le serveur et le CLI historique partagent la même
 bibliothèque ; la méthode reste dans `skill/SKILL.md`.
 

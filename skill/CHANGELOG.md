@@ -11,6 +11,30 @@ conservés tels quels pour ne pas casser les liens publiés.
 
 ---
 
+### [Non publié — numéros suffixés et historique d'article] — 2026-10-21
+
+- Correctif : les numéros d'article gardent l'espace officielle (« L80 A »,
+  « 200 quater A ») ; la forme compacte reste tentée en second. `search`
+  reconnaît ces suffixes sans prendre « C. civ. » pour un suffixe. Alias LPF
+  et CGI ajoutés.
+- Nouvel outil MCP `get_article_history` : versions d'un article
+  (`consult/getArticle`) jointes à leurs textes modificateurs
+  (`chrono/textCidAndElementCid`), version applicable à la date évaluée.
+  `modifications_available` signale l'absence de chronologie amont.
+- Contrat vérifié par appels réels le 21/10/2026 (inventaire des 68 points
+  d'accès Légifrance).
+
+### [Non publié — Conseil constitutionnel et juridictions financières] — 2026-10-21
+
+- Nouveaux outils MCP `search_constitutional_decisions` (fonds CONSTIT, filtre
+  `qpc`, `dc`, `l`) et `search_financial_case_law` (fonds JUFI, filtre
+  `ccomptes`, `crtc`, `caf`, `cdbf`). Même mécanique que CETAT : titre,
+  facette `DATE_DECISION`, tri `DATE_DESC`, lecture `/consult/juri`.
+- `fetch` lit `CONSTEXT` et `JUFITEXT`. Liste blanche étendue : `demandeur`
+  n'est pas non plus recopié. Métadonnées `nature` et `solution` ajoutées ;
+  `lebon_publication` devient `publication`, commune aux trois fonds.
+- Contrat vérifié par appels réels le 21/10/2026.
+
 ### [Non publié — citations internes] — 2026-10-21
 
 - Les gabarits imposent de citer les fichiers de skill ou de référence par le

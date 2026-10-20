@@ -341,7 +341,7 @@ def search(query: str) -> dict[str, Any]:
     title="Lire une source juridique",
     description=(
         "Récupère le texte et les métadonnées officiels d'un identifiant renvoyé "
-        "par search. LEGIARTI, LEGITEXT et CETATEXT (décision administrative) "
+        "par search. LEGIARTI, LEGITEXT, CETATEXT, CONSTEXT et JUFITEXT "
         "utilisent Légifrance ; les autres décisions utilisent Judilibre. Pour "
         "une section CODE, utiliser get_section avec "
         "son LEGITEXT parent. Les textes JORF ne sont pas couverts."
@@ -391,6 +391,25 @@ def search_articles(
 def get_article(id: str, date: str | None = None) -> dict[str, Any]:
     """Fetch one Légifrance article and its legal-status metadata."""
     return _safe_call(legal_tools.get_article, id, date)
+
+
+@server.tool(
+    name="get_article_history",
+    title="Historique des versions d'un article",
+    description=(
+        "Liste toutes les versions d'un article Légifrance à partir d'un "
+        "identifiant LEGIARTI (n'importe quelle version) : dates de début et de "
+        "fin, état, et textes modificateurs de chaque version (loi, article, "
+        "action). Indique la version applicable à la date évaluée. Ne renseigner "
+        "date QUE si une date précise est demandée. Si modifications_available "
+        "vaut false, l'absence de modificateur n'est pas prouvée. Lire le texte "
+        "d'une version avec get_article."
+    ),
+    annotations=READ_ONLY,
+)
+def get_article_history(id: str, date: str | None = None) -> dict[str, Any]:
+    """List every version of a Légifrance article and its amending texts."""
+    return _safe_call(legal_tools.get_article_history, id, date)
 
 
 @server.tool(
@@ -467,6 +486,73 @@ def search_admin_case_law(
     """Search administrative case law in the Légifrance CETAT fund."""
     return _safe_call(
         legal_tools.search_admin_case_law,
+        query,
+        jurisdiction,
+        date_start,
+        date_end,
+        limit,
+        sort,
+    )
+
+
+@server.tool(
+    name="search_constitutional_decisions",
+    title="Rechercher une décision du Conseil constitutionnel",
+    description=(
+        "Recherche les décisions officielles du Conseil constitutionnel dans "
+        "Légifrance (fonds CONSTIT). decision_type attend un code : qpc "
+        "(question prioritaire de constitutionnalité), dc (contrôle a priori "
+        "des lois) ou l (délimitation loi/règlement) ; l'omettre cherche dans "
+        "tout le fonds. Dates ISO facultatives. sort : relevance (défaut) ou "
+        "date. Lire le texte intégral avec fetch(id)."
+    ),
+    annotations=READ_ONLY,
+)
+def search_constitutional_decisions(
+    query: str,
+    decision_type: Literal["qpc", "dc", "l"] | None = None,
+    date_start: str | None = None,
+    date_end: str | None = None,
+    limit: int = 10,
+    sort: Literal["relevance", "date"] = "relevance",
+) -> dict[str, Any]:
+    """Search Conseil constitutionnel decisions in the Légifrance CONSTIT fund."""
+    return _safe_call(
+        legal_tools.search_constitutional_decisions,
+        query,
+        decision_type,
+        date_start,
+        date_end,
+        limit,
+        sort,
+    )
+
+
+@server.tool(
+    name="search_financial_case_law",
+    title="Rechercher une décision des juridictions financières",
+    description=(
+        "Recherche la jurisprudence officielle des juridictions financières "
+        "dans Légifrance (fonds JUFI). jurisdiction attend un code : ccomptes "
+        "(Cour des comptes), crtc (chambres régionales et territoriales des "
+        "comptes), caf (Cour d'appel financière) ou cdbf (Cour de discipline "
+        "budgétaire et financière) ; l'omettre cherche dans tout le fonds. "
+        "Dates ISO facultatives. sort : relevance (défaut) ou date. Lire le "
+        "texte intégral avec fetch(id)."
+    ),
+    annotations=READ_ONLY,
+)
+def search_financial_case_law(
+    query: str,
+    jurisdiction: Literal["ccomptes", "crtc", "caf", "cdbf"] | None = None,
+    date_start: str | None = None,
+    date_end: str | None = None,
+    limit: int = 10,
+    sort: Literal["relevance", "date"] = "relevance",
+) -> dict[str, Any]:
+    """Search financial courts case law in the Légifrance JUFI fund."""
+    return _safe_call(
+        legal_tools.search_financial_case_law,
         query,
         jurisdiction,
         date_start,

@@ -144,6 +144,101 @@ class LegalToolsTests(unittest.TestCase):
         self.assertEqual("2014-12-22", metadata["version_end_date"])
         self.assertIn("n'est pas applicable", metadata["caveat"])
 
+    def test_article_numbers_keep_the_official_inner_space(self):
+        self.assertEqual(["L80 A", "L80A"], legal_tools._article_number_variants("L80  A"))
+        self.assertEqual(["L2212-2"], legal_tools._article_number_variants("L. 2212-2"))
+        self.assertEqual("200 quater A", legal_tools._article_number_variants("200 quater A")[0])
+
+    @mock.patch("droit_francais.tools.search_articles")
+    def test_standard_search_reads_suffixed_numbers_without_eating_abbreviations(
+        self, search_articles
+    ):
+        search_articles.return_value = {"results": []}
+        for query, number, code in (
+            ("article L80 A du LPF", "L80 A", "Livre des procédures fiscales"),
+            ("art. 200 quater A du CGI", "200 quater A", "Code général des impôts"),
+            ("Vérifie l'art. 1240 C. civ.", "1240", None),
+            ("article L2212-2 a pour objet", "L2212-2", None),
+        ):
+            with self.subTest(query=query):
+                legal_tools.search(query)
+                self.assertEqual(
+                    mock.call(number, code=code, date=None), search_articles.call_args
+                )
+
+    @mock.patch("droit_francais.tools.get_token", return_value="token")
+    @mock.patch("droit_francais.tools.api_call")
+    def test_article_history_joins_versions_and_amending_texts(self, api_call, _get_token):
+        api_call.side_effect = [
+            {
+                "article": {
+                    "id": "LEGIARTI000029946370",
+                    "cid": "LEGIARTI000006390150",
+                    "num": "L2212-2",
+                    "textTitles": [{"cid": "LEGITEXT000006070633",
+                                    "titre": "Code général des collectivités territoriales"}],
+                    "articleVersions": [
+                        {"id": "LEGIARTI000029946370", "etat": "VIGUEUR",
+                         "dateDebut": 1419206400000, "dateFin": 32472144000000},
+                        {"id": "LEGIARTI000019983190", "etat": "MODIFIE",
+                         "dateDebut": 1229817600000, "dateFin": 1419206400000},
+                    ],
+                }
+            },
+            {
+                "regroupements": [
+                    {"versions": {"2014-12-22": {
+                        "dateDebut": 1419206400000,
+                        "articlesModificateurs": {"LEGIARTI000029928259": {
+                            "id": "LEGIARTI000029928259",
+                            "title": "LOI n°2014-1545 du 20 décembre 2014 - art. 11",
+                            "actions": {"MODIFICATION": {}},
+                        }},
+                    }}},
+                ]
+            },
+        ]
+
+        history = legal_tools.get_article_history("legiarti000029946370", date="2020-01-01")
+
+        chrono_body = api_call.call_args_list[1].args[1]
+        self.assertEqual(
+            {"textCid": "LEGITEXT000006070633", "elementCid": "LEGIARTI000006390150"},
+            chrono_body,
+        )
+        self.assertTrue(history["modifications_available"])
+        older, current = history["versions"]
+        self.assertEqual("2008-12-21", older["version_start_date"])
+        self.assertEqual([], older["modified_by"])
+        self.assertTrue(current["applicable_at_as_of_date"])
+        self.assertFalse(older["applicable_at_as_of_date"])
+        self.assertEqual(["MODIFICATION"], current["modified_by"][0]["actions"])
+        self.assertEqual("2020-01-01", history["dating"]["as_of_date"])
+
+    @mock.patch("droit_francais.tools.get_token", return_value="token")
+    @mock.patch("droit_francais.tools.api_call")
+    def test_article_history_without_chronology_does_not_claim_no_amendment(
+        self, api_call, _get_token
+    ):
+        api_call.side_effect = [
+            {"article": {"id": "LEGIARTI000037312533", "cid": "LEGIARTI000006315076",
+                         "num": "L80 A", "textTitles": [{"cid": "LEGITEXT000006069583"}],
+                         "articleVersions": [{"id": "LEGIARTI000037312533", "etat": "VIGUEUR",
+                                              "dateDebut": 1534032000000,
+                                              "dateFin": 32472144000000}]}},
+            {"regroupements": []},
+        ]
+
+        history = legal_tools.get_article_history("LEGIARTI000037312533")
+
+        self.assertFalse(history["modifications_available"])
+        self.assertEqual([], history["versions"][0]["modified_by"])
+
+    def test_article_history_refuses_a_malformed_identifier(self):
+        with self.assertRaises(LegifranceError) as caught:
+            legal_tools.get_article_history("LEGIARTI0000")
+        self.assertEqual(2, caught.exception.exit_code)
+
     @mock.patch("droit_francais.tools.judilibre_get")
     def test_case_law_search_and_fetch_are_traceable(self, judilibre_get):
         judilibre_get.side_effect = [
@@ -280,10 +375,86 @@ class LegalToolsTests(unittest.TestCase):
         for nom in ("Rapporteure-Témoin", "Rapporteur-Public-Témoin", "Avocat-Témoin"):
             self.assertNotIn(nom, rendu)
 
-    def test_admin_decision_refuses_a_malformed_identifier(self):
+    def test_juri_decision_refuses_a_malformed_identifier(self):
+        for identifier in ("CETATEXT0000", "CONSTEXT0000", "JUFITEXT00000000000x"):
+            with self.subTest(identifier=identifier):
+                with self.assertRaises(LegifranceError) as caught:
+                    legal_tools.get_juri_decision(identifier)
+                self.assertEqual(2, caught.exception.exit_code)
+
+    @mock.patch("droit_francais.tools.get_token", return_value="token")
+    @mock.patch("droit_francais.tools.api_call")
+    def test_constitutional_search_targets_constit_and_filters_by_type(
+        self, api_call, _get_token
+    ):
+        api_call.return_value = {
+            "totalResultNumber": 1,
+            "results": [
+                {"titles": [{"id": "CONSTEXT000054998621",
+                             "title": "Décision 2026-1227 <mark>QPC</mark> - 16 octobre 2026"}]},
+                {"titles": [{"id": "CETATEXT000048527634", "title": "Hors fonds"}]},
+            ],
+        }
+
+        found = legal_tools.search_constitutional_decisions(
+            "collectivité territoriale", decision_type="QPC"
+        )
+
+        body = api_call.call_args.args[1]
+        self.assertEqual("CONSTIT", body["fond"])
+        self.assertEqual(
+            [{"typeRecherche": "EXACTE", "valeur": "QPC", "operateur": "ET"}],
+            body["recherche"]["champs"][1]["criteres"],
+        )
+        self.assertEqual(["CONSTEXT000054998621"], [r["id"] for r in found["results"]])
+        self.assertEqual(
+            "https://www.legifrance.gouv.fr/cons/id/CONSTEXT000054998621",
+            found["results"][0]["url"],
+        )
+        self.assertEqual("qpc", found["query"]["decision_type"])
+        self.assertEqual("CONSTIT", found["provenance"]["fund"])
+
+    @mock.patch("droit_francais.tools.api_call")
+    def test_financial_search_refuses_an_unknown_jurisdiction(self, api_call):
         with self.assertRaises(LegifranceError) as caught:
-            legal_tools.get_admin_decision("CETATEXT0000")
+            legal_tools.search_financial_case_law("gestion de fait", jurisdiction="crc")
         self.assertEqual(2, caught.exception.exit_code)
+        self.assertIn("ccomptes", str(caught.exception))
+        api_call.assert_not_called()
+
+    @mock.patch("droit_francais.tools.get_token", return_value="token")
+    @mock.patch("droit_francais.tools.api_call")
+    def test_financial_decision_fetch_drops_named_people(self, api_call, _get_token):
+        api_call.return_value = {
+            "text": {
+                "id": "JUFITEXT000054782208",
+                "titre": "COUR DES COMPTES - CHAMBRE DU CONTENTIEUX - Arrêt - 28/08/2026",
+                "juridiction": "COUR DES COMPTES",
+                "formation": "CHAMBRE DU CONTENTIEUX",
+                "dateTexte": 1787875200000,
+                "num": "S-2026-0975",
+                "nature": "Arrêt",
+                "publicationRecueil": "C",
+                "rapporteur": "Mme Rapporteure-Témoin",
+                "commissaire": "M. Procureur-Témoin",
+                "demandeur": "M. Demandeur-Témoin",
+                "texte": "Texte intégral",
+            }
+        }
+
+        decision = legal_tools.fetch("JUFITEXT000054782208")
+
+        self.assertEqual("/consult/juri", api_call.call_args.args[0])
+        self.assertEqual(
+            "https://www.legifrance.gouv.fr/jufi/id/JUFITEXT000054782208", decision["url"]
+        )
+        metadata = decision["metadata"]
+        self.assertEqual("JUFI", metadata["fund"])
+        self.assertEqual("2026-08-28", metadata["decision_date"])
+        self.assertEqual("Arrêt", metadata["nature"])
+        rendu = repr(decision)
+        for nom in ("Rapporteure-Témoin", "Procureur-Témoin", "Demandeur-Témoin"):
+            self.assertNotIn(nom, rendu)
 
     @mock.patch("droit_francais.tools.judilibre_get")
     def test_case_law_search_refuses_a_jurisdiction_name(self, judilibre_get):
@@ -775,6 +946,19 @@ class McpProtocolTests(unittest.TestCase):
                         sorted(legal_tools.ADMIN_SORT_MODES),
                         sorted(_schema_enum(admin_properties["sort"])),
                     )
+                    for tool_name, field, expected in (
+                        ("search_constitutional_decisions", "decision_type",
+                         legal_tools.CONSTIT_DECISION_TYPES),
+                        ("search_financial_case_law", "jurisdiction",
+                         legal_tools.FINANCIAL_JURISDICTIONS),
+                    ):
+                        tool = next(t for t in listed.tools if t.name == tool_name)
+                        tool_properties = getattr(
+                            tool, "inputSchema", getattr(tool, "input_schema", None)
+                        )["properties"]
+                        self.assertEqual(
+                            sorted(expected), sorted(_schema_enum(tool_properties[field]))
+                        )
                     refused = await session.call_tool(
                         "search_case_law",
                         {"query": "responsabilité", "jurisdiction": "Cour de cassation"},
