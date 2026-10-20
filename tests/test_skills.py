@@ -55,6 +55,20 @@ class MiseAJourSkillTests(unittest.TestCase):
         self.assertIn(".recherche-juridique-update.json", noyau)
 
 
+class CitationSkillTests(unittest.TestCase):
+    def test_les_renvois_internes_excluent_les_liens_et_les_chemins(self):
+        gabarits = (ROOT / "skill" / "references" / "gabarits-sortie.md").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn(
+            "Dans une réponse, un fichier de skill ou de référence se cite par le nom du\n"
+            "skill et la section (ex. « dcp-fpt, §5.5 »), jamais par un lien Markdown ni\n"
+            "par un chemin, relatif ou absolu. Seules les sources officielles (URL\n"
+            "Légifrance, sites publics) prennent la forme d'un lien.",
+            gabarits,
+        )
+
+
 class CatalogueTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
