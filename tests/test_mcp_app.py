@@ -166,6 +166,79 @@ class LegalToolsTests(unittest.TestCase):
                     mock.call(number, code=code, date=None), search_articles.call_args
                 )
 
+    @mock.patch("droit_francais.tools.get_token", return_value="token")
+    @mock.patch("droit_francais.tools.api_call")
+    def test_article_history_joins_versions_and_amending_texts(self, api_call, _get_token):
+        api_call.side_effect = [
+            {
+                "article": {
+                    "id": "LEGIARTI000029946370",
+                    "cid": "LEGIARTI000006390150",
+                    "num": "L2212-2",
+                    "textTitles": [{"cid": "LEGITEXT000006070633",
+                                    "titre": "Code général des collectivités territoriales"}],
+                    "articleVersions": [
+                        {"id": "LEGIARTI000029946370", "etat": "VIGUEUR",
+                         "dateDebut": 1419206400000, "dateFin": 32472144000000},
+                        {"id": "LEGIARTI000019983190", "etat": "MODIFIE",
+                         "dateDebut": 1229817600000, "dateFin": 1419206400000},
+                    ],
+                }
+            },
+            {
+                "regroupements": [
+                    {"versions": {"2014-12-22": {
+                        "dateDebut": 1419206400000,
+                        "articlesModificateurs": {"LEGIARTI000029928259": {
+                            "id": "LEGIARTI000029928259",
+                            "title": "LOI n°2014-1545 du 20 décembre 2014 - art. 11",
+                            "actions": {"MODIFICATION": {}},
+                        }},
+                    }}},
+                ]
+            },
+        ]
+
+        history = legal_tools.get_article_history("legiarti000029946370", date="2020-01-01")
+
+        chrono_body = api_call.call_args_list[1].args[1]
+        self.assertEqual(
+            {"textCid": "LEGITEXT000006070633", "elementCid": "LEGIARTI000006390150"},
+            chrono_body,
+        )
+        self.assertTrue(history["modifications_available"])
+        older, current = history["versions"]
+        self.assertEqual("2008-12-21", older["version_start_date"])
+        self.assertEqual([], older["modified_by"])
+        self.assertTrue(current["applicable_at_as_of_date"])
+        self.assertFalse(older["applicable_at_as_of_date"])
+        self.assertEqual(["MODIFICATION"], current["modified_by"][0]["actions"])
+        self.assertEqual("2020-01-01", history["dating"]["as_of_date"])
+
+    @mock.patch("droit_francais.tools.get_token", return_value="token")
+    @mock.patch("droit_francais.tools.api_call")
+    def test_article_history_without_chronology_does_not_claim_no_amendment(
+        self, api_call, _get_token
+    ):
+        api_call.side_effect = [
+            {"article": {"id": "LEGIARTI000037312533", "cid": "LEGIARTI000006315076",
+                         "num": "L80 A", "textTitles": [{"cid": "LEGITEXT000006069583"}],
+                         "articleVersions": [{"id": "LEGIARTI000037312533", "etat": "VIGUEUR",
+                                              "dateDebut": 1534032000000,
+                                              "dateFin": 32472144000000}]}},
+            {"regroupements": []},
+        ]
+
+        history = legal_tools.get_article_history("LEGIARTI000037312533")
+
+        self.assertFalse(history["modifications_available"])
+        self.assertEqual([], history["versions"][0]["modified_by"])
+
+    def test_article_history_refuses_a_malformed_identifier(self):
+        with self.assertRaises(LegifranceError) as caught:
+            legal_tools.get_article_history("LEGIARTI0000")
+        self.assertEqual(2, caught.exception.exit_code)
+
     @mock.patch("droit_francais.tools.judilibre_get")
     def test_case_law_search_and_fetch_are_traceable(self, judilibre_get):
         judilibre_get.side_effect = [

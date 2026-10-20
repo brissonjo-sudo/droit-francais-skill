@@ -28,7 +28,7 @@ then check the methodology and access to tools separately.
 |---|---|---|
 | Standalone skill | Core 3.5.0 present in `main`; published package is separate | Official websites if the client supports access; PISTE optional |
 | Repository plugin | Candidate 0.9.0; remote connection in `.mcp.json` | Earlier published service, six tools; OAuth must be qualified for each client |
-| Local candidate server | Eleven tools in the code, with Python and PISTE | Articles, decisions, sections and legislation; measured separately from the remote service |
+| Local candidate server | Twelve tools in the code, with Python and PISTE | Articles, decisions, sections and legislation; measured separately from the remote service |
 
 The new Claude Code and ChatGPT OAuth flows are tracked in
 [#88](https://github.com/brissonjo-sudo/droit-francais-skill/issues/88) and
@@ -210,7 +210,7 @@ core from `skill/`, keeping a single source of methodological truth.
 The manifest points to `.mcp.json`, which declares a **remote connection**.
 For installation, verification, updates and removal, follow the
 [lifecycle guide (in French)](docs/installation.md). The startup commands below are a local
-server variant, with eleven tools; they do not install a plugin. The server
+server variant, with twelve tools; they do not install a plugin. The server
 and historical CLI share the same library; the methodology remains in
 `skill/SKILL.md`.
 

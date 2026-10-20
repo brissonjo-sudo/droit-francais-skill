@@ -109,6 +109,18 @@
         "destructive_justification": "Ne supprime, ne remplace et n'altère aucune décision ou métadonnée."
       }
     },
+    "get_article_history": {
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": false,
+        "destructiveHint": false
+      },
+      "justifications": {
+        "read_only_justification": "Lit les versions d'un article et leurs textes modificateurs publiés par Légifrance, sans rien modifier.",
+        "open_world_justification": "Ne peut modifier aucun état publiquement visible d'internet : l'outil lit la source officielle Légifrance et n'écrit nulle part.",
+        "destructive_justification": "La lecture de l'historique d'un article n'entraîne aucune action irréversible."
+      }
+    },
     "search_constitutional_decisions": {
       "annotations": {
         "readOnlyHint": true,

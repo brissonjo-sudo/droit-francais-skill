@@ -268,6 +268,16 @@ async def sonder(url: str, token: str) -> None:
                     f"({metadonnees['date_basis']})"
                 )
 
+                # ---- 3 bis. Historique des versions de l'article ----------
+                resultat, _ = await appeler("get_article_history", {"id": identifiant})
+                charge = _exiger_succes(resultat, "get_article_history")
+                _verifier_absence_de_secrets(_texte(resultat), "get_article_history")
+                _exiger_provenance(charge, "Légifrance API", "get_article_history")
+                versions = charge.get("versions") or []
+                if not any(v.get("applicable_at_as_of_date") for v in versions):
+                    raise SondeError("get_article_history ne désigne aucune version applicable")
+                print(f"✅ Historique : {len(versions)} version(s) datée(s).")
+
                 # ---- 4. Appel Judilibre réel ------------------------------
                 resultat, latence_judilibre = await appeler(
                     "search_case_law",

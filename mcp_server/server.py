@@ -394,6 +394,25 @@ def get_article(id: str, date: str | None = None) -> dict[str, Any]:
 
 
 @server.tool(
+    name="get_article_history",
+    title="Historique des versions d'un article",
+    description=(
+        "Liste toutes les versions d'un article Légifrance à partir d'un "
+        "identifiant LEGIARTI (n'importe quelle version) : dates de début et de "
+        "fin, état, et textes modificateurs de chaque version (loi, article, "
+        "action). Indique la version applicable à la date évaluée. Ne renseigner "
+        "date QUE si une date précise est demandée. Si modifications_available "
+        "vaut false, l'absence de modificateur n'est pas prouvée. Lire le texte "
+        "d'une version avec get_article."
+    ),
+    annotations=READ_ONLY,
+)
+def get_article_history(id: str, date: str | None = None) -> dict[str, Any]:
+    """List every version of a Légifrance article and its amending texts."""
+    return _safe_call(legal_tools.get_article_history, id, date)
+
+
+@server.tool(
     name="search_case_law",
     title="Rechercher une décision judiciaire",
     description=(

@@ -11,12 +11,18 @@ conservés tels quels pour ne pas casser les liens publiés.
 
 ---
 
-### [Non publié — numéros suffixés] — 2026-10-21
+### [Non publié — numéros suffixés et historique d'article] — 2026-10-21
 
 - Correctif : les numéros d'article gardent l'espace officielle (« L80 A »,
   « 200 quater A ») ; la forme compacte reste tentée en second. `search`
   reconnaît ces suffixes sans prendre « C. civ. » pour un suffixe. Alias LPF
-  et CGI ajoutés. Vérifié par appels réels le 21/10/2026.
+  et CGI ajoutés.
+- Nouvel outil MCP `get_article_history` : versions d'un article
+  (`consult/getArticle`) jointes à leurs textes modificateurs
+  (`chrono/textCidAndElementCid`), version applicable à la date évaluée.
+  `modifications_available` signale l'absence de chronologie amont.
+- Contrat vérifié par appels réels le 21/10/2026 (inventaire des 68 points
+  d'accès Légifrance).
 
 ### [Non publié — Conseil constitutionnel et juridictions financières] — 2026-10-21
 

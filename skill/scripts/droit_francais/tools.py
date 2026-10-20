@@ -620,6 +620,84 @@ def get_article(article_id: str, date: str | None = None) -> dict[str, Any]:
     }
 
 
+def _chrono_modifiers(text_cid: str, article_cid: str) -> dict[str, list[dict[str, Any]]] | None:
+    """Textes modificateurs par date de début de version, ou None si absents."""
+    payload = api_call(
+        "/chrono/textCidAndElementCid",
+        {"textCid": text_cid, "elementCid": article_cid},
+        get_token(),
+    )
+    groups = payload.get("regroupements") or []
+    if not groups:
+        return None
+    by_date: dict[str, list[dict[str, Any]]] = {}
+    for group in groups:
+        for version in (group.get("versions") or {}).values():
+            start = _date_value(version.get("dateDebut"))
+            if start is None:
+                continue
+            for modifier in (version.get("articlesModificateurs") or {}).values():
+                by_date.setdefault(start.isoformat(), []).append(
+                    {
+                        "id": modifier.get("id"),
+                        "title": _clean_text(modifier.get("title")),
+                        "actions": sorted((modifier.get("actions") or {}).keys()),
+                    }
+                )
+    return by_date
+
+
+def get_article_history(article_id: str, date: str | None = None) -> dict[str, Any]:
+    """Liste toutes les versions d'un article et les textes qui les ont produites."""
+    article_id = article_id.strip().upper()
+    if not _ARTICLE_ID.fullmatch(article_id):
+        raise LegifranceError(
+            f"Identifiant attendu {ARTICLE_ID_PREFIX} suivi de 12 chiffres "
+            f"(reçu {article_id!r}).",
+            exit_code=2,
+        )
+    article = _extract_article(api_call("/consult/getArticle", {"id": article_id}, get_token()))
+    if not article:
+        raise LegifranceError(f"Article {article_id} introuvable.", exit_code=5)
+    article_cid = article.get("cid") or article_id
+    text = (article.get("textTitles") or [{}])[0]
+    text_cid = text.get("cid")
+    modifiers = _chrono_modifiers(text_cid, article_cid) if text_cid else None
+    dating = _dating(date)
+    as_of = dt.date.fromisoformat(dating["as_of_date"])
+    versions = []
+    for version in article.get("articleVersions") or []:
+        start = _date_value(version.get("dateDebut"))
+        end = _date_value(version.get("dateFin"))
+        versions.append(
+            {
+                "id": version.get("id"),
+                "url": ARTICLE_URL.format(id=version.get("id")),
+                "legal_status": version.get("etat") or "UNKNOWN",
+                "version_start_date": start.isoformat() if start else None,
+                "version_end_date": end.isoformat() if end else None,
+                "applicable_at_as_of_date": bool(start and start <= as_of and (end is None or as_of < end)),
+                "modified_by": (modifiers or {}).get(start.isoformat(), []) if start else [],
+            }
+        )
+    versions.sort(key=lambda item: item["version_start_date"] or "")
+    return {
+        "id": article_id,
+        "cid": article_cid,
+        "number": _clean_text(article.get("num")),
+        "text": {"id": text_cid, "title": _clean_text(text.get("titre"))},
+        "versions": versions,
+        # Sans chronologie amont, une liste vide ne prouverait pas l'absence de modification.
+        "modifications_available": modifiers is not None,
+        "dating": dating,
+        "provenance": {
+            "source": "Légifrance API",
+            "verified": True,
+            "content_trust": UNTRUSTED_CONTENT,
+        },
+    }
+
+
 def search_case_law(
     query: str,
     jurisdiction: str | None = None,
