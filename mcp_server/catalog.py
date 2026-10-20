@@ -20,6 +20,7 @@ TOOL_NAMES: tuple[str, ...] = (
     "get_article",
     "search_case_law",
     "get_decision",
+    "search_admin_case_law",
     "get_section",
     "get_text",
 )

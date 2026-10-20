@@ -341,8 +341,9 @@ def search(query: str) -> dict[str, Any]:
     title="Lire une source juridique",
     description=(
         "Récupère le texte et les métadonnées officiels d'un identifiant renvoyé "
-        "par search. LEGIARTI et LEGITEXT utilisent Légifrance ; les décisions "
-        "utilisent Judilibre. Pour une section CODE, utiliser get_section avec "
+        "par search. LEGIARTI, LEGITEXT et CETATEXT (décision administrative) "
+        "utilisent Légifrance ; les autres décisions utilisent Judilibre. Pour "
+        "une section CODE, utiliser get_section avec "
         "son LEGITEXT parent. Les textes JORF ne sont pas couverts."
     ),
     annotations=READ_ONLY,
@@ -439,6 +440,40 @@ def search_case_law(
 def get_decision(id: str) -> dict[str, Any]:
     """Fetch one full Judilibre decision by identifier."""
     return _safe_call(legal_tools.get_decision, id)
+
+
+@server.tool(
+    name="search_admin_case_law",
+    title="Rechercher une décision administrative",
+    description=(
+        "Recherche la jurisprudence administrative officielle dans Légifrance "
+        "(fonds CETAT). jurisdiction attend un code : ce (Conseil d'État), caa "
+        "(cour administrative d'appel), ta (tribunal administratif) ou tc "
+        "(Tribunal des conflits) ; l'omettre cherche dans tout le fonds. Les "
+        "jugements de tribunaux administratifs n'y figurent que par une "
+        "sélection antérieure à 2010. Dates ISO facultatives. sort : relevance "
+        "(défaut) ou date. Lire le texte intégral avec fetch(id)."
+    ),
+    annotations=READ_ONLY,
+)
+def search_admin_case_law(
+    query: str,
+    jurisdiction: Literal["ce", "caa", "ta", "tc"] | None = None,
+    date_start: str | None = None,
+    date_end: str | None = None,
+    limit: int = 10,
+    sort: Literal["relevance", "date"] = "relevance",
+) -> dict[str, Any]:
+    """Search administrative case law in the Légifrance CETAT fund."""
+    return _safe_call(
+        legal_tools.search_admin_case_law,
+        query,
+        jurisdiction,
+        date_start,
+        date_end,
+        limit,
+        sort,
+    )
 
 
 @server.tool(

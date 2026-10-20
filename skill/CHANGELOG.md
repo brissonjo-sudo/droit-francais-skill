@@ -11,6 +11,18 @@ conservés tels quels pour ne pas casser les liens publiés.
 
 ---
 
+### [Non publié — jurisprudence administrative] — 2026-10-21
+
+- Nouvel outil MCP `search_admin_case_law` : fonds Légifrance CETAT (Conseil
+  d'État, cours administratives d'appel, Tribunal des conflits ; tribunaux
+  administratifs en sélection antérieure à 2010). Filtres `ce`, `caa`, `ta`,
+  `tc` par le titre, dates via la facette `DATE_DECISION`, tri `DATE_DESC`.
+- `fetch` lit les identifiants `CETATEXT` via `/consult/juri`. Les champs
+  `rapporteur`, `commissaire` et `avocats` ne sont jamais recopiés dans les
+  métadonnées (CJA art. L10) ; le texte intégral reste inaltéré.
+- Contrat vérifié par appels réels le 21/10/2026 ; tests hors réseau et sonde
+  live adaptés. Aucun déploiement.
+
 ### [Non publié — extension MCP] — 2026-10-04
 
 Préparation de livraison : candidat plugin 0.9.0, manifestes et serveur alignés.

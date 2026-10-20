@@ -308,6 +308,23 @@ async def sonder(url: str, token: str) -> None:
                     raise SondeError("get_decision ne porte pas la date de décision")
                 print("✅ get_decision : texte et provenance officielle présents.")
 
+                # ---- 5 bis. Jurisprudence administrative (fonds CETAT) -----
+                resultat, _ = await appeler(
+                    "search_admin_case_law",
+                    {"query": "police municipale", "jurisdiction": "ce", "limit": 3},
+                )
+                charge = _exiger_succes(resultat, "search_admin_case_law")
+                _verifier_absence_de_secrets(_texte(resultat), "search_admin_case_law")
+                _exiger_provenance(charge, "Légifrance API", "search_admin_case_law")
+                decisions_admin = charge.get("results") or []
+                if not decisions_admin or not str(
+                    decisions_admin[0].get("id", "")
+                ).startswith("CETATEXT"):
+                    raise SondeError(
+                        "aucune décision CETAT : source officielle non vérifiée"
+                    )
+                print(f"✅ Jurisprudence administrative : {decisions_admin[0]['id']}.")
+
                 # ---- 6. Parcours standard search → fetch ------------------
                 resultat, _ = await appeler(
                     "search", {"query": f"article {ARTICLE_TEMOIN}"}

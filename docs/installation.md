@@ -29,7 +29,7 @@ Pour une recette reproductible, noter le commit et la version réellement instal
   .mcp.json. Python et PISTE ne sont pas nécessaires sur le poste, mais OAuth
   reste nécessaire pour les outils.
 - **Serveur local** : Python, dépendances MCP et identifiants PISTE nécessaires.
-  Les huit outils du candidat ne sont pas automatiquement ceux du service distant.
+  Les neuf outils du candidat ne sont pas automatiquement ceux du service distant.
 
 ## Claude Code
 
