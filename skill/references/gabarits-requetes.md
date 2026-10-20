@@ -215,7 +215,11 @@ web_search("site:legifrance.gouv.fr LEGIARTI000049XXXXXX abrogé")
 
 ## 11. Historique des versions d'un article
 
-Depuis la fiche article Légifrance, cliquer "Versions" ou :
+Voie outillée : outil MCP `get_article_history(id)` — versions datées,
+textes modificateurs et version applicable (voir checklist de vigueur,
+point 5).
+
+Voie de repli : depuis la fiche article Légifrance, cliquer "Versions" ou :
 ```
 web_fetch("https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000049XXXXXX#historique")
 ```

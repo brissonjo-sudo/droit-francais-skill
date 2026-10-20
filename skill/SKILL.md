@@ -624,6 +624,18 @@ Pour chaque texte, vérifier :
 - **décisions QPC** ayant abrogé ou réservé l'interprétation de la
   disposition (lorsque mentionnées sur Légifrance).
 
+**Voie outillée.** Si le connecteur MCP expose `get_article_history`, il
+répond aux trois premiers points pour un article de code : toutes les
+versions datées, leur état, le texte modificateur de chacune (« Modifié
+par ») et la version applicable à la date de référence. Lire les états :
+`VIGUEUR_DIFF` = version publiée mais pas encore en vigueur (vacatio
+legis) ; `ABROGE_DIFF` = abrogation programmée de la version courante ;
+suffixe `_MORT_NE` = version jamais entrée en vigueur, à ne jamais
+citer comme droit applicable. Si `modifications_available` vaut
+`false`, l'absence de modificateur **n'est pas prouvée** : contrôler la
+fiche Légifrance. L'outil ne dispense ni des dispositions transitoires ni
+des QPC.
+
 Checklist détaillée → [`references/checklist-vigueur.md`](references/checklist-vigueur.md).
 
 **Critère de sortie** : pour chaque texte cité, l'état d'application
@@ -814,7 +826,10 @@ divergence alerte** (mode 3 ou 4). Conditions d'obligation : voir
 Pour les analyses de fond, retracer brièvement l'histoire du texte :
 version initiale, principales modifications, raison politique ou
 jurisprudentielle de la dernière réforme. Évite les contresens nés
-d'une lecture hors contexte.
+d'une lecture hors contexte. Voie outillée : `get_article_history`
+fournit la version initiale et chaque texte modificateur daté (loi et
+article) ; la raison de la réforme se cherche ensuite dans ce texte ou
+ses travaux préparatoires.
 
 ### T4 — Raisonnement par distinction
 Pour un précédent ou un texte apparemment applicable, identifier les

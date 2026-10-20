@@ -11,6 +11,19 @@ conservés tels quels pour ne pas casser les liens publiés.
 
 ---
 
+### [Non publié — méthode : historique d'article outillé] — 2026-10-21
+
+Candidat PATCH 3.5.1 (ajustement de référence) ; version inchangée tant que
+la publication n'est pas décidée.
+
+- Étape 3 (fraîcheur) et T3 (archéologie textuelle) : voie outillée
+  `get_article_history`, avec lecture des états `VIGUEUR_DIFF`,
+  `ABROGE_DIFF` et `_MORT_NE`, et règle « `modifications_available: false`
+  ne prouve pas l'absence de modification ».
+- `checklist-vigueur.md` point 5 et `gabarits-requetes.md` §11 : voie
+  outillée en premier, fiche Légifrance en repli.
+- États vérifiés par appel réel le 21/10/2026 (CGI art. 200 quater A).
+
 ### [Non publié — numéros suffixés et historique d'article] — 2026-10-21
 
 - Correctif : les numéros d'article gardent l'espace officielle (« L80 A »,
