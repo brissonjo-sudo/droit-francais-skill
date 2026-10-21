@@ -4,7 +4,7 @@ Déclinaison **Gemini** (Google Antigravity et Gemini CLI) de la
 méthodologie de recherche juridique en droit français portée par ce dépôt.
 
 Cette déclinaison porte au standard **Agent Skills** l'ensemble des principes
-invariants de la version **3.3.0** du noyau (`skill/`), en adaptant l'échelle
+invariants de la version **3.5.1** du noyau (`skill/`), en adaptant l'échelle
 d'outils aux capacités de l'écosystème Gemini.
 
 ---
@@ -28,19 +28,21 @@ capacités et aux outils de l'écosystème Google / Gemini :
 ## Échelle d'outils à 4 voies
 
 1. **Connecteur MCP dédié (Priorité 1)** :  
-   Dans un environnement supportant le protocole MCP (Google Antigravity, Gemini CLI, Claude Code), le serveur du dépôt expose 6 outils officiels vérifiés dans [`mcp_server/server.py`](../mcp_server/server.py) :
-   - `search(query)` : recherche générale d'articles ou de jurisprudence ;
-   - `fetch(id)` : lecture intégrale du texte identifié ;
-   - `search_articles(number, code, date)` : recherche ciblée d'article de code avec filtre de date ;
+   Dans un environnement supportant le protocole MCP (Google Antigravity, Gemini CLI, Claude Code), le serveur du dépôt expose 12 outils officiels vérifiés dans [`mcp_server/server.py`](../mcp_server/server.py) :
+   - `search(query)` : recherche générale (article, sinon jurisprudence judiciaire) ;
+   - `fetch(id)` : lecture intégrale du document identifié (`LEGIARTI`, `LEGITEXT`, `CETATEXT`, `CONSTEXT`, `JUFITEXT`, décision Judilibre) ;
+   - `search_articles(number, code, date, limit)` : article de code avec filtre de date ;
    - `get_article(id, date)` : lecture certifiée avec évaluation de `applicable_at_as_of_date` ;
-   - `search_case_law(query, jurisdiction, date_start, date_end)` : recherche de jurisprudence ;
-   - `get_decision(id)` : lecture intégrale de la décision.
+   - `get_article_history(id, date)` : versions datées d'un article, textes modificateurs, version applicable ;
+   - `get_section(id, text_id, date, cid)` et `get_text(id, date)` : section de code et texte consolidé ;
+   - `search_case_law(query, jurisdiction, date_start, date_end, limit, sort)` et `get_decision(id)` : ordre judiciaire (Judilibre) ;
+   - `search_admin_case_law(...)`, `search_constitutional_decisions(...)` et `search_financial_case_law(...)` : ordres administratif, constitutionnel et financier (Légifrance).
 
 2. **Recherche institutionnelle / Grounding (Repli Web)** :  
    Si aucun serveur MCP n'est actif, mobiliser le grounding Google Search en ciblant impérativement les domaines officiels listés dans [`references/sources-autorisees.md`](references/sources-autorisees.md). Ne jamais reconstituer un texte ou un numéro de pourvoi de mémoire.
 
 3. **Exécution de code Python / SDK `google-genai`** :  
-   Pour les intégrations programmatiques, s'appuyer sur le package compagnon [`gemini_agent/`](../gemini_agent) qui instancie un agent `google-genai` à température `0.0` avec le prompt système méthodologique.
+   Avec Python et des identifiants PISTE, les scripts du noyau (`skill/scripts/legifrance.py`) interrogent Légifrance et Judilibre. Le package compagnon [`gemini_agent/`](../gemini_agent) instancie un agent `google-genai` à température `0.0` avec le prompt système méthodologique ; ses fonctions-outils sont des squelettes non branchés, qui ne vérifient rien tant qu'ils ne sont pas connectés à une source.
 
 4. **Abstention informée (P7)** :  
    Si la source primaire est inaccessible ou contradictoire, énoncer une réserve et s'abstenir de conclure.
@@ -51,7 +53,9 @@ capacités et aux outils de l'écosystème Google / Gemini :
 
 - Les **sept principes invariants P1 à P7**, dont la distinction entre authenticité de la source, rang de la norme et effet sur l'application (P3) ;
 - La distinction entre **provenance officielle** et **applicabilité à la date évaluée** (`applicable_at_as_of_date`) ;
-- La **procédure en 8 étapes** (cadrage, récupération, fraîcheur, jurisprudence, triangulation, articulation, rédaction, auto-critique) ;
+- La **procédure en 8 étapes** (cadrage, récupération, version et fraîcheur, jurisprudence, triangulation, articulation, rédaction, auto-critique), avec l'historique d'article outillé et la lecture des états `VIGUEUR_DIFF`, `ABROGE_DIFF` et `_MORT_NE` ;
+- La **voie spéciale DOC-AUDIT** ([`references/audit-documentaire.md`](references/audit-documentaire.md)) : registre, risque élevé vérifié à 100 %, exécution forcée d'office testée à part, montants répressifs distingués ;
+- Les **modes d'erreur** à prévenir ([`references/modes-erreur.md`](references/modes-erreur.md)) ;
 - Les **six modules métier activables** ([`references/modules.md`](references/modules.md)) ;
 - Les balises d'exécution (`[complet]`, `[express]`, `[syllogisme]`, `[lookup]`).
 
@@ -64,7 +68,9 @@ gemini_skill/
 ├── SKILL.md                      ← instructions méthodologiques pour agents Gemini
 ├── references/
 │   ├── sources-autorisees.md     ← hiérarchie des sources primaires et autorité (P3)
-│   └── modules.md                ← détail des six modules activables (PÉNAL, ACTE-ADMIN...)
+│   ├── modules.md                ← détail des six modules activables (PÉNAL, ACTE-ADMIN...)
+│   ├── audit-documentaire.md     ← protocole DOC-AUDIT
+│   └── modes-erreur.md           ← erreurs récurrentes à prévenir
 └── README.md                     ← ce document
 ```
 
@@ -116,4 +122,4 @@ print(response.text)
 
 ## Versionnement
 
-Le frontmatter porte `version: 3.3.0-gemini` et `base_version: 3.3.0`. Le numéro suit fidèlement le noyau de méthodologie juridique du dépôt.
+Le frontmatter porte `version: 3.5.1-gemini` et `base_version: 3.5.1`. Le numéro suit fidèlement le noyau de méthodologie juridique du dépôt.

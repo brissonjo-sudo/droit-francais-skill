@@ -338,8 +338,8 @@ standalone and documented in its own README:
 
 | Directory | Platform | Type |
 |---|---|---|
-| [`gemini_skill/`](gemini_skill) | Gemini (Google) | Condensed v3.3.0 core, prioritizing this repository's MCP server, with fallback to Google Search grounding on official sources |
-| [`gemini_agent/`](gemini_agent) | Gemini (`google-genai`) | Programmatic Python client, temperature 0.0, system prompt aligned with v3.3.0 methodology |
+| [`gemini_skill/`](gemini_skill) | Gemini (Google) | Condensed v3.5.1 core, prioritizing this repository's MCP server, with fallback to Google Search grounding on official sources |
+| [`gemini_agent/`](gemini_agent) | Gemini (`google-genai`) | Programmatic Python client, temperature 0.0, system prompt aligned with v3.5.1 methodology |
 | [`grok_skill/`](grok_skill) | Grok (xAI) | Condensed core for French law, retrieval with native web tools (`web_search`, `open_page`) instead of the MCP connector and PISTE APIs |
 | [`vibe_skill/`](vibe_skill) | Vibe (Mistral) | Condensed core, native `web_search`/`web_fetch` tools checked against public source code; Python wrapper provided as an unconnected scaffold |
 | [`manus_skill/`](manus_skill) | Manus | Condensed adaptation based on 3.5.0; this repository's MCP connector if exposed, native web capability as observed without assuming tool names, otherwise abstention; strengthened DOC-AUDIT checks |
