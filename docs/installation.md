@@ -15,7 +15,7 @@ sur une copie locale des fichiers du dépôt, pas sur l'acquisition GitHub,
 la mise à niveau vers une autre version, une nouvelle session ou OAuth.
 Voir les [preuves et limites du correctif](correctifs-pr115.md).
 
-Le noyau présent dans le dépôt est 3.5.0 ; le plugin 0.9.0 est un candidat.
+Le noyau présent dans le dépôt est 3.5.1 ; le plugin 0.9.0 est un candidat.
 La dernière release plugin relevée lors de l'audit porte le numéro 0.7.0.
 Une installation depuis main prend le candidat, pas une release stable figée.
 Pour une recette reproductible, noter le commit et la version réellement installés.

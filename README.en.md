@@ -2,7 +2,7 @@
 
 # droit-francais-skill
 
-**LLM skill — French legal research methodology (v3.5.0)**
+**LLM skill — French legal research methodology (v3.5.1)**
 
 **Standalone distribution + OpenAI and Claude Code plugins with MCP tools (plugin candidate v0.9.0, unpublished)**
 
@@ -26,7 +26,7 @@ then check the methodology and access to tools separately.
 
 | Channel | Status on 10 October 2026 | Tools |
 |---|---|---|
-| Standalone skill | Core 3.5.0 present in `main`; published package is separate | Official websites if the client supports access; PISTE optional |
+| Standalone skill | Core 3.5.1 present in `main`; published package is separate | Official websites if the client supports access; PISTE optional |
 | Repository plugin | Candidate 0.9.0; remote connection in `.mcp.json` | Earlier published service, six tools; OAuth must be qualified for each client |
 | Local candidate server | Twelve tools in the code, with Python and PISTE | Articles, decisions, sections and legislation; measured separately from the remote service |
 
@@ -369,7 +369,7 @@ The skill activates automatically when you:
 
 ---
 
-## Directory tree (skill v3.5.0 / plugin candidate v0.9.0)
+## Directory tree (skill v3.5.1 / plugin candidate v0.9.0)
 
 ```
 droit-francais-skill/
