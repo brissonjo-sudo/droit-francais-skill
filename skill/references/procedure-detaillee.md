@@ -238,7 +238,7 @@ Si la question dépend de l'interprétation d'un texte :
 Obligatoire dans les cas suivants :
 
 - qualification pénale destinée à motiver un acte ou un PV (cf.
-  module PÉNAL §5 ci-dessous) **lorsqu'une interprétation est en jeu**
+  module PÉNAL (§5 du noyau)) **lorsqu'une interprétation est en jeu**
   (élément constitutif discutable, qualification concurrente plausible,
   application analogique apparente, jurisprudence connue de divergence
   ou de revirement),

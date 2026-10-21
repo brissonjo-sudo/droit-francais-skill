@@ -22,10 +22,11 @@ def normalize(text: str) -> str:
 
 
 def expected_text(row: dict[str, str]) -> str:
-    """Applique exclusivement les arbitrages A4b et le rebasing des liens."""
+    """Applique exclusivement les arbitrages A4b/A4c et le rebasing des liens."""
     text = row["texte_source"].replace("\r\n", "\n")
     text = text.replace(OLD_P1, NEW_P1)
     text = text.replace("module PÉNAL §6", "module PÉNAL §5")
+    text = text.replace("module PÉNAL §5 ci-dessous", "module PÉNAL (§5 du noyau)")
     text = text.replace("(voir §6).", "(voir §5).")
     if row["identifiant"] == "RJ-L0001":
         text = text.replace("  version: 3.5.0\n", "  version: 3.6.0\n")
