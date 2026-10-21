@@ -61,18 +61,24 @@ Déterminer l'objet de la demande, le résultat attendu, le domaine et le régim
 
 Suivre les voies ci-dessous dans l'ordre ; n'utiliser que les outils effectivement exposés dans la session.
 
-**1. Connecteur MCP dédié de ce dépôt — s'il est exposé dans la session.** Ses six outils et paramètres sont ceux vérifiés dans `mcp_server/server.py` :
+**1. Connecteur MCP dédié de ce dépôt — s'il est exposé dans la session.** Ses douze outils et paramètres sont ceux vérifiés dans `mcp_server/server.py` (catalogue `mcp_server/catalog.py`) :
 
 | Outil MCP | Paramètres | Usage |
 |---|---|---|
-| `search` | `query` | Recherche générique : route vers un article si la requête en contient un, sinon vers la jurisprudence |
-| `fetch` | `id` | Lit le résultat désigné par l'identifiant renvoyé par `search` ; ne prend pas une URL |
-| `search_articles` | `number`, `code`, `date` | Recherche ciblée d'un article, avec code et date |
+| `search` | `query` | Recherche générique : route vers un article si la requête en contient un, sinon vers la jurisprudence judiciaire |
+| `fetch` | `id` | Lit le résultat désigné par l'identifiant renvoyé par `search` ou par une recherche de jurisprudence (`LEGIARTI`, `LEGITEXT`, `CETATEXT`, `CONSTEXT`, `JUFITEXT`, décision Judilibre) ; ne prend pas une URL |
+| `search_articles` | `number`, `code`, `date`, `limit` | Recherche ciblée d'un article, avec code et date ; garder la graphie officielle (« L80 A ») |
 | `get_article` | `id`, `date` | Lit un article via son identifiant `LEGIARTI` et évalue `applicable_at_as_of_date` |
-| `search_case_law` | `query`, `jurisdiction`, `date_start`, `date_end` | Recherche de jurisprudence |
-| `get_decision` | `id` | Lit une décision désignée par son identifiant |
+| `get_article_history` | `id`, `date` | Toutes les versions datées d'un article, leurs textes modificateurs et la version applicable ; `modifications_available: false` ne prouve pas l'absence de modification |
+| `get_section` | `id`, `text_id`, `date`, `cid` | Lit une section de code (`LEGISCTA`) dans son texte parent explicite |
+| `get_text` | `id`, `date` | Lit un texte consolidé (`LEGITEXT`) |
+| `search_case_law` | `query`, `jurisdiction`, `date_start`, `date_end`, `limit`, `sort` | Jurisprudence de l'ordre judiciaire seulement (Judilibre : `cc`, `ca`, `tj`, `tcom`) |
+| `get_decision` | `id` | Lit une décision Judilibre désignée par son identifiant |
+| `search_admin_case_law` | `query`, `jurisdiction`, `date_start`, `date_end`, `limit`, `sort` | Jurisprudence administrative (`ce`, `caa`, `ta`, `tc`) ; tribunaux administratifs seulement en sélection antérieure à 2010 |
+| `search_constitutional_decisions` | `query`, `decision_type`, `date_start`, `date_end`, `limit`, `sort` | Décisions du Conseil constitutionnel (`qpc`, `dc`, `l`) |
+| `search_financial_case_law` | `query`, `jurisdiction`, `date_start`, `date_end`, `limit`, `sort` | Juridictions financières (`ccomptes`, `crtc`, `caf`, `cdbf`) |
 
-Dès qu'un numéro d'article est identifié, préférer `search_articles` → `get_article` à `search` → `fetch` : cette voie est plus précise pour la provenance et l'applicabilité. Ne jamais passer une URL à `fetch`. Ne supposer ni que ce connecteur est configuré, ni que ces outils sont présents ; confirmer leur disponibilité dans la session avant l'appel.
+Dès qu'un numéro d'article est identifié, préférer `search_articles` → `get_article` à `search` → `fetch` : cette voie est plus précise pour la provenance et l'applicabilité. Pour la fraîcheur, `get_article_history` donne les versions et leurs modificateurs. Choisir l'outil de jurisprudence selon l'ordre de juridiction : judiciaire, administratif, constitutionnel ou financier ; le texte intégral d'une décision Légifrance se lit par `fetch`. Ne jamais passer une URL à `fetch`. Ne supposer ni que ce connecteur est configuré, ni que ces outils sont présents ; confirmer leur disponibilité dans la session avant l'appel.
 
 **2. Capacité web native de Manus — si aucun connecteur MCP dédié n'est disponible.** Constater les outils réellement exposés dans la session sans en supposer le nom ni les paramètres. Limiter la recherche aux domaines officiels de `references/sources-autorisees.md`. Lire la page officielle elle-même, pas seulement l'extrait de recherche. Si la page est dynamique, interactive ou mal extraite, utiliser le navigateur Manus lorsqu'il est effectivement disponible.
 
