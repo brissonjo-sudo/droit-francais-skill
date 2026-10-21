@@ -245,6 +245,5 @@ compétence, procédure, sanction, définition, exception, renvoi,
 habilitation, contrôle. Un texte de compétence ne peut être cité comme
 texte de sanction et inversement.
 
-Détail → [`references/format-citation.md`](format-citation.md).
 
 → Bloque modes 1, 4, 6, 7, 14.

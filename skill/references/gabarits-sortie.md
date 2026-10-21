@@ -389,5 +389,3 @@ et détenue par le seul utilisateur**, le skill ne spécule pas et ne
 **Gabarit A** — Note express · **Gabarit B** — Note de fond · **Gabarit C** — Citation
 pour acte · **Gabarit D** — Audit documentaire · **Sous-gabarit
 `[syllogisme]`** — Note de concours (surcouche B).
-
-**Lire [`references/gabarits-sortie.md`](gabarits-sortie.md) avant toute rédaction de livrable.**

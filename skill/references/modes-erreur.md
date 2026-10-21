@@ -96,7 +96,6 @@ chaque étape indiquent les modes qu'ils neutralisent (« → Bloque modes… »
 
 | 9 | Oubli du décret d'application | 18 | Incohérence de corpus |
 
-**Détail et exemples de chaque mode → [`references/modes-erreur.md`](modes-erreur.md).**
 
 **Note.** L'étape 0 bis (v2.1.0) n'est pas un mode supplémentaire : garde procédurale
 en amont, elle empêche de déclencher les modes 10 et 14 (mauvais régime /

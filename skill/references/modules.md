@@ -165,5 +165,3 @@ doute sur le déclenchement, le module s'active.** Le mode B force tous les modu
 | **CONTENTIEUX** | Risque recours / stratégie procédurale / voie de droit envisagée | Régime contentieux + office juge + charge + moyens + délais |
 
 | **DOC-AUDIT** | Audit, relecture ou correction juridique d'un ou plusieurs fichiers | Registre des affirmations, risque élevé vérifié à 100 %, matrice acteur–lieu–propriétaire–pouvoir, cohérence du corpus, contrôle post-correction ; non désactivable par `[express]` |
-
-**Lire [`references/modules.md`](modules.md) dès qu'un module s'active.**

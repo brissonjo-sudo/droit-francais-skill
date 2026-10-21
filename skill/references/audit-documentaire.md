@@ -176,8 +176,7 @@ si l'une de ces conditions n'est pas satisfaite.
 
 Toute demande d'**audit**, de **relecture juridique** ou de **correction
 directe** d'un ou plusieurs fichiers active le module **DOC-AUDIT**, y
-compris sous balise `[express]`. Lire et exécuter intégralement
-[`references/audit-documentaire.md`](audit-documentaire.md).
+compris sous balise `[express]`.
 
 Cette route ajoute huit portes de contrôle au noyau : qualifier les
 livrables et leurs dates de droit ; inventorier le corpus ; constituer un

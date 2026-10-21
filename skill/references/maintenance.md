@@ -313,6 +313,5 @@ police-gendarmerie ; les remplacer par les domaines du profil utilisé.
 
 - [ ] Mise à jour de `date_derniere_verification_sources`.
 
-Procédure de revue détaillée → [`references/maintenance.md`](maintenance.md).
 
 > Historique complet → [`CHANGELOG.md`](../CHANGELOG.md)

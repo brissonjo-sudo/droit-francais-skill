@@ -16,13 +16,27 @@ OLD_P1 = "`scripts/legifrance.py` **en premier**, à défaut\n`web_fetch`/`web_s
 NEW_P1 = "selon l'ordre normé de l'**étape 2**, *échelle de récupération* :\nconnecteur MCP officiel disponible, sinon `scripts/legifrance.py`,\nà défaut `web_fetch`/`web_search` sur un domaine officiel"
 
 
+# A4e : chaque renvoi historique est vérifié dans son routage existant du noyau.
+CORE_ROUTES = {
+    "RJ-L0219": "Pour diagnostiquer un échec ou consulter les exemples des modes 1 à 18, lire [Modes d'erreur](references/modes-erreur.md).",
+    "RJ-L0306": "Avant de choisir ou d'évaluer une source, lire les sections pertinentes de [Sources autorisées](references/sources-autorisees.md).",
+    "RJ-L0338": "Avant toute citation, lire le format applicable et [Fonction juridique de chaque référence](references/format-citation.md#fonction-juridique-de-chaque-référence).",
+    "RJ-L0419": "Toute demande d'audit, de relecture ou de correction juridique active DOC-AUDIT, même sous [express] : lire et exécuter intégralement [Audit documentaire](references/audit-documentaire.md) avant toute correction ou conclusion d'audit.",
+    "RJ-L0844": "Lire [Modules](references/modules.md) dès qu'un module s'active. Lire les règles communes et le gabarit applicable de [Gabarits de sortie](references/gabarits-sortie.md) avant toute rédaction de livrable.",
+    "RJ-L0853": "Lire [Modules](references/modules.md) dès qu'un module s'active. Lire les règles communes et le gabarit applicable de [Gabarits de sortie](references/gabarits-sortie.md) avant toute rédaction de livrable.",
+    "RJ-L0994": "Installation gérée par le CLI skills : lire [Mise à jour de l'installation](references/maintenance.md#mise-à-jour-de-linstallation) avant toute mise à jour autorisée. Pour une revue du skill, lire [Maintenance et métadonnées du noyau](references/maintenance.md#maintenance-et-métadonnées-du-noyau).",
+}
+
+
 def normalize(text: str) -> str:
     """Normalise seulement Unicode et espaces ; conserve mots et ponctuation."""
     return " ".join(unicodedata.normalize("NFC", text).split())
 
 
 def expected_text(row: dict[str, str]) -> str:
-    """Applique exclusivement les arbitrages A4b/A4c/A4d et le rebasing des liens."""
+    """Applique exclusivement les arbitrages A4b/A4c/A4d/A4e et le rebasing des liens."""
+    if row["identifiant"] in CORE_ROUTES:
+        return CORE_ROUTES[row["identifiant"]]
     text = row["texte_source"].replace("\r\n", "\n")
     text = text.replace(OLD_P1, NEW_P1)
     text = text.replace("module PÉNAL §6", "module PÉNAL §5")
@@ -58,6 +72,9 @@ def check_rows(rows: list[dict[str, str]], root: Path = ROOT) -> list[str]:
         errors.append("unités source différentes de la correspondance A4 figée")
     for row in rows:
         name = row["identifiant"]
+        if name in CORE_ROUTES and row["fichier_realise"] != "skill/SKILL.md":
+            errors.append(f"{name} : renvoi de lecture obligatoire dans le noyau")
+            continue
         relative = PurePosixPath(row["fichier_realise"])
         if relative.is_absolute() or ".." in relative.parts or relative.parts[:1] != ("skill",) or "\\" in str(relative) or ":" in str(relative):
             errors.append(f"{name} : chemin réalisé hors skill")

@@ -33,7 +33,6 @@ d'identification, de contextualisation ou de signalement d'une
 controverse doctrinale. Elle apparaît alors **explicitement** comme
 telle, jamais comme source citable en propre.
 
-Détail → [`references/sources-autorisees.md`](sources-autorisees.md).
 
 → Bloque modes 6, 7, 8.
 
