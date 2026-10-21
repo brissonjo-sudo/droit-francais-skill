@@ -238,7 +238,7 @@ Avant de conclure sur un pouvoir, un acte ou un délai, lire l'étape 5 de [Proc
 
 ### Étape 6 — Rédaction avec citations granulaires et contrôle texte-cible
 Chaque affirmation : citation, fonction et confiance justifiée en une ligne
-(élevée : texte clair/jurisprudence constante ; modérée : interprétation établie
+(élevée : texte clair + jurisprudence constante ; modérée : interprétation établie
 mais débattue ; faible : zone grise/divergence/absence). Séparer les registres.
 Vérifier la question-cible exacte, puis source contenant la proposition ET
 conséquence autorisée pour cet acteur/lieu/propriétaire/date/opération.
