@@ -11,6 +11,46 @@ Chaque module est déclenché automatiquement par des critères explicites.
 module s'active.** Le mode B force l'activation de tous les modules.
 
 ### Module PÉNAL
+
+### P6 — Légalité criminelle et application de la loi pénale dans le temps
+
+Toute qualification d'infraction s'effectue sous la contrainte des
+articles **111-3** et **111-4 du Code pénal** :
+
+- loi pénale d'**interprétation stricte**,
+
+- aucune extension par analogie,
+
+- aucune qualification sans tous les éléments constitutifs (légal,
+  matériel, moral) prévus par un texte en vigueur à la date des faits.
+
+S'applique également aux **sanctions administratives à caractère
+punitif** (jurisprudence CC et CEDH, *Engel* notamment).
+
+**Application de la loi pénale dans le temps** :
+
+- **Non-rétroactivité de la loi plus sévère** : la version applicable
+  est celle en vigueur à la date des faits.
+
+- **Rétroactivité in mitius de la loi plus douce** (art. 112-1 al. 3 CP) :
+  si une version postérieure aux faits, antérieure au jugement, est plus
+  favorable, elle s'applique.
+
+Cette comparaison est explicite quand plusieurs versions existent
+entre la date des faits et la date d'analyse.
+
+**Conséquence procédurale** : en cas de doute sérieux non résolu sur
+un élément constitutif, **aucune qualification affirmative n'est
+présentée comme certaine**. Le skill expose alors les qualifications
+soutenables avec leurs zones d'incertitude.
+
+**Le skill ne pratique pas le biais sous-qualifiant par défaut** : sa
+fonction est d'identifier les qualifications juridiquement plausibles
+et de documenter leurs incertitudes, non de choisir la plus favorable
+au mis en cause.
+
+→ Bloque modes 2, 3, 5, 11, 14.
+
 - **Déclencheurs** : toute requête comportant un fait à qualifier
   pénalement, toute mention d'infraction (contravention, délit,
   crime), toute demande de visa pénal, toute préparation de PV.
@@ -102,3 +142,26 @@ module s'active.** Le mode B force l'activation de tous les modules.
   risque élevé reste sans vérification, correction ou abstention ciblée.
 
 ---
+
+## Déclenchement des six modules
+
+## 5. Modules activables (mode A)
+
+Chaque module est déclenché automatiquement. **Règle conservatrice : en cas de
+doute sur le déclenchement, le module s'active.** Le mode B force tous les modules.
+
+| Module | Déclencheurs | Résumé |
+
+|--------|-------------|--------|
+
+| **PÉNAL** | Fait à qualifier pénalement, infraction, visa pénal, PV | P6 strict, décomposition 3 éléments (légal/matériel/moral), non désactivable par `[express]` |
+
+| **ACTE-ADMIN** | Rédaction/analyse/contrôle acte admin (arrêté, décision individuelle, sanction, refus) | Proportionnalité Benjamin, compétence renforcée, opposabilité, triangulation si acte faisant grief |
+
+| **PA-PJ** | Opération susceptible d'être PA ou PJ (constatation, interpellation, contrôle, mesure préventive) | Mini-grille : finalité / autorité / temporalité / régime procédural |
+
+| **FOND** | Niveau = note de fond / citation pour acte / concours ; ou interprétation controversée | T3 obligatoire, grille autorité jurisprudentielle |
+
+| **CONTENTIEUX** | Risque recours / stratégie procédurale / voie de droit envisagée | Régime contentieux + office juge + charge + moyens + délais |
+
+| **DOC-AUDIT** | Audit, relecture ou correction juridique d'un ou plusieurs fichiers | Registre des affirmations, risque élevé vérifié à 100 %, matrice acteur–lieu–propriétaire–pouvoir, cohérence du corpus, contrôle post-correction ; non désactivable par `[express]` |

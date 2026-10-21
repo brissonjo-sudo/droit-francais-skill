@@ -89,6 +89,26 @@ Ce numéro local ne vaut ni tag Git, ni publication, ni service distant mis à j
   (GHSA-42vr-xj54-vc7v), avec test de non-régression hors réseau. Premier
   candidat conservé comme preuve non libératoire ; nouveau candidat à qualifier.
 
+### [3.6.0] — 2026-10-21
+
+Préparation locale de la méthodologie ; aucune publication ni mesure modèle.
+Les dates de vérification juridique embarquées ne sont pas actualisées par cette refonte.
+
+#### Modifié
+- Noyau raccourci ; développements conservés dans trois nouvelles références et
+  huit références enrichies, avec routage conditionnel et contrôle des 337 unités.
+- Arbitrage de routage : l'ordre normé de l'étape 2 fait foi (MCP officiel
+  disponible, sinon script, puis web officiel, enfin abstention). P1 y renvoie
+  sans annoncer le script comme prioritaire sur un MCP disponible.
+- Renvois aux modules, notamment « module PÉNAL §6 », corrigés vers §5.
+- Manifeste du paquet d'instructions disponible hors réseau ; les bras du banc
+  et les consommateurs mono-document ne sont pas modifiés.
+
+#### Ajouté
+- Les gabarits imposent de citer les fichiers de skill ou de référence par le
+  nom du skill et la section, sans lien Markdown ni chemin relatif ou absolu.
+  Les liens sont réservés aux sources officielles.
+
 ### [3.5.1] — 2026-10-21
 
 PATCH : ajustements de référence et clarifications, sans nouveau principe,

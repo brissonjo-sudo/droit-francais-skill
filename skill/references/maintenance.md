@@ -229,3 +229,89 @@ correction immédiate avant clôture de la revue.
 
 - Commit avec message format : `chore(skill): revue annuelle AAAA-MM-JJ`.
 - Mettre à jour les métadonnées de suivi dans votre projet (version et date).
+
+## Mise à jour de l'installation
+
+## Mise à jour — contrôle par session, automatique sur option
+
+Au premier déclenchement du skill dans une session, si le mode automatique
+n'est pas activé, vérifier discrètement si une mise à jour est disponible avec
+`npx skills check`, **uniquement** si `npx` est accessible. Ne pas relancer ce
+contrôle dans la même session et jamais avant une réponse urgente ou une simple
+clarification.
+
+- Si `recherche-juridique` est signalé comme périmé, l'indiquer en une phrase,
+  puis poursuivre immédiatement le travail :
+  « Une mise à jour de recherche-juridique est disponible ; vous pourrez
+  l'installer après cette réponse avec `npx skills update recherche-juridique`. »
+
+- Ne pas proposer de mise à jour si le contrôle ne signale rien, si le skill
+  n'est pas suivi par le CLI `skills`, ou si le contrôle échoue (réseau, Node,
+  droits). Ces situations ne sont pas un problème juridique et ne doivent pas
+  alourdir la réponse.
+
+- L'agent ne lance jamais `npx skills update` de sa propre initiative, sauf
+  si l'utilisateur a activé le mode automatique ci-dessous.
+
+Cette fonction concerne les installations réalisées avec le CLI `skills`.
+Pour une installation gérée par un hôte ou un marketplace, suivre son mécanisme
+de mise à jour ; ne pas présenter la commande `npx` comme un correctif universel.
+
+### Mode automatique explicite
+
+Ce mode est réservé à une installation **globale suivie par le CLI `skills`**.
+L'utilisateur l'active en créant, à la racine du skill, le fichier local non
+versionné `.recherche-juridique-update.json` :
+
+```json
+{ "automatic": true }
+```
+
+Au premier usage après un délai de 24 heures, exécuter à la place du contrôle
+manuel `npx skills check` :
+`scripts/update_skill.py`. Le script détermine le périmètre global, lance
+`npx skills update recherche-juridique -y -g`, conserve `profil.md` et
+`scripts/.env`, puis affiche seulement `UPDATE_APPLIED` quand la version a
+changé. Une panne réseau, l'absence de `npx`, une installation locale ou un
+emplacement ambigu ne bloque jamais le travail juridique et n'entraîne aucune
+mise à jour. Le fichier garde la date de la dernière tentative pour éviter les
+relances répétées.
+
+Pour désactiver le mode, remplacer son contenu par `{ "automatic": false }`
+ou supprimer ce fichier.
+
+## Maintenance et métadonnées du noyau
+
+## 10. Maintenance et versioning
+
+### En-tête du SKILL.md
+
+Métadonnées YAML obligatoires :
+
+- `version` (sémantique MAJEUR.MINEUR.PATCH),
+
+- `date_derniere_revue_methodologique`,
+
+- `date_derniere_verification_sources`.
+
+### Checklist annuelle (1er septembre — rentrée juridique)
+
+Priorisée par les **domaines prioritaires du profil actif** (section 3 de
+`profil.md`). Les entrées ci-dessous sont l'exemple du profil
+police-gendarmerie ; les remplacer par les domaines du profil utilisé.
+
+- [ ] Évolutions des **codes de la section 3 du profil** (priorité haute).
+
+- [ ] **Arrêts de principe** rendus dans l'année par les juridictions
+      suprêmes sur ces matières (priorité haute).
+
+- [ ] **Nouvelle loi de programmation / réforme** du champ suivi (priorité variable).
+
+- [ ] Cohérence des fichiers `profils/` avec le format en 5 sections.
+
+- [ ] Mise à jour de `date_derniere_revue_methodologique`.
+
+- [ ] Mise à jour de `date_derniere_verification_sources`.
+
+
+> Historique complet → [`CHANGELOG.md`](../CHANGELOG.md)
