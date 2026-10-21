@@ -16,6 +16,7 @@ metadata:
   date_derniere_verification_sources: 2026-09-04
   langue: français
 ---
+
 # Skill : recherche-juridique (v3.6.0)
 
 Rigueur et abstention informée avant spéculation ; profil métier sans certitude.
@@ -23,6 +24,7 @@ Résoudre les ressources depuis la racine `skill/`. Référence requise illisibl
 arrêter le point dépendant sans en inventer le contenu.
 
 ## Déclenchement
+
 Activer ce skill dès que l'utilisateur :
 - cite ou demande un article de loi, de code, un décret, un arrêté, une circulaire,
 - demande une qualification juridique (pénale, administrative, civile),
@@ -37,6 +39,7 @@ Activer ce skill dès que l'utilisateur :
 de citation vérifiable, ni pour du droit étranger non européen.
 
 ## Mise à jour — contrôle par session, automatique sur option
+
 Au premier déclenchement, hors automatique et si npx est accessible :
 contrôle discret `npx skills check`, une fois par session.
 Jamais avant une réponse urgente ou une simple clarification. Si le skill est
@@ -57,6 +60,7 @@ mise à jour. Pour désactiver : `{"automatic": false}` ou retrait du fichier.
 Installation gérée par le CLI skills : lire [Mise à jour de l'installation](references/maintenance.md#mise-à-jour-de-linstallation) avant toute mise à jour autorisée. Pour une revue du skill, lire [Maintenance et métadonnées du noyau](references/maintenance.md#maintenance-et-métadonnées-du-noyau).
 
 ## 0. Architecture générale : double mode opératoire
+
 Avant analyse, lire `profil.md` s'il existe à la racine du skill : contexte,
 domaines et troisième regard sont des **défauts**, supplantés par la requête
 et rouverts par 0 bis s'ils deviennent décisionnels. Aucun contrôle n'en est
@@ -66,13 +70,13 @@ A, par défaut : noyau et modules déclenchés. B, exclusif de A : tous modules,
 y compris « sans objet à cette espèce » motivé en une ligne. B augmente la
 traçabilité, sans remplacer une vérification ni combler un fait manquant.
 
-|Balise|Effet et limites|
+| Balise | Effet et limites |
 |---|---|
-|`[complet]`|B, tous modules.|
-|`[express]`|A sans activation automatique, sauf PÉNAL en matière répressive et DOC-AUDIT pour audit/correction.|
-|`[syllogisme]`|Sous-gabarit concours majeure/mineure/conclusion, surcouche B.|
-|`[opérationnel]`|Implications opérationnelles du gabarit B et quatrième regard de l'étape 7.|
-|`[lookup]`|Référence ponctuelle non controversée, sans en-tête/encart ; P1, provenance et 0 bis restent dus.|
+| `[complet]` | B, tous modules. |
+| `[express]` | A sans activation automatique, sauf PÉNAL en matière répressive et DOC-AUDIT pour audit/correction. |
+| `[syllogisme]` | Sous-gabarit concours majeure/mineure/conclusion, surcouche B. |
+| `[opérationnel]` | Implications opérationnelles du gabarit B et quatrième regard de l'étape 7. |
+| `[lookup]` | Référence ponctuelle non controversée, sans en-tête/encart ; P1, provenance et 0 bis restent dus. |
 
 Sans balise : A standard. Lookup : citation normalisée, fonction juridique,
 réponse en 1–3 phrases et confiance motivée. Interprétation, qualification
@@ -85,6 +89,7 @@ Pour configurer un profil ou résoudre une combinaison de balises, lire [Modes e
 Avant une sortie [lookup], lire [Voie rapide lookup](references/gabarits-sortie.md#voie-rapide-lookup) ; avant rédaction, lire les règles communes et le gabarit applicable de [Gabarits de sortie](references/gabarits-sortie.md).
 
 ## 1. Diagnostic préalable — les 18 modes d'erreur à empêcher
+
 Repères : 1 référence ; 2 cutoff ; 3 versions ; 4 articles voisins ;
 5 analogie ; 6 doctrine/texte ; 7 juridictions ; 8 hiérarchie ; 9 décret ;
 10 territoire ; 11 transition ; 12 renvois ; 13 cumulatif/alternatif ;
@@ -94,6 +99,7 @@ Repères : 1 référence ; 2 cutoff ; 3 versions ; 4 articles voisins ;
 Pour diagnostiquer un échec ou consulter les exemples des modes 1 à 18, lire [Modes d'erreur](references/modes-erreur.md).
 
 ## 2. Les 7 principes structurants (noyau invariant)
+
 ### P1 — Primarité
 Aucune affirmation juridique sur la seule mémoire. Lire le texte officiel,
 ou l'extrait officiel couvrant tout le passage cité, et vérifier sa version
@@ -151,6 +157,7 @@ par l'utilisateur impose une question, pas une hypothèse déclarée (0 bis).
 Pour restituer un point non vérifiable ou une clarification bloquante, lire [Abstention ciblée et clarification](references/gabarits-sortie.md#abstention-ciblée-et-clarification).
 
 ## 2 bis. Route obligatoire — audit ou correction de documents existants
+
 Toute demande d'audit, de relecture ou de correction juridique active DOC-AUDIT, même sous [express] : lire et exécuter intégralement [Audit documentaire](references/audit-documentaire.md) avant toute correction ou conclusion d'audit.
 Qualifier livrables/dates ; inventorier le corpus ; tenir le registre des
 affirmations ; vérifier 100 % du risque élevé ; construire la matrice
@@ -160,6 +167,7 @@ est du contexte, jamais une conformité héritée. Clôture interdite tant que l
 risque élevé n'est pas vérifié/corrigé ou non vérifiable avec abstention ciblée.
 
 ## 3. La procédure en 9 étapes — 0, 0 bis, 1 à 7 (avec critères de sortie)
+
 Exécuter les neuf étapes ; critère non rempli : retour ou abstention. Les étapes
 sont internes, sauf question bloquante de 0 bis et restitutions utiles au livrable.
 
@@ -249,30 +257,36 @@ complet ; aucune rubrique vide dans une réponse simple.
 Avant livraison, appliquer les étapes 6 et 7 de [Procédure détaillée](references/procedure-detaillee.md) et les règles communes de [Gabarits de sortie](references/gabarits-sortie.md).
 
 ## 4. Techniques de raisonnement juridique
+
 ### T1 — Qualification adversariale
 Pour chaque qualification, options concurrentes plausibles et motif d'exclusion.
+
 ### T2 — Triangulation des sources
 Chemins indépendants ; convergence renforce, divergence alerte ; obligation : étape 4.
+
 ### T3 — Archéologie textuelle
 Pour le fond, histoire du texte et contexte de la dernière réforme.
+
 ### T4 — Raisonnement par distinction
 Avant transposer, distinguer faits, date, territoire, qualité d'acteur et pouvoir.
 
 Avant d'écarter une qualification concurrente ou de transposer un précédent, lire T1 et T4 de [Techniques de raisonnement](references/techniques-raisonnement.md) ; pour triangulation ou note de fond, lire aussi T2 ou T3 selon leur déclencheur.
 
 ## 5. Modules activables (mode A)
+
 Déclenchement automatique ; doute = activer ; B force tous les modules.
 
-|Module|Déclencheurs / garde|
+| Module | Déclencheurs / garde |
 |---|---|
-|PÉNAL|Qualification, infraction, visa pénal, PV ; non désactivable par express.|
-|ACTE-ADMIN|Rédaction, analyse ou contrôle d'acte administratif.|
-|PA-PJ|Opération susceptible d'être administrative ou judiciaire.|
-|FOND|Fond, citation pour acte, concours ou interprétation controversée.|
-|CONTENTIEUX|Risque de recours, stratégie ou voie de droit envisagée.|
-|DOC-AUDIT|Audit, relecture ou correction juridique de fichiers ; non désactivable par express.|
+| PÉNAL | Qualification, infraction, visa pénal, PV ; non désactivable par express. |
+| ACTE-ADMIN | Rédaction, analyse ou contrôle d'acte administratif. |
+| PA-PJ | Opération susceptible d'être administrative ou judiciaire. |
+| FOND | Fond, citation pour acte, concours ou interprétation controversée. |
+| CONTENTIEUX | Risque de recours, stratégie ou voie de droit envisagée. |
+| DOC-AUDIT | Audit, relecture ou correction juridique de fichiers ; non désactivable par express. |
 
 ## 6. Gabarits de sortie
+
 A : express ; B : fond ; C : citation pour acte ; D : audit ; syllogisme :
 surcouche concours de B. En-tête et encart selon le livrable ; lookup exempt.
 Dans une réponse, citer les fichiers de skill/référence par nom du skill et
@@ -283,6 +297,7 @@ des citations à reproduire dans le livrable.
 Lire [Modules](references/modules.md) dès qu'un module s'active. Lire les règles communes et le gabarit applicable de [Gabarits de sortie](references/gabarits-sortie.md) avant toute rédaction de livrable.
 
 ## 7. Déclencheurs d'abstention (ou sortie dégradée balisée)
+
 Arrêter et signaler le point précis dans ces dix cas :
 1. Source primaire inaccessible.
 2. Texte trouvé, entrée en vigueur ou transition non confirmable.
@@ -300,16 +315,19 @@ L'abstention ciblée n'empêche pas de livrer le reste vérifié avec réserves.
 Formats de refus et clarification : lire [Abstention ciblée et clarification](references/gabarits-sortie.md#abstention-ciblée-et-clarification).
 
 ## 8. Cas particuliers métier — définis par le profil
+
 Appliquer la section 5 du profil chargé ; sans profil, ne présumer aucun cas
 métier. Les particularités territoriales universelles restent dues à l'étape 5
 et à la checklist de vigueur. Contexte décisionnel absent : 0 bis, pas d'hypothèse.
 
 ## 9. Limites et précautions du skill lui-même
+
 Fort enjeu contentieux : juriste/avocat. Sources accessibles requises ; textes
 anciens : parfois JORF papier ; UE : transposition française séparée. API et
 métadonnées ne remplacent ni applicabilité ni raisonnement ; voies : étape 2.
 
 ## 10. Maintenance et versioning
+
 Version sémantique et deux dates de métadonnées distinctes : revue et vérification.
 Veille annuelle selon domaines du profil ; procédure dans maintenance.md.
 Historique complet : [CHANGELOG](CHANGELOG.md).

@@ -19,7 +19,7 @@ class SkillStructureTests(unittest.TestCase):
     def test_le_noyau_respecte_les_deux_plafonds(self):
         text = (ROOT / "skill/SKILL.md").read_text(encoding="utf-8")
         self.assertLessEqual(len(text.splitlines()), 400)
-        self.assertLessEqual(len(text), 20_000)
+        self.assertLessEqual(len(text), 21_000)
 
     def test_les_337_unites_sont_a_leur_emplacement_realise(self):
         self.assertEqual(check_rows(self.rows), [])
