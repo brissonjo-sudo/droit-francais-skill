@@ -11,6 +11,22 @@ conservés tels quels pour ne pas casser les liens publiés.
 
 ---
 
+### [Non publié — Gemini : portage 3.3.0 → 3.5.1] — 2026-10-21
+
+- `gemini_skill/SKILL.md` réécrit sur la base 3.5.1 (structure de la
+  déclinaison Manus 3.5.0) : principes P1–P7 reformulés, procédure en huit
+  étapes, voie spéciale DOC-AUDIT (exécution forcée d'office, montants
+  répressifs, porte de clôture), historique d'article outillé et états
+  `VIGUEUR_DIFF` / `ABROGE_DIFF` / `_MORT_NE`, citations internes sans lien.
+  Les intitulés des quatre voies Gemini sont conservés ; la voie 1 liste les
+  douze outils MCP.
+- `gemini_skill/references/` : `audit-documentaire.md` et `modes-erreur.md`
+  ajoutés, `modules.md` et `sources-autorisees.md` alignés sur la 3.5.x.
+- `gemini_agent` : prompt système en v3.5.1 ; ses fonctions-outils restent des
+  squelettes non branchés, désormais signalés comme tels dans le skill.
+- `tests/test_gemini_skill.py` : versions 3.5.1, couverture du catalogue MCP
+  (preuve par mutation), états de version et nouvelles références.
+
 ### [Non publié — Manus : douze outils MCP] — 2026-10-21
 
 - `manus_skill/SKILL.md` et `README.md` : le tableau du connecteur passe de six
