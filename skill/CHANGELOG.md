@@ -11,19 +11,6 @@ conservés tels quels pour ne pas casser les liens publiés.
 
 ---
 
-### [Non publié — méthode : historique d'article outillé] — 2026-10-21
-
-Candidat PATCH 3.5.1 (ajustement de référence) ; version inchangée tant que
-la publication n'est pas décidée.
-
-- Étape 3 (fraîcheur) et T3 (archéologie textuelle) : voie outillée
-  `get_article_history`, avec lecture des états `VIGUEUR_DIFF`,
-  `ABROGE_DIFF` et `_MORT_NE`, et règle « `modifications_available: false`
-  ne prouve pas l'absence de modification ».
-- `checklist-vigueur.md` point 5 et `gabarits-requetes.md` §11 : voie
-  outillée en premier, fiche Légifrance en repli.
-- États vérifiés par appel réel le 21/10/2026 (CGI art. 200 quater A).
-
 ### [Non publié — numéros suffixés et historique d'article] — 2026-10-21
 
 - Correctif : les numéros d'article gardent l'espace officielle (« L80 A »,
@@ -47,12 +34,6 @@ la publication n'est pas décidée.
   n'est pas non plus recopié. Métadonnées `nature` et `solution` ajoutées ;
   `lebon_publication` devient `publication`, commune aux trois fonds.
 - Contrat vérifié par appels réels le 21/10/2026.
-
-### [Non publié — citations internes] — 2026-10-21
-
-- Les gabarits imposent de citer les fichiers de skill ou de référence par le
-  nom du skill et la section, sans lien Markdown ni chemin relatif ou absolu.
-  Les liens sont réservés aux sources officielles.
 
 ### [Non publié — jurisprudence administrative] — 2026-10-21
 
@@ -82,6 +63,35 @@ Ce numéro local ne vaut ni tag Git, ni publication, ni service distant mis à j
   de livraison, `pip-audit` a identifié PyJWT 2.14.0 : passage épinglé à 2.15.0
   (GHSA-42vr-xj54-vc7v), avec test de non-régression hors réseau. Premier
   candidat conservé comme preuve non libératoire ; nouveau candidat à qualifier.
+
+### [3.5.1] — 2026-10-21
+
+PATCH : ajustements de référence et clarifications, sans nouveau principe,
+module, technique ni déclencheur (`maintenance.md` §5).
+
+#### Modifié
+- **Historique d'article outillé** : l'étape 3 (fraîcheur) et la technique T3
+  (archéologie textuelle) citent la voie outillée `get_article_history` du
+  connecteur MCP — versions datées, textes modificateurs, version applicable.
+  Lecture des états `VIGUEUR_DIFF` (vacatio legis), `ABROGE_DIFF` (abrogation
+  programmée) et `_MORT_NE` (jamais en vigueur, à ne jamais citer) ;
+  `modifications_available: false` ne prouve pas l'absence de modification.
+  L'outil ne dispense ni des dispositions transitoires ni des QPC ; à défaut
+  de l'outil, voie de repli explicite (bornes de version de la lecture
+  d'article, fiche Légifrance).
+- `checklist-vigueur.md` point 5 et `gabarits-requetes.md` §11 : voie
+  outillée en premier, fiche Légifrance en repli.
+- **Citations internes** : les gabarits imposent de citer les fichiers de skill
+  ou de référence par le nom du skill et la section, sans lien Markdown ni
+  chemin relatif ou absolu. Les liens sont réservés aux sources officielles.
+
+#### Note
+- Le module partagé `scripts/droit_francais/` évolue pour le serveur MCP
+  (entrées « Non publié » ci-dessus) ; le script autonome `legifrance.py` n'en
+  dépend pas et ne change pas de comportement.
+- États vérifiés par appel réel le 21/10/2026 (CGI art. 200 quater A).
+- Test fonctionnel `maintenance.md` §7 : quatre requêtes témoins passées le
+  21/10/2026 ; la voie de repli ci-dessus en est issue.
 
 ### [3.5.0] — 2026-09-14
 

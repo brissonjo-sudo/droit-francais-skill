@@ -2,7 +2,7 @@
 
 # droit-francais-skill
 
-**Skill LLM — méthodologie de recherche en droit français (v3.5.0)**
+**Skill LLM — méthodologie de recherche en droit français (v3.5.1)**
 
 **Distribution autonome + plugins OpenAI et Claude Code avec outils MCP (candidat plugin v0.9.0, non publié)**
 
@@ -26,7 +26,7 @@ puis vérifier la méthode et, séparément, l'accès aux outils.
 
 | Canal | État au 10 octobre 2026 | Outils |
 |---|---|---|
-| Skill autonome | Noyau 3.5.0 présent dans `main` ; paquet publié distinct | Web officiel si le client le permet ; PISTE facultatif |
+| Skill autonome | Noyau 3.5.1 présent dans `main` ; paquet publié distinct | Web officiel si le client le permet ; PISTE facultatif |
 | Plugin depuis le dépôt | Candidat 0.9.0 ; connexion distante dans `.mcp.json` | Service publié antérieur, six outils ; OAuth à qualifier par client |
 | Serveur local du candidat | Douze outils dans le code, avec Python et PISTE | Articles, décisions, sections et textes ; mesure séparée du service distant |
 
@@ -371,7 +371,7 @@ Le skill s'active automatiquement quand vous :
 
 ---
 
-## Arborescence (skill v3.5.0 / candidat plugin v0.9.0)
+## Arborescence (skill v3.5.1 / candidat plugin v0.9.0)
 
 ```
 droit-francais-skill/

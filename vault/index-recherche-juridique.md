@@ -1,6 +1,6 @@
 ---
 tags: [skill/recherche-juridique, index]
-version: 3.5.0
+version: 3.5.1
 ---
 
 # Index — skill recherche-juridique
@@ -21,7 +21,9 @@ version: 3.5.0
 | Profils configurables (métier de l'utilisateur) | `../skill/profils/` |
 | Récupération en source primaire (API PISTE, articles + jurisprudence) | `../skill/scripts/README.md` |
 | Détail des 18 modes d'erreur | `../skill/references/modes-erreur.md` |
-| Changelog v3.5.0 (dernier) | `recherche-juridique v3.5.0.md` |
+| Changelog v3.5.1 (dernier) | `recherche-juridique v3.5.1.md` |
+| Historique d'article outillé, états de version (étape 3, T3) | `recherche-juridique v3.5.1.md` |
+| Changelog v3.5.0 | `recherche-juridique v3.5.0.md` |
 | Exécution forcée d'office et montants répressifs (DOC-AUDIT) | `recherche-juridique v3.5.0.md` |
 | Retours d'expérience de tests réels (anonymisés) | `retex-tests.md` |
 | Changelog v3.4.1 | `recherche-juridique v3.4.1.md` |
@@ -75,6 +77,7 @@ toute note du vault y est reliée, et chaque note renvoie ici.
 
 **Chaîne des versions** (de la plus récente à la plus ancienne)
 
+- [[recherche-juridique v3.5.1]] — historique d'article outillé, citations internes
 - [[recherche-juridique v3.5.0]] — exécution forcée d'office, montants répressifs
 - [[recherche-juridique v3.4.1]] — vérité du dépôt : 18 modes, 6 modules, renvois
 - [[recherche-juridique v3.4.0]] — mise à jour du skill installé, sur option

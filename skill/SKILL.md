@@ -11,12 +11,12 @@ description: Méthodologie rigoureuse de recherche en droit français (sources
   un écrit ou oral de concours avec références juridiques. Ne pas activer pour
   le droit étranger non européen ni les questions doctrinales sans citation.
 metadata:
-  version: 3.5.0
-  date_derniere_revue_methodologique: 2026-09-14
-  date_derniere_verification_sources: 2026-09-04
+  version: 3.5.1
+  date_derniere_revue_methodologique: 2026-10-21
+  date_derniere_verification_sources: 2026-10-21
   langue: français
 ---
-# Skill : recherche-juridique (v3.5.0)
+# Skill : recherche-juridique (v3.5.1)
 
 > **Objet** : encoder la méthodologie rigoureuse de recherche en droit
 > français applicable à tout usage professionnel — avocat, juriste,
@@ -634,7 +634,10 @@ suffixe `_MORT_NE` = version jamais entrée en vigueur, à ne jamais
 citer comme droit applicable. Si `modifications_available` vaut
 `false`, l'absence de modificateur **n'est pas prouvée** : contrôler la
 fiche Légifrance. L'outil ne dispense ni des dispositions transitoires ni
-des QPC.
+des QPC. **À défaut de cet outil**, les bornes de version et l'applicabilité
+renvoyées par la lecture de l'article établissent la version applicable ;
+les modificateurs et versions futures se lisent sur la fiche Légifrance
+(gabarits de requêtes, §11).
 
 Checklist détaillée → [`references/checklist-vigueur.md`](references/checklist-vigueur.md).
 
@@ -828,8 +831,9 @@ version initiale, principales modifications, raison politique ou
 jurisprudentielle de la dernière réforme. Évite les contresens nés
 d'une lecture hors contexte. Voie outillée : `get_article_history`
 fournit la version initiale et chaque texte modificateur daté (loi et
-article) ; la raison de la réforme se cherche ensuite dans ce texte ou
-ses travaux préparatoires.
+article) ; à défaut, la fiche Légifrance (gabarits de requêtes, §11). La
+raison de la réforme se cherche ensuite dans ce texte ou ses travaux
+préparatoires.
 
 ### T4 — Raisonnement par distinction
 Pour un précédent ou un texte apparemment applicable, identifier les
