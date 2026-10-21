@@ -1,9 +1,14 @@
 """Garde-fous de contenu pour le portage Manus du skill juridique."""
 from pathlib import Path
 import re
+import sys
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+
+from mcp_server.catalog import TOOL_NAMES  # noqa: E402
+
 MANUS = ROOT / "manus_skill"
 SKILL = MANUS / "SKILL.md"
 
@@ -65,6 +70,17 @@ class ManusSkillTests(unittest.TestCase):
         ):
             with self.subTest(fragment=fragment):
                 self.assertIn(fragment, self.skill)
+
+    def test_every_catalog_tool_is_documented_in_the_mcp_section_and_readme(self):
+        """Une liste écrite en dur se périme au premier outil ajouté au serveur."""
+        start = self.skill.index("**1. Connecteur MCP dédié")
+        end = self.skill.index("**2. Capacité web native de Manus", start)
+        mcp_section = self.skill[start:end]
+        readme = self.files["README.md"]
+        for name in TOOL_NAMES:
+            with self.subTest(tool=name):
+                self.assertIn(f"| `{name}` |", mcp_section)
+                self.assertIn(f"`{name}(", readme)
 
     def test_required_triangulation_and_contention_rule_are_present(self):
         for fragment in (

@@ -27,6 +27,12 @@ version initiale, principales modifications, raison politique ou
 jurisprudentielle de la dernière réforme. Évite les contresens nés
 d'une lecture hors contexte.
 
+Voie outillée : `get_article_history`
+fournit la version initiale et chaque texte modificateur daté (loi et
+article) ; à défaut, la fiche Légifrance (gabarits de requêtes, §11). La
+raison de la réforme se cherche ensuite dans ce texte ou ses travaux
+préparatoires.
+
 ### T4 — Raisonnement par distinction
 
 Pour un précédent ou un texte apparemment applicable, identifier les

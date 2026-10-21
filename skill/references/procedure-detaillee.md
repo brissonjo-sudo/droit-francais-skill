@@ -214,6 +214,21 @@ Pour chaque texte, vérifier :
 - **décisions QPC** ayant abrogé ou réservé l'interprétation de la
   disposition (lorsque mentionnées sur Légifrance).
 
+**Voie outillée.** Si le connecteur MCP expose `get_article_history`, il
+répond aux trois premiers points pour un article de code : toutes les
+versions datées, leur état, le texte modificateur de chacune (« Modifié
+par ») et la version applicable à la date de référence. Lire les états :
+`VIGUEUR_DIFF` = version publiée mais pas encore en vigueur (vacatio
+legis) ; `ABROGE_DIFF` = abrogation programmée de la version courante ;
+suffixe `_MORT_NE` = version jamais entrée en vigueur, à ne jamais
+citer comme droit applicable. Si `modifications_available` vaut
+`false`, l'absence de modificateur **n'est pas prouvée** : contrôler la
+fiche Légifrance. L'outil ne dispense ni des dispositions transitoires ni
+des QPC. **À défaut de cet outil**, les bornes de version et l'applicabilité
+renvoyées par la lecture de l'article établissent la version applicable ;
+les modificateurs et versions futures se lisent sur la fiche Légifrance
+(gabarits de requêtes, §11).
+
 Checklist détaillée → [`references/checklist-vigueur.md`](checklist-vigueur.md).
 
 **Critère de sortie** : pour chaque texte cité, l'état d'application

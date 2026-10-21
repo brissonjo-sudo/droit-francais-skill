@@ -12,8 +12,8 @@ description: Méthodologie rigoureuse de recherche en droit français (sources
   le droit étranger non européen ni les questions doctrinales sans citation.
 metadata:
   version: 3.6.0
-  date_derniere_revue_methodologique: 2026-09-14
-  date_derniere_verification_sources: 2026-09-04
+  date_derniere_revue_methodologique: 2026-10-21
+  date_derniere_verification_sources: 2026-10-21
   langue: français
 ---
 

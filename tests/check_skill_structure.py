@@ -22,7 +22,7 @@ def normalize(text: str) -> str:
 
 
 def expected_text(row: dict[str, str]) -> str:
-    """Applique exclusivement les arbitrages A4b/A4c et le rebasing des liens."""
+    """Applique exclusivement les arbitrages A4b/A4c/A4d et le rebasing des liens."""
     text = row["texte_source"].replace("\r\n", "\n")
     text = text.replace(OLD_P1, NEW_P1)
     text = text.replace("module PÉNAL §6", "module PÉNAL §5")
@@ -30,6 +30,8 @@ def expected_text(row: dict[str, str]) -> str:
     text = text.replace("(voir §6).", "(voir §5).")
     if row["identifiant"] == "RJ-L0001":
         text = text.replace("  version: 3.5.0\n", "  version: 3.6.0\n")
+        text = text.replace("date_derniere_revue_methodologique: 2026-09-14", "date_derniere_revue_methodologique: 2026-10-21")
+        text = text.replace("date_derniere_verification_sources: 2026-09-04", "date_derniere_verification_sources: 2026-10-21")
     if row["identifiant"] == "RJ-L0019":
         text = text.replace("(v3.5.0)", "(v3.6.0)")
     if row["fichier_realise"].startswith("skill/references/"):

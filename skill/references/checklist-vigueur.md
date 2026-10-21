@@ -100,6 +100,13 @@ modificateur pour la date d'entrée en vigueur effective.
 
 ## Point 5 — Absence de modification postérieure (mode 3)
 
+**Voie outillée (connecteur MCP) :** `get_article_history` avec
+l'identifiant LEGIARTI d'une version quelconque, et `date` seulement si la
+date de référence n'est pas aujourd'hui. Relever la version dont
+`applicable_at_as_of_date` vaut `true`, son identifiant et ses bornes, et
+les textes de `modified_by`. Si `modifications_available` vaut `false`,
+compléter par la fiche Légifrance ci-dessous.
+
 **Sur la fiche Légifrance :**
 1. Vérifier l'onglet « Versions » ou « Historique ».
 2. Confirmer qu'aucune modification n'est intervenue entre la date

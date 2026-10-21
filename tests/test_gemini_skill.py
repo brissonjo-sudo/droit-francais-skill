@@ -31,6 +31,8 @@ SKILL_MD = GEMINI_SKILL_DIR / "SKILL.md"
 MODULES_MD = GEMINI_SKILL_DIR / "references" / "modules.md"
 SOURCES_MD = GEMINI_SKILL_DIR / "references" / "sources-autorisees.md"
 README_MD = GEMINI_SKILL_DIR / "README.md"
+AUDIT_MD = GEMINI_SKILL_DIR / "references" / "audit-documentaire.md"
+ERREURS_MD = GEMINI_SKILL_DIR / "references" / "modes-erreur.md"
 
 
 class GeminiSkillIntegrityTests(unittest.TestCase):
@@ -39,6 +41,8 @@ class GeminiSkillIntegrityTests(unittest.TestCase):
         self.assertTrue(MODULES_MD.is_file(), "modules.md manquant")
         self.assertTrue(SOURCES_MD.is_file(), "sources-autorisees.md manquant")
         self.assertTrue(README_MD.is_file(), "README.md manquant")
+        self.assertTrue(AUDIT_MD.is_file(), "audit-documentaire.md manquant")
+        self.assertTrue(ERREURS_MD.is_file(), "modes-erreur.md manquant")
 
     def test_frontmatter_conforme(self):
         texte = SKILL_MD.read_text(encoding="utf-8")
@@ -48,8 +52,8 @@ class GeminiSkillIntegrityTests(unittest.TestCase):
         frontmatter = parties[1]
 
         self.assertIn("name: recherche-juridique", frontmatter)
-        self.assertIn("version: 3.3.0-gemini", frontmatter)
-        self.assertIn("base_version: 3.3.0", frontmatter)
+        self.assertIn("version: 3.5.1-gemini", frontmatter)
+        self.assertIn("base_version: 3.5.1", frontmatter)
         self.assertIn("adapted_for: Gemini", frontmatter)
 
     def test_presence_sept_principes_invariants(self):
@@ -81,6 +85,27 @@ class GeminiSkillIntegrityTests(unittest.TestCase):
         self.assertIn("Voie 3 : Code Execution / Client Python", texte)
         self.assertIn("Voie 4 : Abstention informée", texte)
 
+    def test_chaque_outil_du_catalogue_est_documente(self):
+        """Une liste écrite en dur se périme au premier outil ajouté au serveur."""
+        from mcp_server.catalog import TOOL_NAMES
+
+        texte = SKILL_MD.read_text(encoding="utf-8")
+        debut = texte.index("Voie 1 : Connecteur MCP officiel")
+        fin = texte.index("Voie 2 : Recherche Google / Grounding", debut)
+        voie_mcp = texte[debut:fin]
+        readme = README_MD.read_text(encoding="utf-8")
+        for nom in TOOL_NAMES:
+            with self.subTest(outil=nom):
+                self.assertIn(f"| `{nom}` |", voie_mcp)
+                self.assertIn(f"`{nom}(", readme)
+
+    def test_historique_et_etats_de_version_3_5_1(self):
+        texte = SKILL_MD.read_text(encoding="utf-8")
+        for fragment in ("get_article_history", "VIGUEUR_DIFF", "ABROGE_DIFF", "_MORT_NE",
+                         "`modifications_available: false` ne prouve pas"):
+            with self.subTest(fragment=fragment):
+                self.assertIn(fragment, texte)
+
     def test_coherence_agent_compagnon(self):
         from gemini_agent.legal_agent_config import (
             MODEL_NAME,
@@ -91,7 +116,7 @@ class GeminiSkillIntegrityTests(unittest.TestCase):
 
         self.assertEqual(MODEL_NAME, "gemini-2.5-pro")
         self.assertEqual(TEMPERATURE, 0.0)
-        self.assertIn("v3.3.0", SYSTEM_PROMPT)
+        self.assertIn("v3.5.1", SYSTEM_PROMPT)
         for p in ("P1", "P2", "P3", "P4", "P5", "P6", "P7"):
             with self.subTest(principe_agent=p):
                 self.assertIn(

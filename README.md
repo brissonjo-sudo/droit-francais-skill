@@ -2,7 +2,7 @@
 
 # droit-francais-skill
 
-**Skill LLM — méthodologie de recherche en droit français (v3.5.0)**
+**Skill LLM — méthodologie de recherche en droit français (v3.5.1)**
 
 **Distribution autonome + plugins OpenAI et Claude Code avec outils MCP (candidat plugin v0.9.0, non publié)**
 
@@ -26,7 +26,7 @@ puis vérifier la méthode et, séparément, l'accès aux outils.
 
 | Canal | État au 10 octobre 2026 | Outils |
 |---|---|---|
-| Skill autonome | Noyau 3.5.0 présent dans `main` ; paquet publié distinct | Web officiel si le client le permet ; PISTE facultatif |
+| Skill autonome | Noyau 3.5.1 présent dans `main` ; paquet publié distinct | Web officiel si le client le permet ; PISTE facultatif |
 | Plugin depuis le dépôt | Candidat 0.9.0 ; connexion distante dans `.mcp.json` | Service publié antérieur, six outils ; OAuth à qualifier par client |
 | Serveur local du candidat | Douze outils dans le code, avec Python et PISTE | Articles, décisions, sections et textes ; mesure séparée du service distant |
 
@@ -340,8 +340,8 @@ son propre README :
 
 | Dossier | Plateforme | Nature |
 |---|---|---|
-| [`gemini_skill/`](gemini_skill) | Gemini (Google) | Noyau condensé v3.3.0, support prioritaire du serveur MCP de ce dépôt, repli grounding Google Search sur sources officielles |
-| [`gemini_agent/`](gemini_agent) | Gemini (`google-genai`) | Client programmatique Python, température 0.0, prompt système aligné sur la méthodologie v3.3.0 |
+| [`gemini_skill/`](gemini_skill) | Gemini (Google) | Noyau condensé v3.5.1, support prioritaire du serveur MCP de ce dépôt, repli grounding Google Search sur sources officielles |
+| [`gemini_agent/`](gemini_agent) | Gemini (`google-genai`) | Client programmatique Python, température 0.0, prompt système aligné sur la méthodologie v3.5.1 |
 | [`grok_skill/`](grok_skill) | Grok (xAI) | Noyau condensé, droit français, récupération par les outils web natifs (`web_search`, `open_page`) au lieu du connecteur MCP et des API PISTE |
 | [`vibe_skill/`](vibe_skill) | Vibe (Mistral) | Noyau condensé, outils natifs `web_search`/`web_fetch` vérifiés contre le code source public ; wrapper Python fourni en squelette non connecté |
 | [`manus_skill/`](manus_skill) | Manus | Adaptation condensée basée sur 3.5.0 ; connecteur MCP du dépôt s'il est exposé, capacité web native constatée sans nom supposé, sinon abstention ; contrôles DOC-AUDIT renforcés |
@@ -371,7 +371,7 @@ Le skill s'active automatiquement quand vous :
 
 ---
 
-## Arborescence (skill v3.5.0 / candidat plugin v0.9.0)
+## Arborescence (skill v3.5.1 / candidat plugin v0.9.0)
 
 ```
 droit-francais-skill/

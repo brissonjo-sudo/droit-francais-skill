@@ -1,20 +1,20 @@
 ---
 name: recherche-juridique
-description: Méthodologie rigoureuse de recherche en droit français et européen — sources primaires officielles, vérification de vigueur et d'applicabilité temporelle, citations traçables et détection d'antinomies. À activer pour toute analyse, consultation, rédaction d'acte ou vérification de droit français.
+description: Méthodologie rigoureuse de recherche en droit français et européen — sources primaires officielles, vérification de vigueur et d'applicabilité temporelle, citations traçables et détection d'antinomies. À activer pour toute analyse, consultation, rédaction d'acte, audit de document ou vérification de droit français.
 metadata:
-  version: 3.3.0-gemini
-  base_version: 3.3.0
+  version: 3.5.1-gemini
+  base_version: 3.5.1
   langue: français
   adapted_for: Gemini
 ---
 
-# Recherche juridique — déclinaison Gemini (v3.3.0-gemini)
+# Recherche juridique — déclinaison Gemini (v3.5.1-gemini)
 
 ## Objet et règle cardinale
 
-Ne produire **aucune référence juridique de mémoire** : article de loi, texte réglementaire, décision de justice, identifiant officiel (`LEGIARTI`, `JORFTEXT`, n° de pourvoi), date de version, délai ou montant doit être vérifié via un outil interrogeant une source primaire officielle.
+Ne produire **aucune référence juridique de mémoire** : article de loi, texte réglementaire, décision de justice, identifiant officiel (`LEGIARTI`, `JORFTEXT`, n° de pourvoi), date de version, délai, seuil ou montant doit être vérifié via un outil interrogeant une source primaire officielle **dans la session**. Distinguer la provenance de la source, le contenu du texte, sa vigueur et son applicabilité aux faits.
 
-La fluidité d'expression ne compense jamais une inexactitude normative. L'**abstention informée prime toujours sur la complétion spéculative** (principe P7). Si une source ne peut être vérifiée dans la session, le signaler explicitement et refuser de conclure sur le point non documenté.
+La fluidité d'expression ne compense jamais une inexactitude normative. L'**abstention informée prime toujours sur la complétion spéculative** (principe P7). Si un élément décisif ne peut être vérifié, le signaler et refuser de conclure sur ce point.
 
 ---
 
@@ -26,125 +26,155 @@ Activer systématiquement ce skill dès qu'une requête implique :
 - la citation, l'analyse ou la vérification d'un texte de droit français (code, loi, ordonnance, décret, arrêté, circulaire) ;
 - une qualification juridique civile, pénale, administrative ou commerciale ;
 - la vérification de vigueur, d'abrogation, de modification ou d'applicabilité temporelle d'une norme ;
-- une décision de la Cour de cassation, du Conseil d'État, du Conseil constitutionnel, du Tribunal des conflits, de la CJUE ou de la CEDH ;
+- une décision de la Cour de cassation, du Conseil d'État, du Conseil constitutionnel, du Tribunal des conflits, des juridictions financières, de la CJUE ou de la CEDH ;
 - la rédaction, l'audit, la relecture ou la correction d'un acte juridique, d'une note de synthèse, d'un mémoire ou de conclusions ;
 - la préparation d'épreuves de concours administratifs ou d'examens professionnels impliquant du droit.
 
-**Exclusions** : Ne pas activer pour des discussions de théorie juridique pure sans citation requise, ni pour le droit étranger non européen.
+**Exclusions** : ne pas activer pour des discussions de théorie juridique pure sans citation requise, ni pour le droit étranger non européen.
 
 ### Balises de contrôle
 
-- `[complet]` — Mode B exhaustif : active tous les modules (y compris ceux sans objet, explicités en une ligne) et produit une matrice de traçabilité complète.
-- `[express]` — Mode allégé : condense la présentation des étapes internes pour une réponse rapide, mais **ne désactive jamais les modules PÉNAL et DOC-AUDIT** lorsqu'ils sont applicables.
-- `[syllogisme]` — Structure formelle : Majeure (norme applicable vérifiée), Mineure (faits qualifiés), Conclusion (solution juridique).
-- `[lookup]` — Voie rapide : vérification et restitution d'une référence textuelle ponctuelle sans dériver vers une consultation complexe.
+- **Mode A (défaut)** : appliquer le noyau et les modules déclenchés par la demande.
+- `[complet]` — **mode B** exhaustif : active tous les modules (ceux sans objet sont signalés en une ligne, avec justification) et fournit une synthèse des contrôles et limites.
+- `[express]` — réduit les recherches facultatives et la longueur, mais **ne désactive jamais les modules PÉNAL et DOC-AUDIT** ni la vérification d'une affirmation décisive.
+- `[syllogisme]` — structure formelle : majeure (norme applicable vérifiée), mineure (faits qualifiés), conclusion.
+- `[lookup]` — vérification ciblée et concise d'une référence ponctuelle ; ce n'est pas une dispense de vérifier la source primaire, la date et l'applicabilité.
+
+En cas de doute sur le déclenchement d'un module, l'activer. Ne pas réciter le plan interne dans une réponse simple ; expliciter les contrôles lorsque le livrable, la complexité ou une limite le justifie.
 
 ---
 
 ## Les 7 principes invariants (P1 à P7)
 
-**P1 — Primauté des sources officielles.** Toute affirmation normative repose sur une source primaire officielle (Légifrance, JORF, EUR-Lex, HUDOC ou sites institutionnels des juridictions). La doctrine privée (Dalloz, JCP, revues) sert exclusivement au repérage et ne fonde jamais seule une règle de droit.
+**P1 — Source primaire.** Fonder toute affirmation normative sur le texte officiel publié ou la décision de la juridiction compétente (Légifrance, JORF, EUR-Lex, HUDOC, sites institutionnels des juridictions). La doctrine privée sert au repérage, jamais de fondement unique.
 
-**P2 — Datation explicite et applicabilité temporelle.** Toujours fixer `as_of` (la date d’évaluation). Distinguer rigoureusement `version_start_date`, `version_end_date`, `verified` (la source officielle a répondu) et `applicable_at_as_of_date` (la version consultée était en vigueur à la date pertinente des faits). Une source officielle peut être historique.
+**P2 — Date et champ.** Identifier la date des faits, la date d'application demandée (`as_of`) et le champ territorial. Distinguer publication, entrée en vigueur, version consultée et date d'évaluation. Une règle en vigueur aujourd'hui peut ne pas s'appliquer aux faits antérieurs ; lire les dispositions transitoires et les renvois utiles.
 
-**P3 — Autorité, authenticité et articulation.** Ne pas confondre :
-1. l'authenticité de la source (texte exact publié au Journal officiel) ;
-2. le rang de la norme dans la hiérarchie normative (Constitution > Traités > Lois > Décrets > Arrêtés) ;
-3. l'effet d'une décision sur l'application (annulation, abrogation QPC, portée jurisprudentielle *erga omnes* ou relative).
-L'ordre pratique de recherche est : Textes officiels → Jurisprudence → Circulaires et instructions opposables → Doctrine de repérage. Voir [`references/sources-autorisees.md`](references/sources-autorisees.md).
+**P3 — Autorité et fonction.** Distinguer l'authenticité de la source, le rang de la norme dans la hiérarchie, l'autorité et l'effet de la décision (annulation, abrogation QPC, portée), et la fonction juridique de la disposition (compétence, habilitation, procédure, sanction, définition…). Voir [`references/sources-autorisees.md`](references/sources-autorisees.md).
 
-**P4 — Traçabilité proportionnée.** Toute citation comporte les métadonnées de vérification : identifiant officiel (`LEGIARTI`, n° pourvoi), titre exact, URL canonique, date de version ou de décision, statut de vigueur.
+**P4 — Traçabilité de session.** Une référence historique, mémorisée ou incluse dans un fichier n'est pas une vérification actuelle. Ne restituer un identifiant ou un extrait comme vérifié que s'il a été récupéré dans la session depuis une source officielle. Des guillemets exigent le texte effectivement consulté.
 
-**P5 — Séparation stricte des registres.** Distinguer clairement dans l'exposé : les faits bruts fournis par l'utilisateur, le droit positif en vigueur, l'interprétation jurisprudentielle, les déductions logiques, et les éventuelles incertitudes ou hypothèses.
+**P5 — Registres séparés.** Séparer le droit positif, les faits établis, les faits allégués, les inférences, les hypothèses et les recommandations. Ne pas transformer une hypothèse ou une pratique locale en règle de droit.
 
-**P6 — Légalité criminelle stricte.** En matière pénale, les textes d'incrimination et de peine sont d'interprétation stricte. Toute analogie défavorable est prohibée. Vérifier systématiquement l'élément légal en vigueur au jour précis de l'infraction.
+**P6 — Légalité pénale.** Vérifier la norme applicable à la date des faits, les éléments légal, matériel et moral, les règles de procédure et de preuve. Les textes d'incrimination sont d'interprétation stricte ; toute analogie défavorable est prohibée.
 
-**P7 — Abstention informée.** Lorsqu'une source primaire est inaccessible, manquante ou contradictoire, énoncer une réserve expresse et suspendre toute affirmation catégorique.
+**P7 — Abstention informée.** Une source inaccessible, incomplète, contradictoire ou non datée interdit de conclure sur la proposition qui en dépend. Indiquer précisément le point non établi, sans combler le manque par une estimation.
+
+Pour prévenir les erreurs récurrentes (référence inventée, confusion de versions, article voisin, renvoi non résolu, mauvaise compétence, conséquence excessive), consulter [`references/modes-erreur.md`](references/modes-erreur.md) pour les travaux complexes ou à risque élevé.
 
 ---
 
 ## Procédure obligatoire en 8 étapes
 
 ### Étape 0 — Cadrer la demande
-Qualifier en interne la demande : faits établis vs à établir, branches du droit concernées, territorialité, date exacte des faits, date d'évaluation du droit (`as_of`), livrable attendu. Ne poser une question à l'utilisateur que si un point bloquant empêche toute analyse juridique.
+
+Qualifier l'objet de la demande, le résultat attendu, le domaine et le régime possibles, les faits connus et manquants, les acteurs, le territoire et les dates pertinentes. Ne poser une question préalable que si une information manquante est décisionnelle ; sinon, annoncer une hypothèse limitée et conditionnelle.
 
 ### Étape 1 — Récupérer les sources (Échelle d'outils Gemini)
-Gemini doit mobiliser ses outils selon l'ordre de priorité suivant :
 
-1. **Voie 1 : Connecteur MCP officiel (Priorité absolue)**  
-   Si le serveur MCP du dépôt (`droit-francais-skill`) est connecté dans l'environnement (Google Antigravity, Gemini CLI ou intégration MCP), utiliser ses six outils vérifiés :
-   - `search(query)` : recherche générale routée (articles ou jurisprudence).
-   - `fetch(id)` : lecture intégrale du document désigné par son identifiant officiel.
-   - `search_articles(number, code, date)` : recherche ciblée d'article de code avec filtre temporel.
-   - `get_article(id, date)` : lecture certifiée avec évaluation de `applicable_at_as_of_date`.
-   - `search_case_law(query, jurisdiction, date_start, date_end)` : recherche de jurisprudence.
-   - `get_decision(id)` : lecture intégrale de la décision.
+Mobiliser les outils dans l'ordre suivant ; n'utiliser que ceux effectivement exposés dans la session.
 
-2. **Voie 2 : Recherche Google / Grounding institutionnel (Repli)**  
-   En l'absence de connecteur MCP, mobiliser les outils de recherche web ou de grounding en restreignant impérativement les requêtes aux domaines officiels listés dans [`references/sources-autorisees.md`](references/sources-autorisees.md) (ex: `site:legifrance.gouv.fr`, `site:courdecassation.fr`, `site:conseil-etat.fr`). Ne jamais citer un texte sans en avoir lu l'extrait officiel.
+1. **Voie 1 : Connecteur MCP officiel (Priorité absolue)**
+   Si le serveur MCP du dépôt (`droit-francais-skill`) est connecté (Google Antigravity, Gemini CLI ou autre intégration MCP), utiliser ses douze outils, dont les noms et paramètres sont ceux de `mcp_server/server.py` (catalogue `mcp_server/catalog.py`) :
 
-3. **Voie 3 : Code Execution / Client Python SDK**  
-   Dans les environnements autorisant l'exécution de code Python, faire appel aux scripts et bibliothèques embarqués du dépôt ou au client [`gemini_agent`](../gemini_agent).
+   | Outil MCP | Paramètres | Usage |
+   |---|---|---|
+   | `search` | `query` | Recherche générale routée : article si la requête en contient un, sinon jurisprudence judiciaire |
+   | `fetch` | `id` | Lit le document désigné par l'identifiant renvoyé par une recherche (`LEGIARTI`, `LEGITEXT`, `CETATEXT`, `CONSTEXT`, `JUFITEXT`, décision Judilibre) ; jamais une URL |
+   | `search_articles` | `number`, `code`, `date`, `limit` | Article de code avec filtre temporel ; garder la graphie officielle (« L80 A ») |
+   | `get_article` | `id`, `date` | Lecture certifiée avec évaluation de `applicable_at_as_of_date` |
+   | `get_article_history` | `id`, `date` | Toutes les versions datées d'un article, leurs textes modificateurs et la version applicable |
+   | `get_section` | `id`, `text_id`, `date`, `cid` | Section de code (`LEGISCTA`) dans son texte parent explicite |
+   | `get_text` | `id`, `date` | Texte consolidé (`LEGITEXT`) |
+   | `search_case_law` | `query`, `jurisdiction`, `date_start`, `date_end`, `limit`, `sort` | Jurisprudence de l'**ordre judiciaire** seulement (Judilibre : `cc`, `ca`, `tj`, `tcom`) |
+   | `get_decision` | `id` | Lecture intégrale d'une décision Judilibre |
+   | `search_admin_case_law` | `query`, `jurisdiction`, `date_start`, `date_end`, `limit`, `sort` | Jurisprudence administrative (`ce`, `caa`, `ta`, `tc`) ; tribunaux administratifs seulement en sélection antérieure à 2010 |
+   | `search_constitutional_decisions` | `query`, `decision_type`, `date_start`, `date_end`, `limit`, `sort` | Conseil constitutionnel (`qpc`, `dc`, `l`) |
+   | `search_financial_case_law` | `query`, `jurisdiction`, `date_start`, `date_end`, `limit`, `sort` | Juridictions financières (`ccomptes`, `crtc`, `caf`, `cdbf`) |
 
-4. **Voie 4 : Abstention informée (P7)**  
-   Si aucune des voies ci-dessus ne permet de confirmer la source primaire, refuser de produire une référence spéculative.
+   Dès qu'un numéro d'article est identifié, préférer `search_articles` → `get_article` à `search` → `fetch`. Choisir l'outil de jurisprudence selon l'ordre de juridiction. Ne pas supposer que le connecteur est configuré ; confirmer la disponibilité des outils avant l'appel.
 
-### Étape 2 — Vérifier la version et l'applicabilité
-Pour tout texte législatif ou réglementaire identifié :
-- Relever ses bornes de validité temporelle (`version_start_date` / `version_end_date`).
-- Vérifier si le texte était en vigueur à la date des faits (`applicable_at_as_of_date`).
-- Si l'utilisateur a fourni un identifiant `LEGIARTI`, analyser la version exacte demandée sans la substituer silencieusement par la version du jour.
+2. **Voie 2 : Recherche Google / Grounding institutionnel (Repli)**
+   En l'absence de connecteur MCP, utiliser la recherche web ou le grounding en restreignant les requêtes aux domaines officiels de [`references/sources-autorisees.md`](references/sources-autorisees.md) (ex. `site:legifrance.gouv.fr`, `site:courdecassation.fr`, `site:conseil-etat.fr`). Lire la page officielle elle-même, pas seulement l'extrait de recherche.
+
+3. **Voie 3 : Code Execution / Client Python SDK**
+   Dans un environnement autorisant l'exécution de Python et disposant d'identifiants PISTE, les scripts du noyau (`skill/scripts/legifrance.py`) interrogent Légifrance et Judilibre. Le client [`gemini_agent`](../gemini_agent) est un squelette dont les fonctions-outils ne sont pas branchées sur une source : ne jamais présenter son résultat comme une vérification.
+
+4. **Voie 4 : Abstention informée (P7)**
+   Si aucune voie ne permet de confirmer la source primaire, refuser de produire une référence spéculative : **« Source non confirmée — abstention sur ce point. »**
+
+### Étape 2 — Vérifier la version, la fraîcheur et l'applicabilité
+
+Pour chaque texte déterminant, vérifier les bornes de validité, l'historique, les renvois nécessaires et les dispositions transitoires. Si l'utilisateur fournit un identifiant `LEGIARTI`, lire la version désignée sans la remplacer silencieusement par la version du jour. Évaluer à la date utile ; n'utiliser la date du jour que si c'est la date d'évaluation demandée. Établir le champ territorial et matériel, les exceptions et les conditions cumulatives ou alternatives ; ne pas transformer un « et » en « ou ».
+
+| Champ | Signification |
+|---|---|
+| `verified` | La source officielle a répondu — ne prouve pas, à lui seul, que la version s'applique aux faits |
+| `as_of_date` | Date à laquelle l'applicabilité est évaluée |
+| `version_start_date` / `version_end_date` | Bornes de la version consultée |
+| `applicable_at_as_of_date` | La version couvre ou non la date évaluée |
+| `caveat` | Écart, version historique ou incertitude à signaler |
+
+**Fraîcheur (voie outillée).** `get_article_history` donne toutes les versions datées, le texte modificateur de chacune et la version applicable. Lire les états : `VIGUEUR_DIFF` = version publiée mais pas encore en vigueur (vacatio legis) ; `ABROGE_DIFF` = abrogation programmée de la version courante ; suffixe `_MORT_NE` = version jamais entrée en vigueur, à ne jamais citer comme droit applicable. `modifications_available: false` ne prouve pas l'absence de modification. À défaut de cet outil, les bornes de version de `get_article` établissent la version applicable, et les modificateurs se lisent sur la fiche Légifrance. L'outil ne dispense ni des dispositions transitoires ni des QPC.
 
 ### Étape 3 — Vérifier la jurisprudence
-Pour toute question d'interprétation :
-- Identifier les arrêts de principe ou décisions constantes (formation de jugement, date, numéro de pourvoi ou d'enregistrement).
-- Distinguer la solution de droit (*ratio decidendi*) des motifs surabondants.
-- S'assurer de l'absence de revirement ultérieur de jurisprudence.
 
-### Étape 4 — Trianguler si nécessaire
-La triangulation est obligatoire en cas de :
-- qualification pénale discutable ou infraction complexe ;
-- acte administratif unilatéral faisant grief ;
-- antinomie apparente entre deux normes de rang équivalent ou supérieur ;
-- revirement jurisprudentiel récent.
-Croiser au moins deux sources indépendantes (ex: texte Légifrance + arrêt de cassation publié).
+Rechercher les décisions qui confirment, précisent ou contredisent l'interprétation lorsque la solution est contestable, contentieuse ou porteuse de conséquences importantes. Relever juridiction, formation, date, identifiant récupéré, dispositif et motifs utiles. Distinguer la solution de droit (*ratio decidendi*) des motifs surabondants et s'assurer de l'absence de revirement. L'absence de décision localisable doit être signalée, sans la présenter comme preuve d'incertitude du texte.
+
+### Étape 4 — Trianguler lorsque requis
+
+La triangulation est obligatoire en cas d'élément constitutif discutable, de qualification concurrente, d'analogie apparente, de divergence ou revirement connu, d'articulation de compétences, de proportionnalité interprétative, d'antinomie apparente ou de citation officielle portant une interprétation discutable. Vérifier la source primaire par deux chemins indépendants et rechercher la jurisprudence qui confirme ou contredit l'analyse.
+
+Une décision est requise pour présenter comme établie une interprétation contentieuse. La reproduction d'une règle claire ne requiert pas automatiquement une décision. En cas d'échec, produire une sortie dégradée balisée par P7.
 
 ### Étape 5 — Articuler et qualifier
-Vérifier l'absence de neutralisation de la norme par une norme supérieure (contrôle de constitutionnalité, conformité aux traités européens). Appliquer les modules activables requis par l'espèce (détaillés dans [`references/modules.md`](references/modules.md)) :
-- **PÉNAL** : éléments légal, matériel, moral, causes d'irresponsabilité.
-- **ACTE-ADMIN** : contrôle triple de proportionnalité *Benjamin*, compétence, motivation CRPA.
-- **PA-PJ** : qualification selon la finalité et l'autorité agissante.
-- **FOND**, **CONTENTIEUX**, **DOC-AUDIT** selon l'objet.
 
-### Étape 6 — Rédiger
-Adapter la forme au livrable demandé :
-- Réponse opérationnelle concise : droit applicable, conclusion motivée, références vérifiées.
-- Consultation ou note juridique : analyse détaillée, discussion des risques, qualification des faits.
-- Acte officiel : respect strict des formules de visas et des exigences de motivation.
+Appliquer les sources aux seuls faits établis. Vérifier l'absence de neutralisation par une norme supérieure (constitutionnalité, conventionnalité). Examiner compétence, procédure, opposabilité, preuve, exceptions, régimes spéciaux, dispositions transitoires et conséquences opérationnelles. Pour une mesure administrative ou de police, analyser adaptation, nécessité et proportionnalité. Appliquer les modules requis (détail dans [`references/modules.md`](references/modules.md)).
+
+### Étape 6 — Rédiger et contrôler
+
+Adapter la forme au livrable : réponse opérationnelle (conclusion conditionnelle, source consultée, date pertinente, réserves), note ou consultation (textes, fonction, jurisprudence, application, limites), acte officiel (visas et motivation).
+
+Avant livraison, vérifier que chaque référence est issue de la session, que les citations correspondent au texte réellement lu, que les dates et montants ne sont pas extrapolés et qu'aucune hypothèse n'est devenue un fait. Citer les fichiers du skill par le nom du skill et la section, sans lien ni chemin ; les liens sont réservés aux sources officielles.
 
 ### Étape 7 — Auto-critique adversariale
-Avant de finaliser la réponse, relire l'analyse sous trois angles critiques :
-1. **L'adversaire** : quelle faille factuelle, textuelle ou procédurale peut-il exploiter ?
-2. **Le juge / contrôleur de légalité** : la motivation est-elle juridiquement irréprochable et prouvée ?
-3. **Le praticien de terrain** : la solution proposée est-elle matériellement et opérationnellement applicable ?
+
+Tester la conclusion du point de vue :
+1. **de l'adversaire** : quelle faille factuelle, textuelle ou procédurale peut-il exploiter ?
+2. **du juge ou contrôleur de légalité** : la motivation est-elle prouvée ?
+3. **du praticien de terrain** : la solution est-elle opérationnellement applicable ?
+
+Revenir à l'étape utile si l'un de ces contrôles révèle une faille ; ne pas afficher une auto-critique de pure forme. Pour une analyse de fond, retracer brièvement l'histoire du texte (version initiale, modificateurs, motif de la dernière réforme) — `get_article_history` en fournit la chronologie.
+
+---
+
+## Voie spéciale : audit ou correction d'un document
+
+Dès qu'un document existant est audité, relu ou corrigé, appliquer **DOC-AUDIT** avant toute conclusion et lire intégralement [`references/audit-documentaire.md`](references/audit-documentaire.md). Un audit antérieur ou une mention « validé » ne dispense jamais de revérifier les affirmations à risque élevé.
+
+- Si le document recommande de couper, retirer, évacuer, détruire, confisquer ou attribuer à une personne publique un bien privé, examiner **séparément** le fondement de cette exécution forcée d'office : habilitation expresse ou urgence ; à défaut, absence d'autre voie de droit ou sanction, base légale de la décision, résistance de l'intéressé et stricte nécessité, régime sectoriel et jurisprudence officielle. Une interdiction, une contravention ou une clause locale ne suffit pas, à elle seule, à établir le pouvoir de disposer du bien.
+- Distinguer **classe de contravention**, **maximum légal encouru** et **amende forfaitaire** éventuelle ; vérifier chacun séparément.
+- Ne jamais déclarer le document « conforme » tant qu'une affirmation à risque élevé reste non vérifiée, non corrigée et sans abstention ciblée, ou que le contrôle post-correction n'a pas été fait.
 
 ---
 
 ## Format minimal de sortie
 
-Chaque référence normative ou jurisprudentielle doit être restituée avec ses métadonnées de traçabilité :
+Chaque référence normative ou jurisprudentielle est restituée avec ses métadonnées de traçabilité :
 
 ```markdown
-### ⚖️ Base légale vérifiée
+### Base légale vérifiée
 - **Norme** : [Code / Loi / Décret], article [Numéro]
-- **Identifiant officiel** : `LEGIARTI...` ou `JORFTEXT...`
-- **Vigueur** : En vigueur du [JJ/MM/AAAA] au [JJ/MM/AAAA ou en cours]
-- **Applicabilité au cas** : Conforme à la date d'évaluation (`as_of: JJ/MM/AAAA`)
+- **Identifiant officiel** : `LEGIARTI...` ou `JORFTEXT...` (récupéré dans la session)
+- **Vigueur** : version du [JJ/MM/AAAA] au [JJ/MM/AAAA ou en cours]
+- **Applicabilité au cas** : appréciée au [JJ/MM/AAAA] (`as_of`)
 - **Lien canonique** : https://www.legifrance.gouv.fr/...
 
-### 🏛️ Jurisprudence associée
-- **Juridiction** : Cour de cassation, [Chambre], [Date]
-- **Identifiant** : Pourvoi n° [XX-XX.XXX] — Publié au Bulletin
-- **Portée** : [Principe retenu / Ratio decidendi]
-- **Lien officiel** : Judilibre (courdecassation.fr)
+### Jurisprudence associée
+- **Juridiction** : [juridiction], [formation], [date]
+- **Identifiant** : [n° de pourvoi, de requête ou de décision] — [publication]
+- **Portée** : [solution retenue / ratio decidendi]
+- **Lien officiel** : [source officielle]
 ```
+
+Ne pas imposer un format long à une réponse brève si cela nuit à la lisibilité, mais ne jamais omettre les informations nécessaires pour retrouver et contrôler la source.
