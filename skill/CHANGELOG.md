@@ -11,6 +11,15 @@ conservés tels quels pour ne pas casser les liens publiés.
 
 ---
 
+### [Non publié — Manus : douze outils MCP] — 2026-10-21
+
+- `manus_skill/SKILL.md` et `README.md` : le tableau du connecteur passe de six
+  à douze outils, paramètres réels de `mcp_server/server.py` ; `search_case_law`
+  limité à l'ordre judiciaire, choix de l'outil selon l'ordre de juridiction,
+  `get_article_history` pour la fraîcheur. Base Manus inchangée (3.5.0).
+- `tests/test_manus_skill.py` : chaque nom de `mcp_server/catalog.py` doit
+  figurer dans la section MCP et le README (preuve par mutation).
+
 ### [Non publié — numéros suffixés et historique d'article] — 2026-10-21
 
 - Correctif : les numéros d'article gardent l'espace officielle (« L80 A »,
