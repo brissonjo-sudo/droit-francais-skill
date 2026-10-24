@@ -46,7 +46,7 @@ SCRIPT = ROOT / "skill" / "scripts" / "legifrance.py"
 # `.claude` : worktrees d'agents, qui contiennent une copie complète du dépôt.
 # Sans cette exclusion, le contrôle compare le parser de CETTE copie aux `.md`
 # d'une autre — divergence normale entre copies, signalée comme une faute.
-EXCLUDE_DIRS = {".git", ".claude", ".venv", "vault", "__pycache__", ".github"}
+EXCLUDE_DIRS = {".git", ".claude", ".venv", "vault", "__pycache__", ".github", "node_modules"}
 # Journal historique : cite légitimement des commandes retirées depuis.
 EXCLUDE_FILES = {"skill/CHANGELOG.md"}
 
@@ -95,6 +95,8 @@ def iter_markdown() -> list[Path]:
     for path in ROOT.rglob("*.md"):
         rel = path.relative_to(ROOT)
         if any(part in EXCLUDE_DIRS for part in rel.parts):
+            continue
+        if rel.parts[:3] == ("tests", "bench", "runs"):
             continue
         # as_posix() : sur Windows, str(rel) sépare par « \ » et l'exclusion
         # serait inopérante en local tout en restant verte sur GitHub.

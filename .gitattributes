@@ -1,0 +1,3 @@
+# Préserver les octets LF des preuves du corpus sur Windows et dans la CI.
+tests/campaign/** text eol=lf
+docs/corriges-campagne-18-modes.md text eol=lf

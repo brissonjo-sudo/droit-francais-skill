@@ -69,8 +69,10 @@ the references. This finding does not establish which tool produced them.
 > ⚠️ *I will not produce these appeal numbers without verifying them in a
 > primary source (Judilibre / Légifrance) — I will not invent them.*
 
-A separate campaign must measure this contribution before new examples are
-published. No new results are announced here.
+The [new campaign covering the 18 modes](docs/campagne-18-modes.md) will compare
+the method, tools and their combination. Three examples from this campaign
+(a gain, justified abstention and a limitation) will progressively replace
+this illustration after review; no new result is announced here.
 
 ---
 
