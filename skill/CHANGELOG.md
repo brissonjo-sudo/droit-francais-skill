@@ -11,6 +11,19 @@ conservés tels quels pour ne pas casser les liens publiés.
 
 ---
 
+### [3.6.0-grok] — 2026-10-24
+
+Préparation locale de la déclinaison Grok, sans publication ni recette réelle.
+
+- Noyau court aligné sur la 3.6.0 : neuf étapes, DOC-AUDIT 3.5.0,
+  fraîcheur 3.5.1 et citations internes par nom et section.
+- Onze références et profils du noyau repris mot pour mot, seuls renvois
+  d'en-tête DOC-AUDIT et modules adaptés ; script conservé comme source
+  documentaire pour les liens, sans intégration native supposée.
+- Outils natifs conservés ; maintenance du CLI skills sans objet sur cette
+  plateforme, aucun updater annoncé. Dates de vérification du noyau conservées.
+- Tests de parité, provenance, routage et limites de plateforme ajoutés.
+
 ### [Non publié — Gemini : portage 3.3.0 → 3.5.1] — 2026-10-21
 
 - `gemini_skill/SKILL.md` réécrit sur la base 3.5.1 (structure de la

@@ -342,7 +342,7 @@ son propre README :
 |---|---|---|
 | [`gemini_skill/`](gemini_skill) | Gemini (Google) | Noyau condensé v3.5.1, support prioritaire du serveur MCP de ce dépôt, repli grounding Google Search sur sources officielles |
 | [`gemini_agent/`](gemini_agent) | Gemini (`google-genai`) | Client programmatique Python, température 0.0, prompt système aligné sur la méthodologie v3.5.1 |
-| [`grok_skill/`](grok_skill) | Grok (xAI) | Noyau condensé, droit français, récupération par les outils web natifs (`web_search`, `open_page`) au lieu du connecteur MCP et des API PISTE |
+| [`grok_skill/`](grok_skill) | Grok (xAI) | **3.6.0-grok** — Noyau court et références 3.6.0 ; outils web natifs ; aucune recette réelle |
 | [`vibe_skill/`](vibe_skill) | Vibe (Mistral) | Noyau condensé, outils natifs `web_search`/`web_fetch` vérifiés contre le code source public ; wrapper Python fourni en squelette non connecté |
 | [`manus_skill/`](manus_skill) | Manus | Adaptation condensée basée sur 3.5.0 ; connecteur MCP du dépôt s'il est exposé, capacité web native constatée sans nom supposé, sinon abstention ; contrôles DOC-AUDIT renforcés |
 
@@ -436,7 +436,7 @@ droit-francais-skill/
 ├── chatgpt-app-submission.json     ← métadonnées et cas de test importables
 ├── gemini_skill/                   ← déclinaison Gemini (noyau condensé, Agent Skills, MCP prioritaire)
 ├── gemini_agent/                   ← déclinaison Gemini (client programmatique Python google-genai)
-├── grok_skill/                     ← déclinaison Grok (noyau condensé, outils web natifs)
+├── grok_skill/                     ← déclinaison Grok (xAI) 3.6.0, noyau court + références
 ├── vibe_skill/                     ← déclinaison Vibe (outils web_search/web_fetch vérifiés)
 ├── manus_skill/                    ← déclinaison Manus (connecteur MCP en priorité)
 ├── vault/                          ← notes Obsidian (hors paquet)
