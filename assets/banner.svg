@@ -211,28 +211,28 @@
 
       <!-- les six lucioles autour de sa tête -->
       <g>
-        <g><use href="#ff-claude" transform="scale(1.45)"/><animateTransform attributeName="transform" type="translate" values="0 0;0 -4;0 0" dur="1.1s" repeatCount="indefinite"/></g>
-        <animateMotion dur="7s" begin="0s" repeatCount="indefinite" path="M258 46 a80 14 0 1 1 160 0 a80 14 0 1 1 -160 0"/>
+        <g><use href="#ff-claude" transform="scale(1.45)"/><animateTransform attributeName="transform" type="translate" values="0 0;0 -2.5;0 0" dur="1.1s" repeatCount="indefinite"/></g>
+        <animateMotion dur="9s" begin="0s" repeatCount="indefinite" path="M218 50 a118 23 0 1 1 236 0 a118 23 0 1 1 -236 0"/>
       </g>
       <g>
-        <g><use href="#ff-gpt" transform="scale(1.45)"/><animateTransform attributeName="transform" type="translate" values="0 0;0 -4;0 0" dur="1.3s" repeatCount="indefinite"/></g>
-        <animateMotion dur="8.5s" begin="-3s" repeatCount="indefinite" path="M270 44 a66 12 0 1 0 132 0 a66 12 0 1 0 -132 0"/>
+        <g><use href="#ff-gpt" transform="scale(1.45)"/><animateTransform attributeName="transform" type="translate" values="0 0;0 -2.5;0 0" dur="1.3s" repeatCount="indefinite"/></g>
+        <animateMotion dur="9s" begin="-1.5s" repeatCount="indefinite" path="M218 50 a118 23 0 1 1 236 0 a118 23 0 1 1 -236 0"/>
       </g>
       <g>
-        <g><use href="#ff-gemini" transform="scale(1.45)"/><animateTransform attributeName="transform" type="translate" values="0 0;0 -4;0 0" dur="0.9s" repeatCount="indefinite"/></g>
-        <animateMotion dur="6.2s" begin="-3.1s" repeatCount="indefinite" path="M250 50 a90 12 0 1 1 180 0 a90 12 0 1 1 -180 0"/>
+        <g><use href="#ff-gemini" transform="scale(1.45)"/><animateTransform attributeName="transform" type="translate" values="0 0;0 -2.5;0 0" dur="0.9s" repeatCount="indefinite"/></g>
+        <animateMotion dur="9s" begin="-4.5s" repeatCount="indefinite" path="M218 50 a118 23 0 1 1 236 0 a118 23 0 1 1 -236 0"/>
       </g>
       <g>
-        <g><use href="#ff-mistral" transform="scale(1.45)"/><animateTransform attributeName="transform" type="translate" values="0 0;0 -4;0 0" dur="1.2s" repeatCount="indefinite"/></g>
-        <animateMotion dur="7.6s" begin="-5.7s" repeatCount="indefinite" path="M278 42 a56 10 0 1 0 112 0 a56 10 0 1 0 -112 0"/>
+        <g><use href="#ff-mistral" transform="scale(1.45)"/><animateTransform attributeName="transform" type="translate" values="0 0;0 -2.5;0 0" dur="1.2s" repeatCount="indefinite"/></g>
+        <animateMotion dur="9s" begin="-3s" repeatCount="indefinite" path="M218 50 a118 23 0 1 1 236 0 a118 23 0 1 1 -236 0"/>
       </g>
       <g>
-        <g><use href="#ff-grok" transform="scale(1.45)"/><animateTransform attributeName="transform" type="translate" values="0 0;0 -4;0 0" dur="1s" repeatCount="indefinite"/></g>
-        <animateMotion dur="9s" begin="-1.2s" repeatCount="indefinite" path="M264 48 a74 13 0 1 0 148 0 a74 13 0 1 0 -148 0"/>
+        <g><use href="#ff-grok" transform="scale(1.45)"/><animateTransform attributeName="transform" type="translate" values="0 0;0 -2.5;0 0" dur="1s" repeatCount="indefinite"/></g>
+        <animateMotion dur="9s" begin="-6s" repeatCount="indefinite" path="M218 50 a118 23 0 1 1 236 0 a118 23 0 1 1 -236 0"/>
       </g>
       <g>
-        <g><use href="#ff-perplexity" transform="scale(1.45)"/><animateTransform attributeName="transform" type="translate" values="0 0;0 -4;0 0" dur="1.25s" repeatCount="indefinite"/></g>
-        <animateMotion dur="7.9s" begin="-6.4s" repeatCount="indefinite" path="M252 46 a84 11 0 1 1 168 0 a84 11 0 1 1 -168 0"/>
+        <g><use href="#ff-perplexity" transform="scale(1.45)"/><animateTransform attributeName="transform" type="translate" values="0 0;0 -2.5;0 0" dur="1.25s" repeatCount="indefinite"/></g>
+        <animateMotion dur="9s" begin="-7.5s" repeatCount="indefinite" path="M218 50 a118 23 0 1 1 236 0 a118 23 0 1 1 -236 0"/>
       </g>
     </g>
   </g>
