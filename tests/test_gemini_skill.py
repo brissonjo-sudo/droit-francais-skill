@@ -6,7 +6,7 @@ Vérifie que la déclinaison Gemini respecte les standards du dépôt :
 - présence intégrale des 7 principes invariants P1 à P7 ;
 - documentation complète des 6 modules activables ;
 - hiérarchie rigoureuse des 4 voies de récupération d'outils ;
-- intégrité des liens relatifs internes et des références ;
+- présence des références et des profils (liens relatifs : tests/check_links.py) ;
 - cohérence du prompt système dans le package compagnon gemini_agent/.
 """
 
@@ -52,8 +52,8 @@ class GeminiSkillIntegrityTests(unittest.TestCase):
         frontmatter = parties[1]
 
         self.assertIn("name: recherche-juridique", frontmatter)
-        self.assertIn("version: 3.5.1-gemini", frontmatter)
-        self.assertIn("base_version: 3.5.1", frontmatter)
+        self.assertIn("version: 3.6.0-gemini", frontmatter)
+        self.assertIn("base_version: 3.6.0", frontmatter)
         self.assertIn("adapted_for: Gemini", frontmatter)
 
     def test_presence_sept_principes_invariants(self):
@@ -81,8 +81,10 @@ class GeminiSkillIntegrityTests(unittest.TestCase):
     def test_echelle_outils_gemini(self):
         texte = SKILL_MD.read_text(encoding="utf-8")
         self.assertIn("Voie 1 : Connecteur MCP officiel", texte)
-        self.assertIn("Voie 2 : Recherche Google / Grounding", texte)
-        self.assertIn("Voie 3 : Code Execution / Client Python", texte)
+        self.assertIn("Voie 2 : Code Execution / Client Python", texte)
+        self.assertIn("Voie 3 : Recherche Google / Grounding", texte)
+        # Ordre normé du noyau : MCP, sinon script, puis web officiel, enfin abstention.
+        self.assertLess(texte.index("Voie 2 : Code Execution"), texte.index("Voie 3 : Recherche Google"))
         self.assertIn("Voie 4 : Abstention informée", texte)
 
     def test_chaque_outil_du_catalogue_est_documente(self):
@@ -91,13 +93,21 @@ class GeminiSkillIntegrityTests(unittest.TestCase):
 
         texte = SKILL_MD.read_text(encoding="utf-8")
         debut = texte.index("Voie 1 : Connecteur MCP officiel")
-        fin = texte.index("Voie 2 : Recherche Google / Grounding", debut)
+        fin = texte.index("Voie 2 : Code Execution / Client Python", debut)
         voie_mcp = texte[debut:fin]
         readme = README_MD.read_text(encoding="utf-8")
         for nom in TOOL_NAMES:
             with self.subTest(outil=nom):
                 self.assertIn(f"| `{nom}` |", voie_mcp)
                 self.assertIn(f"`{nom}(", readme)
+
+    def test_profils_identiques_au_noyau(self):
+        noyau = sorted((ROOT / "skill" / "profils").glob("*.md"))
+        self.assertTrue(noyau)
+        for source in noyau:
+            with self.subTest(profil=source.name):
+                copie = GEMINI_SKILL_DIR / "profils" / source.name
+                self.assertEqual(copie.read_bytes(), source.read_bytes())
 
     def test_historique_et_etats_de_version_3_5_1(self):
         texte = SKILL_MD.read_text(encoding="utf-8")
@@ -116,7 +126,9 @@ class GeminiSkillIntegrityTests(unittest.TestCase):
 
         self.assertEqual(MODEL_NAME, "gemini-2.5-pro")
         self.assertEqual(TEMPERATURE, 0.0)
-        self.assertIn("v3.5.1", SYSTEM_PROMPT)
+        # Version, marqueur et balises : tests/test_derive_declinaisons.py.
+        # Outils non branchés : l'agent doit s'abstenir, pas citer de mémoire.
+        self.assertIn('"connected": False', SYSTEM_PROMPT)
         for p in ("P1", "P2", "P3", "P4", "P5", "P6", "P7"):
             with self.subTest(principe_agent=p):
                 self.assertIn(

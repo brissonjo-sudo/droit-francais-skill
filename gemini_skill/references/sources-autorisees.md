@@ -21,6 +21,8 @@ Lire le texte intégral lorsque cela est possible. Capturer l’identifiant offi
 | Conseil d’État | https://www.conseil-etat.fr | Numéro de recours, formation, date |
 | Conseil constitutionnel | https://www.conseil-constitutionnel.fr | Numéro de décision, type et date |
 | TA / CAA | https://www.conseil-etat.fr | Juridiction, numéro, date, formation si publiée |
+| Tribunal des conflits | https://www.legifrance.gouv.fr (jurisprudence administrative) | Numéro, date |
+| Juridictions financières (Cour des comptes, CRTC, CAF, CDBF) | https://www.legifrance.gouv.fr (jurisprudence financière) | Juridiction, numéro, date |
 | CJUE | https://curia.europa.eu | Affaire C-xxx/xx ou T-xxx/xx, ECLI, date |
 
 Distinguer le dispositif, la ratio decidendi et les obiter dicta. Rechercher un éventuel revirement ou une décision ultérieure pertinente.
