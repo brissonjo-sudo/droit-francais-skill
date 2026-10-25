@@ -1,95 +1,46 @@
-# Modules activables — détail (v3.3.0-gemini)
+# Modules activables (v3.5.1-gemini)
 
-Référencé depuis `SKILL.md`. Lire ce fichier dès qu’un module s’active.  
-**Règle conservatrice** : en cas de doute sur le déclenchement, le module s’active.  
-Le mode B (`[complet]`) force l’activation de tous les modules.
-
----
+Référencé depuis `SKILL.md`. Activer un module dès qu'un déclencheur est présent ; en cas de doute, l'activer. `[complet]` active tous les modules. **PÉNAL** et **DOC-AUDIT** ne peuvent pas être neutralisés par `[express]`.
 
 ## Module PÉNAL
 
-**Déclencheurs** : toute requête comportant un fait à qualifier pénalement, toute mention d’infraction (contravention, délit, crime), toute demande de visa pénal, toute préparation de procès-verbal ou plainte.
+**Déclencheurs :** qualification pénale, infraction, contravention, délit, crime, visa pénal ou préparation d'un procès-verbal.
 
-**Statut** : **non désactivable par `[express]`** (principe P6 de légalité criminelle stricte).
-
-**Contenu obligatoire** :
-- Application stricte de la légalité criminelle (P6 : pas d'analogie défavorable, interprétation stricte).
-- Décomposition élémentaire de la qualification :
-  - **élément légal** : texte d’incrimination et de pénalité en vigueur à la date exacte des faits (vérifié en source primaire sur Légifrance) ;
-  - **élément matériel** : acte positif ou abstention caractérisée requis par le texte ;
-  - **élément moral** : intention dolosive (dol général / dol spécial) ou faute non intentionnelle (imprudence, négligence, manquement délibéré) ;
-  - circonstances aggravantes éventuelles ;
-  - faits justificatifs (légitime défense, état de nécessité, ordre de la loi, commandement de l'autorité légitime) ou causes d’irresponsabilité (trouble psychique, contrainte, erreur de droit invincible) ;
-  - régime procédural applicable : cadre d’enquête (flagrance, préliminaire), compétence juridictionnelle, prescription de l'action publique ;
-  - contrôle de la charge et des modes de preuve des éléments constitutifs.
-- Triangulation (étape 4) obligatoire dès qu’une interprétation ou une qualification concurrente est en jeu ; non requise pour la simple constatation matérielle non ambiguë.
-
----
+**Contrôles :** texte d'incrimination applicable à la date des faits ; éléments légal, matériel et moral ; circonstances aggravantes ; faits justificatifs et causes d'irresponsabilité ; prescription ; compétence ; régime procédural ; charge et modes de preuve. Distinguer classe de contravention, maximum légal et amende forfaitaire, chacun vérifié séparément.
 
 ## Module ACTE-ADMIN
 
-**Déclencheurs** : rédaction, analyse ou contrôle d’un acte administratif unilatéral ou réglementaire (arrêté municipal ou préfectoral, décision individuelle, mesure de police, sanction disciplinaire, refus d’autorisation), y compris en audit rétrospectif d’un acte existant.
+**Déclencheurs :** rédaction ou contrôle d'un arrêté, d'une décision individuelle, d'une mesure de police, d'une sanction ou d'un refus administratif.
 
-**Contenu obligatoire** :
-- **Contrôle de compétence renforcé** : auteur de l’acte, délégation de signature / de pouvoir régulière et publiée, compétence matérielle, territoriale et temporelle.
-- **Contrôle de proportionnalité** (jurisprudence *Benjamin*, CE 19 mai 1933) en trois temps :
-  - **adaptée** : la mesure est-elle apte à atteindre le but d’intérêt général ou d'ordre public visé ?
-  - **nécessaire** : le but ne pourrait-il être atteint par une mesure moins attentatoire aux libertés publiques ?
-  - **proportionnée stricto sensu** : l’atteinte aux droits et libertés est-elle en équilibre raisonnable avec la gravité du trouble ?
-- **Contrôle de motivation** : respect des articles L. 211-2 et suivants du CRPA (Code des relations entre le public et l'administration) lorsqu'une motivation est légalement exigée.
-- **Contrôle d’opposabilité** : formalités de publicité (affichage, publication au recueil des actes administratifs, télétransmission au contrôle de légalité, notification individuelle).
-- **Contrôle des éléments de preuve et matérialité des faits** fondant la mesure.
-- **Triangulation obligatoire** si l’acte fait grief ou si l'articulation des compétences est contentieuse.
-
----
+**Contrôles :** compétence de l'auteur, délégation, portée territoriale et temporelle ; motivation lorsque requise ; preuve ; publication et opposabilité ; proportionnalité (adaptation, nécessité, proportionnalité stricte) au regard du droit et de la jurisprudence effectivement vérifiés. Trianguler si l'acte fait grief ou si l'interprétation est discutée.
 
 ## Module PA-PJ
 
-**Déclencheurs** : question portant sur des opérations susceptibles d’appartenir à la police administrative ou à la police judiciaire ; mention de constatation, d’interpellation, de contrôle, de fouille, de capture ou de mesure préventive.
+**Déclencheurs :** opération de police, constatation, interpellation, contrôle ou mesure préventive/répressive.
 
-**Contenu obligatoire** — grille de distinction cumulative :
-
-| Critère | Police administrative (PA) | Police judiciaire (PJ) |
-|---------|----------------------------|------------------------|
-| **Finalité** | Préventive (maintien du bon ordre, de la sûreté, de la salubrité et de la tranquillité) | Répressive (recherche, constatation d’infractions et rassemblement des preuves) |
-| **Autorité de tutelle** | Autorité administrative (Maire, Préfet, Ministre de l'Intérieur) | Autorité judiciaire (Procureur de la République, Juge d'instruction) |
-| **Temporalité** | En amont ou en l'absence de commission d'une infraction pénale | À partir d’une infraction pénale constatée, suspectée ou en cours |
-| **Régime contentieux** | Juridiction administrative (TA / CAA / Conseil d'État) | Juridiction judiciaire (Tribunal correctionnel, TJ, Cour d'appel) |
-
-Toujours qualifier explicitement l’opération selon ces quatre critères avant d'analyser la légalité des actes ou l'emploi de la force.
-
----
+Qualifier explicitement la finalité (prévention ou recherche/poursuite), l'autorité agissante, la temporalité par rapport à l'infraction alléguée et le régime procédural. Ne pas inférer un pouvoir opérationnel de la seule compétence de constatation ou d'accès à un lieu.
 
 ## Module FOND
 
-**Déclencheurs** : consultation juridique complexe, note de synthèse approfondie, mémoire universitaire ou professionnel, examen d'une articulation normative controversée.
+**Déclencheurs :** note de fond, citation destinée à un acte, préparation de concours ou interprétation controversée.
 
-**Contenu obligatoire** :
-- **Archéologie textuelle** : analyse de l'évolution législative (loi d'origine, modifications successives, dispositions transitoires applicables).
-- **Circulaires et doctrine administrative** : identification des instructions officielles applicables, sous réserve de leur opposabilité.
-- **Régimes comparés ou dérogatoires** : identification des régimes spéciaux primant sur le droit commun (*specialia generalibus derogant*).
-
----
+Reconstituer l'évolution du texte (outil `get_article_history` si exposé : versions, modificateurs, états `VIGUEUR_DIFF`, `ABROGE_DIFF`, `_MORT_NE`) et les dispositions transitoires ; vérifier les renvois pertinents ; qualifier l'autorité de chaque décision (principe, solution constante ou isolée, formation, particularités factuelles) ; distinguer motif décisif et observation incidente ; exposer les divergences utiles.
 
 ## Module CONTENTIEUX
 
-**Déclencheurs** : recours juridictionnel, requête contentieuse, conclusions d'avocat, question prioritaire de constitutionnalité (QPC), moyen de cassation.
+**Déclencheurs :** risque de recours, stratégie procédurale, voie de droit, recevabilité ou délai.
 
-**Contenu obligatoire** :
-- **Recevabilité** : intérêt à agir, qualité pour agir, respect des délais de recours (délai de 2 mois en contentieux administratif, forclusion), exercice préalable obligatoire d'un recours administratif (RAPO).
-- **Filtrage et recevabilité des moyens** : distinction des moyens d'ordre public (MOP), recevabilité en cassation (moyens nouveaux prohibés), conditions de transmission d'une QPC (applicabilité au litige, caractère nouveau ou sérieux).
-- **Charge et administration de la preuve** : règles probatoires selon la nature du contentieux (système inquisitoire administratif, liberté des preuves en pénal, charge reposant sur le demandeur en civil).
-
----
+Identifier le régime et vérifier l'office du juge, les conditions de recevabilité, l'intérêt à agir, les moyens opérants, la charge argumentative et probatoire, les délais et les forclusions applicables à la date utile. Ne pas donner de stratégie catégorique si un fait décisif manque.
 
 ## Module DOC-AUDIT
 
-**Déclencheurs** : relecture critique, audit ou correction juridique d'un projet d'acte, d'un contrat, d'une consultation ou d'un corpus de documents juridiques.
+**Déclencheurs :** audit, relecture, correction d'un document existant ou contrôle d'un corpus, y compris lorsqu'un audit antérieur est présenté comme acquis.
 
-**Statut** : **non désactivable par `[express]`** dès qu'un document existant est soumis à l'audit.
+Lire intégralement `audit-documentaire.md`. Inventorier le corpus, tenir un registre des affirmations, vérifier en source primaire 100 % du risque élevé, appliquer la matrice acteur–lieu–propriétaire–pouvoir, le double test source/conséquence, le contrôle de cohérence interdocuments et le contrôle après correction.
 
-**Contenu obligatoire** :
-- Registre exhaustif des affirmations juridiques contenues dans le document audité.
-- Vérification systématique de 100 % des références citées contre les sources primaires officielles (recherche de textes abrogés, fausses références, numéros de pourvoi erronés).
-- Matrice de cohérence des compétences (auteur, signataire, délégation, territorialité).
-- Rapport d'écarts avec niveau de gravité (Critique / Majeur / Mineur) et propositions de rédaction corrective sécurisée.
+Contrôles renforcés intégrés de la v3.5.0 :
+
+- Toute recommandation de couper, retirer, évacuer, détruire, confisquer ou attribuer à la personne publique un bien privé déclenche un examen autonome de l'exécution forcée d'office. Vérifier le fondement, l'urgence alléguée, les conditions juridiques pertinentes, le régime sectoriel et la jurisprudence officielle ; ne pas conclure à partir de la seule interdiction ou sanction.
+- Vérifier séparément classe de contravention, maximum légal et amende forfaitaire éventuelle.
+
+**Porte de clôture :** ne pas déclarer l'audit achevé ou « conforme » si une affirmation à risque élevé reste non vérifiée, non corrigée et sans abstention ciblée, ou si le contrôle post-correction n'a pas été fait.

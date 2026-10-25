@@ -7,6 +7,36 @@ d'autorité et les conditions d'usage pour chaque catégorie.
 
 ## Ordre de recherche et autorité
 
+### P3 — Autorité, authenticité et articulation des sources
+
+Ne pas confondre trois questions : la source est-elle authentique, quel est le
+rang de la norme, et quel effet une décision produit-elle sur son application ?
+
+Ordre de recherche :
+
+1. **Textes officiels publiés** (Légifrance / JORF).
+
+2. **Décisions juridictionnelles officielles** (Cass., CE, CC, CJUE, CEDH),
+   qui peuvent interpréter, écarter ou neutraliser l'application d'un texte
+   selon leur compétence et leur autorité.
+
+3. **Circulaires et instructions officielles**.
+
+4. **Doctrine institutionnelle**.
+
+Cet ordre organise la recherche ; il ne constitue pas une hiérarchie abstraite
+où un texte primerait toujours sur une décision qui en contrôle l'application.
+
+La **doctrine privée** (Dalloz, JCP, blogs spécialisés) ne peut fonder
+seule une affirmation normative, mais peut servir comme outil
+d'identification, de contextualisation ou de signalement d'une
+controverse doctrinale. Elle apparaît alors **explicitement** comme
+telle, jamais comme source citable en propre.
+
+
+→ Bloque modes 6, 7, 8.
+
+
 Les niveaux ci-dessous organisent la recherche et la qualité de provenance.
 Ils ne remplacent ni la hiérarchie des normes ni l'autorité propre des
 décisions juridictionnelles. Vérifier séparément l'authenticité de la source,
@@ -97,3 +127,75 @@ l'article X via [source] — je le vérifie maintenant sur Légifrance. »
   fait grief (voir étape 4 dans `SKILL.md`).
 - **Absence de source officielle** sur un point : abstention informée (P7),
   pas de déduction à partir de sources de niveau 4 seul.
+
+## Primarité et provenance de session
+
+## 2. Les 7 principes structurants (noyau invariant)
+
+### P1 — Primarité
+
+Aucune affirmation juridique ne peut s'appuyer sur la mémoire
+d'entraînement seule. Toute citation suppose l'accès au texte intégral
+officiel (ou à l'extrait officiel contenant l'intégralité du passage
+cité) **et** la vérification explicite de sa version applicable à la
+date de référence.
+
+La consultation effective n'est pas le survol d'un résultat de
+recherche : c'est la **lecture documentée** de la source officielle
+(Légifrance — dont sa rubrique Circulaires, le sous-domaine
+`circulaires.legifrance.gouv.fr` redirigeant vers le site principal depuis
+la refonte d'avril 2026 —, courdecassation.fr, conseil-etat.fr,
+conseil-constitutionnel.fr, JORF).
+
+**Règle de provenance (impérative, v2.3.0).** Tout **identifiant
+officiel** figurant dans une sortie — `LEGIARTI…`, `JORFTEXT…`,
+`NOR`, n° de pourvoi, n° de requête, n° de décision — doit provenir
+d'un **appel d'outil effectué dans la session courante** (récupération
+en source primaire : selon l'ordre normé de l'**étape 2**, *échelle de récupération* :
+connecteur MCP officiel disponible, sinon `scripts/legifrance.py`,
+à défaut `web_fetch`/`web_search` sur un domaine officiel). Un identifiant qui n'a pas
+été récupéré ne peut **jamais** être reconstitué de mémoire : il est
+soit omis, soit marqué `⚠️ non vérifié — identifiant non récupéré`. La
+conformité apparente de la procédure (afficher les étapes 0 à 7,
+l'en-tête, l'encart) ne dispense **pas** de cette provenance : produire
+le cérémonial sans la récupération est une **simulation de procédure**,
+traitée comme un défaut bloquant à l'étape 6. Un identifiant non
+récupéré interdit la voie **gabarit C** (citation pour acte).
+
+La règle est **indifférente à la voie** : un identifiant récupéré par
+`web_fetch` sur Légifrance vaut exactement un identifiant récupéré par
+l'API ; un identifiant non récupéré ne vaut rien dans les deux cas.
+L'absence de clé PISTE n'abaisse donc jamais le niveau de preuve — elle
+change seulement le moyen d'atteindre la source.
+
+→ Bloque modes 1, 2, 3.
+
+## Limites des voies de vérification
+
+## 9. Limites et précautions du skill lui-même
+
+- Ce skill ne remplace pas l'avis d'un juriste ou d'un avocat pour
+  les décisions à fort enjeu contentieux.
+
+- La qualité dépend de l'accessibilité de Légifrance et des autres
+  sources au moment de la requête.
+
+- Pour les textes anciens non codifiés (avant numérisation
+  Légifrance), la vérification manuelle au JORF papier peut être
+  nécessaire.
+
+- Les textes UE (EUR-Lex) suivent leur propre nomenclature ; vérifier
+  la transposition en droit français séparément.
+
+- **Palier 3 (API PISTE) — outillé depuis la v2.3.0.** L'étape 2
+  (récupération) peut être automatisée et fiabilisée par les
+  métadonnées officielles via [`scripts/legifrance.py`](../scripts/legifrance.py)
+  (API Légifrance **et** Judilibre, toutes deux via PISTE). C'est le moyen
+  privilégié de satisfaire P1 et la règle de provenance : l'identifiant
+  `LEGIARTI`, la date de version en vigueur et le statut (en vigueur /
+  modifié / abrogé) proviennent alors d'une réponse officielle, non de la
+  mémoire du modèle. L'**ordre des voies** (outillée → repli web →
+  abstention) est normé à l'**étape 2** et ne se rejoue pas ici : à défaut
+  d'accès API, la voie web conserve son risque de rendu incomplet, sans
+  abaisser d'un cran l'exigence de provenance. Les étapes 0, 0 bis, 4, 5,
+  6, 7 et les techniques T1/T2/T3/T4 restent essentielles.

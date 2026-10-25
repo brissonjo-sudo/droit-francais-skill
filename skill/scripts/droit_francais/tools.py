@@ -50,14 +50,76 @@ SORT_MODES: dict[str, tuple[str, str]] = {
     "relevance": ("score", "desc"),
     "date": ("date", "desc"),
 }
+#: Fonds de jurisprudence Légifrance lus par ``/consult/juri`` : préfixe
+#: d'identifiant, lien public et couverture signalée dans chaque réponse.
+JURI_FUNDS: dict[str, dict[str, str]] = {
+    "CETAT": {
+        "prefix": "CETATEXT",
+        "url": "https://www.legifrance.gouv.fr/ceta/id/{id}",
+        "coverage": (
+            "Fonds Légifrance CETAT : Conseil d'État, cours administratives "
+            "d'appel et Tribunal des conflits. Les jugements de tribunaux "
+            "administratifs n'y figurent que par une sélection antérieure à 2010."
+        ),
+    },
+    "CONSTIT": {
+        "prefix": "CONSTEXT",
+        "url": "https://www.legifrance.gouv.fr/cons/id/{id}",
+        "coverage": "Fonds Légifrance CONSTIT : décisions du Conseil constitutionnel.",
+    },
+    "JUFI": {
+        "prefix": "JUFITEXT",
+        "url": "https://www.legifrance.gouv.fr/jufi/id/{id}",
+        "coverage": (
+            "Fonds Légifrance JUFI : décisions juridictionnelles de la Cour des "
+            "comptes, des chambres régionales et territoriales des comptes, de la "
+            "Cour d'appel financière et de la Cour de discipline budgétaire et "
+            "financière."
+        ),
+    },
+}
+_JURI_DECISION_ID = re.compile(r"(CETATEXT|CONSTEXT|JUFITEXT)\d{12}", flags=re.IGNORECASE)
+#: Filtres → libellés cherchés dans le titre. Ces fonds refusent la facette
+#: JURIDICTION_NATURE (constaté le 21/10/2026) ; l'accent est indifférent. Les
+#: arrêts récents de cours administratives d'appel s'intitulent « CAA de … »,
+#: les plus anciens « Cour administrative d'appel de … ». « CRC » seul est
+#: écarté : il figure aussi dans les arrêts d'appel de la Cour des comptes.
+ADMIN_JURISDICTIONS: dict[str, tuple[str, ...]] = {
+    "ce": ("Conseil d'État",),
+    "caa": ("Cour administrative d'appel", "CAA"),
+    "ta": ("Tribunal administratif",),
+    "tc": ("Tribunal des conflits",),
+}
+CONSTIT_DECISION_TYPES: dict[str, tuple[str, ...]] = {
+    "qpc": ("QPC",),
+    "dc": ("DC",),
+    "l": ("L",),
+}
+FINANCIAL_JURISDICTIONS: dict[str, tuple[str, ...]] = {
+    "ccomptes": ("COUR DES COMPTES",),
+    "crtc": ("CRTC",),
+    "caf": ("Cour d'appel financière",),
+    "cdbf": ("CDBF",),
+}
+#: Ces fonds ignorent SIGNATURE_DATE_* : seul DATE_DESC trie par date.
+ADMIN_SORT_MODES: dict[str, str] = {
+    "relevance": "PERTINENCE",
+    "date": "DATE_DESC",
+}
 _HTML_TAG = re.compile(r"<[^>]+>")
 _ARTICLE_ID = re.compile(r"\bLEGIARTI\d{12}\b", flags=re.IGNORECASE)
+#: Suffixe officiel séparé par une espace : « L80 A », « 200 quater A ». Une
+#: majuscule suivie d'un point n'en est pas un (« art. 1240 C. civ. »).
+_ARTICLE_SUFFIX = (
+    r"(?:\s+(?:bis|ter|quater|quinquies|sexies|septies|octies|nonies|decies)\b"
+    r"|\s+(?-i:[A-Z])(?![\w.]))*"
+)
 _ARTICLE_QUERY = re.compile(
-    r"\b(?:article|art\.?)\s+([LRDA]?\.?\s*\d[\w.-]*)",
+    rf"\b(?:article|art\.?)\s+([LRDA]?\.?\s*\d[\w.-]*{_ARTICLE_SUFFIX})",
     flags=re.IGNORECASE,
 )
 _BARE_ARTICLE_QUERY = re.compile(
-    r"\b([LRDA]\.\s*\d[\w.-]*|[LRDA]\d[\w.-]*)\b",
+    rf"\b([LRDA]\.\s*\d[\w.-]*{_ARTICLE_SUFFIX}|[LRDA]\d[\w.-]*{_ARTICLE_SUFFIX})(?!\w)",
     flags=re.IGNORECASE,
 )
 _ISO_DATE_IN_QUERY = re.compile(r"\b(\d{4}-\d{2}-\d{2})\b")
@@ -127,6 +189,12 @@ _CODE_ALIASES = {
     "code de la santé publique": "Code de la santé publique",
     "code de la sante publique": "Code de la santé publique",
     "code de l'urbanisme": "Code de l'urbanisme",
+    "livre des procédures fiscales": "Livre des procédures fiscales",
+    "livre des procedures fiscales": "Livre des procédures fiscales",
+    "lpf": "Livre des procédures fiscales",
+    "code général des impôts": "Code général des impôts",
+    "code general des impots": "Code général des impôts",
+    "cgi": "Code général des impôts",
 }
 
 
@@ -386,11 +454,19 @@ def _epoch_ms(value: str) -> int:
 
 
 def _article_number_variants(number: str) -> list[str]:
-    compact = "".join(number.split())
-    match = re.match(r"^([LRDA])\.?([0-9].*)$", compact, flags=re.IGNORECASE)
+    """Formes à chercher, la graphie officielle espacée en premier.
+
+    L'espace interne est significatif pour Légifrance : « L80 A » et
+    « 200 quater A » existent, « L80A » ne renvoie rien. Seule l'espace entre
+    le préfixe et le numéro (« L. 2212-2 ») est retirée.
+    """
+    spaced = " ".join(number.split())
+    match = re.match(r"^([LRDA])\.?\s*([0-9].*)$", spaced, flags=re.IGNORECASE)
     if match:
-        return [f"{match.group(1).upper()}{match.group(2)}"]
-    return [compact, *(f"{prefix}{compact}" for prefix in "LRDA")]
+        forms = [f"{match.group(1).upper()}{match.group(2)}"]
+    else:
+        forms = [spaced, *(f"{prefix}{spaced}" for prefix in "LRDA")]
+    return list(dict.fromkeys(forms + ["".join(form.split()) for form in forms]))
 
 
 def _first_prefixed_id(value: Any, prefix: str) -> str | None:
@@ -544,6 +620,84 @@ def get_article(article_id: str, date: str | None = None) -> dict[str, Any]:
     }
 
 
+def _chrono_modifiers(text_cid: str, article_cid: str) -> dict[str, list[dict[str, Any]]] | None:
+    """Textes modificateurs par date de début de version, ou None si absents."""
+    payload = api_call(
+        "/chrono/textCidAndElementCid",
+        {"textCid": text_cid, "elementCid": article_cid},
+        get_token(),
+    )
+    groups = payload.get("regroupements") or []
+    if not groups:
+        return None
+    by_date: dict[str, list[dict[str, Any]]] = {}
+    for group in groups:
+        for version in (group.get("versions") or {}).values():
+            start = _date_value(version.get("dateDebut"))
+            if start is None:
+                continue
+            for modifier in (version.get("articlesModificateurs") or {}).values():
+                by_date.setdefault(start.isoformat(), []).append(
+                    {
+                        "id": modifier.get("id"),
+                        "title": _clean_text(modifier.get("title")),
+                        "actions": sorted((modifier.get("actions") or {}).keys()),
+                    }
+                )
+    return by_date
+
+
+def get_article_history(article_id: str, date: str | None = None) -> dict[str, Any]:
+    """Liste toutes les versions d'un article et les textes qui les ont produites."""
+    article_id = article_id.strip().upper()
+    if not _ARTICLE_ID.fullmatch(article_id):
+        raise LegifranceError(
+            f"Identifiant attendu {ARTICLE_ID_PREFIX} suivi de 12 chiffres "
+            f"(reçu {article_id!r}).",
+            exit_code=2,
+        )
+    article = _extract_article(api_call("/consult/getArticle", {"id": article_id}, get_token()))
+    if not article:
+        raise LegifranceError(f"Article {article_id} introuvable.", exit_code=5)
+    article_cid = article.get("cid") or article_id
+    text = (article.get("textTitles") or [{}])[0]
+    text_cid = text.get("cid")
+    modifiers = _chrono_modifiers(text_cid, article_cid) if text_cid else None
+    dating = _dating(date)
+    as_of = dt.date.fromisoformat(dating["as_of_date"])
+    versions = []
+    for version in article.get("articleVersions") or []:
+        start = _date_value(version.get("dateDebut"))
+        end = _date_value(version.get("dateFin"))
+        versions.append(
+            {
+                "id": version.get("id"),
+                "url": ARTICLE_URL.format(id=version.get("id")),
+                "legal_status": version.get("etat") or "UNKNOWN",
+                "version_start_date": start.isoformat() if start else None,
+                "version_end_date": end.isoformat() if end else None,
+                "applicable_at_as_of_date": bool(start and start <= as_of and (end is None or as_of < end)),
+                "modified_by": (modifiers or {}).get(start.isoformat(), []) if start else [],
+            }
+        )
+    versions.sort(key=lambda item: item["version_start_date"] or "")
+    return {
+        "id": article_id,
+        "cid": article_cid,
+        "number": _clean_text(article.get("num")),
+        "text": {"id": text_cid, "title": _clean_text(text.get("titre"))},
+        "versions": versions,
+        # Sans chronologie amont, une liste vide ne prouverait pas l'absence de modification.
+        "modifications_available": modifiers is not None,
+        "dating": dating,
+        "provenance": {
+            "source": "Légifrance API",
+            "verified": True,
+            "content_trust": UNTRUSTED_CONTENT,
+        },
+    }
+
+
 def search_case_law(
     query: str,
     jurisdiction: str | None = None,
@@ -664,6 +818,214 @@ def get_decision(decision_id: str) -> dict[str, Any]:
     }
 
 
+def _juri_provenance(fund: str) -> dict[str, Any]:
+    return {
+        "source": "Légifrance API",
+        "fund": fund,
+        "verified": True,
+        "content_trust": UNTRUSTED_CONTENT,
+        "coverage": JURI_FUNDS[fund]["coverage"],
+    }
+
+
+def _search_juri_fund(
+    fund: str,
+    query: str,
+    filter_name: str,
+    filter_value: str | None,
+    filter_labels: dict[str, tuple[str, ...]],
+    date_start: str | None,
+    date_end: str | None,
+    limit: int,
+    sort: str,
+) -> dict[str, Any]:
+    """Recherche dans un fonds de jurisprudence Légifrance, filtre par le titre."""
+    query = query.strip()
+    if not query:
+        raise LegifranceError("La requête de jurisprudence est obligatoire.", exit_code=2)
+    code = (filter_value or "").strip().lower() or None
+    if code is not None and code not in filter_labels:
+        raise LegifranceError(
+            f"Valeur inconnue pour {filter_name} : {filter_value!r}. Valeurs "
+            f"acceptées : {', '.join(filter_labels)}.",
+            exit_code=2,
+        )
+    mode = (sort or "").strip().lower()
+    if mode not in ADMIN_SORT_MODES:
+        raise LegifranceError(
+            f"Tri inconnu : {sort!r}. Valeurs acceptées : {', '.join(ADMIN_SORT_MODES)}.",
+            exit_code=2,
+        )
+    champs: list[dict[str, Any]] = [
+        {
+            "typeChamp": "ALL",
+            "criteres": [
+                {"typeRecherche": "TOUS_LES_MOTS_DANS_UN_CHAMP", "valeur": query, "operateur": "ET"}
+            ],
+            "operateur": "ET",
+        }
+    ]
+    if code is not None:
+        labels = filter_labels[code]
+        operator = "OU" if len(labels) > 1 else "ET"
+        champs.append(
+            {
+                "typeChamp": "TITLE",
+                "criteres": [
+                    {"typeRecherche": "EXACTE", "valeur": label, "operateur": operator}
+                    for label in labels
+                ],
+                "operateur": operator,
+            }
+        )
+    filters: list[dict[str, Any]] = []
+    if date_start or date_end:
+        filters.append(
+            {
+                "facette": "DATE_DECISION",
+                "dates": {
+                    "start": _iso_date(date_start) if date_start else "1800-01-01",
+                    "end": _iso_date(date_end),
+                },
+            }
+        )
+    safe_limit = max(1, min(int(limit), 50))
+    body = {
+        "fond": fund,
+        "recherche": {
+            "champs": champs,
+            "filtres": filters,
+            "pageNumber": 1,
+            "pageSize": safe_limit,
+            "operateur": "ET",
+            "sort": ADMIN_SORT_MODES[mode],
+            "typePagination": "DEFAUT",
+        },
+    }
+    payload = api_call("/search", body, get_token())
+    prefix = JURI_FUNDS[fund]["prefix"]
+    results: list[dict[str, Any]] = []
+    for item in payload.get("results") or []:
+        title = (item.get("titles") or [{}])[0]
+        decision_id = str(title.get("id") or "").strip().upper()
+        if not (_JURI_DECISION_ID.fullmatch(decision_id) and decision_id.startswith(prefix)):
+            continue
+        results.append(
+            {
+                "id": decision_id,
+                "title": _clean_text(title.get("title")),
+                "url": JURI_FUNDS[fund]["url"].format(id=decision_id),
+                "excerpt": _clean_text(item.get("text")),
+            }
+        )
+    return {
+        "results": results,
+        "total": payload.get("totalResultNumber", len(results)),
+        "query": {
+            "query": query,
+            filter_name: code,
+            "date_start": date_start,
+            "date_end": date_end,
+            "sort": mode,
+        },
+        "provenance": _juri_provenance(fund),
+    }
+
+
+def search_admin_case_law(
+    query: str,
+    jurisdiction: str | None = None,
+    date_start: str | None = None,
+    date_end: str | None = None,
+    limit: int = 10,
+    sort: str = "relevance",
+) -> dict[str, Any]:
+    """Recherche la jurisprudence administrative dans le fonds Légifrance CETAT."""
+    return _search_juri_fund(
+        "CETAT", query, "jurisdiction", jurisdiction, ADMIN_JURISDICTIONS,
+        date_start, date_end, limit, sort,
+    )
+
+
+def search_constitutional_decisions(
+    query: str,
+    decision_type: str | None = None,
+    date_start: str | None = None,
+    date_end: str | None = None,
+    limit: int = 10,
+    sort: str = "relevance",
+) -> dict[str, Any]:
+    """Recherche les décisions du Conseil constitutionnel (fonds CONSTIT)."""
+    return _search_juri_fund(
+        "CONSTIT", query, "decision_type", decision_type, CONSTIT_DECISION_TYPES,
+        date_start, date_end, limit, sort,
+    )
+
+
+def search_financial_case_law(
+    query: str,
+    jurisdiction: str | None = None,
+    date_start: str | None = None,
+    date_end: str | None = None,
+    limit: int = 10,
+    sort: str = "relevance",
+) -> dict[str, Any]:
+    """Recherche la jurisprudence des juridictions financières (fonds JUFI)."""
+    return _search_juri_fund(
+        "JUFI", query, "jurisdiction", jurisdiction, FINANCIAL_JURISDICTIONS,
+        date_start, date_end, limit, sort,
+    )
+
+
+def get_juri_decision(decision_id: str) -> dict[str, Any]:
+    """Lit une décision CETAT, CONSTIT ou JUFI sans identité de personnes.
+
+    Les champs ``rapporteur``, ``commissaire``, ``avocats`` et ``demandeur`` de
+    la réponse ne sont jamais recopiés : l'article L10 du code de justice
+    administrative interdit toute réutilisation de l'identité des magistrats
+    visant à évaluer, comparer ou prédire leurs pratiques, et la même prudence
+    vaut pour les autres personnes nommées. Les métadonnées sont donc choisies
+    une à une plutôt que filtrées ; le texte intégral reste inaltéré.
+    """
+    decision_id = decision_id.strip().upper()
+    if not _JURI_DECISION_ID.fullmatch(decision_id):
+        raise LegifranceError(
+            "Identifiant attendu CETATEXT, CONSTEXT ou JUFITEXT suivi de 12 "
+            f"chiffres (reçu {decision_id!r}).",
+            exit_code=2,
+        )
+    fund = next(name for name, spec in JURI_FUNDS.items() if decision_id.startswith(spec["prefix"]))
+    payload = api_call("/consult/juri", {"textId": decision_id}, get_token())
+    decision = payload.get("text") or {}
+    if not decision.get("id"):
+        raise LegifranceError(f"Décision {decision_id} introuvable.", exit_code=5)
+    canonical_id = str(decision["id"]).upper()
+    decision_date = _date_value(decision.get("dateTexte"))
+    summaries = [
+        _clean_text(part.get("resumePrincipal"))
+        for part in decision.get("sommaire") or []
+        if isinstance(part, dict) and part.get("resumePrincipal")
+    ]
+    return {
+        "id": canonical_id,
+        "title": _clean_text(decision.get("titre")),
+        "text": _clean_text(decision.get("texte") or decision.get("texteHtml")),
+        "url": JURI_FUNDS[fund]["url"].format(id=canonical_id),
+        "metadata": {
+            "jurisdiction": decision.get("juridiction"),
+            "formation": decision.get("formation"),
+            "decision_date": decision_date.isoformat() if decision_date else None,
+            "number": decision.get("num"),
+            "ecli": decision.get("ecli"),
+            "nature": decision.get("nature"),
+            "solution": decision.get("solution"),
+            "publication": decision.get("publicationRecueil"),
+            "summary": summaries,
+            **_juri_provenance(fund),
+        },
+    }
+
+
 def search(query: str) -> dict[str, Any]:
     """Recherche standard en préservant le code et la date exprimés."""
     query = query.strip()
@@ -725,6 +1087,8 @@ def fetch(identifier: str) -> dict[str, Any]:
         return get_article(identifier)
     if identifier.upper().startswith("LEGITEXT"):
         return get_text(identifier)
+    if _JURI_DECISION_ID.match(identifier):
+        return get_juri_decision(identifier)
     if identifier.upper().startswith(("LEGISCTA", "JORF")):
         raise LegifranceError(
             "Pour une section CODE, utiliser get_section avec son LEGITEXT parent. "

@@ -64,6 +64,13 @@ compteurs inactifs à chaque passage, ce qui borne l'empreinte mémoire sans
 tâche de fond. Un dépassement produit un message explicite, distinct d'une
 erreur de source.
 
+**Réglage de production.** Sur Render, `MCP_USER_CALLS_PER_MINUTE` vaut 60
+depuis le 21/10/2026 : à 20, une seule session de recherche approfondie
+atteignait le quota et voyait ses lectures refusées (quatre requêtes
+témoins menées en parallèle sous un même compte). Le débit d'instance
+(120 appels/min) reste le plafond global, et 60 appels/min demeurent très en
+deçà des quotas PISTE relevés (20 requêtes/s par méthode).
+
 ## 4. Journalisation et vie privée
 
 Le journal métier (`droit_francais.mcp`) est la seule trace permettant de

@@ -42,5 +42,6 @@ autorisation), consignés dans [[retex-tests]].
 
 - [[index-recherche-juridique]] — navigation principale
 - [[recherche-juridique v3.4.1]] — version précédente
+- [[recherche-juridique v3.5.1]] — version suivante
 - [[modules-declencheurs]] — module DOC-AUDIT
 - [[retex-tests]] — retours d'expérience à l'origine des contrôles

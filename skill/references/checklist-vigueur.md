@@ -100,6 +100,13 @@ modificateur pour la date d'entrée en vigueur effective.
 
 ## Point 5 — Absence de modification postérieure (mode 3)
 
+**Voie outillée (connecteur MCP) :** `get_article_history` avec
+l'identifiant LEGIARTI d'une version quelconque, et `date` seulement si la
+date de référence n'est pas aujourd'hui. Relever la version dont
+`applicable_at_as_of_date` vaut `true`, son identifiant et ses bornes, et
+les textes de `modified_by`. Si `modifications_available` vaut `false`,
+compléter par la fiche Légifrance ci-dessous.
+
 **Sur la fiche Légifrance :**
 1. Vérifier l'onglet « Versions » ou « Historique ».
 2. Confirmer qu'aucune modification n'est intervenue entre la date
@@ -223,3 +230,30 @@ d'analyse. Prescription de l'action publique, prescription
 contraventionnelle, forclusion administrative, délais de recours
 contentieux : un texte applicable peut être procéduralement
 inopérant par expiration des délais.
+
+## Temporalités de référence
+
+### P2 — Date de référence
+
+Toute analyse identifie d'abord la date à laquelle le droit s'applique :
+
+- date des **faits** pour une qualification rétrospective,
+
+- date du **jour** pour une analyse prospective,
+
+- date **d'effet d'un acte** en préparation.
+
+Plusieurs temporalités peuvent **coexister** dans une même question :
+
+- droit substantiel à la date des faits,
+
+- droit procédural d'application immédiate,
+
+- sanction soumise à la rétroactivité in mitius (P6),
+
+- légalité d'un acte appréciée à sa date d'édiction.
+
+Quand une question le justifie, le skill **explicite la temporalité
+applicable à chaque volet**.
+
+→ Bloque modes 2, 3, 11.
