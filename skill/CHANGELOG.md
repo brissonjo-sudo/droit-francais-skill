@@ -11,6 +11,15 @@ conservés tels quels pour ne pas casser les liens publiés.
 
 ---
 
+### [3.6.0-manus] — 2026-10-25
+
+Alignement de la déclinaison Manus sur le noyau 3.6.0, sans recette réelle.
+
+- Étape 0 bis ajoutée : procédure en 9 étapes (0, 0 bis, 1 à 7).
+- Marqueur de provenance du noyau (`⚠️ non vérifié — identifiant non récupéré`)
+  à la place de l'ancienne réserve, balises `[syllogisme]` et `[opérationnel]`.
+- Profils métier copiés à l'identique ; références condensées inchangées.
+
 ### [3.6.0-gemini] — 2026-10-25
 
 Alignement de la déclinaison Gemini sur le noyau 3.6.0, sans recette réelle.

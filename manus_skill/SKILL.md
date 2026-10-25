@@ -8,13 +8,13 @@ description: >-
   auditer un acte, une note ou un document. Ne pas utiliser pour le droit
   étranger hors UE ni pour une question doctrinale sans enjeu normatif.
 metadata:
-  version: 3.5.0-manus
-  base_version: 3.5.0
+  version: 3.6.0-manus
+  base_version: 3.6.0
   langue: français
   adapted_for: Manus
 ---
 
-# Recherche juridique — adaptation Manus de la base 3.5.0
+# Recherche juridique — adaptation Manus de la base 3.6.0
 
 ## Objet et règle cardinale
 
@@ -29,6 +29,8 @@ Activer ce skill dès qu'une demande porte notamment sur un texte normatif, une 
 - **Mode A (défaut)** : appliquer le noyau et les modules déclenchés par la demande.
 - **`[complet]` / mode B** : appliquer tous les modules et fournir une synthèse des contrôles et limites.
 - **`[express]`** : réduire les recherches facultatives et la longueur de la réponse, jamais les contrôles du module **PÉNAL** ou **DOC-AUDIT**, ni la vérification d'une affirmation décisive.
+- **`[syllogisme]`** : structurer en majeure (norme applicable vérifiée), mineure (faits qualifiés) et conclusion.
+- **`[opérationnel]`** : ajouter au livrable ses implications opérationnelles et, à l'étape 7, un regard sur la mise en œuvre.
 - **`[lookup]`** : fournir une vérification ciblée et concise. Ne pas la traiter comme une dispense de vérifier la source primaire, la date et l'applicabilité.
 
 En cas de doute sur le déclenchement d'un module, l'activer. Ne pas réciter le plan interne dans une réponse simple ; expliciter les contrôles lorsque le livrable, la complexité ou une limite le justifie.
@@ -41,7 +43,7 @@ En cas de doute sur le déclenchement d'un module, l'activer. Ne pas réciter le
 
 **P3 — Autorité et fonction.** Distinguer l'authenticité d'une source, le rang de la norme, l'autorité de la décision et sa fonction juridique (compétence, habilitation, procédure, sanction, définition, etc.). Ne pas confondre ces dimensions.
 
-**P4 — Traçabilité de session.** Une référence historique, mémorisée ou incluse dans un fichier n'est pas une vérification actuelle. Ne restituer un identifiant ou un extrait comme vérifié que s'il a été récupéré dans la session depuis une source officielle. Des guillemets exigent le texte effectivement consulté.
+**P4 — Traçabilité de session.** Une référence historique, mémorisée ou incluse dans un fichier n'est pas une vérification actuelle. Ne restituer un identifiant ou un extrait comme vérifié que s'il a été récupéré dans la session depuis une source officielle ; sinon, l'omettre ou le marquer `⚠️ non vérifié — identifiant non récupéré`. Des guillemets exigent le texte effectivement consulté.
 
 **P5 — Registres séparés.** Séparer le droit positif, les faits établis, les faits allégués, les inférences, les hypothèses et les recommandations. Ne pas transformer une hypothèse ou une pratique locale en règle de droit.
 
@@ -55,7 +57,13 @@ Pour prévenir les erreurs récurrentes (référence inventée, confusion de ver
 
 ### Étape 0 — Qualifier
 
-Déterminer l'objet de la demande, le résultat attendu, le domaine et le régime possibles, les faits connus et manquants, les acteurs, le territoire et les dates pertinentes. Ne poser une question préalable que si une information manquante est décisionnelle ; sinon, annoncer une hypothèse limitée et conditionnelle.
+Déterminer l'objet de la demande, le résultat attendu, le domaine et le régime possibles, les faits connus et manquants, les acteurs, le territoire et les dates pertinentes.
+
+Lire `profil.md` s'il existe à la racine du skill (copie d'un fichier de `profils/`) : contexte, domaines et regard critique du métier sont des défauts, supplantés par la demande et rouverts à l'étape 0 bis s'ils deviennent décisionnels. Sans profil, ne supposer ni territoire ni métier.
+
+### Étape 0 bis — Arbitrer les informations manquantes
+
+Avant toute recherche, recenser les informations nécessaires qui manquent. Si la conclusion, le régime, la qualification ou la procédure change selon leur valeur, elles sont décisionnelles : poser la question et suspendre le fond. Sinon seulement, annoncer une hypothèse limitée. Chercher en source primaire ce qui est vérifiable ; ne demander que ce que l'utilisateur détient. Une question par défaut, trois au plus, de préférence fermées ; en attendant la réponse, au plus une esquisse bornée « si a / si b ».
 
 ### Étape 1 — Récupérer les sources
 
@@ -133,7 +141,7 @@ Tester la conclusion du point de vue d'un contradicteur, d'un juge ou contrôleu
 
 Dès qu'un document existant est audité, relu ou corrigé, appliquer **DOC-AUDIT** avant toute conclusion. Lire intégralement `references/audit-documentaire.md`. Un audit antérieur ou une mention « validé » ne dispense jamais de revérifier les affirmations à risque élevé.
 
-**Nouveautés intégrées de la v3.5.0 :**
+**Contrôles DOC-AUDIT intégrés depuis la v3.5.0 :**
 
 - Si le document recommande de couper, retirer, évacuer, détruire, confisquer ou attribuer à une personne publique un bien privé, examiner séparément le fondement de cette exécution forcée d'office. Vérifier l'habilitation expresse ou l'urgence invoquée ; à défaut, examiner les conditions juridiques pertinentes (notamment absence d'autre voie de droit ou sanction, base légale de la décision, résistance de l'intéressé et stricte nécessité), le régime sectoriel et la jurisprudence officielle avant de conclure. Une interdiction, une contravention ou une clause locale ne suffit pas, à elle seule, à établir le pouvoir de disposer du bien.
 - Distinguer systématiquement **classe de contravention**, **maximum légal encouru** et **amende forfaitaire** éventuellement applicable. Vérifier chacun séparément ; aucun ne se déduit automatiquement des autres.
@@ -163,8 +171,8 @@ Lorsque disponible et pertinent, accompagner toute référence de :
 
 Ne pas imposer un format long à une réponse brève si cela nuit à la lisibilité, mais ne jamais omettre les informations nécessaires pour retrouver et contrôler la source.
 
-Employer exactement cette réserve lorsqu'une source déterminante n'a pas pu être confirmée : **« Source non confirmée — abstention sur ce point. »** Préciser ensuite ce qui manque et quelle vérification permettrait de conclure.
+Lorsqu'une source déterminante n'a pas pu être confirmée, marquer l'identifiant `⚠️ non vérifié — identifiant non récupéré` et s'abstenir sur ce point. Préciser ensuite ce qui manque et quelle vérification permettrait de conclure.
 
 ## Mise à jour et installation
 
-Dans Manus, mettre à jour ce skill en réimportant le dossier `manus_skill/` (avec son `SKILL.md` et son dossier `references/`) dans la gestion des skills du compte.
+Dans Manus, mettre à jour ce skill en réimportant le dossier `manus_skill/` (avec son `SKILL.md` et ses dossiers `references/` et `profils/`) dans la gestion des skills du compte.
