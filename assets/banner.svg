@@ -158,26 +158,42 @@
 
     <!-- ===== le policier municipal, de face ===== -->
     <g filter="url(#ink)" stroke="#111" stroke-linecap="round" stroke-linejoin="round">
-      <rect x="288" y="198" width="9" height="36" fill="#1f2f5c" stroke-width="2"/>
-      <rect x="303" y="198" width="9" height="36" fill="#1f2f5c" stroke-width="2"/>
-      <ellipse cx="290" cy="236" rx="8" ry="3.5" fill="#111"/>
-      <ellipse cx="310" cy="236" rx="8" ry="3.5" fill="#111"/>
-      <path d="M282 146 Q273 170 277 192" fill="none" stroke="#1f2f5c" stroke-width="9"/>
-      <circle cx="277" cy="194" r="4.5" fill="#f1cfb2" stroke-width="2"/>
-      <path d="M280 140 Q300 134 320 140 L318 202 L282 202 Z" fill="#1f2f5c" stroke-width="2.5"/>
-      <rect x="281" y="192" width="38" height="7" fill="#111" stroke-width="1"/>
-      <rect x="297" y="193" width="6" height="5" fill="#c9ced6" stroke-width="1"/>
-      <path d="M286 150 h8 v6 q-4 4 -8 0 Z" fill="#c9ced6" stroke-width="1.2"/>
-      <text x="300" y="176" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="7" font-weight="700" letter-spacing="0.6" fill="#ffffff" stroke="none">POLICE</text>
-      <text x="300" y="184" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="4.6" font-weight="700" letter-spacing="0.3" fill="#ffffff" stroke="none">MUNICIPALE</text>
+      <!-- pantalon à poches cargo et rangers -->
+      <rect x="288" y="196" width="10" height="32" fill="#26357a" stroke-width="2"/>
+      <rect x="302" y="196" width="10" height="32" fill="#26357a" stroke-width="2"/>
+      <rect x="289.5" y="208" width="6" height="8" rx="1" fill="none" stroke="#111" stroke-width="1.1"/>
+      <rect x="304.5" y="208" width="6" height="8" rx="1" fill="none" stroke="#111" stroke-width="1.1"/>
+      <path d="M285 225 h14 v9 q0 2 -2 2 h-13 q-2 0 -2 -2 v-3 Z" fill="#111" stroke-width="1.6"/>
+      <path d="M315 225 h-14 v9 q0 2 2 2 h13 q2 0 2 -2 v-3 Z" fill="#111" stroke-width="1.6"/>
+      <!-- bras le long du corps, écusson d'épaule -->
+      <path d="M282 146 Q273 170 277 190" fill="none" stroke="#2b3a86" stroke-width="9"/>
+      <circle cx="277" cy="192" r="4.5" fill="#f1cfb2" stroke-width="2"/>
+      <path d="M276 149 h7 v6 q-3.5 3.5 -7 0 Z" fill="#ffffff" stroke-width="1.1"/>
+      <path d="M277.5 151 h4 v3 q-2 2 -4 0 Z" fill="#3f6fd8" stroke="none"/>
+      <!-- tenue bleu marine -->
+      <path d="M280 140 Q300 134 320 140 L318 198 L282 198 Z" fill="#2b3a86" stroke-width="2.5"/>
+      <!-- gilet tactique noir -->
+      <path d="M283 142 L292 139 L294 147 L306 147 L308 139 L317 142 L318 189 L282 189 Z" fill="#1b1b1b" stroke-width="2"/>
+      <rect x="284" y="153" width="16" height="7" rx="1" fill="#111" stroke="#666" stroke-width="0.8"/>
+      <text x="292" y="158.6" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="4.8" font-weight="700" fill="#ffffff" stroke="none">POLICE</text>
+      <rect x="303" y="153" width="12" height="7" rx="1" fill="#3f6fd8" stroke="#666" stroke-width="0.8"/>
+      <path d="M305 156.5 h8" stroke="#ffffff" stroke-width="1"/>
+      <path d="M285 167 h30 M285 172 h30" stroke="#4a4a4a" stroke-width="1.1"/>
+      <rect x="285" y="175" width="9" height="12" rx="1.5" fill="#262626" stroke-width="1.3"/>
+      <rect x="306" y="175" width="9" height="12" rx="1.5" fill="#262626" stroke-width="1.3"/>
+      <rect x="296" y="176" width="8" height="10" rx="1.5" fill="#262626" stroke-width="1.3"/>
+      <!-- ceinturon -->
+      <rect x="281" y="189" width="38" height="7" fill="#111" stroke-width="1"/>
+      <rect x="297" y="190" width="6" height="5" fill="#c9ced6" stroke-width="1"/>
       <!-- bras qui salue -->
       <g>
-        <path d="M318 146 Q334 134 335 114" fill="none" stroke="#1f2f5c" stroke-width="9"/>
+        <path d="M318 146 Q334 134 335 114" fill="none" stroke="#2b3a86" stroke-width="9"/>
         <circle cx="335" cy="111" r="4.8" fill="#f1cfb2" stroke-width="2"/>
         <animateTransform attributeName="transform" type="rotate" values="-8 318 146;12 318 146;-8 318 146" dur="1.1s" repeatCount="indefinite"/>
       </g>
-      <!-- tête et casquette -->
+      <!-- tête nue, cheveux courts -->
       <circle cx="300" cy="118" r="19" fill="#f1cfb2" stroke-width="2.5"/>
+      <path d="M281.5 114 Q280 98 300 98 Q320 98 318.5 114 Q314 104 300 104 Q286 104 281.5 114 Z" fill="#2a2522" stroke-width="2"/>
       <ellipse cx="293" cy="117" rx="2" ry="2.5" fill="#111" stroke="none">
         <animate attributeName="ry" values="2.5;2.5;0.4;2.5" keyTimes="0;0.9;0.95;1" dur="4.2s" repeatCount="indefinite"/>
       </ellipse>
@@ -187,10 +203,7 @@
       <path d="M300 116 Q305 124 299 126" fill="none" stroke-width="2"/>
       <path d="M291 129 Q300 125 309 129" fill="none" stroke="#5b3a29" stroke-width="3"/>
       <path d="M294 133 Q300 137 306 133" fill="none" stroke-width="2"/>
-      <path d="M281 108 Q281 89 300 88 Q319 89 319 108 Z" fill="#1f2f5c" stroke-width="2.2"/>
-      <rect x="281" y="101" width="38" height="7" fill="#5f8fdc" stroke-width="1.6"/>
-      <circle cx="300" cy="96" r="3.5" fill="#d9b44a" stroke-width="1.2"/>
-      <path d="M279 108 Q300 117 321 108" fill="#111" stroke-width="2"/>
+      <path d="M290 110 Q294 107.5 297 110 M303 110 Q306 107.5 310 110" fill="none" stroke-width="1.8"/>
     </g>
 
     <!-- ===== l'avocate, de face ===== -->
