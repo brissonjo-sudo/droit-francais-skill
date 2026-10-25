@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 240" width="800" height="240" role="img" aria-labelledby="t d">
   <title id="t">Droit français</title>
-  <desc id="d">Dessin au trait : à gauche, le texte « Quatre lucioles, une seule source : Légifrance. » suivi d'un drapeau français ; au centre, une avocate en robe marche le nez en l'air pendant que quatre lucioles aux couleurs de Claude, ChatGPT, Gemini et Mistral tournent autour de sa tête ; à droite, un tribunal surmonté d'un drapeau français.</desc>
+  <desc id="d">Dessin au trait : à gauche, le texte « Six lucioles, une seule source : Légifrance. » suivi d'un drapeau français ; au centre, une avocate en robe marche le nez en l'air pendant que six lucioles aux couleurs de Claude, ChatGPT, Gemini, Mistral, Grok et Perplexity tournent autour de sa tête ; à droite, un tribunal surmonté d'un drapeau français.</desc>
   <defs>
     <clipPath id="card"><rect width="800" height="240" rx="18"/></clipPath>
 
@@ -16,6 +16,8 @@
     <radialGradient id="glowGpt"><stop offset="0" stop-color="#10A37F" stop-opacity="0.55"/><stop offset="1" stop-color="#10A37F" stop-opacity="0"/></radialGradient>
     <radialGradient id="glowGemini"><stop offset="0" stop-color="#6E7CF0" stop-opacity="0.6"/><stop offset="1" stop-color="#6E7CF0" stop-opacity="0"/></radialGradient>
     <radialGradient id="glowMistral"><stop offset="0" stop-color="#FF8205" stop-opacity="0.6"/><stop offset="1" stop-color="#FF8205" stop-opacity="0"/></radialGradient>
+    <radialGradient id="glowGrok"><stop offset="0" stop-color="#5a5a5a" stop-opacity="0.5"/><stop offset="1" stop-color="#5a5a5a" stop-opacity="0"/></radialGradient>
+    <radialGradient id="glowPerplexity"><stop offset="0" stop-color="#20808D" stop-opacity="0.55"/><stop offset="1" stop-color="#20808D" stop-opacity="0"/></radialGradient>
     <linearGradient id="geminiFill" x1="0" y1="1" x2="1" y2="0">
       <stop offset="0" stop-color="#4285F4"/><stop offset="0.6" stop-color="#9B72CB"/><stop offset="1" stop-color="#D96570"/>
     </linearGradient>
@@ -86,6 +88,25 @@
         <rect x="0" y="8.8" width="2.2" height="2.2" fill="#E10500"/><rect x="8.8" y="8.8" width="2.2" height="2.2" fill="#E10500"/>
       </g>
     </g>
+
+    <!-- luciole Grok : disque noir barré -->
+    <g id="ff-grok">
+      <circle r="16" fill="url(#glowGrok)"><animate attributeName="r" values="13;18;13" dur="1.3s" repeatCount="indefinite"/></circle>
+      <use href="#wings"/>
+      <circle r="8" fill="#111" stroke="#111" stroke-width="1.2"/>
+      <circle r="4.6" fill="none" stroke="#ffffff" stroke-width="1.4"/>
+      <path d="M-5.5 5.5 L5.5 -5.5" stroke="#111" stroke-width="3.2" stroke-linecap="round"/>
+      <path d="M-6 6 L6 -6" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round"/>
+    </g>
+
+    <!-- luciole Perplexity : étoile turquoise -->
+    <g id="ff-perplexity">
+      <circle r="16" fill="url(#glowPerplexity)"><animate attributeName="r" values="13;18;13" dur="1.6s" repeatCount="indefinite"/></circle>
+      <use href="#wings"/>
+      <circle r="8" fill="#ffffff" stroke="#111" stroke-width="1.2"/>
+      <path d="M0 -6.5 V6.5 M-5.6 -3.2 L5.6 3.2 M-5.6 3.2 L5.6 -3.2" stroke="#20808D" stroke-width="1.8" stroke-linecap="round"/>
+      <rect x="-3" y="-3" width="6" height="6" fill="none" stroke="#20808D" stroke-width="1.4"/>
+    </g>
   </defs>
 
   <g clip-path="url(#card)">
@@ -99,7 +120,7 @@
 
     <!-- ===== à gauche : la chute, au lettrage manuscrit ===== -->
     <g filter="url(#ink)" fill="#111" font-family="'Segoe Print', 'Chalkboard SE', 'Comic Sans MS', 'Comic Neue', cursive">
-      <text x="36" y="92" font-size="24">Quatre lucioles,</text>
+      <text x="36" y="92" font-size="24">Six lucioles,</text>
       <text x="36" y="124" font-size="24">une seule source :</text>
       <text x="36" y="166" font-size="32" font-weight="700" textLength="168" lengthAdjust="spacingAndGlyphs">Légifrance.</text>
       <path d="M38 178 Q120 185 204 174" fill="none" stroke="#d6322b" stroke-width="3.5" stroke-linecap="round"/>
@@ -204,6 +225,14 @@
       <g>
         <g><use href="#ff-mistral" transform="scale(1.45)"/><animateTransform attributeName="transform" type="translate" values="0 0;0 -4;0 0" dur="1.2s" repeatCount="indefinite"/></g>
         <animateMotion dur="7.6s" begin="-5.7s" repeatCount="indefinite" path="M278 42 a56 10 0 1 0 112 0 a56 10 0 1 0 -112 0"/>
+      </g>
+      <g>
+        <g><use href="#ff-grok" transform="scale(1.45)"/><animateTransform attributeName="transform" type="translate" values="0 0;0 -4;0 0" dur="1s" repeatCount="indefinite"/></g>
+        <animateMotion dur="9s" begin="-1.2s" repeatCount="indefinite" path="M264 48 a74 13 0 1 0 148 0 a74 13 0 1 0 -148 0"/>
+      </g>
+      <g>
+        <g><use href="#ff-perplexity" transform="scale(1.45)"/><animateTransform attributeName="transform" type="translate" values="0 0;0 -4;0 0" dur="1.25s" repeatCount="indefinite"/></g>
+        <animateMotion dur="7.9s" begin="-6.4s" repeatCount="indefinite" path="M252 46 a84 11 0 1 1 168 0 a84 11 0 1 1 -168 0"/>
       </g>
     </g>
   </g>
