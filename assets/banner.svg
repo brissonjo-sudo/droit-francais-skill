@@ -216,8 +216,7 @@
       <path d="M400 158 L400 208" fill="none" stroke="#4a4a4a" stroke-width="1.5"/>
       <path d="M414 141 L413 172" fill="none" stroke-width="5"/>
       <path d="M413 164 L413 173" fill="none" stroke="#ffffff" stroke-width="3.6"/>
-      <rect x="395" y="138" width="4.4" height="15" rx="1" fill="#ffffff" stroke-width="1.4"/>
-      <rect x="400.6" y="138" width="4.4" height="15" rx="1" fill="#ffffff" stroke-width="1.4"/>
+      <path d="M395 138 H405 V151 Q405 153 403 153 H397 Q395 153 395 151 Z" fill="#ffffff" stroke-width="1.4"/>
       <!-- le Code rouge serré contre elle -->
       <rect x="388" y="163" width="24" height="31" rx="2" fill="#d6322b" stroke-width="2"/>
       <line x1="392" y1="171" x2="408" y2="171" stroke="#f5c542" stroke-width="1.8"/>
