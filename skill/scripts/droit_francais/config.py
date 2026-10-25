@@ -30,6 +30,11 @@ def load_dotenv(script_dir: Path | None = None) -> None:
     voisin du CLI. Le paramètre ``script_dir`` sert aux tests et aux futurs
     points d'entrée sans changer le comportement historique.
     """
+    # Les exécutions bench injectent une liste blanche de variables et
+    # interdisent de la compléter depuis le checkout. Aucun changement du
+    # comportement habituel quand cette option explicite n'est pas présente.
+    if os.environ.get("LEGIFRANCE_NO_DOTENV") == "1":
+        return
     candidates = []
     explicit = os.environ.get("LEGIFRANCE_DOTENV")
     if explicit:

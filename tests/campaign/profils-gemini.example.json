@@ -1,0 +1,7 @@
+{
+  "schema": 2,
+  "profils": [
+    {"profil": "profil-01", "cle_env": "GEMINI_API_KEY", "releve": "profil-01/releve.json", "qualification": ""},
+    {"profil": "profil-02", "cle_env": "GEMINI_API_KEY_PROJET_B", "releve": "profil-02/releve.json", "qualification": ""}
+  ]
+}
