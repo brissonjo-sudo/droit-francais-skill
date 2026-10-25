@@ -55,3 +55,8 @@ local et ignoré par Git.
   sa série : `skill-v*` (méthodologie) ou `plugin-v*` (empaquetage OpenAI et
   Claude Code, dont les notes de soumission ChatGPT référencent le tag).
 - La parité des deux README est contrôlée par `tests/check_readme_parity.py`.
+- Après toute montée MAJEUR ou MINEUR du noyau, aligner les déclinaisons
+  (`grok_skill/`, `vibe_skill/`, `gemini_skill/`, `gemini_agent/`,
+  `manus_skill/`) : `tests/test_derive_declinaisons.py` échoue tant que l'une
+  d'elles garde l'ancienne version, perd le marqueur de provenance, une balise,
+  une étape ou un outil MCP publié.
