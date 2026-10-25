@@ -174,7 +174,7 @@ Journal officiel are authoritative. See the [terms of use](docs/terms-of-use.md)
 
 | Component | Status on 25 October 2026 | Detail |
 |---|---|---|
-| Skill | 3.5.1, published (tag `skill-v3.5.1`) | Stable method, can be installed on its own |
+| Skill | 3.6.0, published (tag `skill-v3.6.0`) | Stable method, can be installed on its own |
 | Hosted service | Twelve tools exposed to the Claude connector | OAuth sign-in verified in claude.ai |
 | Claude Code and Codex plugins | Candidate 0.9.0, unpublished | Claude Code and ChatGPT OAuth in progress ([#88](https://github.com/brissonjo-sudo/droit-francais-skill/issues/88), [#89](https://github.com/brissonjo-sudo/droit-francais-skill/issues/89)) |
 
