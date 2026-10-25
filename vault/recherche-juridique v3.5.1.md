@@ -55,5 +55,6 @@ de l'étape 0 bis pour une demande générale.
 
 - [[index-recherche-juridique]] — navigation principale
 - [[recherche-juridique v3.5.0]] — version précédente
+- [[recherche-juridique v3.6.0]] — version suivante
 - [[procedure-compacte]] — étape 3 et critère de sortie
 - [[modules-declencheurs]] — technique T3
