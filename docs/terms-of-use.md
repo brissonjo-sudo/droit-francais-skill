@@ -1,6 +1,6 @@
 # Conditions d'utilisation — Droit français
 
-Dernière mise à jour : 4 septembre 2026
+Dernière mise à jour : 25 octobre 2026
 
 ## 1. Objet
 
@@ -34,11 +34,16 @@ officielle.
 
 Le service est fourni sans garantie de disponibilité continue. Des limites de
 débit, une mise en veille de l'hébergeur ou une indisponibilité de PISTE peuvent
-retarder ou empêcher une recherche.
+retarder ou empêcher une recherche. La DILA ne garantit aucune disponibilité
+minimale de l'API Légifrance et peut en suspendre l'accès sans préavis ; le
+service ne peut donc pas offrir une disponibilité supérieure.
 
 La copie d'un texte ou d'une décision restituée par le plugin n'a pas de valeur
 officielle ; seule la publication sur Légifrance ou sur le site de la Cour de
-cassation fait foi.
+cassation fait foi. Les données diffusées par l'API Légifrance ne sont pas
+opposables : seuls les textes publiés au Journal officiel sous forme de PDF
+signés le sont. La DILA ne garantit ni leur fiabilité, ni leur complétude, ni
+leur fraîcheur.
 
 ## 4. Utilisations interdites
 
@@ -97,5 +102,7 @@ Ne pas y publier de secret, de pièce confidentielle ou de donnée personnelle.
 - [CGU de réutilisation Judilibre](https://piste.gouv.fr/images/cgu/CGU_open_data_V8.pdf)
 - [API et données ouvertes Judilibre](https://www.courdecassation.fr/acces-rapide-judilibre/donnees-ouvertes-open-data-et-api)
 - [Catalogue PISTE — Légifrance et identifiant de la CGU courante](https://piste.gouv.fr/api-catalog-sandbox?filter=legifrance)
+- CGU de l'API Légifrance V1.0 du 15/12/2022, articles IV.1, VI.1 et VII.1 :
+  copie et empreinte dans le [registre des obligations](obligations-cgu.md)
 - [Anciennes CGU Légifrance 2020 — archive uniquement](https://piste.gouv.fr/images/cgu/DILA_Legifrance_Beta_v2.pdf)
 - [Licence Ouverte 2.0 (Etalab)](https://www.etalab.gouv.fr/licence-ouverte-open-licence)

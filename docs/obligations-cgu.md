@@ -82,10 +82,10 @@ la comparaison détaillée avec le PDF 2020 n'a pas été refaite.
 | L1 | III.3 | Clés strictement réservées à l'application, jamais publiées ni divulguées à un tiers | Le service hébergé appelle l'API pour ses utilisateurs ; aucune clé n'est remise à un client | Confirmé |
 | L2 | VI.2, IX | La Licence Ouverte 2.0 autorise l'usage commercial des données, aux risques de l'utilisateur | Une offre payante est permise ; la responsabilité envers les clients repose sur l'exploitant | Confirmé |
 | L3 | IV.1 | Aucune disponibilité minimale garantie ; objectif de moyens de 95 % par jour en production, aucun en sandbox | Aucun engagement de disponibilité client ne peut couvrir l'amont ; exclusion à prévoir au contrat | Confirmé |
-| L4 | VI.1 | Fiabilité, complétude et fraîcheur non garanties ; seuls les PDF signés du Journal officiel sont opposables | Mention obligatoire dans les conditions d'utilisation et le dossier de preuve | Confirmé — mention à vérifier dans `terms-of-use.md` |
+| L4 | VI.1 | Fiabilité, complétude et fraîcheur non garanties ; seuls les PDF signés du Journal officiel sont opposables | Mention obligatoire dans les conditions d'utilisation et le dossier de preuve | Confirmé — mention portée dans `terms-of-use.md` §3 |
 | L5 | IV.3 | Quotas par seconde, minute ou jour, par application ou par méthode, modifiables avec information par courriel | Quota par client et surveillance de consommation nécessaires avant plusieurs clients | Confirmé |
 | L6 | V.1 | Usage conforme aux lois, à la LO 2.0 et au RGPD ; l'utilisateur garantit la DILA contre toute action | Risque contractuel porté par l'exploitant | Confirmé |
-| L7 | V.3, VIII | Incident ou compromission : réinitialiser les identifiants et prévenir la DILA et/ou l'AIFE ; notifications vers `retours-legifrance-modernise@dila.gouv.fr` | Contact à reporter dans `incident-response.md` | Confirmé |
+| L7 | V.3, VIII | Incident ou compromission : réinitialiser les identifiants et prévenir la DILA et/ou l'AIFE ; notifications vers `retours-legifrance-modernise@dila.gouv.fr` | Contact reporté dans `incident-response.md` | Confirmé |
 | L8 | VII.1 | Suspension sans notification préalable et résiliation sans préavis en cas de manquement | Point de défaillance unique ; dégradation déjà prévue (C8) | Confirmé |
 | L9 | I.3 | CGU et API modifiables à tout moment ; information par courriel | Surveiller l'adresse du compte PISTE et refaire cette revue à chaque notification | Confirmé |
 
