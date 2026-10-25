@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 240" width="800" height="240" role="img" aria-labelledby="t d">
   <title id="t">Droit français</title>
-  <desc id="d">Dessin au trait : une avocate en robe marche, le nez en l'air et le sourire aux lèvres, pendant que quatre lucioles aux couleurs de Claude, ChatGPT, Gemini et Mistral tournent autour de sa tête. Texte : « Quatre lucioles, une seule source : Légifrance. »</desc>
+  <desc id="d">Dessin au trait : à gauche, le texte « Quatre lucioles, une seule source : Légifrance. » suivi d'un drapeau français ; au centre, une avocate en robe marche le nez en l'air pendant que quatre lucioles aux couleurs de Claude, ChatGPT, Gemini et Mistral tournent autour de sa tête ; à droite, un tribunal surmonté d'un drapeau français.</desc>
   <defs>
     <clipPath id="card"><rect width="800" height="240" rx="18"/></clipPath>
 
@@ -19,6 +19,16 @@
     <linearGradient id="geminiFill" x1="0" y1="1" x2="1" y2="0">
       <stop offset="0" stop-color="#4285F4"/><stop offset="0.6" stop-color="#9B72CB"/><stop offset="1" stop-color="#D96570"/>
     </linearGradient>
+
+    <!-- drapeau français qui flotte ; pivot sur la hampe en (0,0) -->
+    <g id="flag">
+      <g stroke="#111" stroke-width="1.2">
+        <rect x="0" y="0" width="10" height="20" fill="#0055A4"/>
+        <rect x="10" y="0" width="10" height="20" fill="#ffffff"/>
+        <rect x="20" y="0" width="10" height="20" fill="#EF4135"/>
+        <animateTransform attributeName="transform" type="skewY" values="0;-7;0;6;0" dur="1.6s" repeatCount="indefinite"/>
+      </g>
+    </g>
 
     <!-- ailes et tête communes à toutes les lucioles -->
     <g id="wings" stroke="#111" stroke-width="1.2">
@@ -83,19 +93,47 @@
 
     <!-- sol -->
     <g filter="url(#ink)" stroke="#111" stroke-linecap="round" fill="none">
-      <path d="M40 205 C220 202 420 208 760 204" stroke-width="2.2"/>
-      <g stroke-width="2">
-        <path d="M0 214h10M60 214h10M120 214h10M180 214h10M240 214h10M300 214h10M360 214h10M420 214h10M480 214h10M540 214h10M600 214h10M660 214h10M720 214h10M780 214h10M840 214h10"/>
-        <path d="M30 224h6M90 224h6M150 224h6M210 224h6M270 224h6M330 224h6M390 224h6M450 224h6M510 224h6M570 224h6M630 224h6M690 224h6M750 224h6M810 224h6"/>
-        <animateTransform attributeName="transform" type="translate" values="0 0;-60 0" dur="0.9s" repeatCount="indefinite"/>
-      </g>
+      <path d="M24 205 C220 202 520 208 776 204" stroke-width="2.2"/>
+      <path d="M70 214h10M150 220h6M250 214h10M330 222h6M470 216h10M540 222h6M620 214h10M700 220h6" stroke-width="2"/>
     </g>
 
-    <g transform="translate(-50 0)">
-      <!-- ombre -->
+    <!-- ===== à gauche : la chute, au lettrage manuscrit ===== -->
+    <g filter="url(#ink)" fill="#111" font-family="'Segoe Print', 'Chalkboard SE', 'Comic Sans MS', 'Comic Neue', cursive">
+      <text x="36" y="92" font-size="24">Quatre lucioles,</text>
+      <text x="36" y="124" font-size="24">une seule source :</text>
+      <text x="36" y="166" font-size="32" font-weight="700" textLength="168" lengthAdjust="spacingAndGlyphs">Légifrance.</text>
+      <path d="M38 178 Q120 185 204 174" fill="none" stroke="#d6322b" stroke-width="3.5" stroke-linecap="round"/>
+    </g>
+    <g filter="url(#ink)">
+      <line x1="216" y1="134" x2="216" y2="178" stroke="#111" stroke-width="2.4" stroke-linecap="round"/>
+      <circle cx="216" cy="133" r="2.6" fill="#111"/>
+      <use href="#flag" transform="translate(217 136)"/>
+    </g>
+
+    <!-- ===== à droite : le tribunal et son drapeau ===== -->
+    <g filter="url(#ink)" stroke="#111" stroke-linejoin="round" stroke-linecap="round">
+      <line x1="662" y1="66" x2="662" y2="24" stroke-width="2.4"/>
+      <circle cx="662" cy="23" r="2.6" fill="#111"/>
+      <use href="#flag" transform="translate(663 26)"/>
+      <polygon points="568,100 662,66 756,100" fill="#f4f4f4" stroke-width="2.5"/>
+      <circle cx="662" cy="88" r="7" fill="#ffffff" stroke-width="2"/>
+      <rect x="574" y="100" width="176" height="16" fill="#f4f4f4" stroke-width="2.5"/>
+      <text x="662" y="112" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="11" font-weight="700" letter-spacing="3" fill="#111" stroke="none">TRIBUNAL</text>
+      <g fill="#ffffff" stroke-width="2.2">
+        <rect x="586" y="116" width="14" height="66"/>
+        <rect x="618" y="116" width="14" height="66"/>
+        <rect x="692" y="116" width="14" height="66"/>
+        <rect x="724" y="116" width="14" height="66"/>
+      </g>
+      <path d="M648 182 V146 Q662 132 676 146 V182" fill="#2b2b2b" stroke-width="2.2"/>
+      <rect x="578" y="182" width="168" height="10" fill="#f4f4f4" stroke-width="2.2"/>
+      <rect x="566" y="192" width="192" height="12" fill="#f4f4f4" stroke-width="2.2"/>
+    </g>
+
+    <!-- ===== au centre : l'avocate et ses lucioles ===== -->
+    <g transform="translate(70 0)">
       <ellipse cx="330" cy="206" rx="34" ry="3.5" fill="#e6e6e6"/>
 
-      <!-- l'avocate, au trait -->
       <g filter="url(#ink)" stroke="#111" stroke-linecap="round" stroke-linejoin="round">
         <animateTransform attributeName="transform" type="translate" values="0 0;0 -2.5;0 0" dur="0.45s" repeatCount="indefinite"/>
 
@@ -167,14 +205,6 @@
         <g><use href="#ff-mistral" transform="scale(1.45)"/><animateTransform attributeName="transform" type="translate" values="0 0;0 -4;0 0" dur="1.2s" repeatCount="indefinite"/></g>
         <animateMotion dur="7.6s" begin="-5.7s" repeatCount="indefinite" path="M278 42 a56 10 0 1 0 112 0 a56 10 0 1 0 -112 0"/>
       </g>
-    </g>
-
-    <!-- la chute, au lettrage manuscrit -->
-    <g filter="url(#ink)" fill="#111" font-family="'Segoe Print', 'Chalkboard SE', 'Comic Sans MS', 'Comic Neue', cursive">
-      <text x="450" y="92" font-size="24">Quatre lucioles,</text>
-      <text x="450" y="124" font-size="24">une seule source :</text>
-      <text x="450" y="166" font-size="32" font-weight="700">Légifrance.</text>
-      <path d="M452 178 Q550 185 650 174" fill="none" stroke="#d6322b" stroke-width="3.5" stroke-linecap="round"/>
     </g>
   </g>
 </svg>

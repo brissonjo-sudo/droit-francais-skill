@@ -1,6 +1,6 @@
 [🇫🇷 Français](README.md) | [🇬🇧 English](README.en.md)
 
-<p align="center"><img src="assets/banner.svg" width="800" alt="A French lawyer in her gown walks with her nose in the air, surrounded by four fireflies in the colours of Claude, ChatGPT, Gemini and Mistral. Four fireflies, one single source: Légifrance."></p>
+<p align="center"><img src="assets/banner.svg" width="800" alt="A French lawyer in her gown walks with her nose in the air, surrounded by four fireflies in the colours of Claude, ChatGPT, Gemini and Mistral, next to a courthouse flying the French flag. Four fireflies, one single source: Légifrance."></p>
 
 # Droit français — verified French legal research
 
