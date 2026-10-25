@@ -2,7 +2,7 @@
 
 <p align="center"><img src="assets/banner.svg" width="800" alt="A French lawyer in her gown walks with her nose in the air, surrounded by four fireflies in the colours of Claude, ChatGPT, Gemini and Mistral. Four fireflies, one single source: Légifrance."></p>
 
-# Droit français — verified French legal research
+# Droit français: verified French legal research
 
 **Check every French legal reference against Légifrance and Judilibre before writing it.**
 
@@ -18,8 +18,6 @@ anything that could not be verified is flagged as such.
 
 > A research aid, not legal advice. Only the signed publications of the
 > Journal officiel are authoritative; no guarantee of error-free output is made.
-
----
 
 ## Example
 
@@ -43,14 +41,12 @@ in from memory:
 > ⚠️ *I will not provide these appeal numbers without checking them in a
 > primary source (Judilibre / Légifrance) — I do not make them up.*
 
----
-
 ## Why
 
-The danger is not the absurd reference, which any recent model rejects. It is
-the **plausible reference**: perfectly formatted, yet false. In an isolated
-test on 5 July 2026, Gemini 3.5 extended answered a request for three Cour de
-cassation rulings as follows:
+The danger comes from plausible references: well formatted, yet false. Any
+recent model rejects the absurd ones. In an isolated test on 5 July 2026,
+Gemini 3.5 extended answered a request for three Cour de cassation rulings as
+follows:
 
 | AI answer | Reality (Légifrance) | Verdict |
 |---|---|---|
@@ -58,17 +54,15 @@ cassation rulings as follows:
 | Anxiété — Soc., 11 mai 2010, n° 09-42.241 | Soc., 11 mai 2010, n° 09-42.241 | ✅ Correct |
 | Rupture brutale — Com., 20 mars 2012, n° 11-13.245 | No ruling with this number | ⚠️ Not found |
 
-The **Orléans Administrative Court**, in its
+The Orléans Administrative Court, in its
 [judgment of 29/12/2025, no. 2506461](https://opendata.justice-administrative.fr/recherche/shareFile/TA45/DTA_2506461_20251229),
 notes cited decisions that do not exist and asks counsel to check their
 references. Neither case measures the effect of this skill: see
 [Measuring quality](#measuring-quality).
 
----
-
 ## Quick start
 
-### In claude.ai or the Claude app — tools included
+### In claude.ai or the Claude app (tools included)
 
 1. Add a custom connector at
    `https://droit-francais-skill.onrender.com/mcp`.
@@ -79,15 +73,15 @@ references. Neither case measures the effect of this skill: see
 Nothing to install: the service holds its own official keys, with a per-user
 quota. Details and troubleshooting: [OAuth guide (in French)](docs/oauth.md).
 
-### In Claude Code — the method
+### In Claude Code (the method)
 
 ```bash
 npx skills add https://github.com/brissonjo-sudo/droit-francais-skill/tree/main/skill --skill recherche-juridique
 ```
 
 No key is required: without the API, research goes through the official
-websites (Légifrance, Cour de cassation, Conseil d'État…). A **free PISTE
-key** makes retrieval deterministic — see
+websites (Légifrance, Cour de cassation, Conseil d'État…). A free PISTE
+key makes retrieval deterministic: see
 [PISTE configuration (in French)](skill/scripts/README.md).
 
 ### Other installations
@@ -107,26 +101,22 @@ Adaptations for other assistants, each documented in its own folder:
 `skill/` remains the single source of truth: the adaptations do not sync with
 it on their own.
 
----
-
 ## What you get
 
-- **Verified references**: every official identifier (article, NOR, appeal
-  number…) comes from a lookup in the session, never from memory; otherwise
-  it is marked "unverified".
-- **The right version at the right date**: force of law, article history and
-  applicability on the date of the facts.
-- **The relevant case law**: Cour de cassation and ordinary courts
-  (Judilibre), Conseil d'État and administrative courts of appeal, Conseil
-  constitutionnel, financial courts.
-- **Checked reasoning**: legal classification, how norms fit together, then an
-  adversarial self-review before answering.
-- **Document audits**: legal review of a single act or a set of acts (outdated
-  references, inconsistencies).
-- **Fitting outputs**: quick answer, in-depth note, citation for an act,
+- Every official identifier (article, NOR, appeal number…) comes from a
+  lookup in the session, never from memory; otherwise it is marked
+  "unverified".
+- Each text is cited in the version applicable on the date of the facts, with
+  its force of law and its history.
+- Case law covers the Cour de cassation and the ordinary courts (Judilibre),
+  the Conseil d'État and the administrative courts of appeal, the Conseil
+  constitutionnel and the financial courts.
+- The reasoning goes through legal classification and how norms fit together,
+  then an adversarial self-review before answering.
+- The skill reviews a single act or a set of acts and flags outdated
+  references and inconsistencies.
+- The output fits the need: quick answer, in-depth note, citation for an act,
   exam-style note.
-
----
 
 ## Choose a profile
 
@@ -152,8 +142,6 @@ cp profils/avocat.md profil.md      # replace with your profile
 Without `profil.md`, the skill assumes no context and asks the question when
 it matters.
 
----
-
 ## Usage
 
 The skill activates on its own when you cite or request a legal text, a legal
@@ -167,8 +155,6 @@ or the legal review of a document. Tags adjust the answer:
 | `[complet]` | Exhaustive analysis |
 | `[syllogisme]` | Major premise, minor premise, conclusion (exams) |
 | `[opérationnel]` | Detailed practical consequences |
-
----
 
 ## FAQ
 
@@ -184,8 +170,6 @@ goes through the official websites.
 Official data are not legally binding; only the signed publications of the
 Journal officiel are authoritative. See the [terms of use](docs/terms-of-use.md).
 
----
-
 ## Project status
 
 | Component | Status on 25 October 2026 | Detail |
@@ -194,8 +178,6 @@ Journal officiel are authoritative. See the [terms of use](docs/terms-of-use.md)
 | Hosted service | Twelve tools exposed to the Claude connector | OAuth sign-in verified in claude.ai |
 | Claude Code and Codex plugins | Candidate 0.9.0, unpublished | Claude Code and ChatGPT OAuth in progress ([#88](https://github.com/brissonjo-sudo/droit-francais-skill/issues/88), [#89](https://github.com/brissonjo-sudo/droit-francais-skill/issues/89)) |
 
----
-
 ## Measuring quality
 
 The [18 failure modes campaign (in French)](docs/campagne-18-modes.md) compares
@@ -203,8 +185,6 @@ three settings: the model alone, the method alone, and the method with its
 tools. It checks that every cited identifier really comes from a tool call. No
 figures have been published yet. The protocol is described in
 [`tests/README.md`](tests/README.md).
-
----
 
 ## Further reading
 
@@ -217,12 +197,10 @@ All linked guides are in French.
 - [Légifrance and Judilibre terms of use obligations](docs/obligations-cgu.md)
 - [Version history](skill/CHANGELOG.md)
 
----
-
 ## License and contributing
 
-[Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)](LICENSE)
-— © 2026 @brissonjo-sudo.
+[Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)](LICENSE).
+© 2026 @brissonjo-sudo.
 
 Questions, errors, suggestions: open an
 [issue](https://github.com/brissonjo-sudo/droit-francais-skill/issues).
