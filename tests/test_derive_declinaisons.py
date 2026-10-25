@@ -85,7 +85,6 @@ class DeriveDeclinaisonsTests(unittest.TestCase):
     def test_vibe(self):
         self.assertEqual([], ecarts_skill("vibe_skill", outils_mcp=False))
 
-    @unittest.expectedFailure
     def test_gemini_skill(self):
         self.assertEqual([], ecarts_skill("gemini_skill", outils_mcp=True))
 
