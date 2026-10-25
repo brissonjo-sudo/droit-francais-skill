@@ -1,5 +1,7 @@
 [🇫🇷 Français](README.md) | [🇬🇧 English](README.en.md)
 
+<p align="center"><img src="assets/banner.svg" width="800" alt="A small assistant robot and a French lawyer in her gown walk hand in hand in front of a courthouse"></p>
+
 # Droit français — verified French legal research
 
 **Check every French legal reference against Légifrance and Judilibre before writing it.**

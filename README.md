@@ -1,5 +1,7 @@
 [🇫🇷 Français](README.md) | [🇬🇧 English](README.en.md)
 
+<p align="center"><img src="assets/banner.svg" width="800" alt="Un petit robot assistant et une avocate en robe marchent main dans la main devant un palais de justice"></p>
+
 # Droit français — recherche juridique vérifiée
 
 **Vérifier chaque référence de droit français sur Légifrance et Judilibre avant de l'écrire.**

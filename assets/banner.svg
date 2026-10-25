@@ -1,0 +1,161 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 240" width="800" height="240" role="img" aria-labelledby="t d">
+  <title id="t">Droit français</title>
+  <desc id="d">Un petit robot assistant et une avocate en robe marchent main dans la main en souriant devant un palais de justice.</desc>
+  <defs>
+    <clipPath id="card"><rect width="800" height="240" rx="18"/></clipPath>
+    <g id="decor">
+      <!-- nuages -->
+      <g fill="#ffffff">
+        <ellipse cx="90" cy="46" rx="34" ry="12"/><ellipse cx="112" cy="38" rx="22" ry="12"/>
+        <ellipse cx="430" cy="34" rx="28" ry="10"/><ellipse cx="450" cy="28" rx="18" ry="10"/>
+      </g>
+      <!-- palais de justice -->
+      <g fill="#d5deea">
+        <polygon points="560,92 640,62 720,92"/>
+        <rect x="566" y="92" width="148" height="10"/>
+        <rect x="574" y="102" width="12" height="80"/><rect x="600" y="102" width="12" height="80"/>
+        <rect x="626" y="102" width="12" height="80"/><rect x="652" y="102" width="12" height="80"/>
+        <rect x="678" y="102" width="12" height="80"/><rect x="702" y="102" width="12" height="80"/>
+        <rect x="560" y="182" width="160" height="8"/><rect x="552" y="190" width="176" height="10"/>
+      </g>
+      <line x1="640" y1="62" x2="640" y2="30" stroke="#b8c4d6" stroke-width="2"/>
+      <rect x="641" y="30" width="7" height="12" fill="#0055a4"/>
+      <rect x="648" y="30" width="7" height="12" fill="#ffffff"/>
+      <rect x="655" y="30" width="7" height="12" fill="#ef4135"/>
+      <!-- arbres -->
+      <g fill="#cfe3d2">
+        <circle cx="230" cy="168" r="22"/><circle cx="250" cy="176" r="16"/>
+        <circle cx="780" cy="172" r="18"/>
+      </g>
+      <g stroke="#b9cdbd" stroke-width="4"><line x1="236" y1="180" x2="236" y2="200"/><line x1="780" y1="184" x2="780" y2="200"/></g>
+    </g>
+  </defs>
+
+  <g clip-path="url(#card)">
+    <rect width="800" height="240" fill="#eef4fb"/>
+
+    <!-- décor qui défile -->
+    <g>
+      <use href="#decor"/>
+      <use href="#decor" x="800"/>
+      <animateTransform attributeName="transform" type="translate" values="0 0;-800 0" dur="30s" repeatCount="indefinite"/>
+    </g>
+
+    <!-- sol -->
+    <rect y="200" width="800" height="40" fill="#e9e1d3"/>
+    <line x1="0" y1="200" x2="800" y2="200" stroke="#cbbfa8" stroke-width="2"/>
+    <g stroke="#d8ccb6" stroke-width="2" stroke-linecap="round">
+      <g>
+        <path d="M0 216h20M40 216h20M80 216h20M120 216h20M160 216h20M200 216h20M240 216h20M280 216h20M320 216h20M360 216h20M400 216h20M440 216h20M480 216h20M520 216h20M560 216h20M600 216h20M640 216h20M680 216h20M720 216h20M760 216h20M800 216h20"/>
+        <path d="M20 228h20M60 228h20M100 228h20M140 228h20M180 228h20M220 228h20M260 228h20M300 228h20M340 228h20M380 228h20M420 228h20M460 228h20M500 228h20M540 228h20M580 228h20M620 228h20M660 228h20M700 228h20M740 228h20M780 228h20M820 228h20"/>
+        <animateTransform attributeName="transform" type="translate" values="0 0;-40 0" dur="0.8s" repeatCount="indefinite"/>
+      </g>
+    </g>
+
+    <!-- ombres -->
+    <g fill="#d9cfbd">
+      <ellipse cx="330" cy="202" rx="34" ry="4"/>
+      <ellipse cx="470" cy="202" rx="34" ry="4"/>
+    </g>
+
+    <!-- les deux personnages, qui rebondissent ensemble -->
+    <g stroke="#334155" stroke-linecap="round" stroke-linejoin="round">
+      <animateTransform attributeName="transform" type="translate" values="0 0;0 -3;0 0" dur="0.4s" repeatCount="indefinite"/>
+
+      <!-- ===== robot ===== -->
+      <!-- jambes -->
+      <g>
+        <line x1="318" y1="160" x2="318" y2="192" stroke-width="8"/>
+        <ellipse cx="321" cy="195" rx="9" ry="4" fill="#334155" stroke="none"/>
+        <animateTransform attributeName="transform" type="rotate" values="22 318 160;-22 318 160;22 318 160" dur="0.8s" repeatCount="indefinite"/>
+      </g>
+      <g>
+        <line x1="342" y1="160" x2="342" y2="192" stroke-width="8"/>
+        <ellipse cx="345" cy="195" rx="9" ry="4" fill="#334155" stroke="none"/>
+        <animateTransform attributeName="transform" type="rotate" values="-22 342 160;22 342 160;-22 342 160" dur="0.8s" repeatCount="indefinite"/>
+      </g>
+      <!-- bras libre -->
+      <g>
+        <path d="M306 124 Q296 140 294 156" fill="none" stroke-width="7"/>
+        <circle cx="294" cy="158" r="6" fill="#ffffff" stroke-width="3"/>
+        <animateTransform attributeName="transform" type="rotate" values="-18 306 124;18 306 124;-18 306 124" dur="0.8s" repeatCount="indefinite"/>
+      </g>
+      <!-- corps -->
+      <rect x="306" y="112" width="48" height="52" rx="12" fill="#14b8a6" stroke-width="3"/>
+      <text x="330" y="146" text-anchor="middle" font-family="Georgia, serif" font-size="24" font-weight="700" fill="#ffffff" stroke="none">§</text>
+      <!-- tête -->
+      <line x1="330" y1="62" x2="330" y2="48" stroke-width="3"/>
+      <circle cx="330" cy="44" r="5" fill="#f59e0b" stroke-width="2.5">
+        <animate attributeName="r" values="5;6.5;5" dur="1.6s" repeatCount="indefinite"/>
+      </circle>
+      <rect x="300" y="62" width="60" height="48" rx="14" fill="#ffffff" stroke-width="3"/>
+      <ellipse cx="316" cy="82" rx="4" ry="4.5" fill="#334155" stroke="none">
+        <animate attributeName="ry" values="4.5;4.5;0.6;4.5" keyTimes="0;0.92;0.96;1" dur="4s" repeatCount="indefinite"/>
+      </ellipse>
+      <ellipse cx="344" cy="82" rx="4" ry="4.5" fill="#334155" stroke="none">
+        <animate attributeName="ry" values="4.5;4.5;0.6;4.5" keyTimes="0;0.92;0.96;1" dur="4s" repeatCount="indefinite"/>
+      </ellipse>
+      <circle cx="309" cy="95" r="4" fill="#fda4af" stroke="none" opacity="0.6"/>
+      <circle cx="351" cy="95" r="4" fill="#fda4af" stroke="none" opacity="0.6"/>
+      <path d="M318 94 Q330 104 342 94" fill="none" stroke-width="3"/>
+
+      <!-- ===== avocate ===== -->
+      <!-- jambes -->
+      <g>
+        <line x1="460" y1="168" x2="460" y2="192" stroke-width="8"/>
+        <ellipse cx="463" cy="195" rx="9" ry="4" fill="#111827" stroke="none"/>
+        <animateTransform attributeName="transform" type="rotate" values="-20 460 168;20 460 168;-20 460 168" dur="0.8s" repeatCount="indefinite"/>
+      </g>
+      <g>
+        <line x1="480" y1="168" x2="480" y2="192" stroke-width="8"/>
+        <ellipse cx="483" cy="195" rx="9" ry="4" fill="#111827" stroke="none"/>
+        <animateTransform attributeName="transform" type="rotate" values="20 480 168;-20 480 168;20 480 168" dur="0.8s" repeatCount="indefinite"/>
+      </g>
+      <!-- robe -->
+      <path d="M448 104 L492 104 L504 176 L436 176 Z" fill="#1e293b" stroke-width="3"/>
+      <path d="M470 106 L470 174" stroke="#475569" stroke-width="1.5"/>
+      <!-- épitoge -->
+      <path d="M484 106 Q492 128 488 150" fill="none" stroke="#111827" stroke-width="5"/>
+      <path d="M487 136 L489 148" stroke="#ffffff" stroke-width="5"/>
+      <!-- rabat -->
+      <rect x="464" y="104" width="5.5" height="16" rx="1" fill="#ffffff" stroke-width="1.5"/>
+      <rect x="470.5" y="104" width="5.5" height="16" rx="1" fill="#ffffff" stroke-width="1.5"/>
+      <!-- bras libre avec le Code -->
+      <g>
+        <path d="M494 112 Q504 132 510 150" fill="none" stroke="#1e293b" stroke-width="9"/>
+        <rect x="502" y="140" width="22" height="28" rx="2" fill="#c0392b" stroke-width="2.5" transform="rotate(-10 513 154)"/>
+        <line x1="507" y1="150" x2="519" y2="148" stroke="#f5c542" stroke-width="2" transform="rotate(-10 513 154)"/>
+        <circle cx="510" cy="152" r="6" fill="#f3c9a5" stroke-width="3"/>
+        <animateTransform attributeName="transform" type="rotate" values="10 494 112;-6 494 112;10 494 112" dur="0.8s" repeatCount="indefinite"/>
+      </g>
+      <!-- tête -->
+      <circle cx="470" cy="80" r="22" fill="#f3c9a5" stroke-width="3"/>
+      <path d="M448 80 Q446 54 470 56 Q494 54 492 80 Q486 66 470 66 Q456 66 448 80 Z" fill="#5b3a29" stroke-width="3"/>
+      <path d="M490 74 Q500 92 492 104" fill="none" stroke="#5b3a29" stroke-width="6"/>
+      <path d="M460 82 Q463 79 466 82" fill="none" stroke-width="2.5"/>
+      <path d="M474 82 Q477 79 480 82" fill="none" stroke-width="2.5"/>
+      <circle cx="457" cy="90" r="3.5" fill="#fda4af" stroke="none" opacity="0.6"/>
+      <circle cx="483" cy="90" r="3.5" fill="#fda4af" stroke="none" opacity="0.6"/>
+      <path d="M461 91 Q470 100 479 91" fill="none" stroke-width="3"/>
+
+      <!-- ===== mains jointes ===== -->
+      <path fill="none" stroke-width="7" d="M354 124 Q378 146 398 150">
+        <animate attributeName="d" values="M354 124 Q378 146 398 150;M354 124 Q378 140 398 144;M354 124 Q378 146 398 150" dur="0.8s" repeatCount="indefinite"/>
+      </path>
+      <path fill="none" stroke="#1e293b" stroke-width="9" d="M448 112 Q424 142 404 150">
+        <animate attributeName="d" values="M448 112 Q424 142 404 150;M448 112 Q424 136 404 144;M448 112 Q424 142 404 150" dur="0.8s" repeatCount="indefinite"/>
+      </path>
+      <g>
+        <circle cx="396" cy="150" r="6" fill="#ffffff" stroke-width="3"/>
+        <circle cx="405" cy="151" r="6" fill="#f3c9a5" stroke-width="3"/>
+        <animateTransform attributeName="transform" type="translate" values="0 0;0 -6;0 0" dur="0.8s" repeatCount="indefinite"/>
+      </g>
+    </g>
+
+    <!-- cœur qui s'envole -->
+    <path d="M400 0 c-4 -6 -14 -4 -12 4 c2 6 12 12 12 12 c0 0 10 -6 12 -12 c2 -8 -8 -10 -12 -4 Z" fill="#ef4135" opacity="0">
+      <animateTransform attributeName="transform" type="translate" values="0 128;0 70" dur="3s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0;0.9;0.9;0" keyTimes="0;0.15;0.6;1" dur="3s" repeatCount="indefinite"/>
+    </path>
+  </g>
+</svg>
