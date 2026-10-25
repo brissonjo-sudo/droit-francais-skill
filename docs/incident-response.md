@@ -26,10 +26,12 @@ accès restreint, jamais dans une issue GitHub publique.
 1. Révoquer/réinitialiser la clé dans PISTE **au plus vite**.
 2. Remplacer le secret dans Render, redéployer, puis tester un seul appel.
 3. Contrôler les quotas et journaux sur la période d'exposition.
-4. Informer via les canaux du compte PISTE le producteur concerné et l'AIFE,
-   conformément à la version des CGU acceptée par le titulaire.
-5. Pour Légifrance, vérifier les destinataires exacts dans les CGU 2022 avant
-   d'envoyer une notification : le PDF 2020 n'est pas la source courante.
+4. Légifrance : avertir la DILA et/ou l'AIFE dans les plus brefs délais
+   (CGU Légifrance du 15/12/2022, V.3). Adresse de notification de la DILA :
+   `retours-legifrance-modernise@dila.gouv.fr` (VIII). Signaler aussi tout
+   accès anormal constaté, même sans compromission avérée.
+5. Judilibre : informer le producteur et l'AIFE par les canaux du compte PISTE,
+   conformément aux CGU Judilibre acceptées par le titulaire.
 6. Révoquer aussi les sessions/jetons des comptes compromis et changer les
    secrets dépendants.
 
