@@ -4,7 +4,7 @@ Déclinaison **Gemini** (Google Antigravity et Gemini CLI) de la
 méthodologie de recherche juridique en droit français portée par ce dépôt.
 
 Cette déclinaison porte au standard **Agent Skills** l'ensemble des principes
-invariants de la version **3.5.1** du noyau (`skill/`), en adaptant l'échelle
+invariants de la version **3.6.0** du noyau (`skill/`), en adaptant l'échelle
 d'outils aux capacités de l'écosystème Gemini.
 
 ---
@@ -38,11 +38,11 @@ capacités et aux outils de l'écosystème Google / Gemini :
    - `search_case_law(query, jurisdiction, date_start, date_end, limit, sort)` et `get_decision(id)` : ordre judiciaire (Judilibre) ;
    - `search_admin_case_law(...)`, `search_constitutional_decisions(...)` et `search_financial_case_law(...)` : ordres administratif, constitutionnel et financier (Légifrance).
 
-2. **Recherche institutionnelle / Grounding (Repli Web)** :  
-   Si aucun serveur MCP n'est actif, mobiliser le grounding Google Search en ciblant impérativement les domaines officiels listés dans [`references/sources-autorisees.md`](references/sources-autorisees.md). Ne jamais reconstituer un texte ou un numéro de pourvoi de mémoire.
+2. **Exécution de code Python / SDK `google-genai`** :  
+   Sans serveur MCP actif, avec Python et des identifiants PISTE, les scripts du noyau (`skill/scripts/legifrance.py`) interrogent Légifrance et Judilibre. Le package compagnon [`gemini_agent/`](../gemini_agent) instancie un agent `google-genai` à température `0.0` avec le prompt système méthodologique ; ses fonctions-outils sont des squelettes non branchés, qui ne vérifient rien tant qu'ils ne sont pas connectés à une source.
 
-3. **Exécution de code Python / SDK `google-genai`** :  
-   Avec Python et des identifiants PISTE, les scripts du noyau (`skill/scripts/legifrance.py`) interrogent Légifrance et Judilibre. Le package compagnon [`gemini_agent/`](../gemini_agent) instancie un agent `google-genai` à température `0.0` avec le prompt système méthodologique ; ses fonctions-outils sont des squelettes non branchés, qui ne vérifient rien tant qu'ils ne sont pas connectés à une source.
+3. **Recherche institutionnelle / Grounding (Repli Web)** :  
+   À défaut, mobiliser le grounding Google Search en ciblant impérativement les domaines officiels listés dans [`references/sources-autorisees.md`](references/sources-autorisees.md). Ne jamais reconstituer un texte ou un numéro de pourvoi de mémoire.
 
 4. **Abstention informée (P7)** :  
    Si la source primaire est inaccessible ou contradictoire, énoncer une réserve et s'abstenir de conclure.
@@ -53,11 +53,12 @@ capacités et aux outils de l'écosystème Google / Gemini :
 
 - Les **sept principes invariants P1 à P7**, dont la distinction entre authenticité de la source, rang de la norme et effet sur l'application (P3) ;
 - La distinction entre **provenance officielle** et **applicabilité à la date évaluée** (`applicable_at_as_of_date`) ;
-- La **procédure en 8 étapes** (cadrage, récupération, version et fraîcheur, jurisprudence, triangulation, articulation, rédaction, auto-critique), avec l'historique d'article outillé et la lecture des états `VIGUEUR_DIFF`, `ABROGE_DIFF` et `_MORT_NE` ;
+- La **procédure en 9 étapes** (cadrage, arbitrage des informations manquantes, récupération, version et fraîcheur, jurisprudence, triangulation, articulation, rédaction, auto-critique), avec l'historique d'article outillé et la lecture des états `VIGUEUR_DIFF`, `ABROGE_DIFF` et `_MORT_NE` ;
 - La **voie spéciale DOC-AUDIT** ([`references/audit-documentaire.md`](references/audit-documentaire.md)) : registre, risque élevé vérifié à 100 %, exécution forcée d'office testée à part, montants répressifs distingués ;
 - Les **modes d'erreur** à prévenir ([`references/modes-erreur.md`](references/modes-erreur.md)) ;
 - Les **six modules métier activables** ([`references/modules.md`](references/modules.md)) ;
-- Les balises d'exécution (`[complet]`, `[express]`, `[syllogisme]`, `[lookup]`).
+- Les balises d'exécution (`[complet]`, `[express]`, `[syllogisme]`, `[opérationnel]`, `[lookup]`) ;
+- Les **profils métier** ([`profils/`](profils)), copiés à l'identique du noyau : copier le profil choisi en `profil.md`.
 
 ---
 
@@ -122,4 +123,4 @@ print(response.text)
 
 ## Versionnement
 
-Le frontmatter porte `version: 3.5.1-gemini` et `base_version: 3.5.1`. Le numéro suit fidèlement le noyau de méthodologie juridique du dépôt.
+Le frontmatter porte `version: 3.6.0-gemini` et `base_version: 3.6.0`. Le numéro suit fidèlement le noyau de méthodologie juridique du dépôt.
