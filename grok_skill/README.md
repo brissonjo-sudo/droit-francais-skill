@@ -11,10 +11,33 @@ lien ni chemin ; seuls les liens de chargement restent relatifs.
 
 ## Installation et lecture des références
 
-Charger le dossier complet dans Grok en conservant l'arborescence.
+1. Récupérer le paquet et le nommer comme son champ `name` :
+
+   ```bash
+   git clone https://github.com/brissonjo-sudo/droit-francais-skill
+   cp -r droit-francais-skill/grok_skill recherche-juridique
+   ```
+
+2. Facultatif : choisir un profil métier.
+
+   ```bash
+   cp recherche-juridique/profils/avocat.md recherche-juridique/profil.md
+   ```
+
+3. Charger le dossier `recherche-juridique/` entier dans Grok, par le moyen
+   que la plateforme propose pour fournir des instructions et des fichiers.
+   Garder l'arborescence : `SKILL.md` à la racine, `references/` et
+   `profils/` à côté. Ce chargement n'a pas été recetté par le mainteneur.
+
+4. Vérifier l'installation sur une question simple, par exemple la référence
+   d'un article de code. La réponse doit lire la page officielle par
+   `web_search` puis `open_page`, et marquer tout identifiant non lu en source
+   `⚠️ non vérifié — identifiant non récupéré`.
+
 Le noyau route chaque lecture requise vers ses références locales.
 La lecture de ces références doit être possible ; sinon suspendre le point
 dépendant. Aucun fichier voisin du dépôt n'est nécessaire à l'analyse.
+Pour mettre à jour, remplacer le dossier entier par la nouvelle version.
 
 ## Capacités et écarts volontaires
 
