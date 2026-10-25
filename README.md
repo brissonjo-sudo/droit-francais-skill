@@ -2,7 +2,7 @@
 
 <p align="center"><img src="assets/banner.svg" width="800" alt="Dessin au trait : un policier municipal, une avocate en robe autour de la tête de laquelle tournent six lucioles aux couleurs de Claude, ChatGPT, Gemini, Mistral, Grok et Perplexity, et un étudiant en droit qui révise, à côté d'un tribunal pavoisé. Six lucioles, une seule source : Légifrance."></p>
 
-# Droit français — recherche juridique vérifiée
+# Droit français : recherche juridique vérifiée
 
 **Vérifier chaque référence de droit français sur Légifrance et Judilibre avant de l'écrire.**
 
@@ -18,8 +18,6 @@ date d'applicabilité, et ce qui n'a pas pu être vérifié est signalé comme t
 
 > Outil d'aide à la recherche, pas un avis juridique. Seules les publications
 > signées au Journal officiel font foi ; aucune absence d'erreur n'est garantie.
-
----
 
 ## Exemple
 
@@ -43,14 +41,12 @@ compléter de mémoire :
 > ⚠️ *Je ne produis pas ces numéros de pourvoi sans les avoir vérifiés en
 > source primaire (Judilibre / Légifrance) — je ne les invente pas.*
 
----
-
 ## Pourquoi
 
-Le danger n'est pas la référence absurde, que tout modèle récent rejette. C'est
-la **référence plausible** : parfaitement formatée, mais fausse. Lors d'un essai
-isolé du 5 juillet 2026, Gemini 3.5 extended a répondu ainsi à une demande de
-trois arrêts de la Cour de cassation :
+Le danger vient des références plausibles : bien formatées, mais fausses. Les
+références absurdes, tout modèle récent les rejette. Lors d'un essai isolé du
+5 juillet 2026, Gemini 3.5 extended a répondu ainsi à une demande de trois
+arrêts de la Cour de cassation :
 
 | Réponse de l'IA | Réalité (Légifrance) | Verdict |
 |---|---|---|
@@ -58,17 +54,15 @@ trois arrêts de la Cour de cassation :
 | Anxiété — Soc., 11 mai 2010, n° 09-42.241 | Soc., 11 mai 2010, n° 09-42.241 | ✅ Exact |
 | Rupture brutale — Com., 20 mars 2012, n° 11-13.245 | Aucun arrêt à ce n° | ⚠️ Introuvable |
 
-Le **TA d'Orléans**, dans son
+Le TA d'Orléans, dans son
 [jugement du 29/12/2025, n° 2506461](https://opendata.justice-administrative.fr/recherche/shareFile/TA45/DTA_2506461_20251229),
 relève des décisions citées inexistantes et invite le conseil à vérifier ses
 références. Ni l'un ni l'autre ne mesure l'effet de ce skill : voir
 [Mesure de la qualité](#mesure-de-la-qualité).
 
----
-
 ## Démarrage rapide
 
-### Dans claude.ai ou l'application Claude — outils inclus
+### Dans claude.ai ou l'application Claude (outils inclus)
 
 1. Ajouter un connecteur personnalisé à l'adresse
    `https://droit-francais-skill.onrender.com/mcp`.
@@ -79,15 +73,15 @@ références. Ni l'un ni l'autre ne mesure l'effet de ce skill : voir
 Rien à installer : le service porte ses propres clés officielles, avec un quota
 par utilisateur. Détails et dépannage : [guide OAuth](docs/oauth.md).
 
-### Dans Claude Code — la méthode
+### Dans Claude Code (la méthode)
 
 ```bash
 npx skills add https://github.com/brissonjo-sudo/droit-francais-skill/tree/main/skill --skill recherche-juridique
 ```
 
 Aucune clé n'est obligatoire : sans API, la recherche passe par les sites
-officiels (Légifrance, Cour de cassation, Conseil d'État…). Une **clé PISTE
-gratuite** rend la récupération déterministe — voir
+officiels (Légifrance, Cour de cassation, Conseil d'État…). Une clé PISTE
+gratuite rend la récupération déterministe : voir
 [la configuration PISTE](skill/scripts/README.md).
 
 ### Autres installations
@@ -107,26 +101,22 @@ Déclinaisons pour d'autres assistants, chacune documentée dans son dossier :
 `skill/` reste la seule source de vérité : les déclinaisons ne s'y
 synchronisent pas d'elles-mêmes.
 
----
-
 ## Ce que vous obtenez
 
-- **Des références vérifiées** : tout identifiant officiel (article, NOR,
-  n° de pourvoi…) vient d'une consultation de la session, jamais de la
-  mémoire ; sinon il est marqué « non vérifié ».
-- **La bonne version à la bonne date** : vigueur, historique de l'article et
-  applicabilité à la date des faits.
-- **La jurisprudence utile** : Cour de cassation et juridictions judiciaires
-  (Judilibre), Conseil d'État et cours administratives d'appel, Conseil
-  constitutionnel, juridictions financières.
-- **Un raisonnement contrôlé** : qualification, articulation des normes, puis
-  auto-critique adversariale avant de rendre la réponse.
-- **L'audit de documents** : relecture juridique d'un acte ou d'un ensemble
-  d'actes (références périmées, incohérences).
-- **Des sorties adaptées** : réponse express, note de fond, citation pour un
-  acte, note de concours.
-
----
+- Tout identifiant officiel (article, NOR, n° de pourvoi…) vient d'une
+  consultation de la session, jamais de la mémoire ; sinon il est marqué
+  « non vérifié ».
+- Chaque texte est cité dans sa version applicable à la date des faits, avec sa
+  vigueur et son historique.
+- La jurisprudence couvre la Cour de cassation et les juridictions judiciaires
+  (Judilibre), le Conseil d'État et les cours administratives d'appel, le
+  Conseil constitutionnel et les juridictions financières.
+- Le raisonnement passe par la qualification et l'articulation des normes, puis
+  par une auto-critique adversariale avant la réponse.
+- Le skill relit juridiquement un acte ou un ensemble d'actes et signale les
+  références périmées et les incohérences.
+- La sortie s'adapte au besoin : réponse express, note de fond, citation pour
+  un acte, note de concours.
 
 ## Choisir son profil
 
@@ -152,8 +142,6 @@ cp profils/avocat.md profil.md      # remplacer par votre profil
 Sans `profil.md`, le skill ne présume aucun contexte et pose la question quand
 elle compte.
 
----
-
 ## Utilisation
 
 Le skill s'active tout seul quand vous citez ou demandez un texte, une
@@ -167,8 +155,6 @@ ou la relecture juridique d'un document. Des balises ajustent la réponse :
 | `[complet]` | Analyse exhaustive |
 | `[syllogisme]` | Majeure, mineure, conclusion (concours) |
 | `[opérationnel]` | Conséquences pratiques détaillées |
-
----
 
 ## Questions fréquentes
 
@@ -186,8 +172,6 @@ recherche passe par les sites officiels.
 publications signées au Journal officiel font foi. Voir les
 [conditions d'utilisation](docs/terms-of-use.md).
 
----
-
 ## État du projet
 
 | Composant | État au 25 octobre 2026 | Détail |
@@ -196,8 +180,6 @@ publications signées au Journal officiel font foi. Voir les
 | Service hébergé | Douze outils exposés au connecteur Claude | Connexion OAuth vérifiée dans claude.ai |
 | Plugins Claude Code et Codex | Candidat 0.9.0, non publié | OAuth Claude Code et ChatGPT en cours ([#88](https://github.com/brissonjo-sudo/droit-francais-skill/issues/88), [#89](https://github.com/brissonjo-sudo/droit-francais-skill/issues/89)) |
 
----
-
 ## Mesure de la qualité
 
 La [campagne des 18 modes d'erreur](docs/campagne-18-modes.md) compare trois
@@ -205,8 +187,6 @@ situations : le modèle seul, la méthode seule, la méthode avec les outils. El
 vérifie que chaque identifiant cité provient bien d'un appel d'outil. Aucun
 résultat chiffré n'est encore publié. Le protocole est décrit dans
 [`tests/README.md`](tests/README.md).
-
----
 
 ## Pour aller plus loin
 
@@ -217,12 +197,10 @@ résultat chiffré n'est encore publié. Le protocole est décrit dans
 - [Obligations des CGU Légifrance et Judilibre](docs/obligations-cgu.md)
 - [Historique des versions](skill/CHANGELOG.md)
 
----
-
 ## Licence et contribution
 
-[Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)](LICENSE)
-— © 2026 @brissonjo-sudo.
+[Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)](LICENSE).
+© 2026 @brissonjo-sudo.
 
 Questions, erreurs, propositions : ouvrir une
 [issue](https://github.com/brissonjo-sudo/droit-francais-skill/issues).
