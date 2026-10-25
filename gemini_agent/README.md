@@ -121,9 +121,13 @@ print(response.text)
 
 ## Dépendance
 
+```bash
+pip install -r gemini_agent/requirements.txt
 ```
-pip install google-genai
-```
+
+Tant que les fonctions de `tools.py` renvoient `connected: False`, le prompt
+impose à l'agent de ne produire aucun identifiant et de s'abstenir sur les
+points qui en dépendent.
 
 Ce package n'introduit aucune dépendance vers le reste du dépôt : il peut
 être extrait tel quel dans un autre projet.

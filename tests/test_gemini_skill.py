@@ -126,7 +126,9 @@ class GeminiSkillIntegrityTests(unittest.TestCase):
 
         self.assertEqual(MODEL_NAME, "gemini-2.5-pro")
         self.assertEqual(TEMPERATURE, 0.0)
-        self.assertIn("v3.5.1", SYSTEM_PROMPT)
+        # Version, marqueur et balises : tests/test_derive_declinaisons.py.
+        # Outils non branchés : l'agent doit s'abstenir, pas citer de mémoire.
+        self.assertIn('"connected": False', SYSTEM_PROMPT)
         for p in ("P1", "P2", "P3", "P4", "P5", "P6", "P7"):
             with self.subTest(principe_agent=p):
                 self.assertIn(

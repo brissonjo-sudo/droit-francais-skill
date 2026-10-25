@@ -92,7 +92,6 @@ class DeriveDeclinaisonsTests(unittest.TestCase):
     def test_manus(self):
         self.assertEqual([], ecarts_skill("manus_skill", outils_mcp=True))
 
-    @unittest.expectedFailure
     def test_gemini_agent(self):
         texte = lire(ROOT / "gemini_agent" / "legal_agent_config.py")
         ecarts = []
