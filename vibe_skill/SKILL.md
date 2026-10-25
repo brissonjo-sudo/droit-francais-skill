@@ -53,8 +53,8 @@ Récupération : `web_search`, puis `web_fetch` pour lire intégralement la sour
 Limiter la recherche aux domaines officiels, puis lire la page : un résultat
 de recherche seul ne prouve ni le contenu ni l'applicabilité.
 Lire les ressources locales avec `read_file` ; utiliser `ask_user_question` pour 0 bis.
-Le module [tools/legifrance_vibe.py](tools/legifrance_vibe.py) reste un squelette non connecté :
-aucun appel réel aux outils, résultats vides ; ne pas l'utiliser pour une citation.
+Aucun module d'intégration n'est livré : seuls ces outils natifs récupèrent
+les sources.
 Les voies MCP, API PISTE et scripts décrites dans les références appartiennent
 au noyau universel ; elles ne sont pas exécutables dans cette déclinaison.
 Le fichier scripts/legifrance.py est conservé mot pour mot pour résoudre les

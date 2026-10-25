@@ -1,6 +1,6 @@
 # Skill juridique — déclinaison Manus
 
-Déclinaison Manus de la méthodologie de recherche juridique du dépôt, actualisée sur la base 3.5.0. Elle conserve les garde-fous de provenance et d'applicabilité du portage Manus, sans supposer la présence d'un connecteur ou d'un outil qui ne serait pas exposé dans la session.
+Déclinaison Manus de la méthodologie de recherche juridique du dépôt, actualisée sur la base 3.6.0. Elle conserve les garde-fous de provenance et d'applicabilité du portage Manus, sans supposer la présence d'un connecteur ou d'un outil qui ne serait pas exposé dans la session.
 
 ## Échelle de récupération en trois voies
 
@@ -28,10 +28,10 @@ DOC-AUDIT examine séparément la légalité d'une exécution forcée d'office v
 
 ## Installation et mise à jour dans Manus
 
-Importer le dossier `manus_skill/` (avec `SKILL.md` et `references/`) dans **Skills → + Add → Upload a skill**. Pour une mise à jour, réimporter le dossier `manus_skill/`.
+Importer le dossier `manus_skill/` (avec `SKILL.md`, `references/` et `profils/`) dans **Skills → + Add → Upload a skill**. Pour une mise à jour, réimporter le dossier `manus_skill/`.
 
 L'installation du skill et la connexion du serveur MCP sont distinctes. Pour connecter le serveur, suivre les consignes du dépôt dans `docs/mcp-app.md` et `docs/deployment.md`. Avant de s'appuyer sur l'instance déployée, vérifier que les connecteurs MCP personnalisés de Manus acceptent un jeton porteur OAuth ; cette compatibilité ne doit pas être présumée.
 
 ## Versionnement
 
-Le frontmatter de `SKILL.md` porte `version: 3.5.0-manus` et `base_version: 3.5.0`. Le portage Manus est maintenu séparément du noyau `skill/` ; les changements du noyau ne se propagent pas automatiquement.
+Le frontmatter de `SKILL.md` porte `version: 3.6.0-manus` et `base_version: 3.6.0`. Le portage Manus est maintenu séparément du noyau `skill/` ; les changements du noyau ne se propagent pas automatiquement, mais `tests/test_derive_declinaisons.py` échoue si cette déclinaison prend du retard.

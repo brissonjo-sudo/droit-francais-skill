@@ -2,13 +2,13 @@
 name: recherche-juridique
 description: Méthodologie rigoureuse de recherche en droit français et européen — sources primaires officielles, vérification de vigueur et d'applicabilité temporelle, citations traçables et détection d'antinomies. À activer pour toute analyse, consultation, rédaction d'acte, audit de document ou vérification de droit français.
 metadata:
-  version: 3.5.1-gemini
-  base_version: 3.5.1
+  version: 3.6.0-gemini
+  base_version: 3.6.0
   langue: français
   adapted_for: Gemini
 ---
 
-# Recherche juridique — déclinaison Gemini (v3.5.1-gemini)
+# Recherche juridique — déclinaison Gemini (v3.6.0-gemini)
 
 ## Objet et règle cardinale
 
@@ -38,6 +38,7 @@ Activer systématiquement ce skill dès qu'une requête implique :
 - `[complet]` — **mode B** exhaustif : active tous les modules (ceux sans objet sont signalés en une ligne, avec justification) et fournit une synthèse des contrôles et limites.
 - `[express]` — réduit les recherches facultatives et la longueur, mais **ne désactive jamais les modules PÉNAL et DOC-AUDIT** ni la vérification d'une affirmation décisive.
 - `[syllogisme]` — structure formelle : majeure (norme applicable vérifiée), mineure (faits qualifiés), conclusion.
+- `[opérationnel]` — ajoute au livrable ses implications opérationnelles et, à l'étape 7, un quatrième regard sur la mise en œuvre.
 - `[lookup]` — vérification ciblée et concise d'une référence ponctuelle ; ce n'est pas une dispense de vérifier la source primaire, la date et l'applicabilité.
 
 En cas de doute sur le déclenchement d'un module, l'activer. Ne pas réciter le plan interne dans une réponse simple ; expliciter les contrôles lorsque le livrable, la complexité ou une limite le justifie.
@@ -52,7 +53,7 @@ En cas de doute sur le déclenchement d'un module, l'activer. Ne pas réciter le
 
 **P3 — Autorité et fonction.** Distinguer l'authenticité de la source, le rang de la norme dans la hiérarchie, l'autorité et l'effet de la décision (annulation, abrogation QPC, portée), et la fonction juridique de la disposition (compétence, habilitation, procédure, sanction, définition…). Voir [`references/sources-autorisees.md`](references/sources-autorisees.md).
 
-**P4 — Traçabilité de session.** Une référence historique, mémorisée ou incluse dans un fichier n'est pas une vérification actuelle. Ne restituer un identifiant ou un extrait comme vérifié que s'il a été récupéré dans la session depuis une source officielle. Des guillemets exigent le texte effectivement consulté.
+**P4 — Traçabilité de session.** Une référence historique, mémorisée ou incluse dans un fichier n'est pas une vérification actuelle. Ne restituer un identifiant ou un extrait comme vérifié que s'il a été récupéré dans la session depuis une source officielle ; sinon, l'omettre ou le marquer `⚠️ non vérifié — identifiant non récupéré`. Des guillemets exigent le texte effectivement consulté.
 
 **P5 — Registres séparés.** Séparer le droit positif, les faits établis, les faits allégués, les inférences, les hypothèses et les recommandations. Ne pas transformer une hypothèse ou une pratique locale en règle de droit.
 
@@ -64,11 +65,17 @@ Pour prévenir les erreurs récurrentes (référence inventée, confusion de ver
 
 ---
 
-## Procédure obligatoire en 8 étapes
+## Procédure obligatoire en 9 étapes (0, 0 bis, 1 à 7)
 
 ### Étape 0 — Cadrer la demande
 
-Qualifier l'objet de la demande, le résultat attendu, le domaine et le régime possibles, les faits connus et manquants, les acteurs, le territoire et les dates pertinentes. Ne poser une question préalable que si une information manquante est décisionnelle ; sinon, annoncer une hypothèse limitée et conditionnelle.
+Qualifier l'objet de la demande, le résultat attendu, le domaine et le régime possibles, les faits connus et manquants, les acteurs, le territoire et les dates pertinentes.
+
+Lire `profil.md` s'il existe à la racine du skill (copie d'un fichier de `profils/`) : contexte, domaines et regard critique du métier sont des défauts, supplantés par la demande et rouverts à l'étape 0 bis s'ils deviennent décisionnels. Sans profil, ne supposer ni territoire ni métier.
+
+### Étape 0 bis — Arbitrage des informations manquantes
+
+Avant toute recherche, recenser les informations nécessaires qui manquent. Si la conclusion, le régime, la qualification ou la procédure change selon leur valeur, elles sont décisionnelles : poser la question et suspendre le fond. Sinon seulement, annoncer une hypothèse limitée. Chercher en source primaire ce qui est vérifiable ; ne demander que ce que l'utilisateur détient. Une question par défaut, trois au plus, de préférence fermées ; en attendant la réponse, au plus une esquisse bornée « si a / si b ».
 
 ### Étape 1 — Récupérer les sources (Échelle d'outils Gemini)
 
@@ -94,14 +101,14 @@ Mobiliser les outils dans l'ordre suivant ; n'utiliser que ceux effectivement ex
 
    Dès qu'un numéro d'article est identifié, préférer `search_articles` → `get_article` à `search` → `fetch`. Choisir l'outil de jurisprudence selon l'ordre de juridiction. Ne pas supposer que le connecteur est configuré ; confirmer la disponibilité des outils avant l'appel.
 
-2. **Voie 2 : Recherche Google / Grounding institutionnel (Repli)**
-   En l'absence de connecteur MCP, utiliser la recherche web ou le grounding en restreignant les requêtes aux domaines officiels de [`references/sources-autorisees.md`](references/sources-autorisees.md) (ex. `site:legifrance.gouv.fr`, `site:courdecassation.fr`, `site:conseil-etat.fr`). Lire la page officielle elle-même, pas seulement l'extrait de recherche.
+2. **Voie 2 : Code Execution / Client Python SDK**
+   Sans connecteur MCP, dans un environnement autorisant l'exécution de Python et disposant d'identifiants PISTE, les scripts du noyau (`skill/scripts/legifrance.py`) interrogent Légifrance et Judilibre. Le client [`gemini_agent`](../gemini_agent) est un squelette dont les fonctions-outils ne sont pas branchées sur une source : ne jamais présenter son résultat comme une vérification.
 
-3. **Voie 3 : Code Execution / Client Python SDK**
-   Dans un environnement autorisant l'exécution de Python et disposant d'identifiants PISTE, les scripts du noyau (`skill/scripts/legifrance.py`) interrogent Légifrance et Judilibre. Le client [`gemini_agent`](../gemini_agent) est un squelette dont les fonctions-outils ne sont pas branchées sur une source : ne jamais présenter son résultat comme une vérification.
+3. **Voie 3 : Recherche Google / Grounding institutionnel (Repli)**
+   À défaut des deux premières voies, utiliser la recherche web ou le grounding en restreignant les requêtes aux domaines officiels de [`references/sources-autorisees.md`](references/sources-autorisees.md) (ex. `site:legifrance.gouv.fr`, `site:courdecassation.fr`, `site:conseil-etat.fr`). Lire la page officielle elle-même, pas seulement l'extrait de recherche.
 
 4. **Voie 4 : Abstention informée (P7)**
-   Si aucune voie ne permet de confirmer la source primaire, refuser de produire une référence spéculative : **« Source non confirmée — abstention sur ce point. »**
+   Si aucune voie ne permet de confirmer la source primaire, refuser de produire une référence spéculative : omettre l'identifiant ou le marquer `⚠️ non vérifié — identifiant non récupéré`, et s'abstenir de conclure sur le point qui en dépend.
 
 ### Étape 2 — Vérifier la version, la fraîcheur et l'applicabilité
 

@@ -11,6 +11,26 @@ conservés tels quels pour ne pas casser les liens publiés.
 
 ---
 
+### [3.6.0-manus] — 2026-10-25
+
+Alignement de la déclinaison Manus sur le noyau 3.6.0, sans recette réelle.
+
+- Étape 0 bis ajoutée : procédure en 9 étapes (0, 0 bis, 1 à 7).
+- Marqueur de provenance du noyau (`⚠️ non vérifié — identifiant non récupéré`)
+  à la place de l'ancienne réserve, balises `[syllogisme]` et `[opérationnel]`.
+- Profils métier copiés à l'identique ; références condensées inchangées.
+
+### [3.6.0-gemini] — 2026-10-25
+
+Alignement de la déclinaison Gemini sur le noyau 3.6.0, sans recette réelle.
+
+- Étape 0 bis ajoutée : procédure en 9 étapes (0, 0 bis, 1 à 7).
+- Ordre des voies aligné sur l'étape 2 du noyau : MCP, puis script, puis
+  recherche officielle, enfin abstention.
+- Marqueur de provenance du noyau (`⚠️ non vérifié — identifiant non récupéré`),
+  balise `[opérationnel]` et profils métier copiés à l'identique.
+- Sources : Tribunal des conflits et juridictions financières ajoutés.
+
 ### [3.6.0-vibe] — 2026-10-24
 
 Préparation locale de la déclinaison Vibe, sans publication ni recette réelle.
@@ -23,6 +43,8 @@ Préparation locale de la déclinaison Vibe, sans publication ni recette réelle
 - Outils natifs conservés ; maintenance du CLI skills sans objet sur cette
   plateforme, aucun updater annoncé. Dates de vérification du noyau conservées.
 - Tests de parité, provenance, routage et limites de plateforme ajoutés.
+- Retiré (2026-10-25) : wrapper `tools/legifrance_vibe.py`, jamais branché, qui
+  fabriquait un identifiant de forme LEGIARTI et présumait la vigueur d'un article.
 
 ### [3.6.0-grok] — 2026-10-24
 
@@ -117,7 +139,7 @@ Ce numéro local ne vaut ni tag Git, ni publication, ni service distant mis à j
 
 ### [3.6.0] — 2026-10-21
 
-Préparation locale de la méthodologie ; aucune publication ni mesure modèle.
+Publiée le 2026-10-25 (étiquette `skill-v3.6.0`) ; aucune mesure modèle.
 Les dates de vérification juridique embarquées ne sont pas actualisées par cette refonte.
 
 #### Modifié

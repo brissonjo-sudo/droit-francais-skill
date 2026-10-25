@@ -38,9 +38,10 @@ def search_legal_database(query: str) -> dict[str, Any]:
           de la recherche).
         - "connected": False tant que l'API réelle n'est pas branchée.
 
-    Raises:
-        NotImplementedError: implicitement, via le mock — remplacer ce
-            corps par un appel HTTP réel avant tout usage en production.
+    Note:
+        Tant que l'API réelle n'est pas branchée, la fonction ne lève pas
+        d'exception : elle renvoie "connected" à False et aucun résultat.
+        Remplacer ce corps par un appel HTTP réel avant tout usage en production.
     """
     # TODO: brancher une API réelle (ex. Légifrance/PISTE) et retirer ce mock.
     return {
@@ -70,9 +71,10 @@ def search_case_law(query: str) -> dict[str, Any]:
           pourvoi ou de rôle), "summary" et "source_url".
         - "connected": False tant que l'API réelle n'est pas branchée.
 
-    Raises:
-        NotImplementedError: implicitement, via le mock — remplacer ce
-            corps par un appel HTTP réel avant tout usage en production.
+    Note:
+        Tant que l'API réelle n'est pas branchée, la fonction ne lève pas
+        d'exception : elle renvoie "connected" à False et aucun résultat.
+        Remplacer ce corps par un appel HTTP réel avant tout usage en production.
     """
     # TODO: brancher une API réelle (ex. Judilibre) et retirer ce mock.
     return {

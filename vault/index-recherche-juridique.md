@@ -1,6 +1,6 @@
 ---
 tags: [skill/recherche-juridique, index]
-version: 3.5.1
+version: 3.6.0
 ---
 
 # Index — skill recherche-juridique
@@ -21,7 +21,9 @@ version: 3.5.1
 | Profils configurables (métier de l'utilisateur) | `../skill/profils/` |
 | Récupération en source primaire (API PISTE, articles + jurisprudence) | `../skill/scripts/README.md` |
 | Détail des 18 modes d'erreur | `../skill/references/modes-erreur.md` |
-| Changelog v3.5.1 (dernier) | `recherche-juridique v3.5.1.md` |
+| Changelog v3.6.0 (dernier) | `recherche-juridique v3.6.0.md` |
+| Noyau court, développements en références, ordre normé de l'étape 2 | `recherche-juridique v3.6.0.md` |
+| Changelog v3.5.1 | `recherche-juridique v3.5.1.md` |
 | Historique d'article outillé, états de version (étape 3, T3) | `recherche-juridique v3.5.1.md` |
 | Changelog v3.5.0 | `recherche-juridique v3.5.0.md` |
 | Exécution forcée d'office et montants répressifs (DOC-AUDIT) | `recherche-juridique v3.5.0.md` |
@@ -38,7 +40,7 @@ version: 3.5.1
 | Déclinaison Grok (outils web natifs, noyau condensé) | `../grok_skill/README.md` |
 | Déclinaison Gemini (Agent Skills, MCP prioritaire) | `../gemini_skill/README.md` |
 | Client Gemini SDK (`google-genai`, température 0.0) | `../gemini_agent/README.md` |
-| Déclinaison Vibe (outils `web_search`/`web_fetch`, wrapper non connecté) | `../vibe_skill/README.md` |
+| Déclinaison Vibe (outils natifs `web_search`/`web_fetch`) | `../vibe_skill/README.md` |
 | Déclinaison Manus (connecteur MCP en priorité, outils vérifiés) | `../manus_skill/README.md` |
 | Gabarits de sortie détaillés | `../skill/references/gabarits-sortie.md` |
 | Modules activables détaillés | `../skill/references/modules.md` |
@@ -77,6 +79,7 @@ toute note du vault y est reliée, et chaque note renvoie ici.
 
 **Chaîne des versions** (de la plus récente à la plus ancienne)
 
+- [[recherche-juridique v3.6.0]] — noyau court, développements en références
 - [[recherche-juridique v3.5.1]] — historique d'article outillé, citations internes
 - [[recherche-juridique v3.5.0]] — exécution forcée d'office, montants répressifs
 - [[recherche-juridique v3.4.1]] — vérité du dépôt : 18 modes, 6 modules, renvois
