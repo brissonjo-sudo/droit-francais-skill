@@ -1,10 +1,10 @@
 # Registre des obligations — Légifrance et Judilibre
 
 ─────────────────────────────────────────────
-Date d'analyse           : 31/08/2026
-Date(s) de référence     : 15/12/2022 (Légifrance, document à obtenir) / 06/01/2022 (Judilibre)
+Date d'analyse           : 31/08/2026 ; revue Légifrance le 25/10/2026
+Date(s) de référence     : 15/12/2022 (Légifrance, V1.0) / 06/01/2022 (Judilibre)
 Date des faits           : sans objet
-Date d'action / analyse  : 31/08/2026
+Date d'action / analyse  : 25/10/2026
 Champ territorial        : France
 Régime juridique primaire: contrats d'accès API et réutilisation de données
 Niveau d'exigence        : note de fond
@@ -20,28 +20,28 @@ transfère pas les clés ni la qualité de titulaire à l'utilisateur final.
 |---|---|---|
 | Catalogue officiel PISTE Légifrance | Référence `CGU_Legifrance_API_VF_15-12-2022`, API 2.4.2 | Source courante identifiée |
 | PDF `DILA_Legifrance_Beta_v2.pdf` | V1.1 du 04/08/2020 | **Historique, supersédé : ne fonde plus une conclusion de conformité** |
-| Texte intégral Légifrance 15/12/2022 | Non accessible anonymement pendant l'audit | **Blocage** : obtenir depuis le compte PISTE, dater, calculer SHA-256 et comparer |
-| CGU Judilibre | PDF officiel, version du 06/01/2022 (`CGU_open_data_V8`) | Référentiel public contrôlable |
+| Texte intégral Légifrance 15/12/2022 | Obtenu le 25/10/2026 depuis le compte PISTE du mainteneur : `CGU_Legifrance_API_VF_15-12-2022.pdf`, V1.0, 9 pages, SHA-256 `9db9cde0dac918721eac7508f76ea47ebfd0b2a7822db3ad9b41bb11629851fd` | **Blocage levé** : source courante, analysée en section 4 |
+| CGU Judilibre | PDF officiel, version du 06/01/2022 (`CGU_open_data_V8`), SHA-256 `73f99f811475a0f9c7eb3e18ff431c37a41672e4c549fce64415eae71a713554` (copie du 25/10/2026) | Référentiel public contrôlable |
+| CGU de la plateforme PISTE | Non lues | Partie intégrante des CGU Légifrance (I.1) ; à archiver et analyser |
 | Licence Ouverte 2.0 | Texte officiel Etalab | Référentiel de réutilisation |
 
-Tant que le texte Légifrance 2022 n'est pas archivé, les règles Légifrance
-ci-dessous issues du document 2020 sont des **hypothèses conservatoires à
-revalider**, pas des obligations actuelles déclarées comme certaines. Le
-mainteneur doit conserver, pour chaque revue : fichier source, URL ou origine
-PISTE, date/heure, SHA-256, version, auteur de la vérification et diff.
+En cas de contradiction, les CGU de l'API Légifrance prévalent sur les CGU
+PISTE, les mentions légales et la Licence Ouverte (I.1). Le mainteneur doit
+conserver, pour chaque revue : fichier source, URL ou origine PISTE,
+date/heure, SHA-256, version, auteur de la vérification et diff.
 
-## 2. Contrôles communs — statut provisoire côté Légifrance
+## 2. Contrôles communs
 
 | ID | Contrôle appliqué au service | Judilibre 2022 | Légifrance 2022 | État technique |
 |---|---|---|---|---|
-| C1 | Clés réservées à l'application, jamais envoyées au client | Confirmé XI.C | À vérifier | Secrets Render, masquage d'erreur |
-| C2 | Sécuriser environnement et identifiants | Confirmé XI.C/XI.E | À vérifier | Conteneur non-root ; audit supply-chain ouvert |
-| C3 | Détecter incident, réinitialiser les clés et notifier rapidement | Confirmé XI.E | À vérifier | Runbook créé, exercice à faire |
-| C4 | Respecter les quotas accordés et leurs changements | Confirmé XI.D | À vérifier | Limiteurs locaux ; quota global ou mono-réplica requis |
-| C5 | Usage licite et responsabilité du réutilisateur | Confirmé XII | À vérifier | Conditions publiques |
-| C6 | Ne pas altérer/dénaturer, mentionner source et mise à jour | Confirmé V/XIII + LO 2.0 | À vérifier | Provenance structurée ; contrôle des champs ouvert |
-| C7 | Ne pas transformer une panne en vérification réussie | Confirmé XI.A | À vérifier | Erreur « source officielle non vérifiée » |
-| C8 | Prévoir suspension ou indisponibilité de l'accès | Confirmé XII | À vérifier | Dégradation documentée, pas de clé de secours automatique |
+| C1 | Clés réservées à l'application, jamais envoyées au client | Confirmé XI.C | Confirmé III.3 | Secrets Render, masquage d'erreur |
+| C2 | Sécuriser environnement et identifiants | Confirmé XI.C/XI.E | Confirmé III.3/V.2 (état de l'art CNIL/ANSSI, recommandations PSSIE) | Conteneur non-root ; audit supply-chain ouvert |
+| C3 | Détecter incident, réinitialiser les clés et notifier rapidement | Confirmé XI.E | Confirmé V.3 (DILA et/ou AIFE) | Runbook créé, exercice à faire |
+| C4 | Respecter les quotas accordés et leurs changements | Confirmé XI.D | Confirmé IV.3 (par application ou par méthode, modifiables) | Limiteurs locaux ; quota global ou mono-réplica requis |
+| C5 | Usage licite et responsabilité du réutilisateur | Confirmé XII | Confirmé V.1/VI.2 (avec garantie de la DILA) | Conditions publiques |
+| C6 | Ne pas altérer/dénaturer, mentionner source et mise à jour | Confirmé V/XIII + LO 2.0 | Corrigé : renvoi à la LO 2.0 (V.1, IX) ; pas d'interdiction d'altérer propre au texte | Provenance structurée ; contrôle des champs ouvert |
+| C7 | Ne pas transformer une panne en vérification réussie | Confirmé XI.A | Corrigé : règle du service, fondée sur IV.1 et VI.1 (aucune garantie de disponibilité ni de fiabilité) | Erreur « source officielle non vérifiée » |
+| C8 | Prévoir suspension ou indisponibilité de l'accès | Confirmé XII | Confirmé IV.1/VII.1 | Dégradation documentée, pas de clé de secours automatique |
 
 ## 3. Judilibre — affirmations vérifiées
 
@@ -72,23 +72,30 @@ La suppression complète est une mesure temporaire et conservatrice : elle est
 plus restrictive que l'occultation socle, mais évite au service d'exercer la
 compétence d'occultation réservée à la Cour.
 
-## 4. Légifrance — registre suspendu jusqu'au texte 2022
+## 4. Légifrance — affirmations vérifiées (CGU du 15/12/2022)
 
-Les points suivants figuraient dans le PDF 2020 : confidentialité des clés,
-sécurité de l'environnement, quotas, notification d'incident, Licence Ouverte,
-contact du compte PISTE et données du développeur. Ils restent appliqués par
-prudence mais doivent chacun recevoir, après récupération du PDF 2022 :
+Revue du 25/10/2026 sur le texte intégral (section 1). Paraphrases contrôlées ;
+la comparaison détaillée avec le PDF 2020 n'a pas été refaite.
 
-- la section exacte et une paraphrase contrôlée ;
-- les différences avec 2020 ;
-- la conséquence précise pour ce service public avec utilisateurs tiers ;
-- l'état `confirmé`, `corrigé`, `supprimé` ou `à arbitrer`.
+| ID | Section | Règle | Conséquence pour le service | État |
+|---|---|---|---|---|
+| L1 | III.3 | Clés strictement réservées à l'application, jamais publiées ni divulguées à un tiers | Le service hébergé appelle l'API pour ses utilisateurs ; aucune clé n'est remise à un client | Confirmé |
+| L2 | VI.2, IX | La Licence Ouverte 2.0 autorise l'usage commercial des données, aux risques de l'utilisateur | Une offre payante est permise ; la responsabilité envers les clients repose sur l'exploitant | Confirmé |
+| L3 | IV.1 | Aucune disponibilité minimale garantie ; objectif de moyens de 95 % par jour en production, aucun en sandbox | Aucun engagement de disponibilité client ne peut couvrir l'amont ; exclusion à prévoir au contrat | Confirmé |
+| L4 | VI.1 | Fiabilité, complétude et fraîcheur non garanties ; seuls les PDF signés du Journal officiel sont opposables | Mention obligatoire dans les conditions d'utilisation et le dossier de preuve | Confirmé — mention à vérifier dans `terms-of-use.md` |
+| L5 | IV.3 | Quotas par seconde, minute ou jour, par application ou par méthode, modifiables avec information par courriel | Quota par client et surveillance de consommation nécessaires avant plusieurs clients | Confirmé |
+| L6 | V.1 | Usage conforme aux lois, à la LO 2.0 et au RGPD ; l'utilisateur garantit la DILA contre toute action | Risque contractuel porté par l'exploitant | Confirmé |
+| L7 | V.3, VIII | Incident ou compromission : réinitialiser les identifiants et prévenir la DILA et/ou l'AIFE ; notifications vers `retours-legifrance-modernise@dila.gouv.fr` | Contact à reporter dans `incident-response.md` | Confirmé |
+| L8 | VII.1 | Suspension sans notification préalable et résiliation sans préavis en cas de manquement | Point de défaillance unique ; dégradation déjà prévue (C8) | Confirmé |
+| L9 | I.3 | CGU et API modifiables à tout moment ; information par courriel | Surveiller l'adresse du compte PISTE et refaire cette revue à chaque notification | Confirmé |
 
-Jusqu'à cette revue, écrire « conforme aux CGU Légifrance » est interdit.
+Le texte n'interdit pas expressément de servir des tiers au moyen de
+l'application titulaire des clés ; cette lecture est une **inférence**, à
+confirmer par les CGU PISTE.
 
 ## 5. Points restant à vérifier
 
-- texte intégral et empreinte des CGU Légifrance 15/12/2022 ;
+- texte intégral et empreinte des CGU de la plateforme PISTE ;
 - quotas exacts attachés aux deux abonnements PISTE ;
 - valeurs effectivement présentes dans les réponses Judilibre pour siège et
   date de mise à jour ;
@@ -98,13 +105,17 @@ Jusqu'à cette revue, écrire « conforme aux CGU Légifrance » est interdit.
 ## Sources primaires
 
 - [Catalogue PISTE — Légifrance](https://piste.gouv.fr/api-catalog-sandbox?filter=legifrance)
+- CGU de l'API Légifrance V1.0 du 15/12/2022 — copie obtenue depuis le compte
+  PISTE du mainteneur le 25/10/2026 (empreinte en section 1)
 - [CGU Judilibre du 6 janvier 2022](https://piste.gouv.fr/images/cgu/CGU_open_data_V8.pdf)
 - [Licence Ouverte 2.0](https://www.etalab.gouv.fr/licence-ouverte-open-licence)
 - [Ancien PDF Légifrance 2020 — archive seulement](https://piste.gouv.fr/images/cgu/DILA_Legifrance_Beta_v2.pdf)
 
 ## Étape 7 — Auto-critique adversariale
 
-- Le catalogue prouve l'identifiant de la version Légifrance, pas son contenu.
+- Le texte Légifrance 2022 lève le blocage, mais ses renvois (CGU PISTE,
+  mentions légales) restent non lus : « conforme aux CGU Légifrance » ne vaut
+  que pour le texte de l'API.
 - Le retrait complet d'une décision réduit la diffusion mais ne remplace pas la
   transmission sans délai à la Cour de cassation.
 - Les champs absents d'une réponse Judilibre ne doivent pas être inventés.
@@ -114,5 +125,5 @@ Modules activés                       : [DOC-AUDIT]
 Modules non activés                   : [PÉNAL, ACTE-ADMIN, PA-PJ, FOND, CONTENTIEUX]
 Niveau de confiance global            : modéré
 Sources informelles signalées         : aucune
-Limites de la recherche               : contenu intégral des CGU Légifrance 2022 non obtenu
+Limites de la recherche               : CGU PISTE non lues ; comparaison avec 2020 non refaite
 ─────────────────────────────────────────────
