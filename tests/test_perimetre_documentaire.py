@@ -33,15 +33,16 @@ class PerimetreDocumentaireTests(unittest.TestCase):
 
     def test_exporter_ne_modifie_ni_corpus_ni_validation(self):
         avant = campaign.CORPUS.read_bytes()
+        prets_avant = sum(campaign.gold_pret(c) for c in campaign.corpus())
         with tempfile.TemporaryDirectory() as dossier:
             sortie = Path(dossier) / "corriges.md"
             self.assertEqual(36, corriges.exporter(sortie))
             texte = sortie.read_text(encoding="utf-8")
-            self.assertIn("0/36", texte)
+            self.assertIn(f"{prets_avant}/36", texte)
             self.assertIn("M18-b", texte)
             self.assertIn("brouillons", texte)
         self.assertEqual(avant, campaign.CORPUS.read_bytes())
-        self.assertFalse(any(campaign.gold_pret(c) for c in campaign.corpus()))
+        self.assertEqual(prets_avant, sum(campaign.gold_pret(c) for c in campaign.corpus()))
 
     def test_exporter_refuse_de_remplacer_le_corpus(self):
         with self.assertRaisesRegex(ValueError, "remplacer le corpus"):

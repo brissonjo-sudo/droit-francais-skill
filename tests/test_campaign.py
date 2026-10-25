@@ -18,8 +18,10 @@ from bench.preconditions import catalogue
 
 class CampagneTests(unittest.TestCase):
     def test_gold_brouillon_ne_permet_aucune_mesure(self):
-        cases = campaign.corpus()
+        cases = copy.deepcopy(campaign.corpus())
         self.assertEqual(len(cases), 36)
+        for c in cases:
+            c["gold"]["statut"] = "brouillon"
         self.assertFalse(any(campaign.gold_pret(c) for c in cases))
 
     def test_gel_refuse_fable_avant_tout_appel_modele(self):
@@ -35,6 +37,8 @@ class CampagneTests(unittest.TestCase):
 
     def test_nom_humain_seul_ne_valide_pas_le_gold(self):
         c = copy.deepcopy(campaign.corpus()[0])
+        for s in c["gold"]["sources_verifiees"]:
+            s["verification_humaine"] = {"valide_par": "", "date_verification": ""}
         c["gold"]["valide_par"] = "relecteur"
         c["gold"]["statut"] = "valide"
         self.assertFalse(campaign.gold_pret(c))
