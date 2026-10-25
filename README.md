@@ -1,53 +1,54 @@
 [🇫🇷 Français](README.md) | [🇬🇧 English](README.en.md)
 
-# droit-francais-skill
+# Droit français — recherche juridique vérifiée
 
-**Skill LLM — méthodologie de recherche en droit français (v3.5.1)**
-
-**Distribution autonome + plugins OpenAI et Claude Code avec outils MCP (candidat plugin v0.9.0, non publié)**
-
-La version locale prépare deux lectures supplémentaires : sections de code et
-textes consolidés. Le service distant reste à la version publiée antérieure ;
-les nouvelles lectures ne sont disponibles qu'après un déploiement explicitement
-autorisé et leur qualification. Voir [la préparation](docs/livraison-0.9.0.md).
+**Vérifier chaque référence de droit français sur Légifrance et Judilibre avant de l'écrire.**
 
 [![CI](https://github.com/brissonjo-sudo/droit-francais-skill/actions/workflows/ci.yml/badge.svg)](https://github.com/brissonjo-sudo/droit-francais-skill/actions/workflows/ci.yml)
-[![Release](https://img.shields.io/github/v/release/brissonjo-sudo/droit-francais-skill)](https://github.com/brissonjo-sudo/droit-francais-skill/releases)
+[![Skill](https://img.shields.io/github/v/tag/brissonjo-sudo/droit-francais-skill?filter=skill-v*&label=skill)](https://github.com/brissonjo-sudo/droit-francais-skill/releases)
 [![License: CC BY-SA 4.0](https://img.shields.io/badge/license-CC%20BY--SA%204.0-blue)](LICENSE)
 
-> **Droit français** aide à vérifier les références, les versions applicables
-> et le raisonnement avant de rédiger un avis ou un acte. Il impose une méthode
-> de recherche sur sources primaires et demande de signaler ce qui reste
-> invérifiable. Son apport sur les modèles actuels reste à mesurer ; aucune
-> garantie d'absence d'erreur n'est revendiquée.
+Un assistant IA cite volontiers un article qui n'existe pas, un arrêt mal
+numéroté ou une version abrogée. Ce skill impose à l'assistant (Claude,
+ChatGPT, Codex, Gemini…) une méthode de recherche sur sources officielles :
+chaque référence provient d'une consultation faite pendant la session, avec sa
+date d'applicabilité, et ce qui n'a pas pu être vérifié est signalé comme tel.
 
-**Pour commencer :** choisir un [canal d'installation](docs/installation.md),
-puis vérifier la méthode et, séparément, l'accès aux outils.
-
-| Canal | État au 10 octobre 2026 | Outils |
-|---|---|---|
-| Skill autonome | Noyau 3.5.1 présent dans `main` ; paquet publié distinct | Web officiel si le client le permet ; PISTE facultatif |
-| Plugin depuis le dépôt | Candidat 0.9.0 ; connexion distante dans `.mcp.json` | Service publié antérieur, six outils ; OAuth à qualifier par client |
-| Serveur local du candidat | Douze outils dans le code, avec Python et PISTE | Articles, décisions, sections et textes ; mesure séparée du service distant |
-
-Les nouveaux parcours OAuth Claude Code et ChatGPT restent suivis dans
-[#88](https://github.com/brissonjo-sudo/droit-francais-skill/issues/88) et
-[#89](https://github.com/brissonjo-sudo/droit-francais-skill/issues/89).
-La présence du manifeste ne prouve pas une installation fonctionnelle.
+> Outil d'aide à la recherche, pas un avis juridique. Seules les publications
+> signées au Journal officiel font foi ; aucune absence d'erreur n'est garantie.
 
 ---
 
-## Le problème, en 10 secondes
+## Exemple
 
-Le danger n'est pas le mensonge évident (un « article L. 9999-1 » que tout
-modèle récent rejette). C'est le **mensonge plausible** : une référence
-parfaitement formatée, mais fausse — impossible à repérer à l'œil.
+Question : *« Quels sont les pouvoirs de police générale du maire ? »*
 
-**Illustration historique** — Gemini 3.5 extended, 5 juillet 2026, selon le
-compte rendu conservé. Cet essai isolé ne mesure ni les modèles actuels ni
-l'effet causal du plugin. Question : *« Donne-moi
-la référence exacte (chambre, date, n° de pourvoi) de trois arrêts de la Cour
-de cassation. »* Vérification en source primaire des trois réponses :
+Le skill ne cite l'article qu'après l'avoir récupéré. Résultat réel du
+connecteur le 25/10/2026, mis en forme :
+
+```text
+Article L2212-2 — Code général des collectivités territoriales
+Identifiant    : LEGIARTI000029946370
+Statut         : en vigueur, version du 22/12/2014
+Applicable au  : 25/10/2026 — oui
+Source         : API Légifrance, consultée le 25/10/2026
+Lien           : https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000029946370
+```
+
+Si aucune source ne confirme une référence, la réponse le dit au lieu de la
+compléter de mémoire :
+
+> ⚠️ *Je ne produis pas ces numéros de pourvoi sans les avoir vérifiés en
+> source primaire (Judilibre / Légifrance) — je ne les invente pas.*
+
+---
+
+## Pourquoi
+
+Le danger n'est pas la référence absurde, que tout modèle récent rejette. C'est
+la **référence plausible** : parfaitement formatée, mais fausse. Lors d'un essai
+isolé du 5 juillet 2026, Gemini 3.5 extended a répondu ainsi à une demande de
+trois arrêts de la Cour de cassation :
 
 | Réponse de l'IA | Réalité (Légifrance) | Verdict |
 |---|---|---|
@@ -55,106 +56,90 @@ de cassation. »* Vérification en source primaire des trois réponses :
 | Anxiété — Soc., 11 mai 2010, n° 09-42.241 | Soc., 11 mai 2010, n° 09-42.241 | ✅ Exact |
 | Rupture brutale — Com., 20 mars 2012, n° 11-13.245 | Aucun arrêt à ce n° | ⚠️ Introuvable |
 
-Deux références sur trois fausses ou fantômes — dont le **bon nom d'arrêt
-avec une référence entièrement inventée**. Le **TA d'Orléans**, dans son
+Le **TA d'Orléans**, dans son
 [jugement du 29/12/2025, n° 2506461](https://opendata.justice-administrative.fr/recherche/shareFile/TA45/DTA_2506461_20251229),
-relève des décisions citées inexistantes ou dont le numéro ne correspond pas
-à la date, et invite le conseil à vérifier ses références. Ce constat ne
-démontre pas quel outil aurait produit ces références.
-
-**Comportement prescrit par le skill**, à vérifier en exécution :
-> ⚠️ *Je ne produis pas ces numéros de pourvoi sans les avoir vérifiés en
-> source primaire (Judilibre / Légifrance) — je ne les invente pas.*
-
-La [nouvelle campagne des 18 modes](docs/campagne-18-modes.md) comparera
-méthode, outils et leur combinaison. Trois exemples issus de cette campagne
-(gain, abstention justifiée, limite) remplaceront progressivement cette
-illustration après revue ; aucun résultat nouveau n'est annoncé ici.
+relève des décisions citées inexistantes et invite le conseil à vérifier ses
+références. Ni l'un ni l'autre ne mesure l'effet de ce skill : voir
+[Mesure de la qualité](#mesure-de-la-qualité).
 
 ---
 
-## Public visé
+## Démarrage rapide
 
-Tout praticien du droit français — **le métier se configure via un profil**
-(voir [« Choisir son profil »](#choisir-son-profil)) :
+### Dans claude.ai ou l'application Claude — outils inclus
 
-- **Forces de l'ordre** (police nationale, gendarmerie, police municipale)
-- **Avocats** (conseil et contentieux)
-- **Juristes d'entreprise** (droit des affaires, conformité)
-- **Cadres et juristes territoriaux** (collectivités)
-- **Étudiants et candidats aux concours** juridiques
-- Toute personne ayant besoin de références juridiques fiables dans un acte
-  ou un document officiel
+1. Ajouter un connecteur personnalisé à l'adresse
+   `https://droit-francais-skill.onrender.com/mcp`.
+2. Dans ses *Advanced settings*, saisir `UydR0hHVgqArHoQpoonkYUN1vSLfaptD`
+   comme « OAuth Client ID » et laisser le secret vide.
+3. Se connecter, puis poser une question juridique.
 
----
+Rien à installer : le service porte ses propres clés officielles, avec un quota
+par utilisateur. Détails et dépannage : [guide OAuth](docs/oauth.md).
 
-## Ce que fait ce skill
+### Dans Claude Code — la méthode
 
-Quand Claude détecte une requête juridique (article de loi, qualification
-pénale, jurisprudence, rédaction d'acte, vérification d'un texte en
-vigueur…), ce skill active une procédure en 9 étapes incluant :
+```bash
+npx skills add https://github.com/brissonjo-sudo/droit-francais-skill/tree/main/skill --skill recherche-juridique
+```
 
-- **7 principes** anti-hallucination (primarité des sources, date de
-  référence, hiérarchie des normes, citation traçable, séparation des
-  registres, légalité criminelle, abstention informée)
-- **9 étapes** avec critères de sortie explicites : qualification (0) →
-  **arbitrage informations manquantes (0 bis, v2.1.0)** → cartographie (1) →
-  récupération (2) → fraîcheur (3) → jurisprudence (4) → articulation (5) →
-  rédaction (6) → auto-critique (7)
-- **4 techniques** de raisonnement (qualification adversariale,
-  triangulation, archéologie textuelle, distinction)
-- **6 modules activables** selon la requête (PÉNAL, ACTE-ADMIN, PA-PJ,
-  FOND, CONTENTIEUX, DOC-AUDIT)
-- **Double mode opératoire** A (noyau + modules) / B (exhaustif avec
-  balise `[complet]`)
-- **Gabarits de sortie** normalisés (express, fond, citation pour acte,
-  audit documentaire, note de concours)
-- **Audit documentaire** (v3.2.0) : registre des affirmations, vérification
-  de 100 % du risque élevé, matrice acteur–lieu–propriétaire–pouvoir,
-  cohérence d'un corpus et contrôle post-correction
-- **Règle de provenance** (v2.3.0) : tout identifiant officiel
-  (`LEGIARTI`, `NOR`, n° de pourvoi…) doit provenir d'un appel d'outil
-  de la session, jamais de la mémoire — sinon marqué « non vérifié »
-- **Voie rapide `[lookup]`** (v2.3.0) : sortie minimale pour une
-  référence ponctuelle non controversée, sans dégrader le fond
-- **Récupération outillée** (v2.3.0, jurisprudence en v2.4.0, Judilibre en
-  v3.1.0) : `skill/scripts/legifrance.py` interroge deux API officielles via
-  PISTE — **Légifrance** (articles de code, textes, décisions CE et CC) et
-  **Judilibre** (Cour de cassation, cours d'appel, tribunaux, avec texte
-  intégral) — pour fiabiliser l'étape 2. Sans clé, l'étape 2 bascule sur la
-  voie web sans rien perdre en exigence de provenance
-- **Profils configurables** (v3.0.0) : le métier de l'utilisateur (contexte
-  territorial, domaines, 3ᵉ regard d'auto-critique) se règle via un `profil.md`
-  — le noyau méthodologique reste universel
+Aucune clé n'est obligatoire : sans API, la recherche passe par les sites
+officiels (Légifrance, Cour de cassation, Conseil d'État…). Une **clé PISTE
+gratuite** rend la récupération déterministe — voir
+[la configuration PISTE](skill/scripts/README.md).
+
+### Autres installations
+
+Plugin Claude Code ou Codex, serveur MCP local, copie manuelle, mises à jour
+automatiques : voir le [guide d'installation](docs/installation.md).
+
+Déclinaisons pour d'autres assistants, chacune documentée dans son dossier :
+
+| Assistant | Dossier |
+|---|---|
+| Gemini (Google) | [`gemini_skill/`](gemini_skill) et [`gemini_agent/`](gemini_agent) |
+| Grok (xAI) | [`grok_skill/`](grok_skill) |
+| Vibe (Mistral) | [`vibe_skill/`](vibe_skill) |
+| Manus | [`manus_skill/`](manus_skill) |
+
+`skill/` reste la seule source de vérité : les déclinaisons ne s'y
+synchronisent pas d'elles-mêmes.
 
 ---
 
-## Fonctionne sans clé API
+## Ce que vous obtenez
 
-> 🔑 **Aucune configuration obligatoire.** Le skill fonctionne immédiatement :
-> à défaut d'API, la récupération passe par la recherche web sur les domaines
-> officiels (Légifrance, Cour de cassation, Conseil d'État…). Une **clé PISTE
-> gratuite** (API Légifrance) est *optionnelle* : elle rend la récupération
-> déterministe et fiabilise la règle de provenance. Voir
-> [`skill/scripts/README.md`](skill/scripts/README.md).
+- **Des références vérifiées** : tout identifiant officiel (article, NOR,
+  n° de pourvoi…) vient d'une consultation de la session, jamais de la
+  mémoire ; sinon il est marqué « non vérifié ».
+- **La bonne version à la bonne date** : vigueur, historique de l'article et
+  applicabilité à la date des faits.
+- **La jurisprudence utile** : Cour de cassation et juridictions judiciaires
+  (Judilibre), Conseil d'État et cours administratives d'appel, Conseil
+  constitutionnel, juridictions financières.
+- **Un raisonnement contrôlé** : qualification, articulation des normes, puis
+  auto-critique adversariale avant de rendre la réponse.
+- **L'audit de documents** : relecture juridique d'un acte ou d'un ensemble
+  d'actes (références périmées, incohérences).
+- **Des sorties adaptées** : réponse express, note de fond, citation pour un
+  acte, note de concours.
 
 ---
 
-<a id="choisir-son-profil"></a>
 ## Choisir son profil
 
-Le skill s'adapte à votre métier via un fichier `profil.md` (défauts de
-contexte, jamais des certitudes — voir [`skill/profils/`](skill/profils/)) :
+Le skill s'adapte à votre métier via un fichier `profil.md`. Chaque profil
+ajoute un regard critique propre au métier :
 
-| Profil | Pour qui | 3ᵉ regard d'auto-critique |
-|--------|----------|---------------------------|
-| `police-gendarmerie` | Police nationale / gendarmerie / police municipale | L'avocat de la défense (nullité de procédure) |
-| `avocat` | Avocat (conseil, contentieux) | Le confrère adverse |
-| `juriste-entreprise` | Direction juridique, conformité | Le régulateur / l'auditeur |
+| Profil | Pour qui | Regard critique ajouté |
+|--------|----------|------------------------|
 | `collectivites` | DGS, secrétaire de mairie, juriste territorial | Le contrôle de légalité préfectoral |
-| `etudiant-concours` | Étudiant / candidat concours | Le jury / le correcteur |
+| `avocat` | Avocat (conseil, contentieux) | Le confrère adverse |
+| `juriste-entreprise` | Direction juridique, conformité | Le régulateur ou l'auditeur |
+| `police-gendarmerie` | Police nationale, gendarmerie, police municipale | L'avocat de la défense (nullités de procédure) |
+| `etudiant-concours` | Étudiant, candidat aux concours | Le jury ou le correcteur |
 
-**Activation** (après installation) :
+Activation, après installation :
 
 ```bash
 cd ~/.claude/skills/recherche-juridique
@@ -162,323 +147,80 @@ cp profils/avocat.md profil.md      # remplacer par votre profil
 # puis compléter les champs [à compléter] du profil.md
 ```
 
-Sans `profil.md`, le skill tourne en **profil neutre** : il ne présume aucun
-contexte et pose la question quand elle devient décisionnelle.
+Sans `profil.md`, le skill ne présume aucun contexte et pose la question quand
+elle compte.
 
 ---
 
-## Installation
+## Utilisation
 
-### Installation suivie et mises à jour via `npx` (recommandée)
+Le skill s'active tout seul quand vous citez ou demandez un texte, une
+qualification, une jurisprudence, la vigueur d'un texte, la rédaction d'un acte
+ou la relecture juridique d'un document. Des balises ajustent la réponse :
 
-Pour que le CLI conserve la source du skill et puisse le mettre à jour sans
-recopie manuelle :
+| Balise | Effet |
+|---|---|
+| `[lookup]` | Référence ponctuelle, réponse minimale |
+| `[express]` | Réponse allégée |
+| `[complet]` | Analyse exhaustive |
+| `[syllogisme]` | Majeure, mineure, conclusion (concours) |
+| `[opérationnel]` | Conséquences pratiques détaillées |
 
-```bash
-npx skills add https://github.com/brissonjo-sudo/droit-francais-skill/tree/main/skill --skill recherche-juridique
-```
+---
 
-Le skill vérifie une fois par session si une nouvelle version est disponible,
-sans interrompre une recherche juridique. Si une mise à jour est signalée,
-l'utilisateur garde la main :
+## Questions fréquentes
 
-```bash
-npx skills update recherche-juridique
-```
+**Est-ce gratuit ?** Le skill est libre (CC BY-SA 4.0) et la clé PISTE est
+gratuite. Le service hébergé est ouvert après connexion, avec un quota par
+utilisateur.
 
-La commande ne doit pas être lancée automatiquement par l'agent. Pour mettre
-à jour toutes les compétences suivies : `npx skills update`.
+**Faut-il une clé API ?** Non. La clé PISTE est facultative ; sans elle, la
+recherche passe par les sites officiels.
 
-#### Mises à jour automatiques (facultatif)
+**Où vont mes questions ?** Voir la [politique de confidentialité](docs/privacy-policy.md).
 
-Pour une installation **globale** suivie par le CLI `skills`, créez le fichier
-`.recherche-juridique-update.json` à la racine installée du skill :
+**Qui répond d'une erreur ?** L'utilisateur reste responsable de ce qu'il
+écrit. Les données officielles ne sont pas opposables ; seules les
+publications signées au Journal officiel font foi. Voir les
+[conditions d'utilisation](docs/terms-of-use.md).
 
-```json
-{ "automatic": true }
-```
+---
 
-Au premier emploi quotidien, le skill lance alors sa mise à jour ciblée. Il
-conserve votre `profil.md` et votre fichier `scripts/.env`; il reste silencieux
-en l'absence de nouvelle version ou si le réseau est indisponible. Pour couper
-ce comportement, remplacez `true` par `false` ou supprimez le fichier.
+## État du projet
 
-### Comme plugin OpenAI — candidat v0.9.0
-
-Le dépôt contient désormais un manifeste `.codex-plugin/plugin.json` et un
-point d'entrée natif `skills/recherche-juridique/`. L'adaptateur charge le
-noyau historique depuis `skill/` : il n'existe donc qu'une seule source de
-vérité méthodologique.
-
-Le manifeste pointe vers `.mcp.json`, qui déclare une **connexion distante**.
-Pour installer, vérifier, mettre à jour et retirer le plugin, suivre le
-[guide de cycle de vie](docs/installation.md). Le démarrage ci-dessous est une
-variante de serveur local, avec douze outils ; il ne constitue pas une
-installation de plugin. Le serveur et le CLI historique partagent la même
-bibliothèque ; la méthode reste dans `skill/SKILL.md`.
-
-```bash
-python -m pip install -r requirements-mcp.txt
-python mcp_server/server.py
-python mcp_server/server.py --transport streamable-http
-docker build -t droit-francais-mcp .
-```
-
-Les identifiants PISTE restent fournis par variables d'environnement ou `.env`,
-jamais dans le manifeste. Voir le [guide MCP](docs/mcp-app.md) et
-l'[architecture progressive](docs/architecture-plugin.md).
-
-Cette version est directement testable comme plugin local dans Codex. Un service
-distant distinct est déployé en HTTPS à l'adresse
-`https://droit-francais-skill.onrender.com/mcp`. Sa version historique expose six
-outils ; le candidat local en expose huit. Une recette de ce service ne qualifie
-pas le candidat local. Le service comporte un contrôle de configuration,
-limitation de charge et journaux sans arguments ni secrets. Voir le
-[guide de déploiement](docs/deployment.md) et le
-[guide de connexion/soumission ChatGPT](docs/chatgpt-submission.md). L'accès
-public est protégé par OAuth 2.1 : le serveur vérifie un jeton porteur émis par
-un serveur d'autorisation externe et applique un quota par utilisateur, afin
-que les clés PISTE du titulaire ne soient jamais consommées anonymement — voir
-le [guide OAuth](docs/oauth.md). Le mapping
-`.app.json` ne sera ajouté qu'après création d'une intégration réelle ; aucun
-identifiant distant fictif n'est placé dans le dépôt.
-
-### Comme plugin Claude Code — candidat v0.9.0
-
-> **OAuth Claude Code reste bloqué sur une installation neuve** : le client
-> prédéfini et son callback ne sont pas encore configurés dans le plugin
-> ([#88](https://github.com/brissonjo-sudo/droit-francais-skill/issues/88)).
-> Installer le paquet ne suffit donc pas à utiliser ses outils distants.
-
-Le manifeste `.claude-plugin/plugin.json` réutilise les mêmes briques que le
-plugin OpenAI : le point d'entrée `skills/recherche-juridique/` (adaptateur
-vers le noyau `skill/`). Le serveur MCP est déclaré une seule fois, dans le
-`.mcp.json` de la racine que Claude Code reprend automatiquement, en
-**connexion distante** vers le service déployé. Le dépôt sert aussi de
-marketplace (`.claude-plugin/marketplace.json`) :
-
-```bash
-claude plugin marketplace add brissonjo-sudo/droit-francais-skill
-claude plugin install droit-francais-skill@droit-francais
-```
-
-Ou, en session interactive : `/plugin marketplace add
-brissonjo-sudo/droit-francais-skill` puis `/plugin install
-droit-francais-skill@droit-francais`.
-
-**Aucune installation locale requise** : ni Python, ni dépendances, ni identifiants
-PISTE. Le service distant porte ses propres clés et l'accès est protégé par
-OAuth 2.1 avec quota par utilisateur — voir le [guide OAuth](docs/oauth.md).
-
-**Connexion : un identifiant de client à saisir.** Le serveur d'autorisation
-n'accepte pas l'enregistrement automatique de nouveaux clients ; la connexion
-passe donc par un client prédéfini.
-
-- **Depuis claude.ai ou l'application Claude** : à l'ajout du connecteur,
-  ouvrir *Advanced settings* et saisir `UydR0hHVgqArHoQpoonkYUN1vSLfaptD` dans
-  « OAuth Client ID », en laissant le secret vide. Sans cet identifiant, la
-  connexion échoue. Voie vérifiée le 16 septembre 2026.
-- **Depuis Claude Code** : la déclaration `.mcp.json` du plugin ne porte pas
-  encore d'identifiant de client, et la connexion échouera avec « Incompatible
-  auth server: does not support dynamic client registration ». Voie non encore
-  configurée — voir le [guide OAuth](docs/oauth.md) § 4.
-
-#### Variante — serveur MCP local
-
-Pour l'auto-hébergement ou le développement, remplacer la déclaration du
-`.mcp.json` par un lancement local, `${CLAUDE_PLUGIN_ROOT}` résolvant le
-chemin une fois le plugin installé :
-
-```json
-{
-  "mcpServers": {
-    "droit-francais": {
-      "command": "python",
-      "args": ["${CLAUDE_PLUGIN_ROOT}/mcp_server/server.py"]
-    }
-  }
-}
-```
-
-Cette variante, elle, suppose un `python` dans le PATH avec les dépendances
-(`python -m pip install -r requirements-mcp.txt`) et les identifiants PISTE
-fournis par variables d'environnement ou par un `.env` désigné via
-`LEGIFRANCE_DOTENV` — le `.env` n'étant pas versionné, il ne voyage pas avec
-le plugin. Sans identifiants, le skill méthodologique reste utilisable ; seuls les outils MCP de récupération déterministe sont
-indisponibles.
-
-### Comme skill Claude Code — inchangé
-
-> **Installation autonome :** empaqueter uniquement le dossier `skill/` — il contient le
-> noyau (`SKILL.md`), l'historique (`CHANGELOG.md`), les références
-> (`references/`) et l'outillage (`scripts/`). Le dossier `vault/` est
-> réservé aux notes Obsidian et ne fait pas partie du paquet skill.
-
-### Windows
-
-```powershell
-# Cloner puis copier uniquement skill/ dans le dossier skills Claude Code
-git clone https://github.com/brissonjo-sudo/droit-francais-skill
-Copy-Item -Recurse droit-francais-skill\skill "$env:USERPROFILE\.claude\skills\recherche-juridique"
-```
-
-### macOS / Linux
-
-```bash
-git clone https://github.com/brissonjo-sudo/droit-francais-skill
-cp -r droit-francais-skill/skill ~/.claude/skills/recherche-juridique
-```
-
-### Installation manuelle
-
-Copier le dossier `skill/` (contenu, pas le dossier lui-même) dans
-`~/.claude/skills/recherche-juridique/`. Le champ `name:` dans
-`skill/SKILL.md` doit correspondre au nom du dossier d'installation.
-
-### Sur d'autres plateformes
-
-Cinq déclinaisons et compagnons vivent dans ce dépôt, chacun autonome et documenté par
-son propre README :
-
-| Dossier | Plateforme | Nature |
+| Composant | État au 25 octobre 2026 | Détail |
 |---|---|---|
-| [`gemini_skill/`](gemini_skill) | Gemini (Google) | Noyau condensé v3.5.1, support prioritaire du serveur MCP de ce dépôt, repli grounding Google Search sur sources officielles |
-| [`gemini_agent/`](gemini_agent) | Gemini (`google-genai`) | Client programmatique Python, température 0.0, prompt système aligné sur la méthodologie v3.5.1 |
-| [`grok_skill/`](grok_skill) | Grok (xAI) | **3.6.0-grok** — Noyau court et références 3.6.0 ; outils web natifs ; aucune recette réelle |
-| [`vibe_skill/`](vibe_skill) | Vibe (Mistral) | **3.6.0-vibe** — Noyau court et références 3.6.0 ; outils web natifs ; aucune recette réelle ; wrapper non connecté, aucun updater |
-| [`manus_skill/`](manus_skill) | Manus | Adaptation condensée basée sur 3.5.0 ; connecteur MCP du dépôt s'il est exposé, capacité web native constatée sans nom supposé, sinon abstention ; contrôles DOC-AUDIT renforcés |
-
-Elles reprennent les principes du noyau mais ne s'y synchronisent pas
-d'elles-mêmes : `skill/` reste la source de vérité méthodologique.
+| Skill | 3.5.1, publié (étiquette `skill-v3.5.1`) | Méthode stable, installable seule |
+| Service hébergé | Douze outils exposés au connecteur Claude | Connexion OAuth vérifiée dans claude.ai |
+| Plugins Claude Code et Codex | Candidat 0.9.0, non publié | OAuth Claude Code et ChatGPT en cours ([#88](https://github.com/brissonjo-sudo/droit-francais-skill/issues/88), [#89](https://github.com/brissonjo-sudo/droit-francais-skill/issues/89)) |
 
 ---
 
-## Déclenchement
+## Mesure de la qualité
 
-Le skill s'active automatiquement quand vous :
-- citez ou demandez un article de loi, de code, un décret, un arrêté
-- demandez une qualification juridique (pénale, administrative, civile)
-- vérifiez si un texte est en vigueur, abrogé ou modifié
-- demandez une jurisprudence (Cass., CE, CC, CJUE, CEDH)
-- auditez, relisez ou corrigez juridiquement un document ou un corpus
-- rédigez un arrêté municipal, une note au Maire, un mémoire
-- préparez un oral ou écrit de concours
-
-**Balises de contrôle :**
-- `[complet]` — mode exhaustif, tous modules activés
-- `[express]` — mode allégé (PÉNAL et DOC-AUDIT restent actifs lorsqu'applicables)
-- `[syllogisme]` — structure majeure / mineure / conclusion (concours)
-- `[opérationnel]` — section implications opérationnelles activée
-- `[lookup]` — voie rapide : référence ponctuelle, sortie minimale
+La [campagne des 18 modes d'erreur](docs/campagne-18-modes.md) compare trois
+situations : le modèle seul, la méthode seule, la méthode avec les outils. Elle
+vérifie que chaque identifiant cité provient bien d'un appel d'outil. Aucun
+résultat chiffré n'est encore publié. Le protocole est décrit dans
+[`tests/README.md`](tests/README.md).
 
 ---
 
-## Arborescence (skill v3.5.1 / candidat plugin v0.9.0)
+## Pour aller plus loin
 
-```
-droit-francais-skill/
-├── .claude-plugin/
-│   ├── plugin.json                ← manifeste du plugin Claude Code
-│   └── marketplace.json           ← distribution directe depuis le dépôt
-├── .codex-plugin/
-│   └── plugin.json                ← manifeste du plugin OpenAI
-├── assets/
-│   └── logo.png                   ← logo original de distribution
-├── .mcp.json                       ← connexion au service MCP distant
-├── mcp_server/
-│   ├── server.py                   ← outils MCP stdio ou HTTP /mcp
-│   └── catalog.py                  ← liste des outils publiés (source unique)
-├── skills/
-│   └── recherche-juridique/
-│       └── SKILL.md               ← adaptateur plugin vers le noyau
-├── skill/                          ← paquet autonome et source de vérité
-│   ├── SKILL.md                    ← noyau méthodologique (universel)
-│   ├── CHANGELOG.md                ← historique des versions
-│   ├── profils/                    ← profils métier (v3.0.0)
-│   │   ├── _modele.md              ← gabarit vierge
-│   │   ├── police-gendarmerie.md   ← PN / gendarmerie / police municipale
-│   │   ├── avocat.md
-│   │   ├── juriste-entreprise.md
-│   │   ├── collectivites.md
-│   │   └── etudiant-concours.md
-│   ├── references/
-│   │   ├── gabarits-sortie.md      ← gabarits A/B/C/D + syllogisme (détail §6)
-│   │   ├── modules.md              ← 6 modules activables (détail §5)
-│   │   ├── modes-erreur.md         ← détail des 18 modes d'erreur (détail §1)
-│   │   ├── audit-documentaire.md   ← protocole DOC-AUDIT (détail §2 bis)
-│   │   ├── gabarits-requetes.md    ← requêtes Légifrance optimisées
-│   │   ├── checklist-vigueur.md    ← checklist 14 points vérification
-│   │   ├── maintenance.md          ← procédure de revue annuelle
-│   │   ├── sources-autorisees.md   ← hiérarchie des sources (complément P3)
-│   │   └── format-citation.md      ← formats de citation normalisés (complément P4)
-│   └── scripts/                    ← outillage Palier 3
-│       ├── legifrance.py           ← API Légifrance + Judilibre (via PISTE)
-│       ├── update_skill.py          ← mise à jour automatique optionnelle
-│       ├── droit_francais/         ← bibliothèque réutilisable embarquée
-│       │   ├── errors.py           ← erreurs et codes de sortie communs
-│       │   ├── config.py           ← environnements et chargement .env
-│       │   ├── transport.py        ← transport HTTP JSON
-│       │   ├── legifrance.py       ← client OAuth/API Légifrance
-│       │   ├── judilibre.py        ← client KeyId/OAuth Judilibre
-│       │   └── tools.py            ← opérations structurées partagées
-│       ├── .env.example            ← gabarit de configuration (BYOK)
-│       └── README.md               ← configuration PISTE + usage
-├── .github/workflows/ci.yml        ← CI (py_compile + liens + doc↔CLI + éval)
-├── docs/
-│   ├── architecture-plugin.md      ← audit, cible et étapes de migration
-│   ├── mcp-app.md                  ← configuration et contrat des outils
-│   ├── deployment.md               ← exploitation de l'endpoint Render
-│   ├── chatgpt-submission.md       ← connexion et soumission OpenAI
-│   ├── oauth.md                    ← authentification OAuth 2.1 du serveur
-│   ├── audit-securite.md           ← plan d'audit sécurité de l'outil déployé
-│   ├── obligations-cgu.md          ← obligations CGU Légifrance et Judilibre
-│   ├── privacy-checklist.md        ← checklist avant publication
-│   ├── privacy-policy.md           ← politique publique
-│   └── terms-of-use.md             ← conditions publiques
-├── chatgpt-app-submission.json     ← métadonnées et cas de test importables
-├── gemini_skill/                   ← déclinaison Gemini (noyau condensé, Agent Skills, MCP prioritaire)
-├── gemini_agent/                   ← déclinaison Gemini (client programmatique Python google-genai)
-├── grok_skill/                     ← déclinaison Grok (xAI) 3.6.0, noyau court + références
-├── vibe_skill/                     ← déclinaison Vibe (Mistral) 3.6.0, noyau court + références
-├── manus_skill/                    ← déclinaison Manus (connecteur MCP en priorité)
-├── vault/                          ← notes Obsidian (hors paquet)
-├── tests/                          ← invariants, outils MCP + évals historiques
-├── requirements-mcp.txt            ← dépendance du serveur uniquement
-├── README.md
-└── LICENSE
-```
-
-> Le fichier `profil.md` (choix de l'utilisateur, copié depuis `profils/`)
-> est local et gitignoré — il n'est pas versionné.
-
-Le détail de l'architecture cible `skill + bibliothèque + app/plugin` et de ses
-invariants de non-régression est documenté dans
-[`docs/architecture-plugin.md`](docs/architecture-plugin.md).
+- [Arborescence et maintenance du dépôt](docs/arborescence.md)
+- [Architecture skill, bibliothèque et plugin](docs/architecture-plugin.md)
+- [Outils MCP et leur contrat](docs/mcp-app.md)
+- [Déploiement du service](docs/deployment.md)
+- [Obligations des CGU Légifrance et Judilibre](docs/obligations-cgu.md)
+- [Historique des versions](skill/CHANGELOG.md)
 
 ---
 
-## Maintenance
-
-Revue annuelle recommandée le **1er septembre** (rentrée juridique).
-Procédure détaillée → [`skill/references/maintenance.md`](skill/references/maintenance.md).
-
-> **Note de synchronisation :** à chaque release, mettre à jour `README.md` et
-> sa traduction complète `README.en.md`
-> (version, arborescence) et `skill/CHANGELOG.md` (entrée Ajouté/Modifié/Conservé)
-> avant de pousser le tag, préfixé selon sa série : `skill-v*` (méthodologie)
-> ou `plugin-v*` (empaquetage OpenAI et Claude Code, dont les notes de
-> soumission ChatGPT référencent le tag).
-
----
-
-## Licence
+## Licence et contribution
 
 [Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)](LICENSE)
+— © 2026 @brissonjo-sudo.
 
-© 2026 @brissonjo-sudo
-
----
-
-## Contribution
-
-Issues et pull requests bienvenues sur GitHub.
+Questions, erreurs, propositions : ouvrir une
+[issue](https://github.com/brissonjo-sudo/droit-francais-skill/issues).

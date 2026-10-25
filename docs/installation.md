@@ -31,6 +31,21 @@ Pour une recette reproductible, noter le commit et la version réellement instal
 - **Serveur local** : Python, dépendances MCP et identifiants PISTE nécessaires.
   Les douze outils du candidat ne sont pas automatiquement ceux du service distant.
 
+## claude.ai et application Claude
+
+Voie vérifiée le 16 septembre 2026. Le serveur d'autorisation n'accepte pas
+l'enregistrement automatique de nouveaux clients : la connexion passe par un
+client prédéfini.
+
+1. Ajouter un connecteur personnalisé à l'adresse
+   `https://droit-francais-skill.onrender.com/mcp`.
+2. Ouvrir ses *Advanced settings*, saisir `UydR0hHVgqArHoQpoonkYUN1vSLfaptD`
+   dans « OAuth Client ID » et laisser le secret vide. Sans cet identifiant,
+   la connexion échoue.
+3. Se connecter, puis vérifier qu'une lecture d'article renvoie un identifiant.
+
+Voir le [guide OAuth](oauth.md) § 4 pour le détail et le dépannage.
+
 ## Claude Code
 
 > **Connexion OAuth bloquée pour une installation neuve du plugin** : le
@@ -141,6 +156,74 @@ La méthode est utilisable sans le plugin. La gestion et le retrait dépendent
 du client et de la portée choisie par skills ; vérifier npx skills --help et
 la liste des installations avant de supprimer un répertoire. Ne pas retirer
 le dossier du dépôt de développement à la place du skill installé.
+
+Le skill vérifie une fois par session si une nouvelle version existe, sans
+interrompre une recherche. L'agent ne doit pas lancer lui-même la mise à jour.
+
+### Mises à jour automatiques (facultatif)
+
+Pour une installation **globale** suivie par le CLI `skills`, créer le fichier
+`.recherche-juridique-update.json` à la racine installée du skill :
+
+~~~json
+{ "automatic": true }
+~~~
+
+Au premier emploi quotidien, le skill lance alors sa mise à jour ciblée. Il
+conserve `profil.md` et `scripts/.env`, et reste silencieux sans nouvelle
+version ou sans réseau. Pour couper ce comportement, remplacer `true` par
+`false` ou supprimer le fichier.
+
+### Copie manuelle
+
+Empaqueter uniquement le dossier `skill/` : noyau, historique, références et
+outillage. Le dossier `vault/` ne fait pas partie du paquet.
+
+~~~powershell
+git clone https://github.com/brissonjo-sudo/droit-francais-skill
+Copy-Item -Recurse droit-francais-skill\skill "$env:USERPROFILE\.claude\skills\recherche-juridique"
+~~~
+
+~~~bash
+git clone https://github.com/brissonjo-sudo/droit-francais-skill
+cp -r droit-francais-skill/skill ~/.claude/skills/recherche-juridique
+~~~
+
+Le champ `name:` de `skill/SKILL.md` doit correspondre au nom du dossier
+d'installation.
+
+## Serveur MCP local
+
+Pour l'auto-hébergement ou le développement. Python, les dépendances et des
+identifiants PISTE sont nécessaires ; ils sont fournis par variables
+d'environnement ou par un `.env` désigné via `LEGIFRANCE_DOTENV`, jamais dans
+un manifeste.
+
+~~~bash
+python -m pip install -r requirements-mcp.txt
+python mcp_server/server.py
+python mcp_server/server.py --transport streamable-http
+docker build -t droit-francais-mcp .
+~~~
+
+Pour qu'un plugin Claude Code installé utilise ce serveur local, remplacer la
+déclaration du `.mcp.json` ; `${CLAUDE_PLUGIN_ROOT}` désigne le dossier du
+plugin installé :
+
+~~~json
+{
+  "mcpServers": {
+    "droit-francais": {
+      "command": "python",
+      "args": ["${CLAUDE_PLUGIN_ROOT}/mcp_server/server.py"]
+    }
+  }
+}
+~~~
+
+Sans identifiants, la méthode reste utilisable ; seuls les outils de
+récupération sont indisponibles. Voir le [guide MCP](mcp-app.md) et le
+[guide de déploiement](deployment.md).
 
 Sources des commandes : [Claude Code](https://code.claude.com/docs/en/discover-plugins),
 [Codex CLI](https://learn.chatgpt.com/docs/developer-commands) et
