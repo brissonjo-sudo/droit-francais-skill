@@ -1,0 +1,180 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 240" width="800" height="240" role="img" aria-labelledby="t d">
+  <title id="t">Droit français</title>
+  <desc id="d">Dessin au trait : une avocate en robe marche, le nez en l'air et le sourire aux lèvres, pendant que quatre lucioles aux couleurs de Claude, ChatGPT, Gemini et Mistral tournent autour de sa tête. Texte : « Quatre lucioles, une seule source : Légifrance. »</desc>
+  <defs>
+    <clipPath id="card"><rect width="800" height="240" rx="18"/></clipPath>
+
+    <!-- trait d'encre tremblé, redessiné en continu -->
+    <filter id="ink" x="-10%" y="-10%" width="120%" height="120%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="1" result="n">
+        <animate attributeName="seed" values="1;4;7" dur="0.36s" calcMode="discrete" repeatCount="indefinite"/>
+      </feTurbulence>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="2.6" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+
+    <radialGradient id="glowClaude"><stop offset="0" stop-color="#D97757" stop-opacity="0.6"/><stop offset="1" stop-color="#D97757" stop-opacity="0"/></radialGradient>
+    <radialGradient id="glowGpt"><stop offset="0" stop-color="#10A37F" stop-opacity="0.55"/><stop offset="1" stop-color="#10A37F" stop-opacity="0"/></radialGradient>
+    <radialGradient id="glowGemini"><stop offset="0" stop-color="#6E7CF0" stop-opacity="0.6"/><stop offset="1" stop-color="#6E7CF0" stop-opacity="0"/></radialGradient>
+    <radialGradient id="glowMistral"><stop offset="0" stop-color="#FF8205" stop-opacity="0.6"/><stop offset="1" stop-color="#FF8205" stop-opacity="0"/></radialGradient>
+    <linearGradient id="geminiFill" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#4285F4"/><stop offset="0.6" stop-color="#9B72CB"/><stop offset="1" stop-color="#D96570"/>
+    </linearGradient>
+
+    <!-- ailes et tête communes à toutes les lucioles -->
+    <g id="wings" stroke="#111" stroke-width="1.2">
+      <ellipse cx="-5" cy="-11" rx="3.2" ry="5" fill="#ffffff" fill-opacity="0.85">
+        <animate attributeName="ry" values="5;1.6;5" dur="0.12s" repeatCount="indefinite"/>
+      </ellipse>
+      <ellipse cx="5" cy="-11" rx="3.2" ry="5" fill="#ffffff" fill-opacity="0.85">
+        <animate attributeName="ry" values="5;1.6;5" dur="0.12s" repeatCount="indefinite"/>
+      </ellipse>
+      <circle cx="0" cy="-9" r="2.6" fill="#111"/>
+      <path d="M-1 -11 l-3 -5 M1 -11 l3 -5" fill="none"/>
+    </g>
+
+    <!-- luciole Claude : étoile orange -->
+    <g id="ff-claude">
+      <circle r="16" fill="url(#glowClaude)"><animate attributeName="r" values="13;18;13" dur="1.4s" repeatCount="indefinite"/></circle>
+      <use href="#wings"/>
+      <circle r="8" fill="#ffffff" stroke="#111" stroke-width="1.2"/>
+      <path d="M2 0L7 0M1.62 1.18L5.66 4.11M0.62 1.9L2.16 6.66M-0.62 1.9L-2.16 6.66M-1.62 1.18L-5.66 4.11M-2 0L-7 0M-1.62 -1.18L-5.66 -4.11M-0.62 -1.9L-2.16 -6.66M0.62 -1.9L2.16 -6.66M1.62 -1.18L5.66 -4.11" stroke="#D97757" stroke-width="2.2" stroke-linecap="round"/>
+    </g>
+
+    <!-- luciole ChatGPT : rosace -->
+    <g id="ff-gpt">
+      <circle r="16" fill="url(#glowGpt)"><animate attributeName="r" values="13;18;13" dur="1.7s" repeatCount="indefinite"/></circle>
+      <use href="#wings"/>
+      <circle r="8" fill="#ffffff" stroke="#111" stroke-width="1.2"/>
+      <g fill="none" stroke="#111" stroke-width="1.3">
+        <ellipse cx="0" cy="-2.6" rx="2" ry="4.2"/>
+        <ellipse cx="0" cy="-2.6" rx="2" ry="4.2" transform="rotate(60)"/>
+        <ellipse cx="0" cy="-2.6" rx="2" ry="4.2" transform="rotate(120)"/>
+        <ellipse cx="0" cy="-2.6" rx="2" ry="4.2" transform="rotate(180)"/>
+        <ellipse cx="0" cy="-2.6" rx="2" ry="4.2" transform="rotate(240)"/>
+        <ellipse cx="0" cy="-2.6" rx="2" ry="4.2" transform="rotate(300)"/>
+      </g>
+    </g>
+
+    <!-- luciole Gemini : étincelle à quatre branches -->
+    <g id="ff-gemini">
+      <circle r="16" fill="url(#glowGemini)"><animate attributeName="r" values="13;18;13" dur="1.2s" repeatCount="indefinite"/></circle>
+      <use href="#wings"/>
+      <circle r="8" fill="#ffffff" stroke="#111" stroke-width="1.2"/>
+      <path d="M0 -7 C0.8 -1.8 1.8 -0.8 7 0 C1.8 0.8 0.8 1.8 0 7 C-0.8 1.8 -1.8 0.8 -7 0 C-1.8 -0.8 -0.8 -1.8 0 -7 Z" fill="url(#geminiFill)"/>
+    </g>
+
+    <!-- luciole Mistral / Vibe : M en pixels -->
+    <g id="ff-mistral">
+      <circle r="16" fill="url(#glowMistral)"><animate attributeName="r" values="13;18;13" dur="1.5s" repeatCount="indefinite"/></circle>
+      <use href="#wings"/>
+      <circle r="8.5" fill="#ffffff" stroke="#111" stroke-width="1.2"/>
+      <g transform="translate(-5.5 -5.5)">
+        <rect x="0" y="0" width="2.2" height="2.2" fill="#FFD800"/><rect x="8.8" y="0" width="2.2" height="2.2" fill="#FFD800"/>
+        <rect x="0" y="2.2" width="2.2" height="2.2" fill="#FFAF00"/><rect x="2.2" y="2.2" width="2.2" height="2.2" fill="#FFAF00"/><rect x="6.6" y="2.2" width="2.2" height="2.2" fill="#FFAF00"/><rect x="8.8" y="2.2" width="2.2" height="2.2" fill="#FFAF00"/>
+        <rect x="0" y="4.4" width="2.2" height="2.2" fill="#FF8205"/><rect x="4.4" y="4.4" width="2.2" height="2.2" fill="#FF8205"/><rect x="8.8" y="4.4" width="2.2" height="2.2" fill="#FF8205"/>
+        <rect x="0" y="6.6" width="2.2" height="2.2" fill="#FA500F"/><rect x="8.8" y="6.6" width="2.2" height="2.2" fill="#FA500F"/>
+        <rect x="0" y="8.8" width="2.2" height="2.2" fill="#E10500"/><rect x="8.8" y="8.8" width="2.2" height="2.2" fill="#E10500"/>
+      </g>
+    </g>
+  </defs>
+
+  <g clip-path="url(#card)">
+    <rect width="800" height="240" fill="#ffffff"/>
+
+    <!-- sol -->
+    <g filter="url(#ink)" stroke="#111" stroke-linecap="round" fill="none">
+      <path d="M40 205 C220 202 420 208 760 204" stroke-width="2.2"/>
+      <g stroke-width="2">
+        <path d="M0 214h10M60 214h10M120 214h10M180 214h10M240 214h10M300 214h10M360 214h10M420 214h10M480 214h10M540 214h10M600 214h10M660 214h10M720 214h10M780 214h10M840 214h10"/>
+        <path d="M30 224h6M90 224h6M150 224h6M210 224h6M270 224h6M330 224h6M390 224h6M450 224h6M510 224h6M570 224h6M630 224h6M690 224h6M750 224h6M810 224h6"/>
+        <animateTransform attributeName="transform" type="translate" values="0 0;-60 0" dur="0.9s" repeatCount="indefinite"/>
+      </g>
+    </g>
+
+    <g transform="translate(-50 0)">
+      <!-- ombre -->
+      <ellipse cx="330" cy="206" rx="34" ry="3.5" fill="#e6e6e6"/>
+
+      <!-- l'avocate, au trait -->
+      <g filter="url(#ink)" stroke="#111" stroke-linecap="round" stroke-linejoin="round">
+        <animateTransform attributeName="transform" type="translate" values="0 0;0 -2.5;0 0" dur="0.45s" repeatCount="indefinite"/>
+
+        <!-- jambes -->
+        <g>
+          <line x1="322" y1="165" x2="322" y2="199" stroke-width="3"/>
+          <ellipse cx="327" cy="201" rx="8" ry="3.5" fill="#111"/>
+          <animateTransform attributeName="transform" type="rotate" values="22 322 165;-22 322 165;22 322 165" dur="0.9s" repeatCount="indefinite"/>
+        </g>
+        <g>
+          <line x1="338" y1="165" x2="338" y2="199" stroke-width="3"/>
+          <ellipse cx="343" cy="201" rx="8" ry="3.5" fill="#111"/>
+          <animateTransform attributeName="transform" type="rotate" values="-22 338 165;22 338 165;-22 338 165" dur="0.9s" repeatCount="indefinite"/>
+        </g>
+
+        <!-- bras arrière -->
+        <g>
+          <path d="M318 112 Q306 138 310 158" fill="none" stroke="#2b2b2b" stroke-width="9"/>
+          <circle cx="310" cy="160" r="4.5" fill="#fbe3cf" stroke-width="2"/>
+          <animateTransform attributeName="transform" type="rotate" values="-14 318 112;14 318 112;-14 318 112" dur="0.9s" repeatCount="indefinite"/>
+        </g>
+
+        <!-- robe, épitoge, rabat -->
+        <path d="M316 104 Q330 100 346 104 L358 172 Q331 178 302 172 Z" fill="#2b2b2b" stroke-width="2.5"/>
+        <path d="M322 106 L320 136" fill="none" stroke-width="4"/>
+        <path d="M320 132 L320 142" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+        <rect x="339.5" y="104" width="4.2" height="14" rx="1" fill="#ffffff" stroke-width="1.4"/>
+        <rect x="344.8" y="104" width="4.2" height="14" rx="1" fill="#ffffff" stroke-width="1.4"/>
+
+        <!-- bras avant avec le Code rouge -->
+        <g>
+          <path d="M344 112 Q360 128 366 140" fill="none" stroke="#2b2b2b" stroke-width="9"/>
+          <rect x="358" y="132" width="16" height="22" rx="1.5" fill="#d6322b" stroke-width="2" transform="rotate(-15 366 143)"/>
+          <line x1="361" y1="140" x2="371" y2="138" stroke="#f5c542" stroke-width="1.6"/>
+          <circle cx="367" cy="141" r="4.5" fill="#fbe3cf" stroke-width="2"/>
+          <animateTransform attributeName="transform" type="rotate" values="4 344 112;-4 344 112;4 344 112" dur="0.9s" repeatCount="indefinite"/>
+        </g>
+
+        <!-- tête levée vers les lucioles -->
+        <g transform="rotate(-8 332 100)">
+          <circle cx="313" cy="70" r="7" fill="#4a2f22" stroke-width="2.2"/>
+          <circle cx="332" cy="80" r="19" fill="#fbe3cf" stroke-width="2.5"/>
+          <path d="M314 76 Q312 58 330 60 Q342 60 346 66 Q332 64 322 72 Z" fill="#4a2f22" stroke-width="2.2"/>
+          <path d="M349 75 Q368 80 351 89" fill="#fbe3cf" stroke-width="2.5"/>
+          <path d="M324 80 Q320 84 324 88" fill="none" stroke-width="1.8"/>
+          <path d="M337 67 Q342 63 347 66" fill="none" stroke-width="2"/>
+          <ellipse cx="341" cy="73" rx="2" ry="2.6" fill="#111" stroke="none">
+            <animate attributeName="ry" values="2.6;2.6;0.4;2.6" keyTimes="0;0.9;0.95;1" dur="3.6s" repeatCount="indefinite"/>
+          </ellipse>
+          <circle cx="331" cy="88" r="3.5" fill="#f6a5a5" stroke="none" opacity="0.6"/>
+          <path d="M333 93 Q340 101 348 95" fill="none" stroke-width="2.4"/>
+        </g>
+      </g>
+
+      <!-- les quatre lucioles autour de sa tête -->
+      <g>
+        <g><use href="#ff-claude" transform="scale(1.45)"/><animateTransform attributeName="transform" type="translate" values="0 0;0 -4;0 0" dur="1.1s" repeatCount="indefinite"/></g>
+        <animateMotion dur="7s" begin="0s" repeatCount="indefinite" path="M258 46 a80 14 0 1 1 160 0 a80 14 0 1 1 -160 0"/>
+      </g>
+      <g>
+        <g><use href="#ff-gpt" transform="scale(1.45)"/><animateTransform attributeName="transform" type="translate" values="0 0;0 -4;0 0" dur="1.3s" repeatCount="indefinite"/></g>
+        <animateMotion dur="8.5s" begin="-3s" repeatCount="indefinite" path="M270 44 a66 12 0 1 0 132 0 a66 12 0 1 0 -132 0"/>
+      </g>
+      <g>
+        <g><use href="#ff-gemini" transform="scale(1.45)"/><animateTransform attributeName="transform" type="translate" values="0 0;0 -4;0 0" dur="0.9s" repeatCount="indefinite"/></g>
+        <animateMotion dur="6.2s" begin="-3.1s" repeatCount="indefinite" path="M250 50 a90 12 0 1 1 180 0 a90 12 0 1 1 -180 0"/>
+      </g>
+      <g>
+        <g><use href="#ff-mistral" transform="scale(1.45)"/><animateTransform attributeName="transform" type="translate" values="0 0;0 -4;0 0" dur="1.2s" repeatCount="indefinite"/></g>
+        <animateMotion dur="7.6s" begin="-5.7s" repeatCount="indefinite" path="M278 42 a56 10 0 1 0 112 0 a56 10 0 1 0 -112 0"/>
+      </g>
+    </g>
+
+    <!-- la chute, au lettrage manuscrit -->
+    <g filter="url(#ink)" fill="#111" font-family="'Segoe Print', 'Chalkboard SE', 'Comic Sans MS', 'Comic Neue', cursive">
+      <text x="450" y="92" font-size="24">Quatre lucioles,</text>
+      <text x="450" y="124" font-size="24">une seule source :</text>
+      <text x="450" y="166" font-size="32" font-weight="700">Légifrance.</text>
+      <path d="M452 178 Q550 185 650 174" fill="none" stroke="#d6322b" stroke-width="3.5" stroke-linecap="round"/>
+    </g>
+  </g>
+</svg>
