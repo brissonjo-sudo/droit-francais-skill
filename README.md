@@ -176,7 +176,7 @@ publications signées au Journal officiel font foi. Voir les
 
 | Composant | État au 25 octobre 2026 | Détail |
 |---|---|---|
-| Skill | 3.5.1, publié (étiquette `skill-v3.5.1`) | Méthode stable, installable seule |
+| Skill | 3.6.0, publié (étiquette `skill-v3.6.0`) | Méthode stable, installable seule |
 | Service hébergé | Douze outils exposés au connecteur Claude | Connexion OAuth vérifiée dans claude.ai |
 | Plugins Claude Code et Codex | Candidat 0.9.0, non publié | OAuth Claude Code et ChatGPT en cours ([#88](https://github.com/brissonjo-sudo/droit-francais-skill/issues/88), [#89](https://github.com/brissonjo-sudo/droit-francais-skill/issues/89)) |
 

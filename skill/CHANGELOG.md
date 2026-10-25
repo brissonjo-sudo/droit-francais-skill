@@ -137,7 +137,7 @@ Ce numéro local ne vaut ni tag Git, ni publication, ni service distant mis à j
 
 ### [3.6.0] — 2026-10-21
 
-Préparation locale de la méthodologie ; aucune publication ni mesure modèle.
+Publiée le 2026-10-25 (étiquette `skill-v3.6.0`) ; aucune mesure modèle.
 Les dates de vérification juridique embarquées ne sont pas actualisées par cette refonte.
 
 #### Modifié
