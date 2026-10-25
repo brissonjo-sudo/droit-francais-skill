@@ -55,7 +55,7 @@ ENV_EXAMPLE = ROOT / "skill" / "scripts" / ".env.example"
 JOURNAUX = {"docs/roadmap-chatgpt-plugin.md", "skill/CHANGELOG.md"}
 
 #: Répertoires sans prose opposable : wikilinks Obsidian, copies de travail.
-EXCLUDE_DIRS = {".git", ".claude", ".venv", "vault", "__pycache__"}
+EXCLUDE_DIRS = {".git", ".claude", ".venv", "vault", "__pycache__", "node_modules"}
 
 ANNOTATIONS = ("readOnlyHint", "destructiveHint", "openWorldHint")
 
@@ -76,6 +76,8 @@ def documents() -> list[Path]:
     for chemin in ROOT.rglob("*.md"):
         parts = chemin.relative_to(ROOT).parts
         if any(part in EXCLUDE_DIRS for part in parts):
+            continue
+        if parts[:3] == ("tests", "bench", "runs"):
             continue
         if chemin.relative_to(ROOT).as_posix() in JOURNAUX:
             continue
@@ -109,6 +111,9 @@ def noms_env_connus() -> set[str]:
     fichiers = [f for base in sources for f in base.rglob("*.py")]
     fichiers += [ENV_EXAMPLE, ROOT / "Dockerfile"]
     for chemin in fichiers:
+        parts = chemin.relative_to(ROOT).parts
+        if any(part in EXCLUDE_DIRS for part in parts) or parts[:3] == ("tests", "bench", "runs"):
+            continue
         if chemin.exists():
             connus.update(ENV_RE.findall(chemin.read_text(encoding="utf-8")))
     return connus

@@ -1,0 +1,54 @@
+{
+  "schema": 2,
+  "series": "utilite-18-modes-20261010",
+  "repetitions": 2,
+  "bras": [
+    "A",
+    "B",
+    "C",
+    "D"
+  ],
+  "limite_reponses_jour": 100,
+  "pilote_modes": [
+    1,
+    3,
+    5,
+    18
+  ],
+  "familles": [
+    {
+      "nom": "claude",
+      "modele_demande": "",
+      "executable": "",
+      "raisonnement": "reglage_a_qualifier",
+      "auth": "abonnement",
+      "moteur": "cli-native"
+    },
+    {
+      "nom": "codex",
+      "modele_demande": "",
+      "executable": "",
+      "raisonnement": "reglage_a_qualifier",
+      "auth": "abonnement",
+      "moteur": "cli-native"
+    },
+    {
+      "nom": "gemini",
+      "modele_demande": "",
+      "executable": "",
+      "raisonnement": "reglage_a_qualifier",
+      "auth": "cle_api_gratuite",
+      "moteur": "gemini-rest-v2",
+      "gemini_registre": "",
+      "gemini_profil": ""
+    }
+  ],
+  "ablation": {
+    "max_modes": 6,
+    "repetitions": 2,
+    "statut": "apres_analyse_principale"
+  },
+  "ordre_collecte": "cas_repetitions_familles_entrelaces_v2",
+  "max_tentatives_par_identite": 2,
+  "timeout_s": 300
+}
