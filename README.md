@@ -1,6 +1,6 @@
 [🇫🇷 Français](README.md) | [🇬🇧 English](README.en.md)
 
-<p align="center"><img src="assets/banner.svg" width="800" alt="Une avocate en robe marche le nez en l'air, entourée de six lucioles aux couleurs de Claude, ChatGPT, Gemini, Mistral, Grok et Perplexity, à côté d'un tribunal pavoisé. Six lucioles, une seule source : Légifrance."></p>
+<p align="center"><img src="assets/banner.svg" width="800" alt="Dessin au trait : un policier municipal, une avocate en robe autour de la tête de laquelle tournent six lucioles aux couleurs de Claude, ChatGPT, Gemini, Mistral, Grok et Perplexity, et un étudiant en droit qui révise, à côté d'un tribunal pavoisé. Six lucioles, une seule source : Légifrance."></p>
 
 # Droit français — recherche juridique vérifiée
 
