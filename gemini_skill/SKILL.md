@@ -1,6 +1,6 @@
 ---
 name: recherche-juridique
-description: Méthodologie rigoureuse de recherche en droit français et européen — sources primaires officielles, vérification de vigueur et d'applicabilité temporelle, citations traçables et détection d'antinomies. À activer pour toute analyse, consultation, rédaction d'acte, audit de document ou vérification de droit français.
+description: Aide à la recherche juridique en droit français.
 metadata:
   version: 3.6.0-gemini
   base_version: 3.6.0
@@ -175,7 +175,7 @@ Chaque référence normative ou jurisprudentielle est restituée avec ses métad
 - **Identifiant officiel** : `LEGIARTI...` ou `JORFTEXT...` (récupéré dans la session)
 - **Vigueur** : version du [JJ/MM/AAAA] au [JJ/MM/AAAA ou en cours]
 - **Applicabilité au cas** : appréciée au [JJ/MM/AAAA] (`as_of`)
-- **Lien canonique** : https://www.legifrance.gouv.fr/...
+- **Lien canonique** : [lien Légifrance de la version citée]
 
 ### Jurisprudence associée
 - **Juridiction** : [juridiction], [formation], [date]
