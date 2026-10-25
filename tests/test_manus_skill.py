@@ -22,8 +22,16 @@ class ManusSkillTests(unittest.TestCase):
             for path in MANUS.rglob("*.md")
         }
 
-    def test_exact_abstention_reserve_is_present(self):
-        self.assertIn("Source non confirmée — abstention sur ce point.", self.skill)
+    def test_provenance_marker_of_core_is_present(self):
+        self.assertIn("⚠️ non vérifié — identifiant non récupéré", self.skill)
+        self.assertNotIn("Source non confirmée — abstention sur ce point.", self.skill)
+
+    def test_profiles_match_core(self):
+        core = sorted((ROOT / "skill" / "profils").glob("*.md"))
+        self.assertTrue(core)
+        for source in core:
+            with self.subTest(profil=source.name):
+                self.assertEqual((MANUS / "profils" / source.name).read_bytes(), source.read_bytes())
 
     def test_applicability_field_is_present(self):
         self.assertIn("applicable_at_as_of_date", self.skill)
