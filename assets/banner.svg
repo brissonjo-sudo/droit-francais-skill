@@ -209,7 +209,7 @@
         </g>
       </g>
 
-      <!-- les quatre lucioles autour de sa tête -->
+      <!-- les six lucioles autour de sa tête -->
       <g>
         <g><use href="#ff-claude" transform="scale(1.45)"/><animateTransform attributeName="transform" type="translate" values="0 0;0 -4;0 0" dur="1.1s" repeatCount="indefinite"/></g>
         <animateMotion dur="7s" begin="0s" repeatCount="indefinite" path="M258 46 a80 14 0 1 1 160 0 a80 14 0 1 1 -160 0"/>
