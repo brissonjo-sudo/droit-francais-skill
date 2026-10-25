@@ -1,6 +1,6 @@
 [🇫🇷 Français](README.md) | [🇬🇧 English](README.en.md)
 
-<p align="center"><img src="assets/banner.svg" width="800" alt="Un petit robot assistant et une avocate en robe marchent main dans la main devant un palais de justice"></p>
+<p align="center"><img src="assets/banner.svg" width="800" alt="Une avocate en robe marche le nez en l'air, entourée de quatre lucioles aux couleurs de Claude, ChatGPT, Gemini et Mistral. Quatre lucioles, une seule source : Légifrance."></p>
 
 # Droit français — recherche juridique vérifiée
 
