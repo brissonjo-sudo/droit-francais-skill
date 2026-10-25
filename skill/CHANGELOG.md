@@ -11,6 +11,93 @@ conservés tels quels pour ne pas casser les liens publiés.
 
 ---
 
+### [3.6.0-vibe] — 2026-10-24
+
+Préparation locale de la déclinaison Vibe, sans publication ni recette réelle.
+
+- Noyau court aligné sur la 3.6.0 : neuf étapes, DOC-AUDIT 3.5.0,
+  fraîcheur 3.5.1 et citations internes par nom et section.
+- Onze références et profils du noyau repris mot pour mot, seuls renvois
+  d'en-tête DOC-AUDIT et modules adaptés ; script conservé comme source
+  documentaire pour les liens, sans intégration native supposée.
+- Outils natifs conservés ; maintenance du CLI skills sans objet sur cette
+  plateforme, aucun updater annoncé. Dates de vérification du noyau conservées.
+- Tests de parité, provenance, routage et limites de plateforme ajoutés.
+
+### [3.6.0-grok] — 2026-10-24
+
+Préparation locale de la déclinaison Grok, sans publication ni recette réelle.
+
+- Noyau court aligné sur la 3.6.0 : neuf étapes, DOC-AUDIT 3.5.0,
+  fraîcheur 3.5.1 et citations internes par nom et section.
+- Onze références et profils du noyau repris mot pour mot, seuls renvois
+  d'en-tête DOC-AUDIT et modules adaptés ; script conservé comme source
+  documentaire pour les liens, sans intégration native supposée.
+- Outils natifs conservés ; maintenance du CLI skills sans objet sur cette
+  plateforme, aucun updater annoncé. Dates de vérification du noyau conservées.
+- Tests de parité, provenance, routage et limites de plateforme ajoutés.
+
+### [Non publié — Gemini : portage 3.3.0 → 3.5.1] — 2026-10-21
+
+- `gemini_skill/SKILL.md` réécrit sur la base 3.5.1 (structure de la
+  déclinaison Manus 3.5.0) : principes P1–P7 reformulés, procédure en huit
+  étapes, voie spéciale DOC-AUDIT (exécution forcée d'office, montants
+  répressifs, porte de clôture), historique d'article outillé et états
+  `VIGUEUR_DIFF` / `ABROGE_DIFF` / `_MORT_NE`, citations internes sans lien.
+  Les intitulés des quatre voies Gemini sont conservés ; la voie 1 liste les
+  douze outils MCP.
+- `gemini_skill/references/` : `audit-documentaire.md` et `modes-erreur.md`
+  ajoutés, `modules.md` et `sources-autorisees.md` alignés sur la 3.5.x.
+- `gemini_agent` : prompt système en v3.5.1 ; ses fonctions-outils restent des
+  squelettes non branchés, désormais signalés comme tels dans le skill.
+- `tests/test_gemini_skill.py` : versions 3.5.1, couverture du catalogue MCP
+  (preuve par mutation), états de version et nouvelles références.
+
+### [Non publié — Manus : douze outils MCP] — 2026-10-21
+
+- `manus_skill/SKILL.md` et `README.md` : le tableau du connecteur passe de six
+  à douze outils, paramètres réels de `mcp_server/server.py` ; `search_case_law`
+  limité à l'ordre judiciaire, choix de l'outil selon l'ordre de juridiction,
+  `get_article_history` pour la fraîcheur. Base Manus inchangée (3.5.0).
+- `tests/test_manus_skill.py` : chaque nom de `mcp_server/catalog.py` doit
+  figurer dans la section MCP et le README (preuve par mutation).
+
+### [Non publié — numéros suffixés et historique d'article] — 2026-10-21
+
+- Correctif : les numéros d'article gardent l'espace officielle (« L80 A »,
+  « 200 quater A ») ; la forme compacte reste tentée en second. `search`
+  reconnaît ces suffixes sans prendre « C. civ. » pour un suffixe. Alias LPF
+  et CGI ajoutés.
+- Nouvel outil MCP `get_article_history` : versions d'un article
+  (`consult/getArticle`) jointes à leurs textes modificateurs
+  (`chrono/textCidAndElementCid`), version applicable à la date évaluée.
+  `modifications_available` signale l'absence de chronologie amont.
+- Contrat vérifié par appels réels le 21/10/2026 (inventaire des 68 points
+  d'accès Légifrance).
+
+### [Non publié — Conseil constitutionnel et juridictions financières] — 2026-10-21
+
+- Nouveaux outils MCP `search_constitutional_decisions` (fonds CONSTIT, filtre
+  `qpc`, `dc`, `l`) et `search_financial_case_law` (fonds JUFI, filtre
+  `ccomptes`, `crtc`, `caf`, `cdbf`). Même mécanique que CETAT : titre,
+  facette `DATE_DECISION`, tri `DATE_DESC`, lecture `/consult/juri`.
+- `fetch` lit `CONSTEXT` et `JUFITEXT`. Liste blanche étendue : `demandeur`
+  n'est pas non plus recopié. Métadonnées `nature` et `solution` ajoutées ;
+  `lebon_publication` devient `publication`, commune aux trois fonds.
+- Contrat vérifié par appels réels le 21/10/2026.
+
+### [Non publié — jurisprudence administrative] — 2026-10-21
+
+- Nouvel outil MCP `search_admin_case_law` : fonds Légifrance CETAT (Conseil
+  d'État, cours administratives d'appel, Tribunal des conflits ; tribunaux
+  administratifs en sélection antérieure à 2010). Filtres `ce`, `caa`, `ta`,
+  `tc` par le titre, dates via la facette `DATE_DECISION`, tri `DATE_DESC`.
+- `fetch` lit les identifiants `CETATEXT` via `/consult/juri`. Les champs
+  `rapporteur`, `commissaire` et `avocats` ne sont jamais recopiés dans les
+  métadonnées (CJA art. L10) ; le texte intégral reste inaltéré.
+- Contrat vérifié par appels réels le 21/10/2026 ; tests hors réseau et sonde
+  live adaptés. Aucun déploiement.
+
 ### [Non publié — extension MCP] — 2026-10-04
 
 Préparation de livraison : candidat plugin 0.9.0, manifestes et serveur alignés.
@@ -27,6 +114,55 @@ Ce numéro local ne vaut ni tag Git, ni publication, ni service distant mis à j
   de livraison, `pip-audit` a identifié PyJWT 2.14.0 : passage épinglé à 2.15.0
   (GHSA-42vr-xj54-vc7v), avec test de non-régression hors réseau. Premier
   candidat conservé comme preuve non libératoire ; nouveau candidat à qualifier.
+
+### [3.6.0] — 2026-10-21
+
+Préparation locale de la méthodologie ; aucune publication ni mesure modèle.
+Les dates de vérification juridique embarquées ne sont pas actualisées par cette refonte.
+
+#### Modifié
+- Noyau raccourci ; développements conservés dans trois nouvelles références et
+  huit références enrichies, avec routage conditionnel et contrôle des 337 unités.
+- Arbitrage de routage : l'ordre normé de l'étape 2 fait foi (MCP officiel
+  disponible, sinon script, puis web officiel, enfin abstention). P1 y renvoie
+  sans annoncer le script comme prioritaire sur un MCP disponible.
+- Renvois aux modules, notamment « module PÉNAL §6 », corrigés vers §5.
+- Manifeste du paquet d'instructions disponible hors réseau ; les bras du banc
+  et les consommateurs mono-document ne sont pas modifiés.
+
+#### Ajouté
+- Les gabarits imposent de citer les fichiers de skill ou de référence par le
+  nom du skill et la section, sans lien Markdown ni chemin relatif ou absolu.
+  Les liens sont réservés aux sources officielles.
+
+### [3.5.1] — 2026-10-21
+
+PATCH : ajustements de référence et clarifications, sans nouveau principe,
+module, technique ni déclencheur (`maintenance.md` §5).
+
+#### Modifié
+- **Historique d'article outillé** : l'étape 3 (fraîcheur) et la technique T3
+  (archéologie textuelle) citent la voie outillée `get_article_history` du
+  connecteur MCP — versions datées, textes modificateurs, version applicable.
+  Lecture des états `VIGUEUR_DIFF` (vacatio legis), `ABROGE_DIFF` (abrogation
+  programmée) et `_MORT_NE` (jamais en vigueur, à ne jamais citer) ;
+  `modifications_available: false` ne prouve pas l'absence de modification.
+  L'outil ne dispense ni des dispositions transitoires ni des QPC ; à défaut
+  de l'outil, voie de repli explicite (bornes de version de la lecture
+  d'article, fiche Légifrance).
+- `checklist-vigueur.md` point 5 et `gabarits-requetes.md` §11 : voie
+  outillée en premier, fiche Légifrance en repli.
+- **Citations internes** : les gabarits imposent de citer les fichiers de skill
+  ou de référence par le nom du skill et la section, sans lien Markdown ni
+  chemin relatif ou absolu. Les liens sont réservés aux sources officielles.
+
+#### Note
+- Le module partagé `scripts/droit_francais/` évolue pour le serveur MCP
+  (entrées « Non publié » ci-dessus) ; le script autonome `legifrance.py` n'en
+  dépend pas et ne change pas de comportement.
+- États vérifiés par appel réel le 21/10/2026 (CGI art. 200 quater A).
+- Test fonctionnel `maintenance.md` §7 : quatre requêtes témoins passées le
+  21/10/2026 ; la voie de repli ci-dessus en est issue.
 
 ### [3.5.0] — 2026-09-14
 

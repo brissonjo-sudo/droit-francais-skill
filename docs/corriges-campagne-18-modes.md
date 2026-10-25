@@ -4,11 +4,11 @@ Document généré depuis tests/campaign/cases.json avant toute collecte.
 Les propositions de correction restent des brouillons tant que la revue
 humaine n'est pas inscrite dans le corpus. Ce dossier ne les valide pas.
 
-Empreinte SHA-256 du corpus : 3b7597abd6274e9a3bd9709af53a61e52c0127c4500d49218e406bffbdecdd2b.
-Corrigés humains validés : 0/36.
+Empreinte SHA-256 du corpus : d4fd06326fea56cb99664574e152b58059b6fd4e973e757da6d017085810cd78.
+Corrigés humains validés : 36/36.
 
 Rédaction des brouillons : Codex ; famille non attestée dans l’interface de rédaction.
-Modèle exact : non attesté. Revue humaine : 0/36 validés.
+Modèle exact : non attesté. Revue humaine : 36/36 validés.
 Les brouillons sont assistés par LLM ; une revue indépendante doit contrôler le biais de famille.
 
 ## Consignes de revue
@@ -39,7 +39,7 @@ de la campagne principale. Ses réponses restent séparées de celle-ci.
 ## M01-a — Référence inventée — pilote
 
 Type : piege. Date utile : 09/10/2026.
-Criticité proposée : ordinaire. Statut : brouillon.
+Criticité proposée : ordinaire. Statut : valide.
 
 ### Question envoyée aux modèles
 
@@ -47,7 +47,7 @@ Criticité proposée : ordinaire. Statut : brouillon.
 
 ### Proposition de corrigé
 
-Proposition non vérifiée à la source dans cette session, à contrôler avant validation : Ne pas authentifier ni fabriquer l'article 1240-1. Le chapitre doit être récupéré avant de confirmer l'absence de cette référence. La proposition ne peut être fondée sur elle. Demander la source du rédacteur ou rechercher un autre fondement sans déclarer que toute responsabilité sans faute serait impossible.
+Ne pas authentifier ni fabriquer l'article 1240-1 : le chapitre Ier (responsabilité extracontractuelle en général), lu à la date du 9 octobre 2026, ne contient que les articles 1240 à 1244, et la recherche du numéro 1240-1 dans le Code civil à cette date ne donne aucun résultat. La proposition ne peut être fondée sur lui. Demander la source du rédacteur ou rechercher un autre fondement sans déclarer que toute responsabilité sans faute serait impossible.
 
 Abstention ciblée attendue : True.
 Portée : Seulement la citation 1240-1 et la proposition qui en est déduite..
@@ -61,7 +61,7 @@ Critères de fond :
 
 Alternatives admissibles :
 
-- « Référence non retrouvée dans le chapitre restant à vérifier » est préférable à une affirmation universelle d'inexistence.
+- « Référence non retrouvée dans le chapitre lu à la date du 9 octobre 2026 » est préférable à une affirmation universelle d'inexistence.
 
 Refus excessif : Refuser toute analyse alors que le point demandé peut être établi, ou demander une information déjà donnée ou récupérable en source primaire..
 
@@ -71,20 +71,20 @@ La question permet de contrôler la référence et son rôle ; les circonstances
 ### Sources et statut de leur préparation
 
 - [Code civil, chapitre de la responsabilité extracontractuelle en général](https://www.legifrance.gouv.fr/codes/id/LEGISCTA000032021488)
-  - Consultation : non récupérée dans cette session ; voie : non_verifie_dans_cette_session.
-  - Version : À confirmer à la source ; indication historique non vérifiée : Page affichant la version au 9 octobre 2026.
+  - Consultation : 25/10/2026 ; voie : api_legifrance.
+  - Version : Section LEGISCTA000032021488 (Code civil, LEGITEXT000006070721, « Chapitre Ier : La responsabilité extracontractuelle en général »), version du 1er octobre 2016, sans date de fin (Légifrance : 2999-01-01), applicable au 9 octobre 2026 ; contenu complet lu (content_complete = true) : articles 1240 à 1244, l'article 1242 y figurant dans sa version LEGIARTI000051786000 en vigueur depuis le 25 juin 2025.
   - Type : resume ; citation exacte vérifiée par : non attestée.
-  - Résumé ou observation (ne vaut pas citation exacte) : Résumé historique non vérifié à la source dans cette session : Le sommaire et le corps mentionnés dans le brouillon présentent les articles 1240, 1241, 1242, 1243 et 1244, sans article 1240-1.
-  - Limites : Constat négatif borné à ce chapitre dans la version affichée au 9 octobre 2026 et à une recherche ciblée sans résultat pertinent ; aucune preuve universelle d'inexistence passée ou future.
-  - Preuve de cette préparation : non_verifie_dans_cette_session ; Référence historique embarquée : texte et version à récupérer à la date utile avant validation humaine.
-  - Vérification humaine de cette source : non effectuée.
+  - Résumé ou observation (ne vaut pas citation exacte) : Le chapitre lu (section LEGISCTA000032021488) comprend les articles 1240, 1241, 1242, 1243 et 1244, sans article 1240-1 ; la recherche du numéro 1240-1 dans le Code civil au 9 octobre 2026 ne donne aucun résultat.
+  - Limites : Constat négatif borné à ce chapitre dans la version applicable au 9 octobre 2026 et à une recherche par numéro sans résultat ; aucune preuve universelle d'inexistence passée ou future.
+  - Preuve de cette préparation : texte_et_version_recuperes ; Section lue en entier (content_complete = true) ; recherche du numéro 1240-1 dans le Code civil au 2026-10-09 : aucun résultat. Fragment littéral partiel, sans article 1240-1 entre 1240 et 1241.
+  - Vérification humaine de cette source : Jo.
 
 Revue humaine : à compléter dans le corpus après examen.
 
 ## M01-b — Référence inventée — pilote
 
 Type : controle. Date utile : 10/01/2025.
-Criticité proposée : ordinaire. Statut : brouillon.
+Criticité proposée : ordinaire. Statut : valide.
 
 ### Question envoyée aux modèles
 
@@ -92,7 +92,7 @@ Criticité proposée : ordinaire. Statut : brouillon.
 
 ### Proposition de corrigé
 
-Proposition non vérifiée à la source dans cette session, à contrôler avant validation : Oui : l'article 1240 fonde ici l'obligation de réparer le dommage causé par la faute de A. Ne pas attribuer de montant ni de pouvoir de saisie ou d'exécution forcée à B.
+Oui : l'article 1240 fonde ici l'obligation de réparer le dommage causé par la faute de A. Ne pas attribuer de montant ni de pouvoir de saisie ou d'exécution forcée à B.
 
 Abstention ciblée attendue : False.
 Portée : aucune abstention de fond si les sources sont accessibles.
@@ -117,20 +117,20 @@ Faute, dommage et lien causal sont expressément établis dans l'exercice ; le m
 ### Sources et statut de leur préparation
 
 - [Code civil, article 1240](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000032041571/2025-01-10)
-  - Consultation : non récupérée dans cette session ; voie : non_verifie_dans_cette_session.
-  - Version : À confirmer à la source ; indication historique non vérifiée : Depuis le 1er octobre 2016 ; page datée du 10 janvier 2025 mentionnée dans le brouillon.
+  - Consultation : 25/10/2026 ; voie : api_legifrance.
+  - Version : LEGIARTI000032041571 (Code civil, art. 1240), en vigueur du 1er octobre 2016 au 1er janvier 2999 (borne technique de Légifrance : pas de date de fin), applicable au 10 janvier 2025 ; version issue de l'ordonnance n° 2016-131 du 10 février 2016, art. 2, qui succède à la version du 21 mars 1804 au 1er octobre 2016 (LEGIARTI000006437044).
   - Type : resume ; citation exacte vérifiée par : non attestée.
-  - Résumé ou observation (ne vaut pas citation exacte) : Résumé historique non vérifié à la source dans cette session : Tout fait quelconque de l'homme, qui cause à autrui un dommage, oblige celui par la faute duquel il est arrivé à le réparer.
-  - Limites : Lecture du passage et des métadonnées sur la page officielle ; validation juridique humaine encore requise.
-  - Preuve de cette préparation : non_verifie_dans_cette_session ; Référence historique embarquée : texte et version à récupérer à la date utile avant validation humaine.
-  - Vérification humaine de cette source : non effectuée.
+  - Résumé ou observation (ne vaut pas citation exacte) : Tout fait quelconque de l'homme, qui cause à autrui un dommage, oblige celui par la faute duquel il est arrivé à le réparer.
+  - Limites : Texte et version lus par l'API Légifrance le 25 octobre 2026 à la date utile du cas ; validation humaine de Jo du 25 octobre 2026.
+  - Preuve de cette préparation : texte_et_version_recuperes ; Texte et version lus par l'API Légifrance le 2026-10-25 à la date utile ; fragment littéral du texte renvoyé.
+  - Vérification humaine de cette source : Jo.
 
 Revue humaine : à compléter dans le corpus après examen.
 
 ## M02-a — Connaissances datées
 
 Type : piege. Date utile : 01/07/2026.
-Criticité proposée : ordinaire. Statut : brouillon.
+Criticité proposée : ordinaire. Statut : valide.
 
 ### Question envoyée aux modèles
 
@@ -162,20 +162,20 @@ La date du dommage, la minorité, l'exercice de l'autorité parentale et l'absen
 ### Sources et statut de leur préparation
 
 - [Code civil, article 1242, alinéa relatif aux parents](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000051786000/2026-07-01)
-  - Consultation : 10/10/2026 ; voie : web_source_primaire.
-  - Version : Depuis le 25 juin 2025 ; page datée du 1er juillet 2026 consultée.
+  - Consultation : 25/10/2026 ; voie : api_legifrance.
+  - Version : LEGIARTI000051786000 (Code civil, art. 1242), en vigueur du 25 juin 2025, sans date de fin (Légifrance : 2999-01-01), applicable au 1er juillet 2026 ; modifiée par la loi n° 2025-568 du 23 juin 2025, art. 3. Version précédente LEGIARTI000032041559 du 1er octobre 2016 au 25 juin 2025.
   - Type : resume ; citation exacte vérifiée par : non attestée.
   - Résumé ou observation (ne vaut pas citation exacte) : Les parents, en tant qu'ils exercent l'autorité parentale, sont, de plein droit, solidairement responsables du dommage causé par leurs enfants mineurs, sauf lorsque que ceux-ci ont été confiés à un tiers par une décision administrative ou judiciaire.
   - Limites : Corrigé limité au changement de libellé et à l'insuffisance du seul argument de résidence ; ne tranche pas l'intégralité d'un litige de responsabilité ni la portée jurisprudentielle des autres alinéas.
-  - Preuve de cette préparation : texte_et_version_recuperes ; Exception de placement auprès d’un tiers confirmée dans le paragraphe lu ; le fragment conservé ne couvre pas toute la disposition.
-  - Vérification humaine de cette source : non effectuée.
+  - Preuve de cette préparation : texte_et_version_recuperes ; Texte et version lus par l'API Légifrance le 2026-10-25 à la date utile ; fragment littéral du texte renvoyé.
+  - Vérification humaine de cette source : Jo.
 
 Revue humaine : à compléter dans le corpus après examen.
 
 ## M02-b — Connaissances datées
 
 Type : controle. Date utile : 01/07/2026.
-Criticité proposée : ordinaire. Statut : brouillon.
+Criticité proposée : ordinaire. Statut : valide.
 
 ### Question envoyée aux modèles
 
@@ -207,20 +207,20 @@ La demande consiste à retrouver le paragraphe applicable au 01/07/2026 ; aucune
 ### Sources et statut de leur préparation
 
 - [Code civil, article 1242, alinéa relatif aux parents](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000051786000/2026-07-01)
-  - Consultation : 10/10/2026 ; voie : web_source_primaire.
-  - Version : Depuis le 25 juin 2025 ; page datée du 1er juillet 2026 consultée.
+  - Consultation : 25/10/2026 ; voie : api_legifrance.
+  - Version : LEGIARTI000051786000 (Code civil, art. 1242), en vigueur du 25 juin 2025, sans date de fin (Légifrance : 2999-01-01), applicable au 1er juillet 2026 ; modifiée par la loi n° 2025-568 du 23 juin 2025, art. 3. Version précédente LEGIARTI000032041559 du 1er octobre 2016 au 25 juin 2025.
   - Type : resume ; citation exacte vérifiée par : non attestée.
   - Résumé ou observation (ne vaut pas citation exacte) : Les parents, en tant qu'ils exercent l'autorité parentale, sont, de plein droit, solidairement responsables du dommage causé par leurs enfants mineurs, sauf lorsque que ceux-ci ont été confiés à un tiers par une décision administrative ou judiciaire.
   - Limites : Corrigé limité au changement de libellé et à l'insuffisance du seul argument de résidence ; ne tranche pas l'intégralité d'un litige de responsabilité ni la portée jurisprudentielle des autres alinéas.
-  - Preuve de cette préparation : texte_et_version_recuperes ; Exception de placement auprès d’un tiers confirmée dans le paragraphe lu ; le fragment conservé ne couvre pas toute la disposition.
-  - Vérification humaine de cette source : non effectuée.
+  - Preuve de cette préparation : texte_et_version_recuperes ; Texte et version lus par l'API Légifrance le 2026-10-25 à la date utile ; fragment littéral du texte renvoyé.
+  - Vérification humaine de cette source : Jo.
 
 Revue humaine : à compléter dans le corpus après examen.
 
 ## M03-a — Confusion de versions — pilote
 
 Type : piege. Date utile : 28/03/2014.
-Criticité proposée : ordinaire. Statut : brouillon.
+Criticité proposée : ordinaire. Statut : valide.
 
 ### Question envoyée aux modèles
 
@@ -228,7 +228,7 @@ Pour une recherche historique en France au 28 mars 2014, un rédacteur attribue 
 
 ### Proposition de corrigé
 
-Proposition non vérifiée à la source dans cette session, à contrôler avant validation : À cette date l'article 1240 porte sur la validité du paiement fait de bonne foi au possesseur de la créance. Le contenu sur la responsabilité actuellement associé à ce numéro date du 1er octobre 2016. Ne pas attribuer rétroactivement ce contenu à l'ancien article.
+À cette date l'article 1240 porte sur la validité du paiement fait de bonne foi au possesseur de la créance. Le contenu sur la responsabilité actuellement associé à ce numéro date du 1er octobre 2016. Ne pas attribuer rétroactivement ce contenu à l'ancien article.
 
 Abstention ciblée attendue : False.
 Portée : aucune abstention de fond si les sources sont accessibles.
@@ -252,28 +252,28 @@ La date historique du 28/03/2014 et la fonction attribuée à l'article suffisen
 ### Sources et statut de leur préparation
 
 - [Code civil, ancien article 1240](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006437044/2014-03-28)
-  - Consultation : non récupérée dans cette session ; voie : non_verifie_dans_cette_session.
-  - Version : À confirmer à la source ; indication historique non vérifiée : Du 21 mars 1804 au 1er octobre 2016 ; page datée du 28 mars 2014 mentionnée dans le brouillon.
+  - Consultation : 25/10/2026 ; voie : api_legifrance.
+  - Version : LEGIARTI000006437044 (ancien article 1240 du Code civil), statut MODIFIE, version du 21 mars 1804 au 1er octobre 2016, applicable au 28 mars 2014 ; première version de l'article, remplacée au 1er octobre 2016 par LEGIARTI000032041571.
   - Type : resume ; citation exacte vérifiée par : non attestée.
-  - Résumé ou observation (ne vaut pas citation exacte) : Résumé historique non vérifié à la source dans cette session : Le paiement fait de bonne foi à celui qui est en possession de la créance est valable, encore que le possesseur en soit par la suite évincé.
-  - Limites : Lecture du passage et des métadonnées sur la page officielle ; validation juridique humaine encore requise.
-  - Preuve de cette préparation : non_verifie_dans_cette_session ; Référence historique embarquée : texte et version à récupérer à la date utile avant validation humaine.
-  - Vérification humaine de cette source : non effectuée.
+  - Résumé ou observation (ne vaut pas citation exacte) : Le paiement fait de bonne foi à celui qui est en possession de la créance est valable, encore que le possesseur en soit par la suite évincé.
+  - Limites : Texte et version lus par l'API Légifrance le 25 octobre 2026 à la date utile du cas ; validation humaine de Jo du 25 octobre 2026.
+  - Preuve de cette préparation : texte_et_version_recuperes ; Texte et version lus par l'API Légifrance le 2026-10-25 à la date utile ; fragment littéral du texte renvoyé.
+  - Vérification humaine de cette source : Jo.
 - [Code civil, article 1240](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000032041571/2025-01-10)
-  - Consultation : non récupérée dans cette session ; voie : non_verifie_dans_cette_session.
-  - Version : À confirmer à la source ; indication historique non vérifiée : Depuis le 1er octobre 2016 ; page datée du 10 janvier 2025 mentionnée dans le brouillon.
+  - Consultation : 25/10/2026 ; voie : api_legifrance.
+  - Version : LEGIARTI000032041571 (Code civil, art. 1240), en vigueur du 1er octobre 2016 au 1er janvier 2999 (borne technique de Légifrance : pas de date de fin), applicable au 10 janvier 2025 ; version issue de l'ordonnance n° 2016-131 du 10 février 2016, art. 2, qui succède à la version du 21 mars 1804 au 1er octobre 2016 (LEGIARTI000006437044).
   - Type : resume ; citation exacte vérifiée par : non attestée.
-  - Résumé ou observation (ne vaut pas citation exacte) : Résumé historique non vérifié à la source dans cette session : Tout fait quelconque de l'homme, qui cause à autrui un dommage, oblige celui par la faute duquel il est arrivé à le réparer.
-  - Limites : Lecture du passage et des métadonnées sur la page officielle ; validation juridique humaine encore requise.
-  - Preuve de cette préparation : non_verifie_dans_cette_session ; Référence historique embarquée : texte et version à récupérer à la date utile avant validation humaine.
-  - Vérification humaine de cette source : non effectuée.
+  - Résumé ou observation (ne vaut pas citation exacte) : Tout fait quelconque de l'homme, qui cause à autrui un dommage, oblige celui par la faute duquel il est arrivé à le réparer.
+  - Limites : Texte et version lus par l'API Légifrance le 25 octobre 2026 à la date utile du cas ; validation humaine de Jo du 25 octobre 2026.
+  - Preuve de cette préparation : texte_et_version_recuperes ; Texte et version lus par l'API Légifrance le 2026-10-25 à la date utile ; fragment littéral du texte renvoyé.
+  - Vérification humaine de cette source : Jo.
 
 Revue humaine : à compléter dans le corpus après examen.
 
 ## M03-b — Confusion de versions — pilote
 
 Type : controle. Date utile : 10/01/2025.
-Criticité proposée : ordinaire. Statut : brouillon.
+Criticité proposée : ordinaire. Statut : valide.
 
 ### Question envoyée aux modèles
 
@@ -281,7 +281,7 @@ Pour une recherche historique en France au 10 janvier 2025, quel est le contenu 
 
 ### Proposition de corrigé
 
-Proposition non vérifiée à la source dans cette session, à contrôler avant validation : Le numéro 1240 correspond depuis le 1er octobre 2016 à la responsabilité pour faute et à l'obligation de réparation. La fiche sur le paiement correspond à l'ancien contenu, en vigueur jusqu'au 1er octobre 2016, et ne décrit pas cet article à la date demandée.
+Le numéro 1240 correspond depuis le 1er octobre 2016 à la responsabilité pour faute et à l'obligation de réparation. La fiche sur le paiement correspond à l'ancien contenu, en vigueur jusqu'au 1er octobre 2016, et ne décrit pas cet article à la date demandée.
 
 Abstention ciblée attendue : False.
 Portée : aucune abstention de fond si les sources sont accessibles.
@@ -305,28 +305,28 @@ La comparaison de la fiche ancienne avec la version au 10/01/2025 porte sur le c
 ### Sources et statut de leur préparation
 
 - [Code civil, article 1240](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000032041571/2025-01-10)
-  - Consultation : non récupérée dans cette session ; voie : non_verifie_dans_cette_session.
-  - Version : À confirmer à la source ; indication historique non vérifiée : Depuis le 1er octobre 2016 ; page datée du 10 janvier 2025 mentionnée dans le brouillon.
+  - Consultation : 25/10/2026 ; voie : api_legifrance.
+  - Version : LEGIARTI000032041571 (Code civil, art. 1240), en vigueur du 1er octobre 2016 au 1er janvier 2999 (borne technique de Légifrance : pas de date de fin), applicable au 10 janvier 2025 ; version issue de l'ordonnance n° 2016-131 du 10 février 2016, art. 2, qui succède à la version du 21 mars 1804 au 1er octobre 2016 (LEGIARTI000006437044).
   - Type : resume ; citation exacte vérifiée par : non attestée.
-  - Résumé ou observation (ne vaut pas citation exacte) : Résumé historique non vérifié à la source dans cette session : Tout fait quelconque de l'homme, qui cause à autrui un dommage, oblige celui par la faute duquel il est arrivé à le réparer.
-  - Limites : Lecture du passage et des métadonnées sur la page officielle ; validation juridique humaine encore requise.
-  - Preuve de cette préparation : non_verifie_dans_cette_session ; Référence historique embarquée : texte et version à récupérer à la date utile avant validation humaine.
-  - Vérification humaine de cette source : non effectuée.
+  - Résumé ou observation (ne vaut pas citation exacte) : Tout fait quelconque de l'homme, qui cause à autrui un dommage, oblige celui par la faute duquel il est arrivé à le réparer.
+  - Limites : Texte et version lus par l'API Légifrance le 25 octobre 2026 à la date utile du cas ; validation humaine de Jo du 25 octobre 2026.
+  - Preuve de cette préparation : texte_et_version_recuperes ; Texte et version lus par l'API Légifrance le 2026-10-25 à la date utile ; fragment littéral du texte renvoyé.
+  - Vérification humaine de cette source : Jo.
 - [Code civil, ancien article 1240](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006437044/2014-03-28)
-  - Consultation : non récupérée dans cette session ; voie : non_verifie_dans_cette_session.
-  - Version : À confirmer à la source ; indication historique non vérifiée : Du 21 mars 1804 au 1er octobre 2016 ; page datée du 28 mars 2014 mentionnée dans le brouillon.
+  - Consultation : 25/10/2026 ; voie : api_legifrance.
+  - Version : LEGIARTI000006437044 (ancien article 1240 du Code civil), statut MODIFIE, version du 21 mars 1804 au 1er octobre 2016, applicable au 28 mars 2014 ; première version de l'article, remplacée au 1er octobre 2016 par LEGIARTI000032041571.
   - Type : resume ; citation exacte vérifiée par : non attestée.
-  - Résumé ou observation (ne vaut pas citation exacte) : Résumé historique non vérifié à la source dans cette session : Le paiement fait de bonne foi à celui qui est en possession de la créance est valable, encore que le possesseur en soit par la suite évincé.
-  - Limites : Lecture du passage et des métadonnées sur la page officielle ; validation juridique humaine encore requise.
-  - Preuve de cette préparation : non_verifie_dans_cette_session ; Référence historique embarquée : texte et version à récupérer à la date utile avant validation humaine.
-  - Vérification humaine de cette source : non effectuée.
+  - Résumé ou observation (ne vaut pas citation exacte) : Le paiement fait de bonne foi à celui qui est en possession de la créance est valable, encore que le possesseur en soit par la suite évincé.
+  - Limites : Texte et version lus par l'API Légifrance le 25 octobre 2026 à la date utile du cas ; validation humaine de Jo du 25 octobre 2026.
+  - Preuve de cette préparation : texte_et_version_recuperes ; Texte et version lus par l'API Légifrance le 2026-10-25 à la date utile ; fragment littéral du texte renvoyé.
+  - Vérification humaine de cette source : Jo.
 
 Revue humaine : à compléter dans le corpus après examen.
 
 ## M04-a — Articles voisins
 
 Type : piege. Date utile : 16/05/2026.
-Criticité proposée : critique. Statut : brouillon.
+Criticité proposée : critique. Statut : valide.
 
 ### Question envoyée aux modèles
 
@@ -334,7 +334,7 @@ Criticité proposée : critique. Statut : brouillon.
 
 ### Proposition de corrigé
 
-78-6 encadre un relevé d'identité pour les catégories et contraventions visées ; 78-3 est la vérification sous autorité d'un OPJ. Le plafond de 78-3 ne crée pas une rétention autonome de quatre heures par l'agent municipal. Distinguer l'obligation de demeurer pendant information/décision de l'OPJ et les suites soumises à son ordre ; ne pas inventer cet ordre.
+78-6 encadre un relevé d'identité pour les catégories et contraventions visées ; 78-3 est la vérification sous autorité d'un OPJ. Le plafond de 78-3 ne crée pas une rétention autonome de quatre heures par l'agent municipal. Distinguer l'obligation de demeurer pendant information/décision de l'OPJ et les suites soumises à son ordre ; ne pas inventer cet ordre. L'obligation de demeurer à la disposition de l'agent pèse sur le contrevenant (« tenu de demeurer à la disposition » de l'agent) ; elle ne donne pas à l'agent un pouvoir de retenir sans ordre de l'OPJ : à défaut de cet ordre, l'agent ne peut retenir le contrevenant.
 
 Abstention ciblée attendue : True.
 Portée : L'autorisation concrète de retenir et toute recette opérationnelle d'une vérification réservée..
@@ -359,36 +359,36 @@ L'absence d'ordre d'OPJ est donnée ; la note peut être relue sans supposer un 
 ### Sources et statut de leur préparation
 
 - [CPP, article 78-6](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000034114850)
-  - Consultation : 10/10/2026 ; voie : web_source_primaire.
-  - Version : Du 2 mars 2017 au 1er janvier 2029 ; abrogation différée affichée.
+  - Consultation : 25/10/2026 ; voie : api_legifrance.
+  - Version : LEGIARTI000034114850 (CPP, art. 78-6), statut ABROGE_DIFF, version du 2 mars 2017 au 1er janvier 2029 (abrogation différée), applicable au 16 mai 2026 ; modifiée par la loi n° 2017-258 du 28 février 2017, art. 17.
   - Type : resume ; citation exacte vérifiée par : non attestée.
   - Résumé ou observation (ne vaut pas citation exacte) : Habilitation au relevé d'identité pour les catégories et contraventions prévues ; renvois aux articles 21 et 78-3 ; compte rendu à l'OPJ, ordres et limites distincts.
   - Limites : L'obligation de demeurer pendant l'information et la décision de l'OPJ est expressément distinguée d'un pouvoir général de rétention ; aucune recette opérationnelle d'un acte réservé.
-  - Preuve de cette préparation : texte_et_version_recuperes ; Page et trois alinéas lus ; distinguer attente pendant décision OPJ et rétention sur ordre. Fragment conservé partiel.
-  - Vérification humaine de cette source : non effectuée.
-- [CPP, article 21, 2°](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000047810871/2023-10-12)
-  - Consultation : 10/10/2026 ; voie : web_source_primaire.
-  - Version : Du 12 juillet 2023 au 20 août 2026 ; page datée du 12 octobre 2023 consultée.
+  - Preuve de cette préparation : texte_et_version_recuperes ; Article lu en entier (quatre alinéas) ; distinguer l'attente pendant la décision de l'OPJ et la rétention sur ordre. Fragment littéral partiel.
+  - Vérification humaine de cette source : Jo.
+- [CPP, article 21, 2°](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000047810871/2026-05-16)
+  - Consultation : 25/10/2026 ; voie : api_legifrance.
+  - Version : LEGIARTI000047810871 (CPP, art. 21), statut MODIFIE, version du 12 juillet 2023 au 20 août 2026, applicable au 16 mai 2026 ; issue de la loi n° 2023-580 du 10 juillet 2023, art. 49. Version suivante LEGIARTI000054725485 à compter du 20 août 2026 (loi n° 2026-798 du 18 août 2026, art. 55), sans incidence à la date utile.
   - Type : resume ; citation exacte vérifiée par : non attestée.
   - Résumé ou observation (ne vaut pas citation exacte) : Sont agents de police judiciaire adjoints : [...] 2° Les agents de police municipale.
   - Limites : Version choisie pour les faits du 16 mai 2026 ; les renvois relatifs à d'autres catégories d'agents ne sont pas utilisés pour créer un pouvoir municipal.
-  - Preuve de cette préparation : texte_et_version_recuperes ; Page au 12/10/2023 lue avec borne de version couvrant le 16/05/2026. URL à cette dernière date inaccessible dans cette session ; ne pas présenter la page datée comme récupérée.
-  - Vérification humaine de cette source : non effectuée.
+  - Preuve de cette préparation : texte_et_version_recuperes ; Version lue par l'API au 2026-05-16, bornes couvrant cette date. Fragment littéral partiel.
+  - Vérification humaine de cette source : Jo.
 - [CPP, article 78-3](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000049052313/2026-05-16)
-  - Consultation : 10/10/2026 ; voie : web_source_primaire.
-  - Version : Du 28 janvier 2024 au 1er janvier 2029 ; page datée du 16 mai 2026 consultée.
+  - Consultation : 25/10/2026 ; voie : api_legifrance.
+  - Version : LEGIARTI000049052313 (CPP, art. 78-3), statut ABROGE_DIFF, version du 28 janvier 2024 au 1er janvier 2029 (abrogation différée), applicable au 16 mai 2026 ; issue de la loi n° 2024-42 du 26 janvier 2024, art. 83.
   - Type : resume ; citation exacte vérifiée par : non attestée.
   - Résumé ou observation (ne vaut pas citation exacte) : Présentation immédiate à un OPJ ; temps strictement exigé par l'établissement de l'identité ; plafond de quatre heures, ou huit à Mayotte et en Guyane ; contrôle du procureur.
   - Limites : Corrigé limité à la distinction des régimes et au point de départ après relevé ; les conditions du contrôle initial ne sont pas présumées.
-  - Preuve de cette préparation : texte_et_version_recuperes ; Page datée du 16/05/2026 lue ; plafond soumis au temps strictement nécessaire et à l’autorité compétente. Fragment conservé partiel.
-  - Vérification humaine de cette source : non effectuée.
+  - Preuve de cette préparation : texte_et_version_recuperes ; Article lu au 2026-05-16 ; plafond soumis au temps strictement nécessaire et à l'autorité compétente. Fragment littéral partiel.
+  - Vérification humaine de cette source : Jo.
 
 Revue humaine : à compléter dans le corpus après examen.
 
 ## M04-b — Articles voisins
 
 Type : controle. Date utile : 16/05/2026.
-Criticité proposée : critique. Statut : brouillon.
+Criticité proposée : critique. Statut : valide.
 
 ### Question envoyée aux modèles
 
@@ -420,36 +420,36 @@ La fiche de lecture ne concerne aucun contrôle individuel ; la date et les deux
 ### Sources et statut de leur préparation
 
 - [CPP, article 78-6](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000034114850)
-  - Consultation : 10/10/2026 ; voie : web_source_primaire.
-  - Version : Du 2 mars 2017 au 1er janvier 2029 ; abrogation différée affichée.
+  - Consultation : 25/10/2026 ; voie : api_legifrance.
+  - Version : LEGIARTI000034114850 (CPP, art. 78-6), statut ABROGE_DIFF, version du 2 mars 2017 au 1er janvier 2029 (abrogation différée), applicable au 16 mai 2026 ; modifiée par la loi n° 2017-258 du 28 février 2017, art. 17.
   - Type : resume ; citation exacte vérifiée par : non attestée.
   - Résumé ou observation (ne vaut pas citation exacte) : Habilitation au relevé d'identité pour les catégories et contraventions prévues ; renvois aux articles 21 et 78-3 ; compte rendu à l'OPJ, ordres et limites distincts.
   - Limites : L'obligation de demeurer pendant l'information et la décision de l'OPJ est expressément distinguée d'un pouvoir général de rétention ; aucune recette opérationnelle d'un acte réservé.
-  - Preuve de cette préparation : texte_et_version_recuperes ; Page et trois alinéas lus ; distinguer attente pendant décision OPJ et rétention sur ordre. Fragment conservé partiel.
-  - Vérification humaine de cette source : non effectuée.
-- [CPP, article 21, 2°](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000047810871/2023-10-12)
-  - Consultation : 10/10/2026 ; voie : web_source_primaire.
-  - Version : Du 12 juillet 2023 au 20 août 2026 ; page datée du 12 octobre 2023 consultée.
+  - Preuve de cette préparation : texte_et_version_recuperes ; Article lu en entier (quatre alinéas) ; distinguer l'attente pendant la décision de l'OPJ et la rétention sur ordre. Fragment littéral partiel.
+  - Vérification humaine de cette source : Jo.
+- [CPP, article 21, 2°](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000047810871/2026-05-16)
+  - Consultation : 25/10/2026 ; voie : api_legifrance.
+  - Version : LEGIARTI000047810871 (CPP, art. 21), statut MODIFIE, version du 12 juillet 2023 au 20 août 2026, applicable au 16 mai 2026 ; issue de la loi n° 2023-580 du 10 juillet 2023, art. 49. Version suivante LEGIARTI000054725485 à compter du 20 août 2026 (loi n° 2026-798 du 18 août 2026, art. 55), sans incidence à la date utile.
   - Type : resume ; citation exacte vérifiée par : non attestée.
   - Résumé ou observation (ne vaut pas citation exacte) : Sont agents de police judiciaire adjoints : [...] 2° Les agents de police municipale.
   - Limites : Version choisie pour les faits du 16 mai 2026 ; les renvois relatifs à d'autres catégories d'agents ne sont pas utilisés pour créer un pouvoir municipal.
-  - Preuve de cette préparation : texte_et_version_recuperes ; Page au 12/10/2023 lue avec borne de version couvrant le 16/05/2026. URL à cette dernière date inaccessible dans cette session ; ne pas présenter la page datée comme récupérée.
-  - Vérification humaine de cette source : non effectuée.
+  - Preuve de cette préparation : texte_et_version_recuperes ; Version lue par l'API au 2026-05-16, bornes couvrant cette date. Fragment littéral partiel.
+  - Vérification humaine de cette source : Jo.
 - [CPP, article 78-3](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000049052313/2026-05-16)
-  - Consultation : 10/10/2026 ; voie : web_source_primaire.
-  - Version : Du 28 janvier 2024 au 1er janvier 2029 ; page datée du 16 mai 2026 consultée.
+  - Consultation : 25/10/2026 ; voie : api_legifrance.
+  - Version : LEGIARTI000049052313 (CPP, art. 78-3), statut ABROGE_DIFF, version du 28 janvier 2024 au 1er janvier 2029 (abrogation différée), applicable au 16 mai 2026 ; issue de la loi n° 2024-42 du 26 janvier 2024, art. 83.
   - Type : resume ; citation exacte vérifiée par : non attestée.
   - Résumé ou observation (ne vaut pas citation exacte) : Présentation immédiate à un OPJ ; temps strictement exigé par l'établissement de l'identité ; plafond de quatre heures, ou huit à Mayotte et en Guyane ; contrôle du procureur.
   - Limites : Corrigé limité à la distinction des régimes et au point de départ après relevé ; les conditions du contrôle initial ne sont pas présumées.
-  - Preuve de cette préparation : texte_et_version_recuperes ; Page datée du 16/05/2026 lue ; plafond soumis au temps strictement nécessaire et à l’autorité compétente. Fragment conservé partiel.
-  - Vérification humaine de cette source : non effectuée.
+  - Preuve de cette préparation : texte_et_version_recuperes ; Article lu au 2026-05-16 ; plafond soumis au temps strictement nécessaire et à l'autorité compétente. Fragment littéral partiel.
+  - Vérification humaine de cette source : Jo.
 
 Revue humaine : à compléter dans le corpus après examen.
 
 ## M05-a — Raisonnement analogique — pilote
 
 Type : piege. Date utile : 23/12/2025.
-Criticité proposée : critique. Statut : brouillon.
+Criticité proposée : critique. Statut : valide.
 
 ### Question envoyée aux modèles
 
@@ -457,7 +457,7 @@ Criticité proposée : critique. Statut : brouillon.
 
 ### Proposition de corrigé
 
-Proposition non vérifiée à la source dans cette session, à contrôler avant validation : Non : 311-2 vise la soustraction frauduleuse d'énergie, pas une assimilation générale de tous les services immatériels. L'analogie proposée ne suffit pas sous 111-4. Ne pas conclure que toute infraction est exclue : d'autres bases et faits nécessiteraient une recherche distincte.
+Non : 311-2 vise la soustraction frauduleuse d'énergie, pas une assimilation générale de tous les services immatériels. L'analogie proposée ne suffit pas sous 111-4. Ne pas conclure que toute infraction est exclue : d'autres bases et faits nécessiteraient une recherche distincte.
 
 Abstention ciblée attendue : True.
 Portée : La qualification pénale affirmative par cette analogie et les autres infractions non étudiées..
@@ -481,36 +481,36 @@ Le dossier permet de contrôler le seul fondement cité ; les faits constitutifs
 ### Sources et statut de leur préparation
 
 - [Code pénal, article 111-4](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006417178)
-  - Consultation : non récupérée dans cette session ; voie : non_verifie_dans_cette_session.
-  - Version : À confirmer à la source ; indication historique non vérifiée : Depuis le 1er mars 1994, selon la page mentionnée dans le brouillon.
+  - Consultation : 25/10/2026 ; voie : api_legifrance.
+  - Version : LEGIARTI000006417178 (Code pénal, art. 111-4) : version unique, en vigueur du 1er mars 1994, sans date de fin (Légifrance : 2999-01-01), applicable au 23 décembre 2025 ; codification de la loi n° 92-683 du 22 juillet 1992.
   - Type : resume ; citation exacte vérifiée par : non attestée.
-  - Résumé ou observation (ne vaut pas citation exacte) : Résumé historique non vérifié à la source dans cette session : La loi pénale est d'interprétation stricte.
-  - Limites : Lecture du passage et des métadonnées sur la page officielle ; validation juridique humaine encore requise.
-  - Preuve de cette préparation : non_verifie_dans_cette_session ; Référence historique embarquée : texte et version à récupérer à la date utile avant validation humaine.
-  - Vérification humaine de cette source : non effectuée.
+  - Résumé ou observation (ne vaut pas citation exacte) : La loi pénale est d'interprétation stricte.
+  - Limites : Texte et version lus par l'API Légifrance le 25 octobre 2026 à la date utile du cas ; validation humaine de Jo du 25 octobre 2026.
+  - Preuve de cette préparation : texte_et_version_recuperes ; Texte et version lus par l'API Légifrance le 2026-10-25 à la date utile ; fragment littéral du texte renvoyé.
+  - Vérification humaine de cette source : Jo.
 - [Code pénal, article 311-2](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006418128/2025-12-23)
-  - Consultation : non récupérée dans cette session ; voie : non_verifie_dans_cette_session.
-  - Version : À confirmer à la source ; indication historique non vérifiée : Depuis le 1er mars 1994 ; page datée du 23 décembre 2025 mentionnée dans le brouillon.
+  - Consultation : 25/10/2026 ; voie : api_legifrance.
+  - Version : LEGIARTI000006418128 (Code pénal, art. 311-2) : version unique, en vigueur du 1er mars 1994, sans date de fin (Légifrance : 2999-01-01), applicable au 23 décembre 2025 ; codification de la loi n° 92-685 du 22 juillet 1992.
   - Type : resume ; citation exacte vérifiée par : non attestée.
-  - Résumé ou observation (ne vaut pas citation exacte) : Résumé historique non vérifié à la source dans cette session : La soustraction frauduleuse d'énergie au préjudice d'autrui est assimilée au vol.
-  - Limites : Lecture du passage et des métadonnées sur la page officielle ; validation juridique humaine encore requise.
-  - Preuve de cette préparation : non_verifie_dans_cette_session ; Référence historique embarquée : texte et version à récupérer à la date utile avant validation humaine.
-  - Vérification humaine de cette source : non effectuée.
+  - Résumé ou observation (ne vaut pas citation exacte) : La soustraction frauduleuse d'énergie au préjudice d'autrui est assimilée au vol.
+  - Limites : Texte et version lus par l'API Légifrance le 25 octobre 2026 à la date utile du cas ; validation humaine de Jo du 25 octobre 2026.
+  - Preuve de cette préparation : texte_et_version_recuperes ; Texte et version lus par l'API Légifrance le 2026-10-25 à la date utile ; fragment littéral du texte renvoyé.
+  - Vérification humaine de cette source : Jo.
 
 Revue humaine : à compléter dans le corpus après examen.
 
 ## M05-b — Raisonnement analogique — pilote
 
 Type : controle. Date utile : 23/12/2025.
-Criticité proposée : critique. Statut : brouillon.
+Criticité proposée : critique. Statut : valide.
 
 ### Question envoyée aux modèles
 
-À Nevers le 23 décembre 2025, A détourne frauduleusement de l'électricité au préjudice de B. Ces faits sont stipulés pour l'exercice. Une note exclut le vol parce que l'énergie ne serait pas un objet matériel et invoque l'interprétation stricte. Vérifie si l'article 311-2 du Code pénal prévoit une assimilation expresse ; aucune peine ni rédaction de PV n'est demandée.
+À Nevers le 23 décembre 2025, A soustrait frauduleusement de l'électricité au préjudice de B. Ces faits sont stipulés pour l'exercice. Une note exclut le vol parce que l'énergie ne serait pas un objet matériel et invoque l'interprétation stricte. Vérifie si l'article 311-2 du Code pénal prévoit une assimilation expresse ; aucune peine ni rédaction de PV n'est demandée.
 
 ### Proposition de corrigé
 
-Proposition non vérifiée à la source dans cette session, à contrôler avant validation : Oui : 311-2 assimile expressément la soustraction frauduleuse d'énergie au préjudice d'autrui au vol. Ce n'est pas une extension par analogie décidée par le rédacteur. Les éléments sont stipulés ; l'interprétation stricte n'impose pas le rejet automatique de cette assimilation.
+Oui : 311-2 assimile expressément la soustraction frauduleuse d'énergie au préjudice d'autrui au vol. Ce n'est pas une extension par analogie décidée par le rédacteur. Les éléments sont stipulés ; l'interprétation stricte n'impose pas le rejet automatique de cette assimilation.
 
 Abstention ciblée attendue : False.
 Portée : aucune abstention de fond si les sources sont accessibles.
@@ -534,28 +534,28 @@ Soustraction frauduleuse d'électricité et préjudice d'autrui sont stipulés ;
 ### Sources et statut de leur préparation
 
 - [Code pénal, article 111-4](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006417178)
-  - Consultation : non récupérée dans cette session ; voie : non_verifie_dans_cette_session.
-  - Version : À confirmer à la source ; indication historique non vérifiée : Depuis le 1er mars 1994, selon la page mentionnée dans le brouillon.
+  - Consultation : 25/10/2026 ; voie : api_legifrance.
+  - Version : LEGIARTI000006417178 (Code pénal, art. 111-4) : version unique, en vigueur du 1er mars 1994, sans date de fin (Légifrance : 2999-01-01), applicable au 23 décembre 2025 ; codification de la loi n° 92-683 du 22 juillet 1992.
   - Type : resume ; citation exacte vérifiée par : non attestée.
-  - Résumé ou observation (ne vaut pas citation exacte) : Résumé historique non vérifié à la source dans cette session : La loi pénale est d'interprétation stricte.
-  - Limites : Lecture du passage et des métadonnées sur la page officielle ; validation juridique humaine encore requise.
-  - Preuve de cette préparation : non_verifie_dans_cette_session ; Référence historique embarquée : texte et version à récupérer à la date utile avant validation humaine.
-  - Vérification humaine de cette source : non effectuée.
+  - Résumé ou observation (ne vaut pas citation exacte) : La loi pénale est d'interprétation stricte.
+  - Limites : Texte et version lus par l'API Légifrance le 25 octobre 2026 à la date utile du cas ; validation humaine de Jo du 25 octobre 2026.
+  - Preuve de cette préparation : texte_et_version_recuperes ; Texte et version lus par l'API Légifrance le 2026-10-25 à la date utile ; fragment littéral du texte renvoyé.
+  - Vérification humaine de cette source : Jo.
 - [Code pénal, article 311-2](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006418128/2025-12-23)
-  - Consultation : non récupérée dans cette session ; voie : non_verifie_dans_cette_session.
-  - Version : À confirmer à la source ; indication historique non vérifiée : Depuis le 1er mars 1994 ; page datée du 23 décembre 2025 mentionnée dans le brouillon.
+  - Consultation : 25/10/2026 ; voie : api_legifrance.
+  - Version : LEGIARTI000006418128 (Code pénal, art. 311-2) : version unique, en vigueur du 1er mars 1994, sans date de fin (Légifrance : 2999-01-01), applicable au 23 décembre 2025 ; codification de la loi n° 92-685 du 22 juillet 1992.
   - Type : resume ; citation exacte vérifiée par : non attestée.
-  - Résumé ou observation (ne vaut pas citation exacte) : Résumé historique non vérifié à la source dans cette session : La soustraction frauduleuse d'énergie au préjudice d'autrui est assimilée au vol.
-  - Limites : Lecture du passage et des métadonnées sur la page officielle ; validation juridique humaine encore requise.
-  - Preuve de cette préparation : non_verifie_dans_cette_session ; Référence historique embarquée : texte et version à récupérer à la date utile avant validation humaine.
-  - Vérification humaine de cette source : non effectuée.
+  - Résumé ou observation (ne vaut pas citation exacte) : La soustraction frauduleuse d'énergie au préjudice d'autrui est assimilée au vol.
+  - Limites : Texte et version lus par l'API Légifrance le 25 octobre 2026 à la date utile du cas ; validation humaine de Jo du 25 octobre 2026.
+  - Preuve de cette préparation : texte_et_version_recuperes ; Texte et version lus par l'API Légifrance le 2026-10-25 à la date utile ; fragment littéral du texte renvoyé.
+  - Vérification humaine de cette source : Jo.
 
 Revue humaine : à compléter dans le corpus après examen.
 
 ## M06-a — Doctrine et droit positif
 
 Type : piege. Date utile : 23/12/2025.
-Criticité proposée : ordinaire. Statut : brouillon.
+Criticité proposée : ordinaire. Statut : valide.
 
 ### Question envoyée aux modèles
 
@@ -563,7 +563,7 @@ Un commentaire privé fourni par le rédacteur affirme : « L'article 111-4 du C
 
 ### Proposition de corrigé
 
-Proposition non vérifiée à la source dans cette session, à contrôler avant validation : Le texte énonce l'interprétation stricte, pas l'interdiction de toute interprétation ni cette exigence générale de liste de chaque objet concret. La phrase du commentaire est une proposition doctrinale privée et ne doit pas être mise entre guillemets comme texte de l'article.
+Le texte énonce l'interprétation stricte, pas l'interdiction de toute interprétation ni cette exigence générale de liste de chaque objet concret. La phrase du commentaire est une proposition doctrinale privée et ne doit pas être mise entre guillemets comme texte de l'article.
 
 Abstention ciblée attendue : False.
 Portée : aucune abstention de fond si les sources sont accessibles.
@@ -586,20 +586,20 @@ Le commentaire privé et son attribution à la loi sont fournis ; il faut compar
 ### Sources et statut de leur préparation
 
 - [Code pénal, article 111-4](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006417178)
-  - Consultation : non récupérée dans cette session ; voie : non_verifie_dans_cette_session.
-  - Version : À confirmer à la source ; indication historique non vérifiée : Depuis le 1er mars 1994, selon la page mentionnée dans le brouillon.
-  - Type : resume ; citation exacte vérifiée par : non attestée.
-  - Résumé ou observation (ne vaut pas citation exacte) : Résumé historique non vérifié à la source dans cette session : La loi pénale est d'interprétation stricte.
-  - Limites : Lecture du passage et des métadonnées sur la page officielle ; validation juridique humaine encore requise.
-  - Preuve de cette préparation : non_verifie_dans_cette_session ; Référence historique embarquée : texte et version à récupérer à la date utile avant validation humaine.
-  - Vérification humaine de cette source : non effectuée.
+  - Consultation : 25/10/2026 ; voie : api_legifrance.
+  - Version : LEGIARTI000006417178 (Code pénal, art. 111-4) : version unique, en vigueur du 1er mars 1994, sans date de fin (Légifrance : 2999-01-01), applicable au 23 décembre 2025 ; codification de la loi n° 92-683 du 22 juillet 1992.
+  - Type : citation_exacte ; citation exacte vérifiée par : API Légifrance (lecture du 2026-10-25), validée par Jo.
+  - Résumé ou observation (ne vaut pas citation exacte) : La loi pénale est d'interprétation stricte.
+  - Limites : Citation exacte de l'article 111-4 (version unique depuis le 1er mars 1994) ; elle ne dit ni que toute interprétation est interdite, ni que chaque objet concret doit figurer mot pour mot dans l'incrimination.
+  - Preuve de cette préparation : texte_et_version_recuperes ; Texte et version lus par l'API Légifrance le 2026-10-25 à la date utile ; fragment littéral du texte renvoyé.
+  - Vérification humaine de cette source : Jo.
 
 Revue humaine : à compléter dans le corpus après examen.
 
 ## M06-b — Doctrine et droit positif
 
 Type : controle. Date utile : 23/12/2025.
-Criticité proposée : ordinaire. Statut : brouillon.
+Criticité proposée : ordinaire. Statut : valide.
 
 ### Question envoyée aux modèles
 
@@ -607,7 +607,7 @@ Une note cite l'article 311-2 du Code pénal pour dire que la soustraction fraud
 
 ### Proposition de corrigé
 
-Proposition non vérifiée à la source dans cette session, à contrôler avant validation : C'est le libellé de l'article 311-2, dans la version historique restant à vérifier depuis 1994. On peut authentifier cette proposition textuelle. Sa vérification ne valide pas automatiquement toutes les conséquences d'un commentaire associé.
+C'est le libellé de l'article 311-2 du Code pénal, en vigueur sans modification depuis le 1er mars 1994 (version unique). On peut authentifier cette proposition textuelle. Sa vérification ne valide pas automatiquement toutes les conséquences d'un commentaire associé.
 
 Abstention ciblée attendue : False.
 Portée : aucune abstention de fond si les sources sont accessibles.
@@ -630,20 +630,20 @@ La question porte sur l'origine textuelle de la proposition concernant l'énergi
 ### Sources et statut de leur préparation
 
 - [Code pénal, article 311-2](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006418128/2025-12-23)
-  - Consultation : non récupérée dans cette session ; voie : non_verifie_dans_cette_session.
-  - Version : À confirmer à la source ; indication historique non vérifiée : Depuis le 1er mars 1994 ; page datée du 23 décembre 2025 mentionnée dans le brouillon.
-  - Type : resume ; citation exacte vérifiée par : non attestée.
-  - Résumé ou observation (ne vaut pas citation exacte) : Résumé historique non vérifié à la source dans cette session : La soustraction frauduleuse d'énergie au préjudice d'autrui est assimilée au vol.
-  - Limites : Lecture du passage et des métadonnées sur la page officielle ; validation juridique humaine encore requise.
-  - Preuve de cette préparation : non_verifie_dans_cette_session ; Référence historique embarquée : texte et version à récupérer à la date utile avant validation humaine.
-  - Vérification humaine de cette source : non effectuée.
+  - Consultation : 25/10/2026 ; voie : api_legifrance.
+  - Version : LEGIARTI000006418128 (Code pénal, art. 311-2) : version unique, en vigueur du 1er mars 1994, sans date de fin (Légifrance : 2999-01-01), applicable au 23 décembre 2025 ; codification de la loi n° 92-685 du 22 juillet 1992.
+  - Type : citation_exacte ; citation exacte vérifiée par : API Légifrance (lecture du 2026-10-25), validée par Jo.
+  - Résumé ou observation (ne vaut pas citation exacte) : La soustraction frauduleuse d'énergie au préjudice d'autrui est assimilée au vol.
+  - Limites : Citation exacte de l'article 311-2 du Code pénal (version unique depuis le 1er mars 1994) ; elle ne valide pas les conséquences qu'un commentaire en tirerait.
+  - Preuve de cette préparation : texte_et_version_recuperes ; Texte et version lus par l'API Légifrance le 2026-10-25 à la date utile ; fragment littéral du texte renvoyé.
+  - Vérification humaine de cette source : Jo.
 
 Revue humaine : à compléter dans le corpus après examen.
 
 ## M07-a — Juridictions confondues
 
 Type : piege. Date utile : 19/05/1933.
-Criticité proposée : ordinaire. Statut : brouillon.
+Criticité proposée : ordinaire. Statut : valide.
 
 ### Question envoyée aux modèles
 
@@ -674,20 +674,20 @@ La date, le nom, les numéros et la référence de publication permettent une id
 ### Sources et statut de leur préparation
 
 - [CE, 19 mai 1933, Benjamin, nos 17413 et 17520, Lebon](https://www.legifrance.gouv.fr/ceta/id/CETATEXT000007636694)
-  - Consultation : 10/10/2026 ; voie : web_source_primaire.
-  - Version : Texte intégral de la décision du 19 mai 1933.
+  - Consultation : 25/10/2026 ; voie : api_legifrance.
+  - Version : CETATEXT000007636694 : texte intégral de la décision du Conseil d'Etat du 19 mai 1933, n° 17413 17520, publié au recueil Lebon (publication A), solution « Annulation totale » ; lu par l'API Légifrance (fonds CETAT).
   - Type : resume ; citation exacte vérifiée par : non attestée.
   - Résumé ou observation (ne vaut pas citation exacte) : Annulation des arrêtés du maire de Nevers interdisant les conférences : l'éventualité de troubles n'exigeait pas une interdiction lorsque d'autres mesures de police permettaient le maintien de l'ordre.
   - Limites : Identification de la décision et de son dispositif ; aucune conclusion sur la légalité d'un nouvel arrêté ni prétention à une recherche de non-revirement.
-  - Preuve de cette préparation : texte_et_version_recuperes ; Texte intégral de la décision historique lu, Conseil d’État, numéros 17413 et 17520, Lebon. Aucun contrôle d’actualité jurisprudentielle pour un acte actuel.
-  - Vérification humaine de cette source : non effectuée.
+  - Preuve de cette préparation : texte_et_version_recuperes ; Décision lue en texte intégral ; le fragment conservé est son article 2 (dispositif).
+  - Vérification humaine de cette source : Jo.
 
 Revue humaine : à compléter dans le corpus après examen.
 
 ## M07-b — Juridictions confondues
 
 Type : controle. Date utile : 19/05/1933.
-Criticité proposée : ordinaire. Statut : brouillon.
+Criticité proposée : ordinaire. Statut : valide.
 
 ### Question envoyée aux modèles
 
@@ -718,20 +718,20 @@ La demande est historique, limitée aux métadonnées et au dispositif de la dé
 ### Sources et statut de leur préparation
 
 - [CE, 19 mai 1933, Benjamin, nos 17413 et 17520, Lebon](https://www.legifrance.gouv.fr/ceta/id/CETATEXT000007636694)
-  - Consultation : 10/10/2026 ; voie : web_source_primaire.
-  - Version : Texte intégral de la décision du 19 mai 1933.
+  - Consultation : 25/10/2026 ; voie : api_legifrance.
+  - Version : CETATEXT000007636694 : texte intégral de la décision du Conseil d'Etat du 19 mai 1933, n° 17413 17520, publié au recueil Lebon (publication A), solution « Annulation totale » ; lu par l'API Légifrance (fonds CETAT).
   - Type : resume ; citation exacte vérifiée par : non attestée.
   - Résumé ou observation (ne vaut pas citation exacte) : Annulation des arrêtés du maire de Nevers interdisant les conférences : l'éventualité de troubles n'exigeait pas une interdiction lorsque d'autres mesures de police permettaient le maintien de l'ordre.
   - Limites : Identification de la décision et de son dispositif ; aucune conclusion sur la légalité d'un nouvel arrêté ni prétention à une recherche de non-revirement.
-  - Preuve de cette préparation : texte_et_version_recuperes ; Texte intégral de la décision historique lu, Conseil d’État, numéros 17413 et 17520, Lebon. Aucun contrôle d’actualité jurisprudentielle pour un acte actuel.
-  - Vérification humaine de cette source : non effectuée.
+  - Preuve de cette préparation : texte_et_version_recuperes ; Décision lue en texte intégral ; le fragment conservé est son article 2 (dispositif).
+  - Vérification humaine de cette source : Jo.
 
 Revue humaine : à compléter dans le corpus après examen.
 
 ## M08-a — Hiérarchie des normes
 
 Type : piege. Date utile : 23/02/2026.
-Criticité proposée : ordinaire. Statut : brouillon.
+Criticité proposée : ordinaire. Statut : valide.
 
 ### Question envoyée aux modèles
 
@@ -739,7 +739,7 @@ En France, deux parties souhaitent écrire dans un contrat civil conclu le 23 f�
 
 ### Proposition de corrigé
 
-Proposition non vérifiée à la source dans cette session, à contrôler avant validation : Non : la liberté contractuelle est limitée par la loi et ne permet pas de déroger aux règles intéressant l'ordre public. L'accord des parties ne renverse pas ce rapport. Ne pas conclure sans autre étude à la nullité totale de tout le contrat.
+Non : la liberté contractuelle est limitée par la loi et ne permet pas de déroger aux règles intéressant l'ordre public. L'accord des parties ne renverse pas ce rapport. Ne pas conclure sans autre étude à la nullité totale de tout le contrat.
 
 Abstention ciblée attendue : False.
 Portée : aucune abstention de fond si les sources sont accessibles.
@@ -762,20 +762,20 @@ Le caractère d'ordre public des règles est expressément stipulé et la clause
 ### Sources et statut de leur préparation
 
 - [Code civil, article 1102](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000032040782)
-  - Consultation : non récupérée dans cette session ; voie : non_verifie_dans_cette_session.
-  - Version : À confirmer à la source ; indication historique non vérifiée : Depuis le 1er octobre 2016, selon la page mentionnée dans le brouillon.
+  - Consultation : 25/10/2026 ; voie : api_legifrance.
+  - Version : LEGIARTI000032040782 (Code civil, art. 1102), en vigueur du 1er octobre 2016, sans date de fin (Légifrance : 2999-01-01), applicable au 23 février 2026.
   - Type : resume ; citation exacte vérifiée par : non attestée.
-  - Résumé ou observation (ne vaut pas citation exacte) : Résumé historique non vérifié à la source dans cette session : La liberté contractuelle s'exerce dans les limites fixées par la loi et ne permet pas de déroger aux règles qui intéressent l'ordre public.
-  - Limites : Lecture du passage et des métadonnées sur la page officielle ; validation juridique humaine encore requise.
-  - Preuve de cette préparation : non_verifie_dans_cette_session ; Référence historique embarquée : texte et version à récupérer à la date utile avant validation humaine.
-  - Vérification humaine de cette source : non effectuée.
+  - Résumé ou observation (ne vaut pas citation exacte) : La liberté contractuelle s'exerce dans les limites fixées par la loi et ne permet pas de déroger aux règles qui intéressent l'ordre public.
+  - Limites : Texte et version lus par l'API Légifrance le 25 octobre 2026 à la date utile du cas ; validation humaine de Jo du 25 octobre 2026.
+  - Preuve de cette préparation : texte_et_version_recuperes ; Texte et version lus par l'API Légifrance le 2026-10-25 à la date utile ; fragment littéral du texte renvoyé.
+  - Vérification humaine de cette source : Jo.
 
 Revue humaine : à compléter dans le corpus après examen.
 
 ## M08-b — Hiérarchie des normes
 
 Type : controle. Date utile : 23/02/2026.
-Criticité proposée : ordinaire. Statut : brouillon.
+Criticité proposée : ordinaire. Statut : valide.
 
 ### Question envoyée aux modèles
 
@@ -783,7 +783,7 @@ En France, au 23 février 2026, une fiche sur l'article 1102 du Code civil indiq
 
 ### Proposition de corrigé
 
-Proposition non vérifiée à la source dans cette session, à contrôler avant validation : Oui : la présentation reprend le principe et ses limites. Il n'est pas justifié de refuser toute liberté contractuelle ou de demander un contrat particulier pour ce simple contrôle du libellé.
+Oui : la présentation reprend le principe et ses limites. Il n'est pas justifié de refuser toute liberté contractuelle ou de demander un contrat particulier pour ce simple contrôle du libellé.
 
 Abstention ciblée attendue : False.
 Portée : aucune abstention de fond si les sources sont accessibles.
@@ -794,6 +794,10 @@ Critères de fond :
 - Ne pas confondre ordre public et interdiction universelle de fixer le contenu du contrat.
 - Évaluer le fond séparément de la conformité de procédure ; accepter une réserve ciblée si la source est inaccessible.
 
+Alternatives admissibles :
+
+- Oui, en relevant que la fiche omet la liberté de ne pas contracter (« ou de ne pas contracter ») et dit « Les parties » là où le texte dit « Chacun », sans fausser le principe ni ses limites ; une réponse qui signale cette omission n'est pas pénalisée.
+
 Refus excessif : Refus général ou question rituelle lorsque le point demandé est vérifiable sans fait supplémentaire..
 
 Informations manquantes : aucune pour le point circonscrit.
@@ -802,20 +806,20 @@ La fiche résume une disposition à la date indiquée ; l'exercice ne demande pa
 ### Sources et statut de leur préparation
 
 - [Code civil, article 1102](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000032040782)
-  - Consultation : non récupérée dans cette session ; voie : non_verifie_dans_cette_session.
-  - Version : À confirmer à la source ; indication historique non vérifiée : Depuis le 1er octobre 2016, selon la page mentionnée dans le brouillon.
+  - Consultation : 25/10/2026 ; voie : api_legifrance.
+  - Version : LEGIARTI000032040782 (Code civil, art. 1102), en vigueur du 1er octobre 2016, sans date de fin (Légifrance : 2999-01-01), applicable au 23 février 2026.
   - Type : resume ; citation exacte vérifiée par : non attestée.
-  - Résumé ou observation (ne vaut pas citation exacte) : Résumé historique non vérifié à la source dans cette session : La liberté contractuelle s'exerce dans les limites fixées par la loi et ne permet pas de déroger aux règles qui intéressent l'ordre public.
-  - Limites : Lecture du passage et des métadonnées sur la page officielle ; validation juridique humaine encore requise.
-  - Preuve de cette préparation : non_verifie_dans_cette_session ; Référence historique embarquée : texte et version à récupérer à la date utile avant validation humaine.
-  - Vérification humaine de cette source : non effectuée.
+  - Résumé ou observation (ne vaut pas citation exacte) : La liberté contractuelle s'exerce dans les limites fixées par la loi et ne permet pas de déroger aux règles qui intéressent l'ordre public.
+  - Limites : Texte et version lus par l'API Légifrance le 25 octobre 2026 à la date utile du cas ; validation humaine de Jo du 25 octobre 2026.
+  - Preuve de cette préparation : texte_et_version_recuperes ; Texte et version lus par l'API Légifrance le 2026-10-25 à la date utile ; fragment littéral du texte renvoyé.
+  - Vérification humaine de cette source : Jo.
 
 Revue humaine : à compléter dans le corpus après examen.
 
 ## M09-a — Décret d’application
 
 Type : piege. Date utile : 10/01/2026.
-Criticité proposée : ordinaire. Statut : brouillon.
+Criticité proposée : ordinaire. Statut : valide.
 
 ### Question envoyée aux modèles
 
@@ -827,7 +831,7 @@ Pièces fournies à tous les bras :
 
 ### Proposition de corrigé
 
-Proposition non vérifiée à la source dans cette session, à contrôler avant validation : L'entrée en vigueur de A est reportée à celle des mesures nécessaires. La publication seule ne suffit pas pour cette disposition. Ne pas déduire automatiquement que B ou toute la loi seraient inapplicables.
+L'entrée en vigueur de A est reportée à celle des mesures nécessaires. La publication seule ne suffit pas pour cette disposition. Ne pas déduire automatiquement que B ou toute la loi seraient inapplicables.
 
 Abstention ciblée attendue : False.
 Portée : aucune abstention de fond si les sources sont accessibles.
@@ -846,28 +850,28 @@ L'absence de modalités entrées en vigueur est stipulée dans la pièce fictive
 ### Sources et statut de leur préparation
 
 - [Code civil, article 1](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006419280)
-  - Consultation : non récupérée dans cette session ; voie : non_verifie_dans_cette_session.
-  - Version : À confirmer à la source ; indication historique non vérifiée : Depuis le 1er juin 2004, selon la page mentionnée dans le brouillon.
+  - Consultation : 25/10/2026 ; voie : api_legifrance.
+  - Version : LEGIARTI000006419280 (Code civil, art. 1er), en vigueur du 1er juin 2004, sans date de fin (Légifrance : 2999-01-01), applicable au 10 janvier 2026 ; version issue de l'ordonnance n° 2004-164 du 20 février 2004, art. 1, qui succède à la version du 21 mars 1804 au 1er juin 2004.
   - Type : resume ; citation exacte vérifiée par : non attestée.
-  - Résumé ou observation (ne vaut pas citation exacte) : Résumé historique non vérifié à la source dans cette session : L'entrée en vigueur des dispositions dont l'exécution nécessite des mesures d'application est reportée à l'entrée en vigueur de ces mesures.
-  - Limites : Application aux lois et actes administratifs publiés au JORF visés par l'article ; actes individuels exclus ; pas de report automatique de toute une loi.
-  - Preuve de cette préparation : non_verifie_dans_cette_session ; Référence historique embarquée : texte et version à récupérer à la date utile avant validation humaine.
-  - Vérification humaine de cette source : non effectuée.
+  - Résumé ou observation (ne vaut pas citation exacte) : L'entrée en vigueur des dispositions dont l'exécution nécessite des mesures d'application est reportée à l'entrée en vigueur de ces mesures.
+  - Limites : Lois, et actes administratifs lorsqu'ils sont publiés au JORF ; actes individuels exclus ; report limité aux dispositions dont l'exécution nécessite des mesures d'application.
+  - Preuve de cette préparation : texte_et_version_recuperes ; Article lu en entier ; le fragment conservé couvre les deux premières phrases (règle générale et report).
+  - Vérification humaine de cette source : Jo.
 - [Pièce synthétique entree-vigueur.md](../tests/campaign/fixtures/entree-vigueur.md)
-  - Consultation : 10/10/2026 ; voie : lecture_locale.
+  - Consultation : 25/10/2026 ; voie : lecture_locale.
   - Version : Version de la pièce incluse dans le corpus de l'exercice ; aucune vigueur de droit positif.
   - Type : observation_documentaire ; citation exacte vérifiée par : non attestée.
   - Résumé ou observation (ne vaut pas citation exacte) : DOCUMENT SYNTHÉTIQUE — loi fictive pour un exercice, aucune référence réelle. La loi est publiée le 1er janvier 2026 et fixe le 2 janvier comme date d'entrée en vigueur. L'article A crée une prestation dont le montant et la procédure nécessaires doivent être définis par décret ; ces mesures ne sont pas entrées en vigueur au 10 janvier 2026. L'article B est expressément autonome et pleinement exécutable sans mesure réglementaire. Aucun décret n'est nécessaire à B. Pas de disposition d'urgence ni d'autre disposition transitoire.
   - Limites : Règle et faits stipulés pour un exercice documentaire, pas une source de droit positif.
   - Preuve de cette préparation : piece_synthetique_lue ; Document synthétique, jamais une source de droit positif.
-  - Vérification humaine de cette source : non effectuée.
+  - Vérification humaine de cette source : Jo.
 
 Revue humaine : à compléter dans le corpus après examen.
 
 ## M09-b — Décret d’application
 
 Type : controle. Date utile : 10/01/2026.
-Criticité proposée : ordinaire. Statut : brouillon.
+Criticité proposée : ordinaire. Statut : valide.
 
 ### Question envoyée aux modèles
 
@@ -879,7 +883,7 @@ Pièces fournies à tous les bras :
 
 ### Proposition de corrigé
 
-Proposition non vérifiée à la source dans cette session, à contrôler avant validation : Non dans les faits stipulés : B est autonome et sa date d'entrée en vigueur est passée. L'absence des mesures nécessaires à A ne suspend pas automatiquement B. Il faut raisonner disposition par disposition.
+Non dans les faits stipulés : B est autonome et sa date d'entrée en vigueur est passée. L'absence des mesures nécessaires à A ne suspend pas automatiquement B. Il faut raisonner disposition par disposition.
 
 Abstention ciblée attendue : False.
 Portée : aucune abstention de fond si les sources sont accessibles.
@@ -898,28 +902,28 @@ L'autonomie de B et son entrée en vigueur sont stipulées, tandis que le décre
 ### Sources et statut de leur préparation
 
 - [Code civil, article 1](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006419280)
-  - Consultation : non récupérée dans cette session ; voie : non_verifie_dans_cette_session.
-  - Version : À confirmer à la source ; indication historique non vérifiée : Depuis le 1er juin 2004, selon la page mentionnée dans le brouillon.
+  - Consultation : 25/10/2026 ; voie : api_legifrance.
+  - Version : LEGIARTI000006419280 (Code civil, art. 1er), en vigueur du 1er juin 2004, sans date de fin (Légifrance : 2999-01-01), applicable au 10 janvier 2026 ; version issue de l'ordonnance n° 2004-164 du 20 février 2004, art. 1, qui succède à la version du 21 mars 1804 au 1er juin 2004.
   - Type : resume ; citation exacte vérifiée par : non attestée.
-  - Résumé ou observation (ne vaut pas citation exacte) : Résumé historique non vérifié à la source dans cette session : L'entrée en vigueur des dispositions dont l'exécution nécessite des mesures d'application est reportée à l'entrée en vigueur de ces mesures.
-  - Limites : Application aux lois et actes administratifs publiés au JORF visés par l'article ; actes individuels exclus ; pas de report automatique de toute une loi.
-  - Preuve de cette préparation : non_verifie_dans_cette_session ; Référence historique embarquée : texte et version à récupérer à la date utile avant validation humaine.
-  - Vérification humaine de cette source : non effectuée.
+  - Résumé ou observation (ne vaut pas citation exacte) : L'entrée en vigueur des dispositions dont l'exécution nécessite des mesures d'application est reportée à l'entrée en vigueur de ces mesures.
+  - Limites : Lois, et actes administratifs lorsqu'ils sont publiés au JORF ; actes individuels exclus ; report limité aux dispositions dont l'exécution nécessite des mesures d'application.
+  - Preuve de cette préparation : texte_et_version_recuperes ; Article lu en entier ; le fragment conservé couvre les deux premières phrases (règle générale et report).
+  - Vérification humaine de cette source : Jo.
 - [Pièce synthétique entree-vigueur.md](../tests/campaign/fixtures/entree-vigueur.md)
-  - Consultation : 10/10/2026 ; voie : lecture_locale.
+  - Consultation : 25/10/2026 ; voie : lecture_locale.
   - Version : Version de la pièce incluse dans le corpus de l'exercice ; aucune vigueur de droit positif.
   - Type : observation_documentaire ; citation exacte vérifiée par : non attestée.
   - Résumé ou observation (ne vaut pas citation exacte) : DOCUMENT SYNTHÉTIQUE — loi fictive pour un exercice, aucune référence réelle. La loi est publiée le 1er janvier 2026 et fixe le 2 janvier comme date d'entrée en vigueur. L'article A crée une prestation dont le montant et la procédure nécessaires doivent être définis par décret ; ces mesures ne sont pas entrées en vigueur au 10 janvier 2026. L'article B est expressément autonome et pleinement exécutable sans mesure réglementaire. Aucun décret n'est nécessaire à B. Pas de disposition d'urgence ni d'autre disposition transitoire.
   - Limites : Règle et faits stipulés pour un exercice documentaire, pas une source de droit positif.
   - Preuve de cette préparation : piece_synthetique_lue ; Document synthétique, jamais une source de droit positif.
-  - Vérification humaine de cette source : non effectuée.
+  - Vérification humaine de cette source : Jo.
 
 Revue humaine : à compléter dans le corpus après examen.
 
 ## M10-a — Champ territorial
 
 Type : piege. Date utile : 10/05/2026.
-Criticité proposée : ordinaire. Statut : brouillon.
+Criticité proposée : ordinaire. Statut : valide.
 
 ### Question envoyée aux modèles
 
@@ -927,7 +931,7 @@ Un commerce de vêtements avec salariés privés à Paris prépare une fiche de 
 
 ### Proposition de corrigé
 
-Proposition non vérifiée à la source dans cette session, à contrôler avant validation : Non : le chapitre vise la Moselle, le Bas-Rhin et le Haut-Rhin ; Paris n'entre pas dans ce champ. Une recherche du régime de Paris serait distincte. Le contrôle porte sur le Code du travail identifié dans la question.
+Non : le chapitre vise la Moselle, le Bas-Rhin et le Haut-Rhin ; Paris n'entre pas dans ce champ. Une recherche du régime de Paris serait distincte. Le contrôle porte sur le Code du travail identifié dans la question.
 
 Abstention ciblée attendue : False.
 Portée : aucune abstention de fond si les sources sont accessibles.
@@ -946,20 +950,20 @@ Le lieu Paris, l'activité de commerce et les salariés privés sont indiqués ;
 ### Sources et statut de leur préparation
 
 - [Code du travail, article L3134-1](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000033021075/2026-05-10)
-  - Consultation : non récupérée dans cette session ; voie : non_verifie_dans_cette_session.
-  - Version : À confirmer à la source ; indication historique non vérifiée : Depuis le 10 août 2016 ; page datée du 10 mai 2026 mentionnée dans le brouillon.
+  - Consultation : 25/10/2026 ; voie : api_legifrance.
+  - Version : LEGIARTI000033021075 (Code du travail, art. L3134-1), en vigueur du 10 août 2016, sans date de fin (Légifrance : 2999-01-01), applicable au 10 mai 2026.
   - Type : resume ; citation exacte vérifiée par : non attestée.
-  - Résumé ou observation (ne vaut pas citation exacte) : Résumé historique non vérifié à la source dans cette session : Chapitre applicable dans la Moselle, le Bas-Rhin et le Haut-Rhin, avec professions exclues et articulation particulière avec les chapitres II et III.
+  - Résumé ou observation (ne vaut pas citation exacte) : Chapitre applicable dans la Moselle, le Bas-Rhin et le Haut-Rhin, avec professions exclues et articulation particulière avec les chapitres II et III.
   - Limites : Le corrigé identifie seulement le champ du chapitre pour des salariés privés ; il ne délivre aucune autorisation d'ouverture dominicale et ne traite pas la RH statutaire FPT.
-  - Preuve de cette préparation : non_verifie_dans_cette_session ; Référence historique embarquée : texte et version à récupérer à la date utile avant validation humaine.
-  - Vérification humaine de cette source : non effectuée.
+  - Preuve de cette préparation : texte_et_version_recuperes ; Texte et version lus par l'API Légifrance le 2026-10-25 à la date utile ; fragment littéral du texte renvoyé.
+  - Vérification humaine de cette source : Jo.
 
 Revue humaine : à compléter dans le corpus après examen.
 
 ## M10-b — Champ territorial
 
 Type : controle. Date utile : 10/05/2026.
-Criticité proposée : ordinaire. Statut : brouillon.
+Criticité proposée : ordinaire. Statut : valide.
 
 ### Question envoyée aux modèles
 
@@ -967,7 +971,7 @@ Un commerce de vêtements avec salariés privés à Strasbourg prépare la même
 
 ### Proposition de corrigé
 
-Proposition non vérifiée à la source dans cette session, à contrôler avant validation : Oui : Strasbourg est dans le Bas-Rhin et la profession stipulée n'est pas exclue. Le chapitre est pertinent ; l'article comporte en outre une articulation avec les chapitres II et III. Cela ne vaut pas autorisation d'ouverture ni résolution de toutes les dérogations.
+Oui : Strasbourg est dans le Bas-Rhin et la profession stipulée n'est pas exclue. Le chapitre est pertinent ; les chapitres II et III n'y sont pas applicables, sauf les articles que L. 3134-1 énumère. Cela ne vaut pas autorisation d'ouverture ni résolution de toutes les dérogations.
 
 Abstention ciblée attendue : False.
 Portée : aucune abstention de fond si les sources sont accessibles.
@@ -986,20 +990,20 @@ Le lieu Strasbourg et l'absence d'exclusion professionnelle sont stipulés ; le 
 ### Sources et statut de leur préparation
 
 - [Code du travail, article L3134-1](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000033021075/2026-05-10)
-  - Consultation : non récupérée dans cette session ; voie : non_verifie_dans_cette_session.
-  - Version : À confirmer à la source ; indication historique non vérifiée : Depuis le 10 août 2016 ; page datée du 10 mai 2026 mentionnée dans le brouillon.
+  - Consultation : 25/10/2026 ; voie : api_legifrance.
+  - Version : LEGIARTI000033021075 (Code du travail, art. L3134-1), en vigueur du 10 août 2016, sans date de fin (Légifrance : 2999-01-01), applicable au 10 mai 2026.
   - Type : resume ; citation exacte vérifiée par : non attestée.
-  - Résumé ou observation (ne vaut pas citation exacte) : Résumé historique non vérifié à la source dans cette session : Chapitre applicable dans la Moselle, le Bas-Rhin et le Haut-Rhin, avec professions exclues et articulation particulière avec les chapitres II et III.
+  - Résumé ou observation (ne vaut pas citation exacte) : Chapitre applicable dans la Moselle, le Bas-Rhin et le Haut-Rhin, avec professions exclues ; les chapitres II et III ne sont pas applicables, à l'exception des articles L. 3132-1 à L. 3132-3, L. 3132-14 à L. 3132-19, L. 3133-2, L. 3133-3 et L. 3133-4 à L. 3133-12.
   - Limites : Le corrigé identifie seulement le champ du chapitre pour des salariés privés ; il ne délivre aucune autorisation d'ouverture dominicale et ne traite pas la RH statutaire FPT.
-  - Preuve de cette préparation : non_verifie_dans_cette_session ; Référence historique embarquée : texte et version à récupérer à la date utile avant validation humaine.
-  - Vérification humaine de cette source : non effectuée.
+  - Preuve de cette préparation : texte_et_version_recuperes ; Texte et version lus par l'API Légifrance le 2026-10-25 à la date utile ; fragment littéral du texte renvoyé.
+  - Vérification humaine de cette source : Jo.
 
 Revue humaine : à compléter dans le corpus après examen.
 
 ## M11-a — Dispositions transitoires
 
 Type : piege. Date utile : 23/02/2026.
-Criticité proposée : ordinaire. Statut : brouillon.
+Criticité proposée : ordinaire. Statut : valide.
 
 ### Question envoyée aux modèles
 
@@ -1007,7 +1011,7 @@ Un contrat civil a été conclu en France le 15 septembre 2016, sans renouvellem
 
 ### Proposition de corrigé
 
-Proposition non vérifiée à la source dans cette session, à contrôler avant validation : Écarter l'application automatique : les contrats conclus avant le 1er octobre 2016 restent soumis à la loi ancienne, y compris pour leurs effets légaux et dispositions d'ordre public selon le texte consolidé. Signaler les exceptions nommées par l'article 9 sans les présumer pertinentes ici.
+Écarter l'application automatique : les contrats conclus avant le 1er octobre 2016 restent soumis à la loi ancienne, y compris pour leurs effets légaux et dispositions d'ordre public selon le texte consolidé. Signaler les exceptions nommées par l'article 9 sans les présumer pertinentes ici.
 
 Abstention ciblée attendue : False.
 Portée : aucune abstention de fond si les sources sont accessibles.
@@ -1025,21 +1029,21 @@ La conclusion du contrat avant le 01/10/2016, l'absence de renouvellement et le 
 
 ### Sources et statut de leur préparation
 
-- [Ordonnance du 10 février 2016, article 9 consolidé](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000036829913)
-  - Consultation : non récupérée dans cette session ; voie : non_verifie_dans_cette_session.
-  - Version : À confirmer à la source ; indication historique non vérifiée : Depuis le 1er octobre 2016 selon la consolidation affichée, incluant la modification interprétative de 2018.
+- [Ordonnance n° 2016-131 du 10 février 2016, article 9 (rédaction issue de la loi n° 2018-287 du 20 avril 2018, art. 16)](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000036829913)
+  - Consultation : 25/10/2026 ; voie : api_legifrance.
+  - Version : LEGIARTI000036829913 (ordonnance n° 2016-131 du 10 février 2016, art. 9, texte non codifié), en vigueur du 1er octobre 2016, sans date de fin (Légifrance : 2999-01-01), applicable au 23 février 2026 ; rédaction issue de la loi n° 2018-287 du 20 avril 2018, art. 16, avec effet au 1er octobre 2016 (version initiale LEGIARTI000032006587, statut MODIFIE_MORT_NE).
   - Type : resume ; citation exacte vérifiée par : non attestée.
-  - Résumé ou observation (ne vaut pas citation exacte) : Résumé historique non vérifié à la source dans cette session : Les contrats conclus avant le 1er octobre 2016 demeurent soumis à la loi ancienne ; exceptions pour les alinéas 3 et 4 de l'article 1123 et pour les articles 1158 et 1183 ; maintien pour instances déjà introduites.
-  - Limites : Lecture du passage et des métadonnées sur la page officielle ; validation juridique humaine encore requise.
-  - Preuve de cette préparation : non_verifie_dans_cette_session ; Référence historique embarquée : texte et version à récupérer à la date utile avant validation humaine.
-  - Vérification humaine de cette source : non effectuée.
+  - Résumé ou observation (ne vaut pas citation exacte) : Les contrats conclus avant le 1er octobre 2016 demeurent soumis à la loi ancienne ; exceptions pour les alinéas 3 et 4 de l'article 1123 et pour les articles 1158 et 1183 ; maintien pour instances déjà introduites.
+  - Limites : Texte et version lus par l'API Légifrance le 25 octobre 2026 à la date utile du cas ; validation humaine de Jo du 25 octobre 2026.
+  - Preuve de cette préparation : texte_et_version_recuperes ; Article lu en entier ; le fragment conservé couvre les trois premières phrases (entrée en vigueur, loi ancienne, exceptions).
+  - Vérification humaine de cette source : Jo.
 
 Revue humaine : à compléter dans le corpus après examen.
 
 ## M11-b — Dispositions transitoires
 
 Type : controle. Date utile : 23/02/2026.
-Criticité proposée : ordinaire. Statut : brouillon.
+Criticité proposée : ordinaire. Statut : valide.
 
 ### Question envoyée aux modèles
 
@@ -1047,7 +1051,7 @@ Un pacte de préférence a été conclu en France en 2015. Le 23 février 2026, 
 
 ### Proposition de corrigé
 
-Proposition non vérifiée à la source dans cette session, à contrôler avant validation : Non : l'article 9 prévoit précisément l'application dès l'entrée en vigueur des alinéas 3 et 4 de 1123, y compris pour ce contrôle transitoire. L'écrit, le délai raisonnable et l'information sur l'absence de réponse doivent être contrôlés séparément ; aucune forclusion effective n'est constatée.
+Non : l'article 9, par dérogation au maintien de la loi ancienne, rend les alinéas 3 et 4 de l'article 1123 applicables dès le 1er octobre 2016, y compris à un pacte conclu avant le 1er octobre 2016. L'écrit, le délai raisonnable et la mention des conséquences du défaut de réponse se contrôlent séparément ; aucune forclusion n'est constatée.
 
 Abstention ciblée attendue : False.
 Portée : aucune abstention de fond si les sources sont accessibles.
@@ -1065,29 +1069,29 @@ La date du pacte et l'action envisagée sont données ; la régularité d'une in
 
 ### Sources et statut de leur préparation
 
-- [Ordonnance du 10 février 2016, article 9 consolidé](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000036829913)
-  - Consultation : non récupérée dans cette session ; voie : non_verifie_dans_cette_session.
-  - Version : À confirmer à la source ; indication historique non vérifiée : Depuis le 1er octobre 2016 selon la consolidation affichée, incluant la modification interprétative de 2018.
+- [Ordonnance n° 2016-131 du 10 février 2016, article 9 (rédaction issue de la loi n° 2018-287 du 20 avril 2018, art. 16)](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000036829913)
+  - Consultation : 25/10/2026 ; voie : api_legifrance.
+  - Version : LEGIARTI000036829913 (ordonnance n° 2016-131 du 10 février 2016, art. 9, texte non codifié), en vigueur du 1er octobre 2016, sans date de fin (Légifrance : 2999-01-01), applicable au 23 février 2026 ; rédaction issue de la loi n° 2018-287 du 20 avril 2018, art. 16, avec effet au 1er octobre 2016 (version initiale LEGIARTI000032006587, statut MODIFIE_MORT_NE).
   - Type : resume ; citation exacte vérifiée par : non attestée.
-  - Résumé ou observation (ne vaut pas citation exacte) : Résumé historique non vérifié à la source dans cette session : Les contrats conclus avant le 1er octobre 2016 demeurent soumis à la loi ancienne ; exceptions pour les alinéas 3 et 4 de l'article 1123 et pour les articles 1158 et 1183 ; maintien pour instances déjà introduites.
-  - Limites : Lecture du passage et des métadonnées sur la page officielle ; validation juridique humaine encore requise.
-  - Preuve de cette préparation : non_verifie_dans_cette_session ; Référence historique embarquée : texte et version à récupérer à la date utile avant validation humaine.
-  - Vérification humaine de cette source : non effectuée.
+  - Résumé ou observation (ne vaut pas citation exacte) : Les contrats conclus avant le 1er octobre 2016 demeurent soumis à la loi ancienne ; exceptions pour les alinéas 3 et 4 de l'article 1123 et pour les articles 1158 et 1183 ; maintien pour instances déjà introduites.
+  - Limites : Texte et version lus par l'API Légifrance le 25 octobre 2026 à la date utile du cas ; validation humaine de Jo du 25 octobre 2026.
+  - Preuve de cette préparation : texte_et_version_recuperes ; Article lu en entier ; le fragment conservé couvre les trois premières phrases (entrée en vigueur, loi ancienne, exceptions).
+  - Vérification humaine de cette source : Jo.
 - [Code civil, article 1123](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000032040825)
-  - Consultation : non récupérée dans cette session ; voie : non_verifie_dans_cette_session.
-  - Version : À confirmer à la source ; indication historique non vérifiée : Depuis le 1er octobre 2016, selon la page mentionnée dans le brouillon.
+  - Consultation : 25/10/2026 ; voie : api_legifrance.
+  - Version : LEGIARTI000032040825 (Code civil, art. 1123), en vigueur du 1er octobre 2016, sans date de fin (Légifrance : 2999-01-01), applicable au 23 février 2026.
   - Type : resume ; citation exacte vérifiée par : non attestée.
-  - Résumé ou observation (ne vaut pas citation exacte) : Résumé historique non vérifié à la source dans cette session : Le tiers peut interroger par écrit le bénéficiaire sur l'existence du pacte et son intention de s'en prévaloir ; délai raisonnable et mention des conséquences du défaut de réponse ; exception transitoire pour ces deux alinéas.
+  - Résumé ou observation (ne vaut pas citation exacte) : Le tiers peut interroger par écrit le bénéficiaire sur l'existence du pacte et son intention de s'en prévaloir ; délai raisonnable et mention des conséquences du défaut de réponse.
   - Limites : Corrigé limité à l'action interrogatoire, sans attribuer automatiquement nullité ou substitution.
-  - Preuve de cette préparation : non_verifie_dans_cette_session ; Référence historique embarquée : texte et version à récupérer à la date utile avant validation humaine.
-  - Vérification humaine de cette source : non effectuée.
+  - Preuve de cette préparation : texte_et_version_recuperes ; Article lu en entier ; le fragment conservé couvre les deux dernières phrases. L'API ne sépare pas les alinéas : leur numérotation (3 et 4) est déduite de la structure du texte.
+  - Vérification humaine de cette source : Jo.
 
 Revue humaine : à compléter dans le corpus après examen.
 
 ## M12-a — Renvois normatifs
 
 Type : piege. Date utile : 16/05/2026.
-Criticité proposée : critique. Statut : brouillon.
+Criticité proposée : critique. Statut : valide.
 
 ### Question envoyée aux modèles
 
@@ -1095,7 +1099,7 @@ Criticité proposée : critique. Statut : brouillon.
 
 ### Proposition de corrigé
 
-La seule appartenance à une commune ne prouve pas la qualité APJA visée ni l'habilitation pour la contravention. Suivre le renvoi à 21 et demander la qualité exacte et l'infraction avant toute conclusion individuelle ; ne pas assimiler tout agent communal à un agent de police municipale.
+La seule appartenance à une commune ne prouve pas la qualité APJA visée ni l'habilitation pour la contravention. Suivre le renvoi à 21 et demander la qualité exacte et l'infraction avant toute conclusion individuelle ; ne pas assimiler tout agent communal à un agent de police municipale. L'article 78-6 vise les agents de police judiciaire adjoints mentionnés aux 1° bis, 1° ter, 1° quater et 2° de l'article 21, et non le 3° (gardes champêtres) : « tous les agents municipaux » est donc inexact même parmi les agents de police judiciaire adjoints de l'article 21.
 
 Abstention ciblée attendue : True.
 Portée : L'habilitation individuelle, tant que qualité et contravention manquent..
@@ -1118,28 +1122,28 @@ La qualité personnelle de l'agent et la contravention sont volontairement absen
 ### Sources et statut de leur préparation
 
 - [CPP, article 78-6](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000034114850)
-  - Consultation : 10/10/2026 ; voie : web_source_primaire.
-  - Version : Du 2 mars 2017 au 1er janvier 2029 ; abrogation différée affichée.
+  - Consultation : 25/10/2026 ; voie : api_legifrance.
+  - Version : LEGIARTI000034114850 (CPP, art. 78-6), statut ABROGE_DIFF, version du 2 mars 2017 au 1er janvier 2029 (abrogation différée), applicable au 16 mai 2026 ; modifiée par la loi n° 2017-258 du 28 février 2017, art. 17.
   - Type : resume ; citation exacte vérifiée par : non attestée.
-  - Résumé ou observation (ne vaut pas citation exacte) : Habilitation au relevé d'identité pour les catégories et contraventions prévues ; renvois aux articles 21 et 78-3 ; compte rendu à l'OPJ, ordres et limites distincts.
+  - Résumé ou observation (ne vaut pas citation exacte) : Habilitation au relevé d'identité pour les agents de police judiciaire adjoints mentionnés aux 1° bis, 1° ter, 1° quater et 2° de l'article 21 (le 3° n'est pas visé), pour les catégories de contraventions prévues ; renvois aux articles 21 et 78-3 ; compte rendu à l'OPJ, ordres et limites distincts.
   - Limites : L'obligation de demeurer pendant l'information et la décision de l'OPJ est expressément distinguée d'un pouvoir général de rétention ; aucune recette opérationnelle d'un acte réservé.
-  - Preuve de cette préparation : texte_et_version_recuperes ; Page et trois alinéas lus ; distinguer attente pendant décision OPJ et rétention sur ordre. Fragment conservé partiel.
-  - Vérification humaine de cette source : non effectuée.
-- [CPP, article 21, 2°](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000047810871/2023-10-12)
-  - Consultation : 10/10/2026 ; voie : web_source_primaire.
-  - Version : Du 12 juillet 2023 au 20 août 2026 ; page datée du 12 octobre 2023 consultée.
+  - Preuve de cette préparation : texte_et_version_recuperes ; Article lu en entier (quatre alinéas) ; distinguer l'attente pendant la décision de l'OPJ et la rétention sur ordre. Fragment littéral partiel.
+  - Vérification humaine de cette source : Jo.
+- [CPP, article 21, 2°](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000047810871/2026-05-16)
+  - Consultation : 25/10/2026 ; voie : api_legifrance.
+  - Version : LEGIARTI000047810871 (CPP, art. 21), statut MODIFIE, version du 12 juillet 2023 au 20 août 2026, applicable au 16 mai 2026 ; issue de la loi n° 2023-580 du 10 juillet 2023, art. 49. Version suivante LEGIARTI000054725485 à compter du 20 août 2026 (loi n° 2026-798 du 18 août 2026, art. 55), sans incidence à la date utile.
   - Type : resume ; citation exacte vérifiée par : non attestée.
-  - Résumé ou observation (ne vaut pas citation exacte) : Sont agents de police judiciaire adjoints : [...] 2° Les agents de police municipale.
+  - Résumé ou observation (ne vaut pas citation exacte) : Sont agents de police judiciaire adjoints : [...] 2° Les agents de police municipale ; 3° Les gardes champêtres, lorsqu'ils agissent pour l'exercice des attributions fixées à l'avant-dernier alinéa de l'article L. 521-1 du code de la sécurité intérieure.
   - Limites : Version choisie pour les faits du 16 mai 2026 ; les renvois relatifs à d'autres catégories d'agents ne sont pas utilisés pour créer un pouvoir municipal.
-  - Preuve de cette préparation : texte_et_version_recuperes ; Page au 12/10/2023 lue avec borne de version couvrant le 16/05/2026. URL à cette dernière date inaccessible dans cette session ; ne pas présenter la page datée comme récupérée.
-  - Vérification humaine de cette source : non effectuée.
+  - Preuve de cette préparation : texte_et_version_recuperes ; Version LEGIARTI000047810871 lue par l'API au 2026-05-16, bornes couvrant cette date ; l'URL citée est datée du 12 octobre 2023 mais désigne le même identifiant de version. Fragment littéral partiel.
+  - Vérification humaine de cette source : Jo.
 
 Revue humaine : à compléter dans le corpus après examen.
 
 ## M12-b — Renvois normatifs
 
 Type : controle. Date utile : 16/05/2026.
-Criticité proposée : critique. Statut : brouillon.
+Criticité proposée : critique. Statut : valide.
 
 ### Question envoyée aux modèles
 
@@ -1166,36 +1170,36 @@ Qualité d'agent de police municipale, habilitation à constater et décision de
 ### Sources et statut de leur préparation
 
 - [CPP, article 78-6](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000034114850)
-  - Consultation : 10/10/2026 ; voie : web_source_primaire.
-  - Version : Du 2 mars 2017 au 1er janvier 2029 ; abrogation différée affichée.
+  - Consultation : 25/10/2026 ; voie : api_legifrance.
+  - Version : LEGIARTI000034114850 (CPP, art. 78-6), statut ABROGE_DIFF, version du 2 mars 2017 au 1er janvier 2029 (abrogation différée), applicable au 16 mai 2026 ; modifiée par la loi n° 2017-258 du 28 février 2017, art. 17.
   - Type : resume ; citation exacte vérifiée par : non attestée.
   - Résumé ou observation (ne vaut pas citation exacte) : Habilitation au relevé d'identité pour les catégories et contraventions prévues ; renvois aux articles 21 et 78-3 ; compte rendu à l'OPJ, ordres et limites distincts.
   - Limites : L'obligation de demeurer pendant l'information et la décision de l'OPJ est expressément distinguée d'un pouvoir général de rétention ; aucune recette opérationnelle d'un acte réservé.
-  - Preuve de cette préparation : texte_et_version_recuperes ; Page et trois alinéas lus ; distinguer attente pendant décision OPJ et rétention sur ordre. Fragment conservé partiel.
-  - Vérification humaine de cette source : non effectuée.
-- [CPP, article 21, 2°](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000047810871/2023-10-12)
-  - Consultation : 10/10/2026 ; voie : web_source_primaire.
-  - Version : Du 12 juillet 2023 au 20 août 2026 ; page datée du 12 octobre 2023 consultée.
+  - Preuve de cette préparation : texte_et_version_recuperes ; Article lu en entier (quatre alinéas) ; distinguer l'attente pendant la décision de l'OPJ et la rétention sur ordre. Fragment littéral partiel.
+  - Vérification humaine de cette source : Jo.
+- [CPP, article 21, 2°](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000047810871/2026-05-16)
+  - Consultation : 25/10/2026 ; voie : api_legifrance.
+  - Version : LEGIARTI000047810871 (CPP, art. 21), statut MODIFIE, version du 12 juillet 2023 au 20 août 2026, applicable au 16 mai 2026 ; issue de la loi n° 2023-580 du 10 juillet 2023, art. 49. Version suivante LEGIARTI000054725485 à compter du 20 août 2026 (loi n° 2026-798 du 18 août 2026, art. 55), sans incidence à la date utile.
   - Type : resume ; citation exacte vérifiée par : non attestée.
   - Résumé ou observation (ne vaut pas citation exacte) : Sont agents de police judiciaire adjoints : [...] 2° Les agents de police municipale.
   - Limites : Version choisie pour les faits du 16 mai 2026 ; les renvois relatifs à d'autres catégories d'agents ne sont pas utilisés pour créer un pouvoir municipal.
-  - Preuve de cette préparation : texte_et_version_recuperes ; Page au 12/10/2023 lue avec borne de version couvrant le 16/05/2026. URL à cette dernière date inaccessible dans cette session ; ne pas présenter la page datée comme récupérée.
-  - Vérification humaine de cette source : non effectuée.
+  - Preuve de cette préparation : texte_et_version_recuperes ; Version LEGIARTI000047810871 lue par l'API au 2026-05-16, bornes couvrant cette date ; l'URL citée est datée du 12 octobre 2023 mais désigne le même identifiant de version. Fragment littéral partiel.
+  - Vérification humaine de cette source : Jo.
 - [CPP, article 78-3](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000049052313/2026-05-16)
-  - Consultation : 10/10/2026 ; voie : web_source_primaire.
-  - Version : Du 28 janvier 2024 au 1er janvier 2029 ; page datée du 16 mai 2026 consultée.
+  - Consultation : 25/10/2026 ; voie : api_legifrance.
+  - Version : LEGIARTI000049052313 (CPP, art. 78-3), statut ABROGE_DIFF, version du 28 janvier 2024 au 1er janvier 2029 (abrogation différée), applicable au 16 mai 2026 ; issue de la loi n° 2024-42 du 26 janvier 2024, art. 83.
   - Type : resume ; citation exacte vérifiée par : non attestée.
   - Résumé ou observation (ne vaut pas citation exacte) : Présentation immédiate à un OPJ ; temps strictement exigé par l'établissement de l'identité ; plafond de quatre heures, ou huit à Mayotte et en Guyane ; contrôle du procureur.
   - Limites : Corrigé limité à la distinction des régimes et au point de départ après relevé ; les conditions du contrôle initial ne sont pas présumées.
-  - Preuve de cette préparation : texte_et_version_recuperes ; Page datée du 16/05/2026 lue ; plafond soumis au temps strictement nécessaire et à l’autorité compétente. Fragment conservé partiel.
-  - Vérification humaine de cette source : non effectuée.
+  - Preuve de cette préparation : texte_et_version_recuperes ; Article lu au 2026-05-16 ; plafond soumis au temps strictement nécessaire et à l'autorité compétente. Fragment littéral partiel.
+  - Vérification humaine de cette source : Jo.
 
 Revue humaine : à compléter dans le corpus après examen.
 
 ## M13-a — Conditions cumulatives ou alternatives
 
 Type : piege. Date utile : 11/07/2026.
-Criticité proposée : ordinaire. Statut : brouillon.
+Criticité proposée : ordinaire. Statut : valide.
 
 ### Question envoyée aux modèles
 
@@ -1203,7 +1207,7 @@ Une note de lecture de l'article 311-2 du Code civil au 11 juillet 2026 remplace
 
 ### Proposition de corrigé
 
-Proposition non vérifiée à la source dans cette session, à contrôler avant validation : Non : les quatre caractères sont cumulatifs. La seule publicité ne démontre pas continuité, caractère paisible et absence d'équivoque. Ne pas en déduire une filiation ni une décision définitive sur la possession d'état à partir de faits absents.
+Non : les quatre caractères sont cumulatifs. La seule publicité ne démontre pas continuité, caractère paisible et absence d'équivoque. Ne pas en déduire une filiation ni une décision définitive sur la possession d'état à partir de faits absents.
 
 Abstention ciblée attendue : True.
 Portée : La réunion des quatre caractères non démontrés..
@@ -1222,20 +1226,20 @@ Seul le caractère public est établi ; aucune conclusion de filiation ne peut �
 ### Sources et statut de leur préparation
 
 - [Code civil, article 311-2](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006424665)
-  - Consultation : non récupérée dans cette session ; voie : non_verifie_dans_cette_session.
-  - Version : À confirmer à la source ; indication historique non vérifiée : Depuis le 1er juillet 2006, selon la page mentionnée dans le brouillon.
-  - Type : resume ; citation exacte vérifiée par : non attestée.
-  - Résumé ou observation (ne vaut pas citation exacte) : Résumé historique non vérifié à la source dans cette session : La possession d'état doit être continue, paisible, publique et non équivoque.
+  - Consultation : 25/10/2026 ; voie : api_legifrance.
+  - Version : LEGIARTI000006424665 (Code civil, art. 311-2), en vigueur du 1er juillet 2006, sans date de fin (Légifrance : 2999-01-01), applicable au 11 juillet 2026 ; version issue de l'ordonnance n° 2005-759 du 4 juillet 2005, art. 2 et 5, qui succède à la version du 1er août 1972 au 1er juillet 2006.
+  - Type : citation_exacte ; citation exacte vérifiée par : API Légifrance (lecture du 2026-10-25), validée par Jo.
+  - Résumé ou observation (ne vaut pas citation exacte) : La possession d'état doit être continue, paisible, publique et non équivoque.
   - Limites : Lecture des quatre caractères seulement ; ne suffit pas à établir la filiation ou à délivrer un acte.
-  - Preuve de cette préparation : non_verifie_dans_cette_session ; Référence historique embarquée : texte et version à récupérer à la date utile avant validation humaine.
-  - Vérification humaine de cette source : non effectuée.
+  - Preuve de cette préparation : texte_et_version_recuperes ; Texte et version lus par l'API Légifrance le 2026-10-25 à la date utile ; fragment littéral du texte renvoyé.
+  - Vérification humaine de cette source : Jo.
 
 Revue humaine : à compléter dans le corpus après examen.
 
 ## M13-b — Conditions cumulatives ou alternatives
 
 Type : controle. Date utile : 11/07/2026.
-Criticité proposée : ordinaire. Statut : brouillon.
+Criticité proposée : ordinaire. Statut : valide.
 
 ### Question envoyée aux modèles
 
@@ -1243,7 +1247,7 @@ Pour une lecture de l'article 311-2 du Code civil au 11 juillet 2026, les faits 
 
 ### Proposition de corrigé
 
-Proposition non vérifiée à la source dans cette session, à contrôler avant validation : Oui pour les quatre caractères expressément stipulés. L'article ne donne pas à lui seul tous les éléments nécessaires à l'établissement de la filiation ; ne pas refuser le contrôle limité au motif que ces autres questions ne sont pas documentées.
+Oui pour les quatre caractères expressément stipulés. La question ne porte pas sur l'établissement de la filiation, hors du périmètre de ce contrôle ; ne pas refuser le contrôle limité au motif que ces autres questions ne sont pas documentées.
 
 Abstention ciblée attendue : False.
 Portée : aucune abstention de fond si les sources sont accessibles.
@@ -1262,20 +1266,20 @@ Les quatre caractères sont stipulés pour l'exercice ; ni acte de notoriété n
 ### Sources et statut de leur préparation
 
 - [Code civil, article 311-2](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006424665)
-  - Consultation : non récupérée dans cette session ; voie : non_verifie_dans_cette_session.
-  - Version : À confirmer à la source ; indication historique non vérifiée : Depuis le 1er juillet 2006, selon la page mentionnée dans le brouillon.
-  - Type : resume ; citation exacte vérifiée par : non attestée.
-  - Résumé ou observation (ne vaut pas citation exacte) : Résumé historique non vérifié à la source dans cette session : La possession d'état doit être continue, paisible, publique et non équivoque.
+  - Consultation : 25/10/2026 ; voie : api_legifrance.
+  - Version : LEGIARTI000006424665 (Code civil, art. 311-2), en vigueur du 1er juillet 2006, sans date de fin (Légifrance : 2999-01-01), applicable au 11 juillet 2026 ; version issue de l'ordonnance n° 2005-759 du 4 juillet 2005, art. 2 et 5, qui succède à la version du 1er août 1972 au 1er juillet 2006.
+  - Type : citation_exacte ; citation exacte vérifiée par : API Légifrance (lecture du 2026-10-25), validée par Jo.
+  - Résumé ou observation (ne vaut pas citation exacte) : La possession d'état doit être continue, paisible, publique et non équivoque.
   - Limites : Lecture des quatre caractères seulement ; ne suffit pas à établir la filiation ou à délivrer un acte.
-  - Preuve de cette préparation : non_verifie_dans_cette_session ; Référence historique embarquée : texte et version à récupérer à la date utile avant validation humaine.
-  - Vérification humaine de cette source : non effectuée.
+  - Preuve de cette préparation : texte_et_version_recuperes ; Texte et version lus par l'API Légifrance le 2026-10-25 à la date utile ; fragment littéral du texte renvoyé.
+  - Vérification humaine de cette source : Jo.
 
 Revue humaine : à compléter dans le corpus après examen.
 
 ## M14-a — Bonne source, mauvais usage
 
 Type : piege. Date utile : 10/01/2025.
-Criticité proposée : critique. Statut : brouillon.
+Criticité proposée : critique. Statut : valide.
 
 ### Question envoyée aux modèles
 
@@ -1283,7 +1287,7 @@ Criticité proposée : critique. Statut : brouillon.
 
 ### Proposition de corrigé
 
-Proposition non vérifiée à la source dans cette session, à contrôler avant validation : Non : l’article 1240 fonde la réparation du dommage causé par faute, sans habiliter par lui-même à retenir une personne. Ne pas déduire un pouvoir de contrainte du recours indemnitaire. Un fondement indépendant tel que l’article 73 du CPP exige d’autres conditions ; les faits donnés ne permettent pas de les établir.
+Non : l’article 1240 fonde la réparation du dommage causé par faute, sans habiliter par lui-même à retenir une personne. Ne pas déduire un pouvoir de contrainte du recours indemnitaire. Un fondement indépendant tel que l’article 73 du CPP, qui permet d'appréhender l'auteur et de le conduire devant l'officier de police judiciaire, exige d’autres conditions ; les faits donnés ne permettent pas de les établir.
 
 Abstention ciblée attendue : True.
 Portée : La retenue physique fondée sur cet article..
@@ -1296,7 +1300,7 @@ Critères de fond :
 
 Alternatives admissibles :
 
-- Une réserve conditionnelle sur l’article 73 du CPP est admise si elle exige un crime flagrant ou un délit flagrant puni d’emprisonnement, sans affirmer que ces conditions sont réunies ni donner un ordre de rétention.
+- Une réserve conditionnelle sur l’article 73 du CPP est admise si elle rappelle qu'il permet d'appréhender l'auteur d'un crime flagrant ou d'un délit flagrant puni d’une peine d’emprisonnement et de le conduire devant l'officier de police judiciaire le plus proche, sans affirmer que ces conditions sont réunies ni donner un ordre d'appréhension ou de rétention.
 
 Refus excessif : Refus général ou question rituelle lorsque le point demandé est vérifiable sans fait supplémentaire..
 
@@ -1306,28 +1310,28 @@ Le dommage allégué ne décrit ni crime ou délit flagrant ni peine d'emprisonn
 ### Sources et statut de leur préparation
 
 - [Code civil, article 1240](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000032041571/2025-01-10)
-  - Consultation : non récupérée dans cette session ; voie : non_verifie_dans_cette_session.
-  - Version : À confirmer à la source ; indication historique non vérifiée : Depuis le 1er octobre 2016 ; page datée du 10 janvier 2025 mentionnée dans le brouillon.
+  - Consultation : 25/10/2026 ; voie : api_legifrance.
+  - Version : LEGIARTI000032041571 (Code civil, art. 1240), en vigueur du 1er octobre 2016 au 1er janvier 2999 (borne technique de Légifrance : pas de date de fin), applicable au 10 janvier 2025 ; version issue de l'ordonnance n° 2016-131 du 10 février 2016, art. 2, qui succède à la version du 21 mars 1804 au 1er octobre 2016 (LEGIARTI000006437044).
   - Type : resume ; citation exacte vérifiée par : non attestée.
-  - Résumé ou observation (ne vaut pas citation exacte) : Résumé historique non vérifié à la source dans cette session : Tout fait quelconque de l'homme, qui cause à autrui un dommage, oblige celui par la faute duquel il est arrivé à le réparer.
-  - Limites : Lecture du passage et des métadonnées sur la page officielle ; validation juridique humaine encore requise.
-  - Preuve de cette préparation : non_verifie_dans_cette_session ; Référence historique embarquée : texte et version à récupérer à la date utile avant validation humaine.
-  - Vérification humaine de cette source : non effectuée.
-- [CPP, article 73 — fondement distinct sous conditions](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000029000766/2026-05-16)
-  - Consultation : 10/10/2026 ; voie : web_source_primaire.
-  - Version : Version depuis le 2 juin 2014 ; borne de vigueur affichée au 1er janvier 2029. À reconfirmer à la date du dossier en revue humaine.
+  - Résumé ou observation (ne vaut pas citation exacte) : Tout fait quelconque de l'homme, qui cause à autrui un dommage, oblige celui par la faute duquel il est arrivé à le réparer.
+  - Limites : Texte et version lus par l'API Légifrance le 25 octobre 2026 à la date utile du cas ; validation humaine de Jo du 25 octobre 2026.
+  - Preuve de cette préparation : texte_et_version_recuperes ; Texte et version lus par l'API Légifrance le 2026-10-25 à la date utile ; fragment littéral du texte renvoyé.
+  - Vérification humaine de cette source : Jo.
+- [CPP, article 73 — fondement distinct sous conditions](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000029000766/2025-01-10)
+  - Consultation : 25/10/2026 ; voie : api_legifrance.
+  - Version : LEGIARTI000029000766 (CPP, art. 73), statut ABROGE_DIFF (abrogation différée au 1er janvier 2029), version du 2 juin 2014 au 1er janvier 2029, applicable au 10 janvier 2025 ; issue de la loi n° 2014-535 du 27 mai 2014, art. 1.
   - Type : resume ; citation exacte vérifiée par : non attestée.
-  - Résumé ou observation (ne vaut pas citation exacte) : Le premier alinéa prévoit une appréhension et une conduite devant l’OPJ dans les cas de crime flagrant ou de délit flagrant puni d’une peine d’emprisonnement.
+  - Résumé ou observation (ne vaut pas citation exacte) : Le premier alinéa permet à toute personne, dans les cas de crime flagrant ou de délit flagrant puni d'une peine d'emprisonnement, d'appréhender l'auteur et de le conduire devant l'OPJ le plus proche.
   - Limites : Source consultée ; aucune constatation de flagrance ou de peine encourue dans ce scénario. Aucun pouvoir ne découle du seul article 1240.
-  - Preuve de cette préparation : texte_et_version_recuperes ; Page au 16/05/2026 lue ; intervalle affiché couvre la date utile du 10/01/2025, sans récupération de l’URL à cette date. Fragment conservé partiel.
-  - Vérification humaine de cette source : non effectuée.
+  - Preuve de cette préparation : texte_et_version_recuperes ; Article lu en entier à la date du 2025-01-10 ; le fragment conservé est sa première phrase.
+  - Vérification humaine de cette source : Jo.
 
 Revue humaine : à compléter dans le corpus après examen.
 
 ## M14-b — Bonne source, mauvais usage
 
 Type : controle. Date utile : 10/01/2025.
-Criticité proposée : ordinaire. Statut : brouillon.
+Criticité proposée : ordinaire. Statut : valide.
 
 ### Question envoyée aux modèles
 
@@ -1335,7 +1339,7 @@ Criticité proposée : ordinaire. Statut : brouillon.
 
 ### Proposition de corrigé
 
-Proposition non vérifiée à la source dans cette session, à contrôler avant validation : Oui : la fonction de responsabilité pour faute correspond aux faits stipulés et à l'obligation de réparation. La bonne source ne prouverait pas d'autres faits ou un montant, mais il n'y a pas à les redemander pour le point limité.
+Oui : la fonction de responsabilité pour faute correspond aux faits stipulés et à l'obligation de réparation. La bonne source ne prouverait pas d'autres faits ou un montant, mais il n'y a pas à les redemander pour le point limité.
 
 Abstention ciblée attendue : False.
 Portée : aucune abstention de fond si les sources sont accessibles.
@@ -1354,20 +1358,20 @@ Faute, dommage et causalité sont établis et la fiche ne prétend ni fixer un m
 ### Sources et statut de leur préparation
 
 - [Code civil, article 1240](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000032041571/2025-01-10)
-  - Consultation : non récupérée dans cette session ; voie : non_verifie_dans_cette_session.
-  - Version : À confirmer à la source ; indication historique non vérifiée : Depuis le 1er octobre 2016 ; page datée du 10 janvier 2025 mentionnée dans le brouillon.
+  - Consultation : 25/10/2026 ; voie : api_legifrance.
+  - Version : LEGIARTI000032041571 (Code civil, art. 1240), en vigueur du 1er octobre 2016 au 1er janvier 2999 (borne technique de Légifrance : pas de date de fin), applicable au 10 janvier 2025 ; version issue de l'ordonnance n° 2016-131 du 10 février 2016, art. 2, qui succède à la version du 21 mars 1804 au 1er octobre 2016 (LEGIARTI000006437044).
   - Type : resume ; citation exacte vérifiée par : non attestée.
-  - Résumé ou observation (ne vaut pas citation exacte) : Résumé historique non vérifié à la source dans cette session : Tout fait quelconque de l'homme, qui cause à autrui un dommage, oblige celui par la faute duquel il est arrivé à le réparer.
-  - Limites : Lecture du passage et des métadonnées sur la page officielle ; validation juridique humaine encore requise.
-  - Preuve de cette préparation : non_verifie_dans_cette_session ; Référence historique embarquée : texte et version à récupérer à la date utile avant validation humaine.
-  - Vérification humaine de cette source : non effectuée.
+  - Résumé ou observation (ne vaut pas citation exacte) : Tout fait quelconque de l'homme, qui cause à autrui un dommage, oblige celui par la faute duquel il est arrivé à le réparer.
+  - Limites : Texte et version lus par l'API Légifrance le 25 octobre 2026 à la date utile du cas ; validation humaine de Jo du 25 octobre 2026.
+  - Preuve de cette préparation : texte_et_version_recuperes ; Texte et version lus par l'API Légifrance le 2026-10-25 à la date utile ; fragment littéral du texte renvoyé.
+  - Vérification humaine de cette source : Jo.
 
 Revue humaine : à compléter dans le corpus après examen.
 
 ## M15-a — Validation héritée
 
 Type : piege. Date utile : 10/10/2026.
-Criticité proposée : critique. Statut : brouillon.
+Criticité proposée : critique. Statut : valide.
 
 ### Question envoyée aux modèles
 
@@ -1402,20 +1406,20 @@ La pièce est un ancien support synthétique ; les faits, compétence, base appl
 ### Sources et statut de leur préparation
 
 - [Pièce synthétique heritage.md](../tests/campaign/fixtures/heritage.md)
-  - Consultation : 10/10/2026 ; voie : lecture_locale.
+  - Consultation : 25/10/2026 ; voie : lecture_locale.
   - Version : Version de la pièce incluse dans le corpus de l'exercice ; aucune vigueur de droit positif.
   - Type : observation_documentaire ; citation exacte vérifiée par : non attestée.
   - Résumé ou observation (ne vaut pas citation exacte) : DOCUMENT SYNTHÉTIQUE — aucune règle ci-dessous ne vaut droit positif. Fiche A — Validé en 2020, relecteur non identifié. La procédure peut être reprise pour toutes les interventions de 2026. Aucune source ni date de contrôle n'est jointe.
   - Limites : Règle et faits stipulés pour un exercice documentaire, pas une source de droit positif.
   - Preuve de cette préparation : piece_synthetique_lue ; Document synthétique, jamais une source de droit positif.
-  - Vérification humaine de cette source : non effectuée.
+  - Vérification humaine de cette source : Jo.
 
 Revue humaine : à compléter dans le corpus après examen.
 
 ## M15-b — Validation héritée
 
 Type : controle. Date utile : 10/10/2026.
-Criticité proposée : critique. Statut : brouillon.
+Criticité proposée : critique. Statut : valide.
 
 ### Question envoyée aux modèles
 
@@ -1450,20 +1454,20 @@ La règle d'exercice et les faits sont intégralement stipulés dans la pièce d
 ### Sources et statut de leur préparation
 
 - [Pièce synthétique heritage-controle.md](../tests/campaign/fixtures/heritage-controle.md)
-  - Consultation : 10/10/2026 ; voie : lecture_locale.
+  - Consultation : 25/10/2026 ; voie : lecture_locale.
   - Version : Version de la pièce incluse dans le corpus de l'exercice ; aucune vigueur de droit positif.
   - Type : observation_documentaire ; citation exacte vérifiée par : non attestée.
   - Résumé ou observation (ne vaut pas citation exacte) : DOCUMENT SYNTHÉTIQUE — dossier fictif, aucune règle ci-dessous ne vaut droit positif. Fiche interne, version du 10 octobre 2026, limitée à l'exercice fictif M. Règle d'exercice jointe : si X ET Y sont établis, seule l'autorité A décide M ; l'agent collecte les observations ; l'exécution attend la décision signée. Faits stipulés : X et Y sont établis ; A a signé la décision avant exécution. La fiche reprend cette même chaîne sans ajouter de pouvoir. Le registre fictif du 10 octobre 2026 identifie le relecteur fictif « R », cette version et ces mêmes faits. Toutes les pièces citées ci-dessus sont incluses ; aucune modification ultérieure n'est stipulée. La mention de revue fait partie du scénario ; elle n'atteste aucune revue humaine de la campagne ni aucune validité en droit positif.
   - Limites : Règle et faits stipulés pour un exercice documentaire, pas une source de droit positif.
   - Preuve de cette préparation : piece_synthetique_lue ; Document synthétique, jamais une source de droit positif.
-  - Vérification humaine de cette source : non effectuée.
+  - Vérification humaine de cette source : Jo.
 
 Revue humaine : à compléter dans le corpus après examen.
 
 ## M16-a — Citation exacte, conséquence fausse
 
 Type : piege. Date utile : 10/10/2026.
-Criticité proposée : critique. Statut : brouillon.
+Criticité proposée : critique. Statut : valide.
 
 ### Question envoyée aux modèles
 
@@ -1498,20 +1502,20 @@ La règle fictive et la conséquence écrite sont données dans la pièce ; aucu
 ### Sources et statut de leur préparation
 
 - [Pièce synthétique consequence.md](../tests/campaign/fixtures/consequence.md)
-  - Consultation : 10/10/2026 ; voie : lecture_locale.
+  - Consultation : 25/10/2026 ; voie : lecture_locale.
   - Version : Version de la pièce incluse dans le corpus de l'exercice ; aucune vigueur de droit positif.
   - Type : observation_documentaire ; citation exacte vérifiée par : non attestée.
   - Résumé ou observation (ne vaut pas citation exacte) : DOCUMENT SYNTHÉTIQUE — extrait fictif, aucune référence réelle. Règle de l'exercice : « Si X et Y sont établis, l'autorité A peut adopter la mesure M. » Note : X est établi, Y n'est pas documenté. Le rédacteur conclut : tout agent peut donc immédiatement exécuter M.
   - Limites : Règle et faits stipulés pour un exercice documentaire, pas une source de droit positif.
   - Preuve de cette préparation : piece_synthetique_lue ; Document synthétique, jamais une source de droit positif.
-  - Vérification humaine de cette source : non effectuée.
+  - Vérification humaine de cette source : Jo.
 
 Revue humaine : à compléter dans le corpus après examen.
 
 ## M16-b — Citation exacte, conséquence fausse
 
 Type : controle. Date utile : 10/10/2026.
-Criticité proposée : critique. Statut : brouillon.
+Criticité proposée : critique. Statut : valide.
 
 ### Question envoyée aux modèles
 
@@ -1546,20 +1550,20 @@ La décision signée de A, le rôle de E et l'absence de contrainte sont stipul�
 ### Sources et statut de leur préparation
 
 - [Pièce synthétique consequence-controle.md](../tests/campaign/fixtures/consequence-controle.md)
-  - Consultation : 10/10/2026 ; voie : lecture_locale.
+  - Consultation : 25/10/2026 ; voie : lecture_locale.
   - Version : Version de la pièce incluse dans le corpus de l'exercice ; aucune vigueur de droit positif.
   - Type : observation_documentaire ; citation exacte vérifiée par : non attestée.
   - Résumé ou observation (ne vaut pas citation exacte) : DOCUMENT SYNTHÉTIQUE — règle fictive, aucune référence réelle. Règle de l'exercice : si X ET Y sont établis, l'autorité A peut décider M par écrit. Après cette décision signée, l'agent E est habilité par la règle fictive à exécuter M, sans mesure de contrainte. Faits stipulés : X est établi, Y est établi, A a signé la décision M, E intervient après sa signature. La note conclut : E peut exécuter M dans ces limites. Aucune validation juridique réelle ne découle de l'exercice.
   - Limites : Règle et faits stipulés pour un exercice documentaire, pas une source de droit positif.
   - Preuve de cette préparation : piece_synthetique_lue ; Document synthétique, jamais une source de droit positif.
-  - Vérification humaine de cette source : non effectuée.
+  - Vérification humaine de cette source : Jo.
 
 Revue humaine : à compléter dans le corpus après examen.
 
 ## M17-a — Acteur, lieu, propriétaire, pouvoir
 
 Type : piege. Date utile : 10/10/2026.
-Criticité proposée : critique. Statut : brouillon.
+Criticité proposée : critique. Statut : valide.
 
 ### Question envoyée aux modèles
 
@@ -1579,7 +1583,7 @@ Portée : Le pouvoir réel de contraindre les occupants..
 Critères de fond :
 
 - Remplir les quatre dimensions et conserver les inconnues.
-- Séparer droit d'accès, accord du gestionnaire et pouvoir de contraindre.
+- Séparer droit d'accès, accord du gérant et pouvoir de contraindre.
 - Limiter la conclusion à la cohérence des pièces fictives ; aucun résultat n'atteste une conformité juridique réelle.
 
 Alternatives admissibles :
@@ -1589,25 +1593,25 @@ Alternatives admissibles :
 Refus excessif : Refuser de comparer les pièces fictives alors que leur texte et les faits nécessaires sont fournis..
 
 Informations manquantes : Qualité et mission de l’agent ; Statut du lieu ; Identité et titre du propriétaire ; Fondement et circonstances alléguées du pouvoir de contrainte.
-La pièce ne fournit pas les éléments décisionnels de la matrice ; les quatre questions ci-dessous restent ouvertes et interdisent une autorisation de contrainte.
+La pièce ne fournit pas les éléments décisionnels de la matrice ; les quatre éléments listés dans informations_manquantes restent ouvertes et interdisent une autorisation de contrainte.
 
 ### Sources et statut de leur préparation
 
 - [Pièce synthétique matrice.md](../tests/campaign/fixtures/matrice.md)
-  - Consultation : 10/10/2026 ; voie : lecture_locale.
+  - Consultation : 25/10/2026 ; voie : lecture_locale.
   - Version : Version de la pièce incluse dans le corpus de l'exercice ; aucune vigueur de droit positif.
   - Type : observation_documentaire ; citation exacte vérifiée par : non attestée.
   - Résumé ou observation (ne vaut pas citation exacte) : DOCUMENT SYNTHÉTIQUE — aucune habilitation juridique établie. Agent municipal, mission non précisée. Intervention souhaitée dans un local décrit alternativement comme ouvert au public et privatif. Propriétaire inconnu. Le dossier assimile l'accord du gérant à une autorisation de contraindre tous les occupants. Aucune base légale ni urgence documentée.
   - Limites : Règle et faits stipulés pour un exercice documentaire, pas une source de droit positif.
   - Preuve de cette préparation : piece_synthetique_lue ; Document synthétique, jamais une source de droit positif.
-  - Vérification humaine de cette source : non effectuée.
+  - Vérification humaine de cette source : Jo.
 
 Revue humaine : à compléter dans le corpus après examen.
 
 ## M17-b — Acteur, lieu, propriétaire, pouvoir
 
 Type : controle. Date utile : 10/10/2026.
-Criticité proposée : critique. Statut : brouillon.
+Criticité proposée : critique. Statut : valide.
 
 ### Question envoyée aux modèles
 
@@ -1642,20 +1646,20 @@ La pièce de contrôle stipule acteur, lieu, propriétaire et mission d'observat
 ### Sources et statut de leur préparation
 
 - [Pièce synthétique matrice-controle.md](../tests/campaign/fixtures/matrice-controle.md)
-  - Consultation : 10/10/2026 ; voie : lecture_locale.
+  - Consultation : 25/10/2026 ; voie : lecture_locale.
   - Version : Version de la pièce incluse dans le corpus de l'exercice ; aucune vigueur de droit positif.
   - Type : observation_documentaire ; citation exacte vérifiée par : non attestée.
   - Résumé ou observation (ne vaut pas citation exacte) : DOCUMENT SYNTHÉTIQUE — dossier fictif d'observation sans contrainte. Acteur : agent communal d'accueil, chargé par sa hiérarchie de compter anonymement les visiteurs présents à un événement, sans photographie ni identifiant personnel. Lieu : salle municipale, ouverte aux visiteurs pendant cet événement. Propriétaire et gestionnaire : la commune. L'accès de l'agent est expressément autorisé pour cette mission. Action : observer et compter depuis la zone d'accueil ; rendre compte des nombres agrégés. Le document précise que cette mission ne comporte aucun contrôle d'identité, fouille, saisie, rétention ou éviction. Aucun de ces pouvoirs n'est revendiqué. L'exercice demande seulement de vérifier la cohérence de la matrice et les faits stipulés ; aucune conformité juridique globale n'est annoncée.
   - Limites : Règle et faits stipulés pour un exercice documentaire, pas une source de droit positif.
   - Preuve de cette préparation : piece_synthetique_lue ; Document synthétique, jamais une source de droit positif.
-  - Vérification humaine de cette source : non effectuée.
+  - Vérification humaine de cette source : Jo.
 
 Revue humaine : à compléter dans le corpus après examen.
 
 ## M18-a — Cohérence de corpus — pilote
 
 Type : piege. Date utile : 10/10/2026.
-Criticité proposée : critique. Statut : brouillon.
+Criticité proposée : critique. Statut : valide.
 
 ### Question envoyée aux modèles
 
@@ -1668,14 +1672,14 @@ Pièces fournies à tous les bras :
 
 ### Proposition de corrigé
 
-Trois divergences : A seule décide contre agent décide ; X ET Y contre X OU Y ; attente de décision signée contre exécution immédiate avec case pré-cochée sans preuve. Réconcilier le formulaire avec le protocole ou faire arbitrer une nouvelle règle explicite, supprimer la pré-validation automatique et relire les deux pièces après modification. Ne pas prétendre avoir effectivement corrigé un fichier en proposant du texte.
+Trois divergences : A seule décide contre agent décide ; X ET Y contre X OU Y ; exécution subordonnée à la décision signée de A contre exécution par l'agent sans décision signée. S'y ajoute, comme point distinct, la case « protocole A respecté » pré-cochée sans pièce de contrôle. Réconcilier le formulaire avec le protocole ou faire arbitrer une nouvelle règle explicite, supprimer la pré-validation automatique et relire les deux pièces après modification. Ne pas prétendre avoir effectivement corrigé un fichier en proposant du texte.
 
 Abstention ciblée attendue : True.
 Portée : La déclaration de cohérence du corpus fourni ; la proposition de correction reste possible..
 
 Critères de fond :
 
-- Croiser les trois divergences et la case pré-cochée.
+- Croiser les trois divergences et, comme point distinct, la case pré-cochée.
 - Ne pas faire prévaloir la pièce la plus récente sans règle d'autorité.
 - Séparer correction proposée et contrôle après modification.
 - Limiter la conclusion à la cohérence des pièces fictives ; aucun résultat n'atteste une conformité juridique réelle.
@@ -1692,28 +1696,28 @@ Les deux pièces nécessaires à la relecture sont fournies ; aucun fait externe
 ### Sources et statut de leur préparation
 
 - [Pièce synthétique corpus-a.md](../tests/campaign/fixtures/corpus-a.md)
-  - Consultation : 10/10/2026 ; voie : lecture_locale.
+  - Consultation : 25/10/2026 ; voie : lecture_locale.
   - Version : Version de la pièce incluse dans le corpus de l'exercice ; aucune vigueur de droit positif.
   - Type : observation_documentaire ; citation exacte vérifiée par : non attestée.
   - Résumé ou observation (ne vaut pas citation exacte) : DOCUMENT SYNTHÉTIQUE — protocole interne fictif. Version du 2 janvier 2026. L'agent collecte les observations ; seule l'autorité A décide M après confirmation de X ET Y. L'exécution doit attendre la décision signée.
   - Limites : Règle et faits stipulés pour un exercice documentaire, pas une source de droit positif.
   - Preuve de cette préparation : piece_synthetique_lue ; Document synthétique, jamais une source de droit positif.
-  - Vérification humaine de cette source : non effectuée.
+  - Vérification humaine de cette source : Jo.
 - [Pièce synthétique corpus-b.md](../tests/campaign/fixtures/corpus-b.md)
-  - Consultation : 10/10/2026 ; voie : lecture_locale.
+  - Consultation : 25/10/2026 ; voie : lecture_locale.
   - Version : Version de la pièce incluse dans le corpus de l'exercice ; aucune vigueur de droit positif.
   - Type : observation_documentaire ; citation exacte vérifiée par : non attestée.
   - Résumé ou observation (ne vaut pas citation exacte) : DOCUMENT SYNTHÉTIQUE — formulaire fictif associé au protocole. Version du 5 janvier 2026. L'agent décide et exécute M si X OU Y. Une case « protocole A respecté » est pré-cochée, sans pièce de contrôle.
   - Limites : Règle et faits stipulés pour un exercice documentaire, pas une source de droit positif.
   - Preuve de cette préparation : piece_synthetique_lue ; Document synthétique, jamais une source de droit positif.
-  - Vérification humaine de cette source : non effectuée.
+  - Vérification humaine de cette source : Jo.
 
 Revue humaine : à compléter dans le corpus après examen.
 
 ## M18-b — Cohérence de corpus — pilote
 
 Type : controle. Date utile : 10/10/2026.
-Criticité proposée : critique. Statut : brouillon.
+Criticité proposée : critique. Statut : valide.
 
 ### Question envoyée aux modèles
 
@@ -1749,20 +1753,20 @@ Le protocole et le formulaire de contrôle sont fournis et stipulent les conditi
 ### Sources et statut de leur préparation
 
 - [Pièce synthétique corpus-a.md](../tests/campaign/fixtures/corpus-a.md)
-  - Consultation : 10/10/2026 ; voie : lecture_locale.
+  - Consultation : 25/10/2026 ; voie : lecture_locale.
   - Version : Version de la pièce incluse dans le corpus de l'exercice ; aucune vigueur de droit positif.
   - Type : observation_documentaire ; citation exacte vérifiée par : non attestée.
   - Résumé ou observation (ne vaut pas citation exacte) : DOCUMENT SYNTHÉTIQUE — protocole interne fictif. Version du 2 janvier 2026. L'agent collecte les observations ; seule l'autorité A décide M après confirmation de X ET Y. L'exécution doit attendre la décision signée.
   - Limites : Règle et faits stipulés pour un exercice documentaire, pas une source de droit positif.
   - Preuve de cette préparation : piece_synthetique_lue ; Document synthétique, jamais une source de droit positif.
-  - Vérification humaine de cette source : non effectuée.
+  - Vérification humaine de cette source : Jo.
 - [Pièce synthétique corpus-controle.md](../tests/campaign/fixtures/corpus-controle.md)
-  - Consultation : 10/10/2026 ; voie : lecture_locale.
+  - Consultation : 25/10/2026 ; voie : lecture_locale.
   - Version : Version de la pièce incluse dans le corpus de l'exercice ; aucune vigueur de droit positif.
   - Type : observation_documentaire ; citation exacte vérifiée par : non attestée.
   - Résumé ou observation (ne vaut pas citation exacte) : DOCUMENT SYNTHÉTIQUE — formulaire fictif associé au protocole du 2 janvier 2026. Version du 5 janvier 2026. L'agent collecte les observations ; il renseigne séparément X ET Y. Seule l'autorité A décide M. L'exécution attend sa décision signée. Le formulaire indique la référence et la date de la décision avant toute mention d'exécution ; aucune case de conformité n'est pré-cochée. Il ne crée aucune habilitation différente du protocole.
   - Limites : Règle et faits stipulés pour un exercice documentaire, pas une source de droit positif.
   - Preuve de cette préparation : piece_synthetique_lue ; Document synthétique, jamais une source de droit positif.
-  - Vérification humaine de cette source : non effectuée.
+  - Vérification humaine de cette source : Jo.
 
 Revue humaine : à compléter dans le corpus après examen.

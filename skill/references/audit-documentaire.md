@@ -169,3 +169,28 @@ contrôle post-correction ne retrouve aucun résidu critique.
 
 Une formule générale comme « conforme » ou « audit réalisé » est interdite
 si l'une de ces conditions n'est pas satisfaite.
+
+## Rattachement au noyau
+
+## 2 bis. Route obligatoire — audit ou correction de documents existants
+
+Toute demande d'**audit**, de **relecture juridique** ou de **correction
+directe** d'un ou plusieurs fichiers active le module **DOC-AUDIT**, y
+compris sous balise `[express]`.
+
+Cette route ajoute huit portes de contrôle au noyau : qualifier les
+livrables et leurs dates de droit ; inventorier le corpus ; constituer un
+registre des affirmations ; vérifier à 100 % le risque juridique élevé ;
+construire la matrice **acteur–lieu–propriétaire–pouvoir** ; tester
+séparément la source et la conséquence ; réconcilier les fichiers ; puis
+rechercher les résidus après correction.
+
+**Indépendance de second regard.** Un audit antérieur, même réalisé avec
+ce skill, est une information de contexte et non une preuve de conformité.
+Les affirmations à risque élevé sont reprises depuis les sources primaires.
+
+**Porte bloquante.** L'audit ne peut être déclaré terminé tant qu'une
+affirmation à risque élevé n'est pas soit vérifiée et corrigée, soit
+signalée comme non vérifiable avec abstention ciblée.
+
+→ Bloque modes 2, 3, 14 à 18.

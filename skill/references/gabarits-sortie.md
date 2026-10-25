@@ -9,6 +9,11 @@ Chaque gabarit débute obligatoirement par un **en-tête standardisé**
 (absence = défaut bloquant) et se termine par un **encart final
 récapitulatif**.
 
+Dans une réponse, un fichier de skill ou de référence se cite par le nom du
+skill et la section (ex. « dcp-fpt, §5.5 »), jamais par un lien Markdown ni
+par un chemin, relatif ou absolu. Seules les sources officielles (URL
+Légifrance, sites publics) prennent la forme d'un lien.
+
 ### En-tête standardisé (obligatoire)
 
 ```
@@ -211,3 +216,176 @@ Utile pour les épreuves de concours (profil étudiant-concours) et tout
 raisonnement à structure imposée. Non imposée aux autres gabarits.
 
 ---
+
+## Voie rapide lookup
+
+### Voie rapide `[lookup]` — sortie minimale
+
+Pour la simple lecture-référence d'un texte non controversé (« quel
+article réprime X ? », « L. 2212-2 CGCT est-il en vigueur ? »),
+l'appareil complet (en-tête + 9 étapes visibles + encart) est
+disproportionné. La balise `[lookup]` produit alors :
+
+```
+[Citation normalisée avec identifiant récupéré] — fonction juridique : […]
+[Réponse en 1–3 phrases] [confiance : élevée | modérée | faible — 1 ligne]
+```
+
+**Garde-fous (non négociables)** : la citation suppose une
+récupération réelle en source primaire (P1) et un identifiant de
+provenance vérifiée (règle de provenance) ; si la récupération échoue,
+la voie rapide bascule en **abstention motivée** (§7). En cas de doute
+sur le caractère « non controversé », `[lookup]` est **ignorée** et le
+mode A standard s'applique.
+
+**Aucune balise ne dispense de l'étape 0 bis** (arbitrage des
+informations manquantes) : ni `[express]`, ni `[complet]`. Le mode B
+notamment ne « compense » pas une information décisionnelle manquante
+par l'exhaustivité — il produirait alors une analyse complète sur une
+fondation non vérifiée (voir étape 0 bis).
+
+## Traçabilité proportionnée
+
+### Traçabilité proportionnée
+
+Les contrôles sont obligatoires ; leur affichage dépend du livrable. Une
+réponse courte expose les sources, la date applicable, les réserves utiles et
+la confiance sans réciter la procédure. Une note de fond, un audit ou une
+demande `[complet]` ajoute l'encart récapitulatif : mode, modules activés,
+confiance globale, sources informelles et limites. `[lookup]` conserve sa
+sortie minimale. La provenance des identifiants reste obligatoire dans tous
+les cas.
+
+## Registres de restitution
+
+### P5 — Séparation des registres
+
+Dans toute réponse, distinguer **explicitement** quatre registres :
+
+| Registre | Préfixe / format |
+
+|----------|------------------|
+
+| (a) Texte | citation ou paraphrase fidèle, accompagnée du format normalisé |
+
+| (b) Jurisprudence | citation d'arrêt, format normalisé, ratio/obiter signalé |
+
+| (c) Déduction | introduite par **« J'en déduis que… »** ou **« Par voie de conséquence… »** |
+
+| (d) Incertitude | introduite par **« Reste à vérifier… »** ou bloc `⚠️ À VÉRIFIER` |
+
+Le mélange de ces registres est la première source d'erreur de
+raisonnement.
+
+→ Bloque modes 5, 6, 14.
+
+## Abstention ciblée et clarification
+
+## 7. Déclencheurs d'abstention (ou sortie dégradée balisée)
+
+Le skill s'arrête sur le point concerné et le signale, plutôt que de
+spéculer, dans **dix cas** :
+
+1. **Source primaire inaccessible** (Légifrance indisponible, URL non
+   résolue, erreur HTTP).
+
+2. **Texte trouvé** mais date d'entrée en vigueur ou disposition
+   transitoire **impossible à confirmer**.
+
+3. **Décision juridictionnelle** invoquée dont la **référence exacte
+   est introuvable**.
+
+4. **Circulaire interne non publique** (DGGN, DGPN, préfecture,
+   parquet, note de service DGS, instruction préfectorale) : signaler
+   l'**existence probable** pour recherche interne par l'utilisateur,
+   ne **pas spéculer** sur le contenu.
+
+5. **Faits postérieurs au cutoff** d'entraînement, non vérifiables
+   par recherche web.
+
+6. **Matière répressive** : doute sérieux sur un élément constitutif
+   (P6).
+
+7. **Échec de la triangulation obligatoire** (étape 4).
+
+8. **Renvoi normatif essentiel** introuvable ou non résolu (mode 12).
+
+9. **Délai de prescription ou de forclusion** possiblement expiré,
+   sans possibilité de calcul certain.
+
+10. **Information décisionnelle détenue par le seul utilisateur,
+    manquante** (étape 0 bis) : ne pas déployer d'analyse complète sur
+    une hypothèse non levée ; poser la question et, au plus, livrer
+    une esquisse conditionnelle bornée.
+
+**Format d'abstention motivée** :
+
+```
+**⚠️ Information non vérifiable — abstention motivée**
+
+Je ne peux pas produire de citation fiable pour [référence] à la
+date du [date] pour la raison suivante : [motif précis dans la
+liste ci-dessus].
+
+Démarches alternatives :
+- Accéder directement à : [URL officielle]
+- Consulter : [autre source officielle]
+- Source informelle à vérifier en interne : [si applicable]
+
+Je préfère m'abstenir plutôt que spéculer.
+```
+
+**Format de clarification motivée (cas n° 10, étape 0 bis)** :
+
+```
+**Question préalable nécessaire**
+
+Un point conditionne la réponse et je ne peux pas le trancher seul :
+[formulation fermée ou à choix de la question].
+
+Pourquoi c'est déterminant : [une ligne — quel régime / quelle
+conclusion bascule selon la réponse].
+
+Esquisse conditionnelle (bornée) :
+- Si [a] → [orientation en une ou deux lignes].
+- Si [b] → [orientation en une ou deux lignes].
+
+Je traite la suite dès que ce point est précisé.
+```
+
+Dans tous les cas, **l'abstention est ciblée** sur le point précis et
+n'empêche pas la livraison du reste de l'analyse avec sortie dégradée
+balisée (P7).
+
+
+### P7 — Abstention informée et sortie dégradée balisée
+
+Si une vérification en source primaire est impossible, ou si une
+condition d'abstention prévue par la procédure est réunie, le skill
+le signale et **s'arrête sur le point concerné**. Pas de complétion
+par spéculation déguisée en certitude.
+
+L'abstention porte sur **le point précis** où la vérification échoue,
+pas nécessairement sur l'intégralité de la réponse. Les éléments
+vérifiés restent livrables avec leur niveau de confiance ; les
+éléments non vérifiés sont explicitement marqués comme tels.
+
+Une **sortie dégradée balisée** (« texte trouvé, version non
+confirmée », « point litigieux à vérifier », « jurisprudence non
+localisée ») est généralement plus utile qu'une abstention totale.
+
+**Corollaire d'entrée (v2.1.0).** L'abstention informée a un pendant
+au stade de l'entrée : quand l'information manquante est **décisionnelle
+et détenue par le seul utilisateur**, le skill ne spécule pas et ne
+« déclare » pas une hypothèse pour avancer — il **pose la question**
+(voir étape 0 bis). P7 régit la sortie ; l'étape 0 bis régit l'entrée.
+
+→ Bloque modes 1, 2, 3, 5, 6.
+
+## Choix du livrable
+
+## 6. Gabarits de sortie
+
+**Gabarit A** — Note express · **Gabarit B** — Note de fond · **Gabarit C** — Citation
+pour acte · **Gabarit D** — Audit documentaire · **Sous-gabarit
+`[syllogisme]`** — Note de concours (surcouche B).

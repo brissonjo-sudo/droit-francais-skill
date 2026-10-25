@@ -1,9 +1,14 @@
 # Relecture de la campagne — PR #116
 
 État au 10/10/2026 : harnais v2 préparé localement, aucune réponse de modèle
-réelle générée, aucun corrigé humain validé (0/36). La qualification Gemini
-REST et la revue juridique restent des passages distincts avant les trois
+réelle générée, aucun corrigé humain validé (0/36 à cette date). La qualification
+Gemini REST et la revue juridique restent des passages distincts avant les trois
 familles du pilote. Le [protocole](campagne-18-modes.md) décrit leurs commandes.
+
+Mise à jour du 25/10/2026 : les 36 corrigés ont été relus contre l'API
+Légifrance (pièces synthétiques : empreinte SHA-256 du fichier) et validés par
+Jo ; le dossier généré affiche 36/36. Les passages datés du 10/10/2026 ci-dessous
+restent l'historique de la préparation.
 
 ## Corrections des constats
 
@@ -86,7 +91,7 @@ Les journaux sont créés en mode 0600 sur POSIX ; ACL du profil sous Windows.
 Les références non récupérées ont maintenant une date nulle et un statut
 non vérifié cohérents avec le registre. Leurs conclusions restent explicitement
 des propositions historiques à contrôler, sans affirmation de consultation.
-Le dossier est régénéré avec dates européennes et toujours 0/36 validés.
+Le dossier est régénéré avec dates européennes et toujours 0/36 validés à cette date.
 
 **Limite conservatrice :** la quarantaine d'un journal tronqué conserve ses
 octets et marque l'étude bloquée. Elle ne permet pas de reprendre ni de

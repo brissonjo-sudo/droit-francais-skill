@@ -2,7 +2,7 @@
 
 # droit-francais-skill
 
-**Skill LLM — méthodologie de recherche en droit français (v3.5.0)**
+**Skill LLM — méthodologie de recherche en droit français (v3.5.1)**
 
 **Distribution autonome + plugins OpenAI et Claude Code avec outils MCP (candidat plugin v0.9.0, non publié)**
 
@@ -26,9 +26,9 @@ puis vérifier la méthode et, séparément, l'accès aux outils.
 
 | Canal | État au 10 octobre 2026 | Outils |
 |---|---|---|
-| Skill autonome | Noyau 3.5.0 présent dans `main` ; paquet publié distinct | Web officiel si le client le permet ; PISTE facultatif |
+| Skill autonome | Noyau 3.5.1 présent dans `main` ; paquet publié distinct | Web officiel si le client le permet ; PISTE facultatif |
 | Plugin depuis le dépôt | Candidat 0.9.0 ; connexion distante dans `.mcp.json` | Service publié antérieur, six outils ; OAuth à qualifier par client |
-| Serveur local du candidat | Huit outils dans le code, avec Python et PISTE | Articles, décisions, sections et textes ; mesure séparée du service distant |
+| Serveur local du candidat | Douze outils dans le code, avec Python et PISTE | Articles, décisions, sections et textes ; mesure séparée du service distant |
 
 Les nouveaux parcours OAuth Claude Code et ChatGPT restent suivis dans
 [#88](https://github.com/brissonjo-sudo/droit-francais-skill/issues/88) et
@@ -213,7 +213,7 @@ vérité méthodologique.
 Le manifeste pointe vers `.mcp.json`, qui déclare une **connexion distante**.
 Pour installer, vérifier, mettre à jour et retirer le plugin, suivre le
 [guide de cycle de vie](docs/installation.md). Le démarrage ci-dessous est une
-variante de serveur local, avec huit outils ; il ne constitue pas une
+variante de serveur local, avec douze outils ; il ne constitue pas une
 installation de plugin. Le serveur et le CLI historique partagent la même
 bibliothèque ; la méthode reste dans `skill/SKILL.md`.
 
@@ -342,11 +342,11 @@ son propre README :
 
 | Dossier | Plateforme | Nature |
 |---|---|---|
-| [`gemini_skill/`](gemini_skill) | Gemini (Google) | Noyau condensé v3.3.0, support prioritaire du serveur MCP de ce dépôt, repli grounding Google Search sur sources officielles |
-| [`gemini_agent/`](gemini_agent) | Gemini (`google-genai`) | Client programmatique Python, température 0.0, prompt système aligné sur la méthodologie v3.3.0 |
-| [`grok_skill/`](grok_skill) | Grok (xAI) | Noyau condensé, droit français, récupération par les outils web natifs (`web_search`, `open_page`) au lieu du connecteur MCP et des API PISTE |
-| [`vibe_skill/`](vibe_skill) | Vibe (Mistral) | Noyau condensé, outils natifs `web_search`/`web_fetch` vérifiés contre le code source public ; wrapper Python fourni en squelette non connecté |
-| [`manus_skill/`](manus_skill) | Manus | Noyau condensé ; connecteur MCP personnalisé de ce dépôt en priorité (outils vérifiés), capacité web native de Manus en repli sans nom d'outil supposé |
+| [`gemini_skill/`](gemini_skill) | Gemini (Google) | Noyau condensé v3.5.1, support prioritaire du serveur MCP de ce dépôt, repli grounding Google Search sur sources officielles |
+| [`gemini_agent/`](gemini_agent) | Gemini (`google-genai`) | Client programmatique Python, température 0.0, prompt système aligné sur la méthodologie v3.5.1 |
+| [`grok_skill/`](grok_skill) | Grok (xAI) | **3.6.0-grok** — Noyau court et références 3.6.0 ; outils web natifs ; aucune recette réelle |
+| [`vibe_skill/`](vibe_skill) | Vibe (Mistral) | **3.6.0-vibe** — Noyau court et références 3.6.0 ; outils web natifs ; aucune recette réelle ; wrapper non connecté, aucun updater |
+| [`manus_skill/`](manus_skill) | Manus | Adaptation condensée basée sur 3.5.0 ; connecteur MCP du dépôt s'il est exposé, capacité web native constatée sans nom supposé, sinon abstention ; contrôles DOC-AUDIT renforcés |
 
 Elles reprennent les principes du noyau mais ne s'y synchronisent pas
 d'elles-mêmes : `skill/` reste la source de vérité méthodologique.
@@ -373,7 +373,7 @@ Le skill s'active automatiquement quand vous :
 
 ---
 
-## Arborescence (skill v3.5.0 / candidat plugin v0.9.0)
+## Arborescence (skill v3.5.1 / candidat plugin v0.9.0)
 
 ```
 droit-francais-skill/
@@ -438,8 +438,8 @@ droit-francais-skill/
 ├── chatgpt-app-submission.json     ← métadonnées et cas de test importables
 ├── gemini_skill/                   ← déclinaison Gemini (noyau condensé, Agent Skills, MCP prioritaire)
 ├── gemini_agent/                   ← déclinaison Gemini (client programmatique Python google-genai)
-├── grok_skill/                     ← déclinaison Grok (noyau condensé, outils web natifs)
-├── vibe_skill/                     ← déclinaison Vibe (outils web_search/web_fetch vérifiés)
+├── grok_skill/                     ← déclinaison Grok (xAI) 3.6.0, noyau court + références
+├── vibe_skill/                     ← déclinaison Vibe (Mistral) 3.6.0, noyau court + références
 ├── manus_skill/                    ← déclinaison Manus (connecteur MCP en priorité)
 ├── vault/                          ← notes Obsidian (hors paquet)
 ├── tests/                          ← invariants, outils MCP + évals historiques

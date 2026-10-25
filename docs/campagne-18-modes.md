@@ -1,7 +1,8 @@
 # Campagne d'utilité des 18 modes — protocole v2
 
-Préparation du 10/10/2026 : **36 cas, zéro réponse juridique collectée et 0/36
-corrigés humains validés**. Les tests du harnais n'établissent aucune utilité
+Préparation du 10/10/2026 : **36 cas, zéro réponse juridique collectée**.
+Corrigés humains validés par Jo le 25/10/2026 : **36/36** (0/36 à la
+préparation). Les tests du harnais n'établissent aucune utilité
 juridique. Le noyau du skill reste inchangé.
 
 ## Comparaisons et conditions de départ

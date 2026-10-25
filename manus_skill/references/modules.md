@@ -1,59 +1,46 @@
-# Modules activables — détail
+# Modules activables
 
-Référencé depuis `SKILL.md`. Activer le module dès qu’un déclencheur est présent ; en cas de doute, l’activer. `[complet]` force tous les modules. PÉNAL et DOC-AUDIT ne sont pas désactivables par `[express]`.
+Référencé depuis `SKILL.md`. Activer un module dès qu'un déclencheur est présent ; en cas de doute, l'activer. `[complet]` active tous les modules. **PÉNAL** et **DOC-AUDIT** ne peuvent pas être neutralisés par `[express]`.
 
----
+## PÉNAL
 
-## Module PÉNAL
+**Déclencheurs :** qualification pénale, infraction, contravention, délit, crime, visa pénal ou préparation d'un procès-verbal.
 
-**Déclencheurs :** fait à qualifier pénalement, infraction, contravention, délit, crime, visa pénal ou préparation de procès-verbal.
+**Contrôles :** texte d'incrimination applicable à la date des faits ; éléments légal, matériel et moral ; circonstances aggravantes ; faits justificatifs et causes d'irresponsabilité ; prescription ; compétence ; régime procédural ; charge et modes de preuve. Distinguer classe de contravention, maximum légal et amende forfaitaire, chacun vérifié séparément.
 
-**Contrôles obligatoires :** appliquer la légalité criminelle stricte ; vérifier sur Légifrance le texte d’incrimination en vigueur à la date des faits ; décomposer les éléments légal, matériel et moral ; rechercher les circonstances aggravantes, faits justificatifs, causes d’irresponsabilité, prescription, compétence, régime d’enquête, modes de preuve et charge de la preuve. Trianguler dès qu’une interprétation est en jeu.
+## ACTE-ADMIN
 
-## Module ACTE-ADMIN
+**Déclencheurs :** rédaction ou contrôle d'un arrêté, d'une décision individuelle, d'une mesure de police, d'une sanction ou d'un refus administratif.
 
-**Déclencheurs :** rédaction, analyse ou contrôle d’un arrêté, d’une décision individuelle, d’une mesure de police, d’une sanction disciplinaire ou d’un refus d’autorisation.
+**Contrôles :** compétence de l'auteur, délégation, portée territoriale et temporelle ; motivation lorsque requise ; preuve ; publication et opposabilité ; proportionnalité (adaptation, nécessité, proportionnalité stricte) au regard du droit et de la jurisprudence effectivement vérifiés. Trianguler si l'acte fait grief ou si l'interprétation est discutée.
 
-**Contrôles obligatoires :** compétence de l’auteur, délégation, compétence territoriale et temporelle ; motivation au regard du CRPA lorsque celui-ci s’applique ; publication, affichage et opposabilité ; éléments de preuve ; proportionnalité de la mesure selon les tests d’adaptation, nécessité et proportionnalité stricte, notamment au regard de la jurisprudence officielle pertinente. Trianguler si l’acte fait grief.
+## PA-PJ
 
-## Module PA-PJ
+**Déclencheurs :** opération de police, constatation, interpellation, contrôle ou mesure préventive/répressive.
 
-**Déclencheurs :** constatation, interpellation, contrôle, mesure préventive ou opération susceptible de relever de la police administrative ou judiciaire.
+Qualifier explicitement la finalité (prévention ou recherche/poursuite), l'autorité agissante, la temporalité par rapport à l'infraction alléguée et le régime procédural. Ne pas inférer un pouvoir opérationnel de la seule compétence de constatation ou d'accès à un lieu.
 
-| Critère | Police administrative | Police judiciaire |
-|---|---|---|
-| Finalité | Prévention et ordre public | Recherche et poursuite des infractions |
-| Autorité | Autorité administrative | Autorité judiciaire ou agents agissant sous sa direction |
-| Temporalité | Avant ou indépendamment d’une infraction | À partir d’une infraction constatée ou suspectée |
-| Régime | Droit administratif | Code de procédure pénale |
+## FOND
 
-Qualifier explicitement l’opération selon ces quatre critères avant d’analyser sa légalité ou son régime.
+**Déclencheurs :** note de fond, citation destinée à un acte, préparation de concours ou interprétation controversée.
 
-## Module FOND
+Reconstituer l'évolution du texte et les dispositions transitoires ; vérifier les renvois pertinents ; qualifier l'autorité de chaque décision (principe, solution constante ou isolée, formation, particularités factuelles) ; distinguer motif décisif et observation incidente ; exposer les divergences utiles.
 
-**Déclencheurs :** note de fond, citation pour acte officiel, préparation de concours ou interprétation controversée.
+## CONTENTIEUX
 
-**Contrôles obligatoires :** reconstituer l’évolution du texte et les dispositions transitoires ; rechercher les travaux préparatoires lorsqu’ils sont pertinents ; qualifier l’autorité de chaque décision citée (principe, solution constante ou isolée, formation, atypicité factuelle) ; distinguer ratio decidendi et obiter dictum ; présenter les divergences et l’état du droit à la date de référence ; trianguler systématiquement.
+**Déclencheurs :** risque de recours, stratégie procédurale, voie de droit, recevabilité ou délai.
 
-## Module CONTENTIEUX
+Identifier le régime et vérifier l'office du juge, les conditions de recevabilité, l'intérêt à agir, les moyens opérants, la charge argumentative et probatoire, les délais et les forclusions applicables à la date utile. Ne pas donner de stratégie catégorique si un fait décisif manque.
 
-**Déclencheurs :** risque de recours, stratégie procédurale ou voie de droit envisagée.
+## DOC-AUDIT
 
-**Contrôles obligatoires :** identifier le régime — REP, plein contentieux, référé suspension, référé liberté, référé conservatoire, exception d’illégalité ou nullité pénale selon le cas — puis vérifier l’office du juge, les moyens opérants, la charge argumentative et probatoire, les délais et conditions de recevabilité, l’intérêt à agir et les éventuelles forclusions à la date de référence.
+**Déclencheurs :** audit, relecture, correction d'un document existant ou contrôle d'un corpus, y compris lorsqu'un audit antérieur est présenté comme acquis.
 
-## Module DOC-AUDIT
+Lire intégralement `audit-documentaire.md`. Inventorier le corpus, tenir un registre des affirmations, vérifier en source primaire 100 % du risque élevé, appliquer la matrice acteur–lieu–propriétaire–pouvoir, le double test source/conséquence, le contrôle de cohérence interdocuments et le contrôle après correction.
 
-**Déclencheurs :** audit, relecture, correction d’un document ou contrôle d’un corpus.
+Contrôles renforcés intégrés de la v3.5.0 :
 
-**Contrôles obligatoires :**
+- Toute recommandation de couper, retirer, évacuer, détruire, confisquer ou attribuer à la personne publique un bien privé déclenche un examen autonome de l'exécution forcée d'office. Vérifier le fondement, l'urgence alléguée, les conditions juridiques pertinentes, le régime sectoriel et la jurisprudence officielle ; ne pas conclure à partir de la seule interdiction ou sanction.
+- Vérifier séparément classe de contravention, maximum légal et amende forfaitaire éventuelle.
 
-1. Reprendre depuis les sources primaires toutes les affirmations à risque élevé et établir le delta temporel.
-2. Qualifier le livrable par son contenu et ses effets, non par son seul titre.
-3. Inventorier fichiers, versions, annexes et doublons ; séparer faits confirmés, hypothèses et recommandations.
-4. Extraire chaque affirmation juridiquement significative avec son fichier, emplacement, registre, niveau de risque, acteur, lieu, pouvoir, source et conséquence revendiquée.
-5. Vérifier à 100 % les affirmations à risque élevé : compétence, infractions, peines, montants, délais, contrôles, fouilles, lieux privés et données personnelles.
-6. Construire une matrice acteur–lieu–propriétaire–pouvoir pour chaque action sensible.
-7. Contrôler séparément la source, la conséquence et la cohérence interdocuments.
-8. Relire le document corrigé pour s’assurer qu’aucune affirmation risquée n’a été introduite ou laissée sans source.
-
-Sortie recommandée : registre des affirmations, corrections proposées, sources vérifiées et réserves restantes.
+**Porte de clôture :** ne pas déclarer l'audit achevé ou « conforme » si une affirmation à risque élevé reste non vérifiée, non corrigée et sans abstention ciblée, ou si le contrôle post-correction n'a pas été fait.

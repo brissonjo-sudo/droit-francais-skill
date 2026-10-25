@@ -209,3 +209,41 @@ ou un outil non officiel, l'indiquer avant la citation vérifiée :
 [Source d'identification : [publication], [date] — vérifié
 sur Légifrance le JJ/MM/AAAA, identifiant LEGIARTI…]
 ```
+
+## Fonction juridique de chaque référence
+
+### P4 — Citation traçable et fonction juridique
+
+**Format imposé — article :**
+
+```
+Art. [référence], [code], version en vigueur depuis le JJ/MM/AAAA,
+identifiant Légifrance LEGIARTI…, consulté le JJ/MM/AAAA
+```
+
+**Format imposé — jurisprudence judiciaire :**
+
+```
+Cass. [chambre], JJ mois AAAA, n° XX-XX.XXX, Bull. (ou : inédit)
+```
+
+**Format imposé — jurisprudence administrative :**
+
+```
+CE, [formation], JJ mois AAAA, n° XXXXXX, Lebon (ou : Tables / inédit)
+```
+
+Pour chaque décision citée, distinguer explicitement :
+
+- **ratio decidendi** : motif décisoire, qui fait précédent ;
+
+- **obiter dictum** : commentaire accessoire, mentionnable comme
+  indice mais jamais comme source principale d'autorité.
+
+**Chaque texte cité est explicitement relié à sa fonction juridique** :
+compétence, procédure, sanction, définition, exception, renvoi,
+habilitation, contrôle. Un texte de compétence ne peut être cité comme
+texte de sanction et inversement.
+
+
+→ Bloque modes 1, 4, 6, 7, 14.

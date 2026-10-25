@@ -2,7 +2,7 @@
 
 # droit-francais-skill
 
-**LLM skill — French legal research methodology (v3.5.0)**
+**LLM skill — French legal research methodology (v3.5.1)**
 
 **Standalone distribution + OpenAI and Claude Code plugins with MCP tools (plugin candidate v0.9.0, unpublished)**
 
@@ -26,9 +26,9 @@ then check the methodology and access to tools separately.
 
 | Channel | Status on 10 October 2026 | Tools |
 |---|---|---|
-| Standalone skill | Core 3.5.0 present in `main`; published package is separate | Official websites if the client supports access; PISTE optional |
+| Standalone skill | Core 3.5.1 present in `main`; published package is separate | Official websites if the client supports access; PISTE optional |
 | Repository plugin | Candidate 0.9.0; remote connection in `.mcp.json` | Earlier published service, six tools; OAuth must be qualified for each client |
-| Local candidate server | Eight tools in the code, with Python and PISTE | Articles, decisions, sections and legislation; measured separately from the remote service |
+| Local candidate server | Twelve tools in the code, with Python and PISTE | Articles, decisions, sections and legislation; measured separately from the remote service |
 
 The new Claude Code and ChatGPT OAuth flows are tracked in
 [#88](https://github.com/brissonjo-sudo/droit-francais-skill/issues/88) and
@@ -212,7 +212,7 @@ core from `skill/`, keeping a single source of methodological truth.
 The manifest points to `.mcp.json`, which declares a **remote connection**.
 For installation, verification, updates and removal, follow the
 [lifecycle guide (in French)](docs/installation.md). The startup commands below are a local
-server variant, with eight tools; they do not install a plugin. The server
+server variant, with twelve tools; they do not install a plugin. The server
 and historical CLI share the same library; the methodology remains in
 `skill/SKILL.md`.
 
@@ -340,11 +340,11 @@ standalone and documented in its own README:
 
 | Directory | Platform | Type |
 |---|---|---|
-| [`gemini_skill/`](gemini_skill) | Gemini (Google) | Condensed v3.3.0 core, prioritizing this repository's MCP server, with fallback to Google Search grounding on official sources |
-| [`gemini_agent/`](gemini_agent) | Gemini (`google-genai`) | Programmatic Python client, temperature 0.0, system prompt aligned with v3.3.0 methodology |
-| [`grok_skill/`](grok_skill) | Grok (xAI) | Condensed core for French law, retrieval with native web tools (`web_search`, `open_page`) instead of the MCP connector and PISTE APIs |
-| [`vibe_skill/`](vibe_skill) | Vibe (Mistral) | Condensed core, native `web_search`/`web_fetch` tools checked against public source code; Python wrapper provided as an unconnected scaffold |
-| [`manus_skill/`](manus_skill) | Manus | Condensed core; this repository's custom MCP connector first (verified tools), with fallback to Manus's native web capability without assuming tool names |
+| [`gemini_skill/`](gemini_skill) | Gemini (Google) | Condensed v3.5.1 core, prioritizing this repository's MCP server, with fallback to Google Search grounding on official sources |
+| [`gemini_agent/`](gemini_agent) | Gemini (`google-genai`) | Programmatic Python client, temperature 0.0, system prompt aligned with v3.5.1 methodology |
+| [`grok_skill/`](grok_skill) | Grok (xAI) | **3.6.0-grok** — Short core and 3.6.0 references; native web tools; no live platform validation |
+| [`vibe_skill/`](vibe_skill) | Vibe (Mistral) | **3.6.0-vibe** — Short core and 3.6.0 references; native web tools; no live platform validation; unconnected wrapper, no updater |
+| [`manus_skill/`](manus_skill) | Manus | Condensed adaptation based on 3.5.0; this repository's MCP connector if exposed, native web capability as observed without assuming tool names, otherwise abstention; strengthened DOC-AUDIT checks |
 
 They reuse the core principles but do not synchronize themselves with it:
 `skill/` remains the source of methodological truth.
@@ -371,7 +371,7 @@ The skill activates automatically when you:
 
 ---
 
-## Directory tree (skill v3.5.0 / plugin candidate v0.9.0)
+## Directory tree (skill v3.5.1 / plugin candidate v0.9.0)
 
 ```
 droit-francais-skill/
@@ -436,8 +436,8 @@ droit-francais-skill/
 ├── chatgpt-app-submission.json     ← importable metadata and test cases
 ├── gemini_skill/                   ← Gemini adaptation (condensed core, Agent Skills, MCP first)
 ├── gemini_agent/                   ← Gemini adaptation (Python google-genai client)
-├── grok_skill/                     ← Grok adaptation (condensed core, native web tools)
-├── vibe_skill/                     ← Vibe adaptation (verified web_search/web_fetch tools)
+├── grok_skill/                     ← Grok adaptation 3.6.0, short core + references
+├── vibe_skill/                     ← Vibe adaptation 3.6.0, short core + references
 ├── manus_skill/                    ← Manus adaptation (MCP connector first)
 ├── vault/                          ← Obsidian notes (outside the package)
 ├── tests/                          ← invariants, MCP tools + historical evaluations
