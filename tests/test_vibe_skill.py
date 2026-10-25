@@ -38,9 +38,9 @@ class VibeSkillTests(unittest.TestCase):
 
     def test_audit_protocol_matches_core_except_header(self):
         core = CORE_AUDIT.read_text(encoding="utf-8").splitlines()
-        grok = self.audit.splitlines()
-        self.assertEqual(len(core), len(grok))
-        differences = [i for i, (a, b) in enumerate(zip(core, grok)) if a != b]
+        vibe = self.audit.splitlines()
+        self.assertEqual(len(core), len(vibe))
+        differences = [i for i, (a, b) in enumerate(zip(core, vibe)) if a != b]
         self.assertEqual(differences, [2], "Seule la ligne de renvoi d'en-tête peut différer du noyau")
 
     def test_eighteen_error_modes_are_listed_and_referenced(self):
@@ -138,8 +138,10 @@ class VibeSkillTests(unittest.TestCase):
         self.assertIn("user-invocable: false", self.skill)
         for tool in ("web_search", "web_fetch", "read_file", "ask_user_question"):
             self.assertIn(f"  - {tool}\n", self.skill)
-        self.assertIn("squelette non connecté", self.skill)
-        self.assertIn("ne pas l'utiliser pour une citation", self.skill)
+        # Le wrapper retiré fabriquait un LEGIARTI et présumait la vigueur.
+        self.assertFalse((SKILL.parent / "tools").exists())
+        self.assertNotIn("legifrance_vibe", self.skill)
+        self.assertIn("Aucun module d'intégration n'est livré", self.skill)
         readme = (SKILL.parent / "README.md").read_text(encoding="utf-8")
         for folder in (".vibe/skills/", ".agents/skills/", "~/.vibe/skills/"):
             self.assertIn(folder, readme)

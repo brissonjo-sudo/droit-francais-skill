@@ -38,7 +38,7 @@ version: 3.5.1
 | Déclinaison Grok (outils web natifs, noyau condensé) | `../grok_skill/README.md` |
 | Déclinaison Gemini (Agent Skills, MCP prioritaire) | `../gemini_skill/README.md` |
 | Client Gemini SDK (`google-genai`, température 0.0) | `../gemini_agent/README.md` |
-| Déclinaison Vibe (outils `web_search`/`web_fetch`, wrapper non connecté) | `../vibe_skill/README.md` |
+| Déclinaison Vibe (outils natifs `web_search`/`web_fetch`) | `../vibe_skill/README.md` |
 | Déclinaison Manus (connecteur MCP en priorité, outils vérifiés) | `../manus_skill/README.md` |
 | Gabarits de sortie détaillés | `../skill/references/gabarits-sortie.md` |
 | Modules activables détaillés | `../skill/references/modules.md` |
