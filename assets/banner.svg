@@ -279,14 +279,9 @@
         <animate attributeName="opacity" values="0;0.9;0" dur="2.4s" repeatCount="indefinite"/>
         <animateTransform attributeName="transform" type="translate" values="0 2;0 -4" dur="2.4s" repeatCount="indefinite"/>
       </path>
-      <!-- bureau plein : plateau, façade et deux tiroirs -->
+      <!-- bureau plein : plateau et façade en bois -->
       <rect x="458" y="193" width="96" height="45" fill="#b8915f" stroke-width="2.2"/>
       <rect x="454" y="188" width="104" height="6" fill="#c8a27a" stroke-width="2.2"/>
-      <rect x="466" y="201" width="38" height="13" rx="1.5" fill="#c8a27a" stroke-width="1.6"/>
-      <rect x="466" y="219" width="38" height="13" rx="1.5" fill="#c8a27a" stroke-width="1.6"/>
-      <circle cx="485" cy="207.5" r="1.9" fill="#111" stroke="none"/>
-      <circle cx="485" cy="225.5" r="1.9" fill="#111" stroke="none"/>
-      <path d="M512 199 V233" fill="none" stroke="#8f6d45" stroke-width="1.4"/>
     </g>
 
     <!-- ===== les six lucioles autour de la tête de l'avocate ===== -->
