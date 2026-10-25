@@ -26,8 +26,7 @@ utilisateur. Le dossier voisin `skill/` n'est plus requis à l'installation.
 Le validateur générique quick_validate.py rejette ce champ propre à Vibe.
 Ce contrôle reste en échec ; son validateur n'est pas modifié. Le schéma
 officiel Vibe accepte ce champ, ce qui ne vaut pas recette de la plateforme.
-Les outils de `tools/` restent un squelette non connecté ; utiliser directement
-les outils natifs. Aucun branchement ni exécution réelle du wrapper dans ce port.
+Aucun wrapper n'est livré : la récupération passe par les outils natifs.
 
 ## Capacités et écarts volontaires
 

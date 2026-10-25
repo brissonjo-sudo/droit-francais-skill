@@ -43,6 +43,8 @@ Préparation locale de la déclinaison Vibe, sans publication ni recette réelle
 - Outils natifs conservés ; maintenance du CLI skills sans objet sur cette
   plateforme, aucun updater annoncé. Dates de vérification du noyau conservées.
 - Tests de parité, provenance, routage et limites de plateforme ajoutés.
+- Retiré (2026-10-25) : wrapper `tools/legifrance_vibe.py`, jamais branché, qui
+  fabriquait un identifiant de forme LEGIARTI et présumait la vigueur d'un article.
 
 ### [3.6.0-grok] — 2026-10-24
 
