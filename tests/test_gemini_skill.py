@@ -109,6 +109,15 @@ class GeminiSkillIntegrityTests(unittest.TestCase):
                 copie = GEMINI_SKILL_DIR / "profils" / source.name
                 self.assertEqual(copie.read_bytes(), source.read_bytes())
 
+    def test_compatible_import_application_gemini(self):
+        """Essais du 25/10/2026 : l'analyse de sécurité de gemini.google.com
+        refuse une URL tronquée en « ... » et des descriptions longues."""
+        for fichier in sorted(GEMINI_SKILL_DIR.rglob("*.md")):
+            with self.subTest(fichier=fichier.name):
+                self.assertNotRegex(fichier.read_text(encoding="utf-8"), r"https?://\S*\.\.\.")
+        description = re.search(r"(?m)^description: (.*)$", SKILL_MD.read_text(encoding="utf-8"))[1]
+        self.assertLessEqual(len(description), 60, "description à garder courte (import Gemini)")
+
     def test_historique_et_etats_de_version_3_5_1(self):
         texte = SKILL_MD.read_text(encoding="utf-8")
         for fragment in ("get_article_history", "VIGUEUR_DIFF", "ABROGE_DIFF", "_MORT_NE",

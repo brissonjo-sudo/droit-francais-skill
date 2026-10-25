@@ -97,6 +97,16 @@ Copy-Item -Recurse gemini_skill "$env:USERPROFILE\.gemini\skills\recherche-jurid
 Copy-Item -Recurse gemini_skill ".\.gemini\skills\recherche-juridique"
 ```
 
+### Dans l'application Gemini (gemini.google.com)
+
+Page **Compétences** → **Créer** → **Importer**, puis choisir un `.zip` dont
+`SKILL.md` est à la racine (pas dans un sous-dossier). Import réussi le
+25/10/2026 avec ce dossier, sans le bloc `metadata` de l'en-tête.
+
+L'analyse de sécurité de Gemini a refusé, lors des essais, une description
+longue et une URL tronquée en `...` : garder la description courte et n'écrire
+que des URL complètes. `tests/test_gemini_skill.py` contrôle ces deux points.
+
 ### Dans Google AI Studio (Web)
 
 Google AI Studio est une interface web de test qui ne prend pas en charge
