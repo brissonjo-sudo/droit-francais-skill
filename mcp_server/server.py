@@ -7,9 +7,11 @@ import argparse
 import hashlib
 import logging
 import os
+import re
 import sys
 import time
 import uuid
+from contextvars import ContextVar
 from pathlib import Path
 from typing import Any, Callable, Literal
 
@@ -32,6 +34,7 @@ from mcp.types import ToolAnnotations
 
 from droit_francais.config import load_dotenv
 from droit_francais.errors import LegifranceError
+from droit_francais.legifrance import caller_credentials
 from droit_francais import tools as legal_tools
 from mcp_server.runtime import (
     PrincipalRateLimiter,
@@ -153,6 +156,52 @@ else:
 server_options.update(_build_auth_options())
 server = MCPServer("Droit français", **server_options)
 
+#: En-têtes HTTP par lesquels un appelant transmet ses identifiants PISTE au pont.
+CALLER_ID_HEADER = "x-piste-client-id"
+CALLER_SECRET_HEADER = "x-piste-client-secret"
+#: Forme admise d'un identifiant transmis : jeu restreint, longueur bornée.
+_CALLER_VALUE = re.compile(r"[A-Za-z0-9._~+/=-]{8,256}")
+#: Paire (identifiant, secret) lue sur la requête HTTP en cours.
+_CALLER_HEADERS: ContextVar[tuple[str | None, str | None] | None] = ContextVar(
+    "piste_caller_headers", default=None
+)
+
+
+async def _capture_caller_headers(ctx: Any, call_next: Any) -> Any:
+    """Lit les deux en-têtes PISTE de la requête et seulement eux."""
+    headers = getattr(getattr(ctx, "request", None), "headers", None)
+    pair = None
+    if headers is not None:
+        pair = (headers.get(CALLER_ID_HEADER), headers.get(CALLER_SECRET_HEADER))
+    marker = _CALLER_HEADERS.set(pair)
+    try:
+        return await call_next(ctx)
+    finally:
+        _CALLER_HEADERS.reset(marker)
+
+
+if SETTINGS.caller_credentials:
+    if not MCP_V2:
+        raise RuntimeConfigurationError(
+            "MCP_PISTE_CREDENTIALS=caller exige le SDK MCP 2.x (middleware de requête)."
+        )
+    server.middleware.append(_capture_caller_headers)
+
+
+def _caller_pair() -> tuple[str, str]:
+    """Identifiants PISTE de l'appelant, validés sans jamais être recopiés."""
+    client_id, client_secret = _CALLER_HEADERS.get() or (None, None)
+    if not client_id or not client_secret:
+        raise ToolError(
+            "Identifiants PISTE absents : ce serveur est un pont et n'utilise que "
+            "les vôtres. Renseignez l'identifiant et le secret de votre application "
+            "PISTE dans la configuration du plugin (en-têtes X-Piste-Client-Id et "
+            "X-Piste-Client-Secret)."
+        )
+    if not (_CALLER_VALUE.fullmatch(client_id) and _CALLER_VALUE.fullmatch(client_secret)):
+        raise ToolError("Identifiants PISTE mal formés : vérifier la configuration du plugin.")
+    return client_id, client_secret
+
 READ_ONLY = ToolAnnotations(
     readOnlyHint=True,
     destructiveHint=False,
@@ -214,9 +263,9 @@ SECRET_VARIABLES = (
 )
 
 
-def _mask_secrets(text: str) -> str:
-    for key in SECRET_VARIABLES:
-        secret = os.environ.get(key)
+def _mask_secrets(text: str, extra: tuple[str, ...] = ()) -> str:
+    secrets = [os.environ.get(key) for key in SECRET_VARIABLES] + list(extra)
+    for secret in secrets:
         if secret:
             text = text.replace(secret, "[secret masqué]")
     return text
@@ -233,10 +282,22 @@ def _safe_call(operation: Callable[..., dict[str, Any]], *args: Any, **kwargs: A
     started = time.monotonic()
     operation_name = getattr(operation, "__name__", "legal_operation")
     principal = _current_principal()
+    caller: tuple[str, ...] = ()
+    if SETTINGS.caller_credentials:
+        caller = _caller_pair()
+        if not SETTINGS.auth_enabled:
+            # Sans OAuth, le quota suit la paire complète : un faux secret
+            # accolé à l'identifiant d'autrui n'épuise pas le quota de ce dernier.
+            digest = hashlib.sha256("\0".join(caller).encode("utf-8")).hexdigest()
+            principal = f"piste:{digest}"
     try:
         USER_LIMITER.check(principal)
         with GOVERNOR.slot():
-            result = operation(*args, **kwargs)
+            if caller:
+                with caller_credentials(*caller):
+                    result = operation(*args, **kwargs)
+            else:
+                result = operation(*args, **kwargs)
         LOGGER.info(
             "tool_call tool=%s principal=%s scopes=%s outcome=success duration_ms=%d",
             operation_name,
@@ -258,11 +319,11 @@ def _safe_call(operation: Callable[..., dict[str, Any]], *args: Any, **kwargs: A
             exc.exit_code,
             exc.http_status if exc.http_status is not None else "-",
             int((time.monotonic() - started) * 1000),
-            _mask_secrets(" ".join((exc.detail or str(exc)).split())),
+            _mask_secrets(" ".join((exc.detail or str(exc)).split()), caller),
         )
         raise ToolError(
             f"Source officielle non vérifiée (code {exc.exit_code}) : "
-            f"{_mask_secrets(str(exc))} [réf. {reference}]"
+            f"{_mask_secrets(str(exc), caller)} [réf. {reference}]"
         ) from exc
 
 
@@ -669,6 +730,8 @@ def main() -> None:
         print("Configuration MCP valide.")
         print(f"Retrait d'urgence Judilibre : {suppressed} identifiant(s) chargé(s).")
         return
+    if SETTINGS.caller_credentials and args.transport == "stdio":
+        parser.error("MCP_PISTE_CREDENTIALS=caller n'a de sens qu'en streamable-http.")
     if args.transport == "streamable-http" and MCP_V2:
         server.run(
             transport=args.transport,

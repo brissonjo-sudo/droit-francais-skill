@@ -2,10 +2,15 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
+import threading
 import time
 import urllib.parse
+from contextlib import contextmanager
+from contextvars import ContextVar
+from typing import Iterator
 
 from .config import legifrance_environment
 from .errors import LegifranceError
@@ -21,10 +26,44 @@ TOKEN_SAFETY_MARGIN_SECONDS = 60
 #: Durée retenue quand l'émetteur omet ``expires_in`` — volontairement courte.
 DEFAULT_TOKEN_LIFETIME_SECONDS = 600
 
+#: Identifiants PISTE de l'appelant, posés par le pont pour la durée d'un appel
+#: d'outil. Quand ils sont présents, l'environnement du serveur n'est jamais lu :
+#: un appelant ne consomme que son propre quota, jamais celui de l'exploitant.
+_CALLER_CREDENTIALS: ContextVar[tuple[str, str] | None] = ContextVar(
+    "piste_caller_credentials", default=None
+)
+#: Jetons des appelants, en mémoire seulement, indexés par une empreinte des
+#: identifiants : ni l'identifiant ni le secret ne servent de clé en clair.
+_CALLER_TOKENS: dict[str, tuple[str, float]] = {}
+_CALLER_TOKENS_LOCK = threading.Lock()
+#: Borne de la mémoire occupée par les jetons d'appelants.
+CALLER_TOKENS_MAX = 256
+
 
 def clear_token_cache() -> None:
     """Vide le cache de jeton de l'exécution courante."""
     _TOKEN_CACHE.clear()
+    with _CALLER_TOKENS_LOCK:
+        _CALLER_TOKENS.clear()
+
+
+@contextmanager
+def caller_credentials(client_id: str, client_secret: str) -> Iterator[None]:
+    """Utilise les identifiants PISTE de l'appelant le temps du bloc."""
+    marker = _CALLER_CREDENTIALS.set((client_id, client_secret))
+    try:
+        yield
+    finally:
+        _CALLER_CREDENTIALS.reset(marker)
+
+
+def caller_credentials_active() -> bool:
+    """Vrai si l'appel courant porte les identifiants de son appelant."""
+    return _CALLER_CREDENTIALS.get() is not None
+
+
+def _fingerprint(client_id: str, client_secret: str) -> str:
+    return hashlib.sha256(f"{client_id}\0{client_secret}".encode("utf-8")).hexdigest()
 
 
 def _cached_token() -> str | None:
@@ -35,15 +74,42 @@ def _cached_token() -> str | None:
     return token
 
 
-def _remember_token(token: str, lifetime: object) -> None:
+def _token_ttl(lifetime: object) -> int:
     try:
         seconds = int(lifetime)
     except (TypeError, ValueError):
         seconds = DEFAULT_TOKEN_LIFETIME_SECONDS
-    ttl = seconds - TOKEN_SAFETY_MARGIN_SECONDS
+    return seconds - TOKEN_SAFETY_MARGIN_SECONDS
+
+
+def _remember_token(token: str, lifetime: object) -> None:
+    ttl = _token_ttl(lifetime)
     _TOKEN_CACHE.clear()
     if ttl > 0:
         _TOKEN_CACHE.update(token=token, expires_at=time.monotonic() + ttl)
+
+
+def _cached_caller_token(key: str) -> str | None:
+    with _CALLER_TOKENS_LOCK:
+        entry = _CALLER_TOKENS.get(key)
+    if entry is None or time.monotonic() >= entry[1]:
+        return None
+    return entry[0]
+
+
+def _remember_caller_token(key: str, token: str, lifetime: object) -> None:
+    ttl = _token_ttl(lifetime)
+    now = time.monotonic()
+    with _CALLER_TOKENS_LOCK:
+        _CALLER_TOKENS.pop(key, None)
+        if ttl <= 0:
+            return
+        if len(_CALLER_TOKENS) >= CALLER_TOKENS_MAX:
+            for stale in [k for k, (_, exp) in _CALLER_TOKENS.items() if exp <= now]:
+                del _CALLER_TOKENS[stale]
+        while len(_CALLER_TOKENS) >= CALLER_TOKENS_MAX:
+            del _CALLER_TOKENS[next(iter(_CALLER_TOKENS))]
+        _CALLER_TOKENS[key] = (token, now + ttl)
 
 
 def get_token(*, force_refresh: bool = False) -> str:
@@ -54,7 +120,20 @@ def get_token(*, force_refresh: bool = False) -> str:
     indisponibilité passagère du serveur d'authentification ne casse plus une
     session dont le jeton est encore valide. ``force_refresh`` sert au seul
     renouvellement tenté après un ``401`` amont.
+
+    Sous ``caller_credentials``, le jeton est celui de l'appelant, mis en
+    cache sous l'empreinte de ses identifiants.
     """
+    caller = _CALLER_CREDENTIALS.get()
+    if caller is not None:
+        key = _fingerprint(*caller)
+        if not force_refresh:
+            cached = _cached_caller_token(key)
+            if cached:
+                return cached
+        token, lifetime = _request_token(*caller)
+        _remember_caller_token(key, token, lifetime)
+        return token
     if not force_refresh:
         cached = _cached_token()
         if cached:
@@ -85,6 +164,13 @@ def get_token(*, force_refresh: bool = False) -> str:
             "Détail pas-à-pas : skill/scripts/README.md",
             exit_code=2,
         )
+    token, lifetime = _request_token(client_id, client_secret)
+    _remember_token(token, lifetime)
+    return token
+
+
+def _request_token(client_id: str, client_secret: str) -> tuple[str, object]:
+    """Demande un jeton au serveur OAuth PISTE ; rend le jeton et sa durée."""
     payload = urllib.parse.urlencode(
         {
             "grant_type": "client_credentials",
@@ -113,8 +199,7 @@ def get_token(*, force_refresh: bool = False) -> str:
             exit_code=3,
             detail=f"Réponse du serveur de jetons : {str(data)[:300]}",
         )
-    _remember_token(token, data.get("expires_in"))
-    return token
+    return token, data.get("expires_in")
 
 
 def _headers(token: str) -> dict:
