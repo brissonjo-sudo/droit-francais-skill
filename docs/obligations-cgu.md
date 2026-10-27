@@ -116,7 +116,14 @@ Ces CGU ne contredisent aucune règle des sections 2 à 4.
   relève-t-il du « partage de clés » ? ;
 - demande contraire éventuelle des fournisseurs sur la collecte du contenu des
   requêtes (P4) ;
-- quotas exacts attachés aux deux abonnements PISTE ;
+- quotas exacts attachés aux deux abonnements PISTE. Le guide utilisateur PISTE
+  (copie OCR transmise par le mainteneur le 27/10/2026, SHA-256
+  `6264c21134c9ab8fe296b18d45779f861b4b38f5f9285b02598c3929a7d9ab2c`, § 7)
+  fixe par défaut 20 requêtes par seconde par application de production
+  (HTTP 429 au-delà), modifiable par PISTE, par le fournisseur ou sur demande
+  justifiée ; § 6.4 : 1 000 000 d'appels par jour en sandbox. Un quota propre à
+  Légifrance ou Judilibre, s'il existe, reste à relever sur la fiche de
+  l'application ;
 - valeurs effectivement présentes dans les réponses Judilibre pour siège et
   date de mise à jour ;
 - délai de rétention et accès aux pseudonymes des journaux Render ;
