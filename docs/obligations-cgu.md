@@ -1,7 +1,7 @@
 # Registre des obligations — Légifrance et Judilibre
 
 ─────────────────────────────────────────────
-Date d'analyse           : 31/08/2026 ; revue Légifrance le 25/10/2026
+Date d'analyse           : 31/08/2026 ; revue Légifrance le 25/10/2026 ; revue PISTE le 27/10/2026
 Date(s) de référence     : 15/12/2022 (Légifrance, V1.0) / 06/01/2022 (Judilibre)
 Date des faits           : sans objet
 Date d'action / analyse  : 25/10/2026
@@ -22,7 +22,7 @@ transfère pas les clés ni la qualité de titulaire à l'utilisateur final.
 | PDF `DILA_Legifrance_Beta_v2.pdf` | V1.1 du 04/08/2020 | **Historique, supersédé : ne fonde plus une conclusion de conformité** |
 | Texte intégral Légifrance 15/12/2022 | Obtenu le 25/10/2026 depuis le compte PISTE du mainteneur : `CGU_Legifrance_API_VF_15-12-2022.pdf`, V1.0, 9 pages, SHA-256 `9db9cde0dac918721eac7508f76ea47ebfd0b2a7822db3ad9b41bb11629851fd` | **Blocage levé** : source courante, analysée en section 4 |
 | CGU Judilibre | PDF officiel, version du 06/01/2022 (`CGU_open_data_V8`), SHA-256 `73f99f811475a0f9c7eb3e18ff431c37a41672e4c549fce64415eae71a713554` (copie du 25/10/2026) | Référentiel public contrôlable |
-| CGU de la plateforme PISTE | Non lues | Partie intégrante des CGU Légifrance (I.1) ; à archiver et analyser |
+| CGU de la plateforme PISTE | Lues le 27/10/2026 sur <https://piste.gouv.fr/cgu> : page sans date ni numéro de version ; SHA-256 `213cbb5f70cf0fe8c11dc9c4c18e04277aea8962411d755044529a30ea7e0c55` du texte de l'élément `article` (`innerText`, UTF-8, 18 048 octets) | Partie intégrante des CGU Légifrance (I.1) ; analysées en section 4 bis. Page modifiable sans préavis (§ 2.2) : l'empreinte ne vaut que pour cette lecture |
 | Licence Ouverte 2.0 | Texte officiel Etalab | Référentiel de réutilisation |
 
 En cas de contradiction, les CGU de l'API Légifrance prévalent sur les CGU
@@ -90,12 +90,32 @@ la comparaison détaillée avec le PDF 2020 n'a pas été refaite.
 | L9 | I.3 | CGU et API modifiables à tout moment ; information par courriel | Surveiller l'adresse du compte PISTE et refaire cette revue à chaque notification | Confirmé |
 
 Le texte n'interdit pas expressément de servir des tiers au moyen de
-l'application titulaire des clés ; cette lecture est une **inférence**, à
-confirmer par les CGU PISTE.
+l'application titulaire des clés ; cette lecture est une **inférence**. La
+lecture des CGU PISTE (section 4 bis) ne la confirme pas : elles ne disent rien
+non plus sur ce point.
+
+## 4 bis. Plateforme PISTE — affirmations vérifiées (lecture du 27/10/2026)
+
+Paraphrases contrôlées sur le texte intégral (section 1).
+
+| ID | Section | Règle | Conséquence pour le service | État |
+|---|---|---|---|---|
+| P1 | 3.1.1 | Les clés délivrées ne sont utilisables que pour une Application donnée | Une seule application PISTE pour le service ; pas de réemploi des clés ailleurs | Confirmé |
+| P2 | 3.1.2 | L'utilisateur s'engage à ne pas partager ses clés « en dehors de son organisation, pour quelque utilisation que ce soit » | Satisfait au sens littéral (clés côté serveur, C1). Le texte ne dit pas si servir des tiers avec ces clés relève de ce partage : **question ouverte**, à trancher par un avis juridique | Confirmé (texte) ; portée non établie |
+| P3 | 3.1.3 | Limites d'usage fixées à la discrétion du fournisseur ; interdiction de les contourner | Cache et rejeu (`transport.py`) à borner pour ne pas contourner un quota ; pas de multiplication d'applications pour cumuler des quotas | Confirmé |
+| P4 | 5 | L'AIFE collecte l'origine, le nombre des appels et **le contenu des requêtes**, sauf demande contraire du fournisseur | Les requêtes des utilisateurs sont visibles de l'AIFE ; mention portée dans `privacy-policy.md`. Une demande contraire des fournisseurs DILA ou Cour de cassation n'est pas connue | Confirmé (texte) |
+| P5 | 2.2, 2.3 | CGU modifiables à tout moment sans accord préalable ; messages de service (dont révocation des droits d'accès) envoyés à l'adresse du compte | Même veille que L9 : surveiller l'adresse du compte PISTE | Confirmé |
+| P6 | 2.8 | Blocage ou suppression du compte sans information préalable en cas d'usage contraire aux CGU | Même point de défaillance unique que L8 (C8) | Confirmé |
+| P7 | 3.2 | Interruption de la plateforme annoncée au moins 3 jours ouvrés à l'avance ; niveaux de service propres à chaque fournisseur | Aucun engagement de disponibilité amont (voir L3) | Confirmé |
+
+Ces CGU ne contredisent aucune règle des sections 2 à 4.
 
 ## 5. Points restant à vérifier
 
-- texte intégral et empreinte des CGU de la plateforme PISTE ;
+- avis juridique sur P2 : servir des tiers avec l'application du titulaire
+  relève-t-il du « partage de clés » ? ;
+- demande contraire éventuelle des fournisseurs sur la collecte du contenu des
+  requêtes (P4) ;
 - quotas exacts attachés aux deux abonnements PISTE ;
 - valeurs effectivement présentes dans les réponses Judilibre pour siège et
   date de mise à jour ;
@@ -108,14 +128,18 @@ confirmer par les CGU PISTE.
 - CGU de l'API Légifrance V1.0 du 15/12/2022 — copie obtenue depuis le compte
   PISTE du mainteneur le 25/10/2026 (empreinte en section 1)
 - [CGU Judilibre du 6 janvier 2022](https://piste.gouv.fr/images/cgu/CGU_open_data_V8.pdf)
+- [CGU de la plateforme PISTE](https://piste.gouv.fr/cgu) — lues le
+  27/10/2026, sans date de version (empreinte en section 1)
 - [Licence Ouverte 2.0](https://www.etalab.gouv.fr/licence-ouverte-open-licence)
 - [Ancien PDF Légifrance 2020 — archive seulement](https://piste.gouv.fr/images/cgu/DILA_Legifrance_Beta_v2.pdf)
 
 ## Étape 7 — Auto-critique adversariale
 
-- Le texte Légifrance 2022 lève le blocage, mais ses renvois (CGU PISTE,
-  mentions légales) restent non lus : « conforme aux CGU Légifrance » ne vaut
-  que pour le texte de l'API.
+- Les CGU PISTE sont lues, mais les mentions légales renvoyées par le texte
+  Légifrance ne le sont pas : « conforme aux CGU Légifrance » ne vaut que pour
+  le texte de l'API et les CGU PISTE.
+- La page PISTE n'est pas versionnée : l'empreinte atteste une lecture datée,
+  pas une version publiée.
 - Le retrait complet d'une décision réduit la diffusion mais ne remplace pas la
   transmission sans délai à la Cour de cassation.
 - Les champs absents d'une réponse Judilibre ne doivent pas être inventés.
@@ -125,5 +149,5 @@ Modules activés                       : [DOC-AUDIT]
 Modules non activés                   : [PÉNAL, ACTE-ADMIN, PA-PJ, FOND, CONTENTIEUX]
 Niveau de confiance global            : modéré
 Sources informelles signalées         : aucune
-Limites de la recherche               : CGU PISTE non lues ; comparaison avec 2020 non refaite
+Limites de la recherche               : mentions légales non lues ; page CGU PISTE non versionnée ; comparaison avec 2020 non refaite
 ─────────────────────────────────────────────
