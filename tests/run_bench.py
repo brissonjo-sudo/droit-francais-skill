@@ -318,7 +318,8 @@ def _ligne_resultat(
             trace=trace,
             reponse=trace.texte_final,
             modele=arguments.juge_model,
-            executable=arguments.executable,
+            # Le juge est toujours Claude : --executable vise l'agent évalué.
+            executable=arguments.executable if arguments.agent == "claude" else None,
         )
 
     ligne = _base(cas, bras, repetition, execution, agent, arguments, empreinte, version, etiquette)
