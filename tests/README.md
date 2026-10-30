@@ -119,6 +119,13 @@ quoi le skill installé sur le poste contaminerait le bras A).
 les deux concluent au succès : **un juge indulgent ne peut pas à lui seul
 faire réussir une sonde.**
 
+Le résumé joint un extrait de chaque résultat d'outil (4 000 caractères au
+plus, secrets expurgés), et la consigne fait primer cet extrait sur la mémoire
+du juge : sans lui, le juge tranchait le fond de mémoire et a réclamé, sur
+L-1, un 8° abrogé en 2014. Le juge est Claude par défaut ; `--juge-agent codex
+--juge-model <modèle>` le confie à Codex, pour qu'une famille ne soit pas
+jugée par un modèle qui partage sa mémoire.
+
 Trois précautions rendent le contrôle de provenance juste : un identifiant
 déjà présent dans la question n'est pas une invention ; un identifiant marqué
 « non vérifié » est toléré (le noyau autorise ce marquage) ; un identifiant
@@ -132,6 +139,11 @@ python tests/run_bench.py --verifier-corpus          # hors réseau, joué en CI
 python tests/run_bench.py --only L-1 --bras C --sans-juge --garder-flux
 python tests/run_bench.py --bras A,B,C --repeats 3 --sortie bench/runs/x.jsonl
 python tests/run_bench.py --reprendre bench/runs/x.jsonl
+# Codex ne nomme pas le modèle effectif dans son flux : exploratoire seulement,
+# le modèle demandé est noté avec modele_atteste=false. Chemin --python absolu.
+python tests/run_bench.py --agent codex --model gpt-exact --mcp-local --python /chemin/absolu/python --accepter-modele-non-atteste
+# Jugement croisé : Claude évalué, Codex juge.
+python tests/run_bench.py --model opus --bras A,C --juge-agent codex --juge-model gpt-exact --juge-executable /chemin/codex
 python tests/bench/resume.py bench/runs/x.jsonl --baseline bench/baselines/…
 ```
 
@@ -186,7 +198,9 @@ dans le pipeline standard.
 - **Les pannes ne sont pas des échecs.** Instance endormie, jeton expiré,
   quota atteint : classés `infra_error`, exclus des taux, rejouables par
   `--reprendre`. Les compter comme des échecs ferait baisser un score pour des
-  raisons étrangères à ce qu'on mesure.
+  raisons étrangères à ce qu'on mesure. Exception : si le plafond d'appels
+  était déjà dépassé avant le premier appel en erreur, l'échec était acquis ;
+  le run est compté, et le verdict `plafond` le fait échouer.
 
 Le corpus (`bench-cases.csv`) porte une colonne **`Valide par`** : par défaut,
 seules les sondes dont le fond juridique a été relu par un humain sont jouées.
