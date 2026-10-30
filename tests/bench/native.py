@@ -205,7 +205,7 @@ def executer(famille: str, *, prompt: str, bras: str, plafond: int, options):
     motif = ""
     if result.returncode or trace.is_error or trace.lignes_illisibles or not trace.texte_final:
         motif = "flux incomplet, erreur CLI ou réponse absente"
-    elif not trace.modele:
+    elif not trace.modele and not options.modele_non_atteste:
         motif = "modèle effectif absent du flux natif : qualification manquante"
     execution = Execution(trace, result.stdout if options.garder_flux else "", result.returncode,
                           "", "infra_error" if motif else "ok", motif)

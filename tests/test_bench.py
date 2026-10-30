@@ -19,6 +19,7 @@ MCP, sur le patron de `test_live_probe.py`.
 from __future__ import annotations
 
 import json
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -30,6 +31,7 @@ RACINE = TESTS.parent
 sys.path.insert(0, str(TESTS))
 sys.path.insert(0, str(RACINE))
 
+import run_bench  # noqa: E402
 from bench import agents, cases, juge, verdicts  # noqa: E402
 from bench.cadence import Cadence  # noqa: E402
 from bench.flux import Appel, Trace, analyser, identifiants  # noqa: E402
@@ -473,15 +475,56 @@ class LigneDeCommande(unittest.TestCase):
 class Juge(unittest.TestCase):
     """Le juge voit la trace, et rien de ce qu'il ne doit pas voir."""
 
-    def test_le_resume_de_trace_ne_recopie_pas_les_sources(self):
+    def test_le_resume_joint_un_extrait_borne_des_sources(self):
+        """Sans le texte lu, le juge tranchait le fond de mémoire (L-1, 30/10/2026)."""
+        long = "7° Le soin d'obvier. " + "X" * (juge.EXTRAIT_MAX * 2)
         trace = _trace_avec(
-            [_appel(0, "get_article", {"id": "LEGIARTI000029946370"}, resultat="TEXTE INTEGRAL " * 50)],
+            [_appel(0, "get_article", {"id": "LEGIARTI000029946370"}, resultat=long)],
             "…",
         )
         resume = juge.resumer_trace(trace)
         self.assertIn("get_article", resume)
         self.assertIn("LEGIARTI000029946370", resume)
-        self.assertNotIn("TEXTE INTEGRAL", resume)
+        self.assertIn("7° Le soin d'obvier.", resume)
+        self.assertIn("[…tronqué]", resume)
+        self.assertLess(len(resume), juge.EXTRAIT_MAX + 500)
+
+    def test_la_consigne_fait_primer_l_extrait_sur_la_memoire(self):
+        consigne = (juge.PROMPTS / "juge.md").read_text(encoding="utf-8")
+        self.assertIn("l'extrait renvoyé par l'outil prime sur ta", consigne)
+
+    def test_juge_codex_isole_et_impose_le_schema(self):
+        commande = juge.construire_commande_codex("gpt-exact", "/faux/codex", Path("schema.json"))
+        self.assertEqual(commande[-1], "-")
+        self.assertEqual(commande[commande.index("--output-schema") + 1], "schema.json")
+        self.assertIn("--ignore-user-config", commande)
+        self.assertNotIn("mcp_servers.droit-francais.command", " ".join(commande))
+        self.assertTrue(any("juge.md" in s for s in commande))
+
+    def test_juge_codex_lit_le_verdict_du_flux_natif(self):
+        flux = "\n".join(json.dumps(v) for v in [
+            {"type": "item.completed", "item": {"type": "agent_message", "text": json.dumps(
+                {"verdict": "PASS", "raison": "Conforme à l'extrait.", "axe_defaillant": "aucun", "extrait": ""})}},
+            {"type": "turn.completed", "usage": {}}])
+        fini = subprocess.CompletedProcess([], 0, stdout=flux, stderr="")
+        with mock.patch("bench.juge.subprocess.run", return_value=fini) as run:
+            avis = juge.juger(bras="C", comportement_attendu="…", trace=Trace(), reponse="…",
+                              modele="gpt-exact", executable="/faux/codex", famille="codex")
+        self.assertTrue(avis.passe)
+        self.assertEqual(avis.modele, "codex:gpt-exact")
+        self.assertNotIn("OPENAI_API_KEY", run.call_args.kwargs["env"])
+
+    def test_plafond_franchi_avant_panne_reste_un_echec(self):
+        ok = [_appel(i, "get_article") for i in range(9)]
+        quota = _appel(9, "search", resultat="Quota individuel atteint", erreur=True)
+        self.assertTrue(run_bench.plafond_franchi_avant_panne(Trace(appels=ok + [quota]), 8))
+        # Sous le plafond au moment de la panne : la panne reste une panne.
+        self.assertFalse(run_bench.plafond_franchi_avant_panne(Trace(appels=ok[:8] + [quota] + ok), 8))
+        self.assertFalse(run_bench.plafond_franchi_avant_panne(Trace(appels=ok + [quota]), 0))
+
+    def test_juge_codex_sans_modele_est_refuse(self):
+        with self.assertRaises(SystemExit):
+            run_bench.main(["--juge-agent", "codex", "--only", "L-1"])
 
     def test_le_resume_signale_les_appels_en_erreur(self):
         trace = _trace_avec([_appel(0, "search", resultat="429", erreur=True)], "…")
