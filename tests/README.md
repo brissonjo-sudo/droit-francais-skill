@@ -198,7 +198,9 @@ dans le pipeline standard.
 - **Les pannes ne sont pas des échecs.** Instance endormie, jeton expiré,
   quota atteint : classés `infra_error`, exclus des taux, rejouables par
   `--reprendre`. Les compter comme des échecs ferait baisser un score pour des
-  raisons étrangères à ce qu'on mesure.
+  raisons étrangères à ce qu'on mesure. Exception : si le plafond d'appels
+  était déjà dépassé avant le premier appel en erreur, l'échec était acquis ;
+  le run est compté, et le verdict `plafond` le fait échouer.
 
 Le corpus (`bench-cases.csv`) porte une colonne **`Valide par`** : par défaut,
 seules les sondes dont le fond juridique a été relu par un humain sont jouées.

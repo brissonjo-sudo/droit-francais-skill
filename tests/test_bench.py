@@ -514,6 +514,14 @@ class Juge(unittest.TestCase):
         self.assertEqual(avis.modele, "codex:gpt-exact")
         self.assertNotIn("OPENAI_API_KEY", run.call_args.kwargs["env"])
 
+    def test_plafond_franchi_avant_panne_reste_un_echec(self):
+        ok = [_appel(i, "get_article") for i in range(9)]
+        quota = _appel(9, "search", resultat="Quota individuel atteint", erreur=True)
+        self.assertTrue(run_bench.plafond_franchi_avant_panne(Trace(appels=ok + [quota]), 8))
+        # Sous le plafond au moment de la panne : la panne reste une panne.
+        self.assertFalse(run_bench.plafond_franchi_avant_panne(Trace(appels=ok[:8] + [quota] + ok), 8))
+        self.assertFalse(run_bench.plafond_franchi_avant_panne(Trace(appels=ok + [quota]), 0))
+
     def test_juge_codex_sans_modele_est_refuse(self):
         with self.assertRaises(SystemExit):
             run_bench.main(["--juge-agent", "codex", "--only", "L-1"])

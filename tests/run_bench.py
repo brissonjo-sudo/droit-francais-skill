@@ -214,6 +214,10 @@ def executer(arguments: argparse.Namespace) -> int:
         if bras in agents.BRAS_AVEC_OUTILS:
             cadence.corriger(cas.plafond_appels, len(execution.trace.appels))
 
+        if execution.statut == "infra_error" and plafond_franchi_avant_panne(execution.trace, cas.plafond_appels):
+            # L'échec au plafond était acquis avant la panne : le compter, ne pas l'effacer.
+            execution.statut, execution.motif_infra = "ok", ""
+
         marqueur = "·"
         if execution.statut == "infra_error":
             echecs_infra += 1
@@ -250,6 +254,22 @@ def executer(arguments: argparse.Namespace) -> int:
     if echecs_infra:
         print(f"⚠️  {echecs_infra} panne(s) d'infrastructure — rejouer avec --reprendre {sortie}")
     return 0
+
+
+def plafond_franchi_avant_panne(trace, plafond: int) -> bool:
+    """Le plafond d'appels était-il déjà dépassé avant le premier appel en erreur ?
+
+    N-1 (30/10/2026) : ~21 appels pour un plafond de 8, puis quota MCP atteint.
+    Classé panne, le run sortait du score alors que son échec était certain.
+    """
+    if plafond <= 0:
+        return False
+    avant = 0
+    for appel in trace.appels_sources:
+        if appel.is_error:
+            break
+        avant += 1
+    return avant > plafond
 
 
 def _programme(corpus, bras_demandes, repetitions):
