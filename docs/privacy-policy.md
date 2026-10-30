@@ -1,6 +1,6 @@
 # Politique de confidentialité — Droit français
 
-Dernière mise à jour : 4 septembre 2026
+Dernière mise à jour : 27 octobre 2026
 
 ## Responsable et contact
 
@@ -71,6 +71,12 @@ Selon l'opération demandée, les données nécessaires sont transmises :
   la région de Francfort ;
 - à PISTE/DILA pour les recherches Légifrance ;
 - à PISTE et à la Cour de cassation pour les recherches Judilibre.
+
+D'après les conditions d'utilisation de la plateforme PISTE, son gestionnaire
+(l'AIFE) collecte l'origine et le nombre des appels aux API ainsi que, sauf
+demande contraire du fournisseur de l'API, le contenu des requêtes. Les
+recherches transmises à Légifrance ou à Judilibre peuvent donc être visibles de
+l'AIFE ; l'éditeur ne maîtrise pas cette collecte.
 
 Les clés d'accès PISTE sont conservées côté serveur. Elles ne sont ni demandées
 à l'utilisateur, ni renvoyées dans les réponses du plugin.
