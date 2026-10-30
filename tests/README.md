@@ -119,6 +119,13 @@ quoi le skill installé sur le poste contaminerait le bras A).
 les deux concluent au succès : **un juge indulgent ne peut pas à lui seul
 faire réussir une sonde.**
 
+Le résumé joint un extrait de chaque résultat d'outil (4 000 caractères au
+plus, secrets expurgés), et la consigne fait primer cet extrait sur la mémoire
+du juge : sans lui, le juge tranchait le fond de mémoire et a réclamé, sur
+L-1, un 8° abrogé en 2014. Le juge est Claude par défaut ; `--juge-agent codex
+--juge-model <modèle>` le confie à Codex, pour qu'une famille ne soit pas
+jugée par un modèle qui partage sa mémoire.
+
 Trois précautions rendent le contrôle de provenance juste : un identifiant
 déjà présent dans la question n'est pas une invention ; un identifiant marqué
 « non vérifié » est toléré (le noyau autorise ce marquage) ; un identifiant
@@ -135,6 +142,8 @@ python tests/run_bench.py --reprendre bench/runs/x.jsonl
 # Codex ne nomme pas le modèle effectif dans son flux : exploratoire seulement,
 # le modèle demandé est noté avec modele_atteste=false. Chemin --python absolu.
 python tests/run_bench.py --agent codex --model gpt-exact --mcp-local --python /chemin/absolu/python --accepter-modele-non-atteste
+# Jugement croisé : Claude évalué, Codex juge.
+python tests/run_bench.py --model opus --bras A,C --juge-agent codex --juge-model gpt-exact --juge-executable /chemin/codex
 python tests/bench/resume.py bench/runs/x.jsonl --baseline bench/baselines/…
 ```
 

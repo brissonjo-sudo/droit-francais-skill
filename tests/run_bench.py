@@ -318,8 +318,10 @@ def _ligne_resultat(
             trace=trace,
             reponse=trace.texte_final,
             modele=arguments.juge_model,
-            # Le juge est toujours Claude : --executable vise l'agent évalué.
-            executable=arguments.executable if arguments.agent == "claude" else None,
+            famille=arguments.juge_agent,
+            # --executable vise l'agent évalué : ne le réutiliser que si le juge est de la même famille.
+            executable=arguments.juge_executable
+            or (arguments.executable if arguments.agent == arguments.juge_agent else None),
         )
 
     ligne = _base(cas, bras, repetition, execution, agent, arguments, empreinte, version, etiquette)
@@ -367,7 +369,10 @@ def construire_analyseur() -> argparse.ArgumentParser:
     p.add_argument("--only", help="Restreint à des identifiants ou des modes (séparés par des virgules).")
     p.add_argument("--repeats", type=int, default=1, help="Répétitions par cas (3 recommandé en baseline).")
     p.add_argument("--model", default="sonnet", help="Modèle évalué (défaut : sonnet).")
-    p.add_argument("--juge-model", default="opus", help="Modèle juge (défaut : opus).")
+    p.add_argument("--juge-agent", default="claude", choices=juge_mod.FAMILLES_JUGE,
+                   help="Famille du juge (défaut : claude). Croiser : juger Claude par Codex.")
+    p.add_argument("--juge-model", help="Modèle juge (défaut : opus pour Claude ; requis pour Codex).")
+    p.add_argument("--juge-executable", help="Chemin de la CLI du juge.")
     p.add_argument("--sans-juge", action="store_true", help="Verdicts déterministes seuls.")
     p.add_argument("--agent", default="claude", choices=sorted(agents.BACKENDS), help="Backend d'exécution.")
     p.add_argument("--sortie", help="Fichier JSONL de sortie.")
@@ -386,7 +391,12 @@ def construire_analyseur() -> argparse.ArgumentParser:
 
 
 def main(argv: list[str] | None = None) -> int:
-    arguments = construire_analyseur().parse_args(argv)
+    analyseur = construire_analyseur()
+    arguments = analyseur.parse_args(argv)
+    if not arguments.juge_model:
+        if arguments.juge_agent != "claude" and not arguments.sans_juge:
+            analyseur.error("--juge-model est requis pour un juge non Claude (aucun modèle implicite)")
+        arguments.juge_model = "opus"
     if arguments.verifier_corpus:
         return verifier_corpus(arguments)
     return executer(arguments)
