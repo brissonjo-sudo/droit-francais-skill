@@ -178,6 +178,7 @@ def executer(arguments: argparse.Namespace) -> int:
         interpreteur_python=arguments.python,
         mcp_local=arguments.mcp_local,
         garder_flux=arguments.garder_flux,
+        modele_non_atteste=arguments.accepter_modele_non_atteste,
     )
     backend = agents.backend(arguments.agent)
 
@@ -272,6 +273,7 @@ def _base(cas, bras, repetition, execution, agent, arguments, empreinte, version
         "skill_sha256": empreinte,
         "agent": agent,
         "modele": execution.trace.modele or arguments.model,
+        "modele_atteste": bool(execution.trace.modele),
         "bras": bras,
         "id": cas.id,
         "mode": cas.mode,
@@ -371,6 +373,9 @@ def construire_analyseur() -> argparse.ArgumentParser:
     p.add_argument("--reprendre", help="JSONL d'un run interrompu : les runs acquis sont sautés.")
     p.add_argument("--inclure-brouillons", action="store_true", help="Joue aussi les sondes non validées.")
     p.add_argument("--garder-flux", action="store_true", help="Conserve le flux brut de chaque run.")
+    p.add_argument("--accepter-modele-non-atteste", action="store_true",
+                   help="Exploratoire : accepte un flux natif sans modèle effectif (Codex) ; "
+                        "le modèle demandé est noté, avec modele_atteste=false.")
     p.add_argument("--url", default=agents.Options.url_mcp, help="Endpoint MCP du bras C.")
     p.add_argument("--mcp-local", action="store_true", help="Bras C sur un serveur MCP local (stdio).")
     p.add_argument("--python", help="Interpréteur Python du serveur MCP local.")

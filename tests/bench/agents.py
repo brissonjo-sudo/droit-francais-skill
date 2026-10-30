@@ -113,6 +113,9 @@ class Options:
     gemini_registre: str | None = None
     gemini_profil: str | None = None
     contexte: ContexteExecution | None = None
+    # Banc exploratoire seulement : accepte un flux natif muet sur le modèle
+    # et garde le modèle demandé. La campagne ne l'active jamais.
+    modele_non_atteste: bool = False
 
 
 @dataclass

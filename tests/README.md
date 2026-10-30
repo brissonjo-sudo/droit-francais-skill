@@ -132,6 +132,9 @@ python tests/run_bench.py --verifier-corpus          # hors réseau, joué en CI
 python tests/run_bench.py --only L-1 --bras C --sans-juge --garder-flux
 python tests/run_bench.py --bras A,B,C --repeats 3 --sortie bench/runs/x.jsonl
 python tests/run_bench.py --reprendre bench/runs/x.jsonl
+# Codex ne nomme pas le modèle effectif dans son flux : exploratoire seulement,
+# le modèle demandé est noté avec modele_atteste=false. Chemin --python absolu.
+python tests/run_bench.py --agent codex --model gpt-exact --mcp-local --python /chemin/absolu/python --accepter-modele-non-atteste
 python tests/bench/resume.py bench/runs/x.jsonl --baseline bench/baselines/…
 ```
 
