@@ -2,6 +2,7 @@
 from __future__ import annotations
 import copy
 import json
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -134,6 +135,22 @@ class CampagneTests(unittest.TestCase):
         self.assertEqual(trace.texte_final, "réponse")
         self.assertEqual(trace.modele, "")
         self.assertFalse(trace.is_error)
+
+    def test_codex_modele_absent_refuse_sauf_banc_exploratoire(self):
+        flux = '\n'.join(json.dumps(v) for v in [
+            {"type": "item.completed", "item": {"type": "agent_message", "text": "réponse"}},
+            {"type": "turn.completed", "usage": {"input_tokens": 4}}])
+        fini = subprocess.CompletedProcess([], 0, stdout=flux, stderr="")
+        with mock.patch("bench.native.subprocess.run", return_value=fini):
+            refuse = native.executer("codex", prompt="q", bras="A", plafond=1,
+                                     options=agents.Options(modele="gpt-exact", executable="codex"))
+            accepte = native.executer("codex", prompt="q", bras="A", plafond=1,
+                                      options=agents.Options(modele="gpt-exact", executable="codex",
+                                                             modele_non_atteste=True))
+        self.assertEqual("infra_error", refuse.statut)
+        self.assertIn("modèle effectif absent", refuse.motif_infra)
+        self.assertEqual("ok", accepte.statut)
+        self.assertEqual("", accepte.trace.modele)
 
     def test_gemini_changement_modele_detecte_dans_stats(self):
         flux = '\n'.join(json.dumps(v) for v in [

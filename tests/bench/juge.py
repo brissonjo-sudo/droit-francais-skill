@@ -9,10 +9,13 @@ Différence avec `run_eval.judge` : le juge reçoit ici un **résumé structuré
 la trace** en plus de la réponse. Sans lui, il ne peut pas distinguer une
 source récupérée d'une source récitée — la question centrale du skill.
 
-Le résumé ne reprend jamais le texte intégral des résultats d'outils : seuls
-les noms, les arguments et les identifiants renvoyés. C'est plus lisible pour
-le juge, et cela évite qu'un secret présent dans une réponse d'outil ne
-transite vers un second appel de modèle.
+Le résumé joint un extrait borné du texte renvoyé par chaque outil, expurgé
+des secrets connus. Sans lui, le juge tranchait le fond de mémoire et pouvait
+contredire la source lue par l'assistant (L-1, 30/10/2026 : 8° abrogé en 2014
+réclamé comme en vigueur).
+
+Le juge peut être Claude ou Codex : faire juger une famille par l'autre évite
+qu'un juge partage la mémoire du modèle évalué.
 
 Stdlib uniquement.
 """
@@ -23,12 +26,17 @@ import json
 import re
 import shutil
 import subprocess
+import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 
+from bench import native
+from bench.confidentialite import expurger
 from bench.flux import Trace
 
 PROMPTS = Path(__file__).resolve().parent / "prompts"
+EXTRAIT_MAX = 4000  # caractères par appel : un article tient, une liste de résultats est tronquée
+FAMILLES_JUGE = ("claude", "codex")
 
 SCHEMA = {
     "type": "object",
@@ -68,7 +76,7 @@ class Avis:
 
 
 def resumer_trace(trace: Trace) -> str:
-    """Rend la trace lisible par un modèle, sans recopier les sources."""
+    """Rend la trace lisible par un modèle, avec un extrait borné de chaque source."""
     if not trace.appels:
         return "Aucun appel d'outil."
     lignes = []
@@ -80,6 +88,10 @@ def resumer_trace(trace: Trace) -> str:
         renvoyes = sorted(appel.identifiants_renvoyes)
         suffixe = f" → identifiants : {', '.join(renvoyes)}" if renvoyes else ""
         lignes.append(f"{appel.ordre + 1}. {appel.nom}({arguments}) [{etat}]{suffixe}")
+        texte = expurger(appel.resultat_texte or "").strip()
+        if texte:
+            coupe = " […tronqué]" if len(texte) > EXTRAIT_MAX else ""
+            lignes.append(f"   Extrait renvoyé : {texte[:EXTRAIT_MAX]}{coupe}")
     return "\n".join(lignes)
 
 
@@ -115,6 +127,13 @@ def construire_commande(modele: str, executable: str | None = None) -> list[str]
         "--json-schema",
         json.dumps(SCHEMA, ensure_ascii=False),
     ]
+
+
+def construire_commande_codex(modele: str, executable: str, schema: Path) -> list[str]:
+    """Juge Codex : même isolement que l'agent Codex sans MCP, sortie au schéma."""
+    from bench.agents import Options
+    cmd = native.commande_codex(executable, modele, PROMPTS / "juge.md", "A", Options())
+    return cmd[:-1] + ["--output-schema", str(schema), cmd[-1]]
 
 
 def extraire_avis(sortie: str) -> Avis:
@@ -177,26 +196,47 @@ def juger(
     modele: str,
     executable: str | None = None,
     timeout_s: int = 180,
+    famille: str = "claude",
 ) -> Avis:
     """Soumet (réponse + trace) au juge et rend son avis."""
+    if famille not in FAMILLES_JUGE:
+        raise ValueError(f"famille de juge inconnue : {famille}")
     entree = construire_entree(
         bras=bras, comportement_attendu=comportement_attendu, trace=trace, reponse=reponse
     )
     try:
-        acheve = subprocess.run(  # noqa: S603 — commande construite, shell=False
-            construire_commande(modele, executable),
-            input=entree,
-            capture_output=True,
-            encoding="utf-8",
-            errors="replace",
-            timeout=timeout_s,
-            shell=False,
-        )
+        with tempfile.TemporaryDirectory(prefix="bench-juge-") as dossier:
+            if famille == "codex":
+                exe = executable or shutil.which("codex")
+                if not exe:
+                    return Avis("FAIL", "le juge n'a pas pu être lancé", erreur="CLI codex absente")
+                schema = Path(dossier) / "schema.json"
+                # Le mode strict d'OpenAI exige que toutes les propriétés soient requises.
+                strict = {**SCHEMA, "required": list(SCHEMA["properties"])}
+                schema.write_text(json.dumps(strict, ensure_ascii=False), encoding="utf-8")
+                commande = construire_commande_codex(modele, exe, schema)
+                env = native.environnement_abonnement()
+            else:
+                commande, env = construire_commande(modele, executable), None
+            acheve = subprocess.run(  # noqa: S603 — commande construite, shell=False
+                commande,
+                input=entree,
+                capture_output=True,
+                encoding="utf-8",
+                errors="replace",
+                timeout=timeout_s,
+                cwd=dossier,
+                env=env,
+                shell=False,
+            )
     except subprocess.TimeoutExpired:
         return Avis("FAIL", "le juge n'a pas répondu dans le délai", erreur="timeout")
     except OSError as exc:
         return Avis("FAIL", "le juge n'a pas pu être lancé", erreur=type(exc).__name__)
 
-    avis = extraire_avis(acheve.stdout or "")
-    avis.modele = modele
+    sortie = acheve.stdout or ""
+    if famille == "codex":
+        sortie = native.analyser_natif(sortie, "codex").texte_final
+    avis = extraire_avis(sortie)
+    avis.modele = f"{famille}:{modele}"
     return avis

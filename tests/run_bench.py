@@ -178,6 +178,7 @@ def executer(arguments: argparse.Namespace) -> int:
         interpreteur_python=arguments.python,
         mcp_local=arguments.mcp_local,
         garder_flux=arguments.garder_flux,
+        modele_non_atteste=arguments.accepter_modele_non_atteste,
     )
     backend = agents.backend(arguments.agent)
 
@@ -212,6 +213,10 @@ def executer(arguments: argparse.Namespace) -> int:
 
         if bras in agents.BRAS_AVEC_OUTILS:
             cadence.corriger(cas.plafond_appels, len(execution.trace.appels))
+
+        if execution.statut == "infra_error" and plafond_franchi_avant_panne(execution.trace, cas.plafond_appels):
+            # L'échec au plafond était acquis avant la panne : le compter, ne pas l'effacer.
+            execution.statut, execution.motif_infra = "ok", ""
 
         marqueur = "·"
         if execution.statut == "infra_error":
@@ -251,6 +256,22 @@ def executer(arguments: argparse.Namespace) -> int:
     return 0
 
 
+def plafond_franchi_avant_panne(trace, plafond: int) -> bool:
+    """Le plafond d'appels était-il déjà dépassé avant le premier appel en erreur ?
+
+    N-1 (30/10/2026) : ~21 appels pour un plafond de 8, puis quota MCP atteint.
+    Classé panne, le run sortait du score alors que son échec était certain.
+    """
+    if plafond <= 0:
+        return False
+    avant = 0
+    for appel in trace.appels_sources:
+        if appel.is_error:
+            break
+        avant += 1
+    return avant > plafond
+
+
 def _programme(corpus, bras_demandes, repetitions):
     for repetition in range(1, max(1, repetitions) + 1):
         for cas in corpus:
@@ -272,6 +293,7 @@ def _base(cas, bras, repetition, execution, agent, arguments, empreinte, version
         "skill_sha256": empreinte,
         "agent": agent,
         "modele": execution.trace.modele or arguments.model,
+        "modele_atteste": bool(execution.trace.modele),
         "bras": bras,
         "id": cas.id,
         "mode": cas.mode,
@@ -316,7 +338,10 @@ def _ligne_resultat(
             trace=trace,
             reponse=trace.texte_final,
             modele=arguments.juge_model,
-            executable=arguments.executable,
+            famille=arguments.juge_agent,
+            # --executable vise l'agent évalué : ne le réutiliser que si le juge est de la même famille.
+            executable=arguments.juge_executable
+            or (arguments.executable if arguments.agent == arguments.juge_agent else None),
         )
 
     ligne = _base(cas, bras, repetition, execution, agent, arguments, empreinte, version, etiquette)
@@ -364,13 +389,19 @@ def construire_analyseur() -> argparse.ArgumentParser:
     p.add_argument("--only", help="Restreint à des identifiants ou des modes (séparés par des virgules).")
     p.add_argument("--repeats", type=int, default=1, help="Répétitions par cas (3 recommandé en baseline).")
     p.add_argument("--model", default="sonnet", help="Modèle évalué (défaut : sonnet).")
-    p.add_argument("--juge-model", default="opus", help="Modèle juge (défaut : opus).")
+    p.add_argument("--juge-agent", default="claude", choices=juge_mod.FAMILLES_JUGE,
+                   help="Famille du juge (défaut : claude). Croiser : juger Claude par Codex.")
+    p.add_argument("--juge-model", help="Modèle juge (défaut : opus pour Claude ; requis pour Codex).")
+    p.add_argument("--juge-executable", help="Chemin de la CLI du juge.")
     p.add_argument("--sans-juge", action="store_true", help="Verdicts déterministes seuls.")
     p.add_argument("--agent", default="claude", choices=sorted(agents.BACKENDS), help="Backend d'exécution.")
     p.add_argument("--sortie", help="Fichier JSONL de sortie.")
     p.add_argument("--reprendre", help="JSONL d'un run interrompu : les runs acquis sont sautés.")
     p.add_argument("--inclure-brouillons", action="store_true", help="Joue aussi les sondes non validées.")
     p.add_argument("--garder-flux", action="store_true", help="Conserve le flux brut de chaque run.")
+    p.add_argument("--accepter-modele-non-atteste", action="store_true",
+                   help="Exploratoire : accepte un flux natif sans modèle effectif (Codex) ; "
+                        "le modèle demandé est noté, avec modele_atteste=false.")
     p.add_argument("--url", default=agents.Options.url_mcp, help="Endpoint MCP du bras C.")
     p.add_argument("--mcp-local", action="store_true", help="Bras C sur un serveur MCP local (stdio).")
     p.add_argument("--python", help="Interpréteur Python du serveur MCP local.")
@@ -380,7 +411,12 @@ def construire_analyseur() -> argparse.ArgumentParser:
 
 
 def main(argv: list[str] | None = None) -> int:
-    arguments = construire_analyseur().parse_args(argv)
+    analyseur = construire_analyseur()
+    arguments = analyseur.parse_args(argv)
+    if not arguments.juge_model:
+        if arguments.juge_agent != "claude" and not arguments.sans_juge:
+            analyseur.error("--juge-model est requis pour un juge non Claude (aucun modèle implicite)")
+        arguments.juge_model = "opus"
     if arguments.verifier_corpus:
         return verifier_corpus(arguments)
     return executer(arguments)
