@@ -179,8 +179,11 @@ def executer(famille: str, *, prompt: str, bras: str, plafond: int, options):
                 for nom in ("oauth_creds.json", "google_accounts.json"):
                     if (source / nom).is_file():
                         shutil.copyfile(source / nom, isolated / nom)
+            # tools.core ajoute une règle « * → refus » qui prime sur mcp.allowed et trust (CLI 0.66) :
+            # sans l'entrée MCP, le bras C ne déclare aucune fonction au modèle.
             settings = {
-                "tools": {"core": []}, "skills": {"enabled": False},
+                "tools": {"core": ["mcp_droit-francais_*"] if bras in ("C", "D") else []},
+                "skills": {"enabled": False}, "privacy": {"usageStatisticsEnabled": False},
                 "hooksConfig": {"enabled": False}, "useWriteTodos": False,
                 "context": {"fileName": [], "includeDirectoryTree": False},
                 "security": {"auth": {"selectedType":
