@@ -171,6 +171,16 @@ class CampagneTests(unittest.TestCase):
         self.assertEqual("true", vu["env"]["GEMINI_CLI_TRUST_WORKSPACE"])
         self.assertNotIn("cle-factice-123456", " ".join(vu["cmd"]))
         self.assertEqual(["settings.json"], vu["fichiers"])  # aucun cache OAuth copié
+        self.assertEqual([], vu["settings"]["tools"]["core"])
+        self.assertFalse(vu["settings"]["privacy"]["usageStatisticsEnabled"])
+
+        # Bras C : l'allowlist core doit laisser passer le seul serveur MCP du banc.
+        options_c = agents.Options(modele="gemini-exact", executable="gemini", gemini_cle_api=True, mcp_local=True)
+        with mock.patch.dict("os.environ", {"GEMINI_API_KEY": "cle-factice-123456"}), \
+                mock.patch("bench.native.subprocess.run", side_effect=lancer):
+            native.executer("gemini", prompt="q", bras="C", plafond=1, options=options_c)
+        self.assertEqual(["mcp_droit-francais_*"], vu["settings"]["tools"]["core"])
+        self.assertIn("droit-francais", vu["settings"]["mcpServers"])
 
         with mock.patch.dict("os.environ", {"GEMINI_API_KEY": ""}), \
                 mock.patch("bench.native.subprocess.run") as run:
