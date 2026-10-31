@@ -61,7 +61,7 @@ from droit_francais.config import load_dotenv  # noqa: E402
 load_dotenv(script_dir=RACINE)
 load_dotenv()
 
-from bench import agents, cases, juge as juge_mod, verdicts  # noqa: E402
+from bench import agents, cases, juge as juge_mod, native, verdicts  # noqa: E402
 from bench.cadence import Cadence  # noqa: E402
 from bench.jeton import JetonIndisponible, obtenir, secrets_surveilles  # noqa: E402
 from bench.journal import Journal, deja_faits  # noqa: E402
@@ -214,7 +214,7 @@ def executer(arguments: argparse.Namespace) -> int:
         if bras in agents.BRAS_AVEC_OUTILS:
             cadence.corriger(cas.plafond_appels, len(execution.trace.appels))
 
-        if execution.statut == "infra_error" and plafond_franchi_avant_panne(execution.trace, cas.plafond_appels):
+        if execution.statut == "infra_error" and plafond_franchi_avant_panne(execution, cas.plafond_appels):
             # L'échec au plafond était acquis avant la panne : le compter, ne pas l'effacer.
             execution.statut, execution.motif_infra = "ok", ""
 
@@ -256,16 +256,17 @@ def executer(arguments: argparse.Namespace) -> int:
     return 0
 
 
-def plafond_franchi_avant_panne(trace, plafond: int) -> bool:
+def plafond_franchi_avant_panne(execution, plafond: int) -> bool:
     """Le plafond d'appels était-il déjà dépassé avant le premier appel en erreur ?
 
     N-1 (30/10/2026) : ~21 appels pour un plafond de 8, puis quota MCP atteint.
     Classé panne, le run sortait du score alors que son échec était certain.
+    Un modèle non attesté rend le run irrecevable : il reste une panne.
     """
-    if plafond <= 0:
+    if plafond <= 0 or execution.motif_infra == native.MOTIF_MODELE_NON_ATTESTE:
         return False
     avant = 0
-    for appel in trace.appels_sources:
+    for appel in execution.trace.appels_sources:
         if appel.is_error:
             break
         avant += 1

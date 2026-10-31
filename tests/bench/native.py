@@ -22,6 +22,7 @@ API_ENV = (
     "GOOGLE_GENAI_USE_VERTEXAI", "CLAUDE_CODE_USE_BEDROCK",
     "CLAUDE_CODE_USE_VERTEX", "CLAUDE_CODE_USE_FOUNDRY",
 )
+MOTIF_MODELE_NON_ATTESTE = "modèle effectif absent du flux natif : qualification manquante"
 
 
 def environnement_abonnement() -> dict[str, str]:
@@ -206,7 +207,7 @@ def executer(famille: str, *, prompt: str, bras: str, plafond: int, options):
     if result.returncode or trace.is_error or trace.lignes_illisibles or not trace.texte_final:
         motif = "flux incomplet, erreur CLI ou réponse absente"
     elif not trace.modele and not options.modele_non_atteste:
-        motif = "modèle effectif absent du flux natif : qualification manquante"
+        motif = MOTIF_MODELE_NON_ATTESTE
     execution = Execution(trace, result.stdout if options.garder_flux else "", result.returncode,
                           "", "infra_error" if motif else "ok", motif)
     if not motif:

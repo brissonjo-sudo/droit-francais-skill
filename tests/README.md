@@ -200,7 +200,9 @@ dans le pipeline standard.
   `--reprendre`. Les compter comme des échecs ferait baisser un score pour des
   raisons étrangères à ce qu'on mesure. Exception : si le plafond d'appels
   était déjà dépassé avant le premier appel en erreur, l'échec était acquis ;
-  le run est compté, et le verdict `plafond` le fait échouer.
+  le run est compté, et le verdict `plafond` le fait échouer. Un modèle non
+  attesté (Codex sans `--accepter-modele-non-atteste`) n'entre jamais dans
+  cette exception : le run reste irrecevable.
 
 Le corpus (`bench-cases.csv`) porte une colonne **`Valide par`** : par défaut,
 seules les sondes dont le fond juridique a été relu par un humain sont jouées.
