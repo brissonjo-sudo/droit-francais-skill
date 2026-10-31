@@ -167,6 +167,7 @@ class CampagneTests(unittest.TestCase):
             native.executer("gemini", prompt="q", bras="A", plafond=1, options=options)
         self.assertEqual("gemini-api-key", vu["settings"]["security"]["auth"]["selectedType"])
         self.assertEqual("cle-factice-123456", vu["env"]["GEMINI_API_KEY"])
+        self.assertEqual("true", vu["env"]["GEMINI_CLI_TRUST_WORKSPACE"])
         self.assertNotIn("cle-factice-123456", " ".join(vu["cmd"]))
         self.assertEqual(["settings.json"], vu["fichiers"])  # aucun cache OAuth copié
 

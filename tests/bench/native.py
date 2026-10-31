@@ -195,7 +195,8 @@ def executer(famille: str, *, prompt: str, bras: str, plafond: int, options):
                 }
             config = isolated / "settings.json"
             config.write_text(json.dumps(settings), encoding="utf-8")
-            env.update(GEMINI_CLI_HOME=dossier, GEMINI_SYSTEM_MD=str(systeme),
+            # Sans approbation, la CLI headless (0.66) refuse le dossier temporaire (code 55).
+            env.update(GEMINI_CLI_HOME=dossier, GEMINI_SYSTEM_MD=str(systeme), GEMINI_CLI_TRUST_WORKSPACE="true",
                        GEMINI_CLI_SYSTEM_SETTINGS_PATH=str(config), GEMINI_CLI_SYSTEM_DEFAULTS_PATH=str(config))
             cmd = [exe, "--model", options.modele, "--output-format", "stream-json"]
         try:
