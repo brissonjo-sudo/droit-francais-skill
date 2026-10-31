@@ -164,19 +164,27 @@ def executer(famille: str, *, prompt: str, bras: str, plafond: int, options):
         if famille == "codex":
             cmd = commande_codex(exe, options.modele, systeme, bras, options)
         else:
-            # Ne copier que les caches d'authentification, jamais les réglages,
-            # extensions, skills ou mémoire du compte. Ils ne quittent pas le poste.
-            source = Path(os.environ.get("GEMINI_CLI_HOME", str(Path.home()))) / ".gemini"
             isolated = root / ".gemini"
             isolated.mkdir()
-            for nom in ("oauth_creds.json", "google_accounts.json"):
-                if (source / nom).is_file():
-                    shutil.copyfile(source / nom, isolated / nom)
+            if options.gemini_cle_api:
+                cle = os.environ.get("GEMINI_API_KEY", "")
+                if not cle:
+                    return Execution(Trace(), "", -1, statut="infra_error",
+                                     motif_infra="GEMINI_API_KEY absente de l'environnement")
+                env["GEMINI_API_KEY"] = cle
+            else:
+                # Ne copier que les caches d'authentification, jamais les réglages,
+                # extensions, skills ou mémoire du compte. Ils ne quittent pas le poste.
+                source = Path(os.environ.get("GEMINI_CLI_HOME", str(Path.home()))) / ".gemini"
+                for nom in ("oauth_creds.json", "google_accounts.json"):
+                    if (source / nom).is_file():
+                        shutil.copyfile(source / nom, isolated / nom)
             settings = {
                 "tools": {"core": []}, "skills": {"enabled": False},
                 "hooksConfig": {"enabled": False}, "useWriteTodos": False,
                 "context": {"fileName": [], "includeDirectoryTree": False},
-                "security": {"auth": {"selectedType": "oauth-personal"}},
+                "security": {"auth": {"selectedType":
+                                      "gemini-api-key" if options.gemini_cle_api else "oauth-personal"}},
                 "mcp": {"allowed": ["droit-francais"] if bras in ("C", "D") else []},
                 "mcpServers": {},
             }

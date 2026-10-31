@@ -179,6 +179,7 @@ def executer(arguments: argparse.Namespace) -> int:
         mcp_local=arguments.mcp_local,
         garder_flux=arguments.garder_flux,
         modele_non_atteste=arguments.accepter_modele_non_atteste,
+        gemini_cle_api=arguments.gemini_cle_api,
     )
     backend = agents.backend(arguments.agent)
 
@@ -403,6 +404,9 @@ def construire_analyseur() -> argparse.ArgumentParser:
     p.add_argument("--accepter-modele-non-atteste", action="store_true",
                    help="Exploratoire : accepte un flux natif sans modèle effectif (Codex) ; "
                         "le modèle demandé est noté, avec modele_atteste=false.")
+    p.add_argument("--gemini-cle-api", action="store_true",
+                   help="Exploratoire : Gemini CLI authentifié par GEMINI_API_KEY (environnement) "
+                        "au lieu de l'OAuth personnel.")
     p.add_argument("--url", default=agents.Options.url_mcp, help="Endpoint MCP du bras C.")
     p.add_argument("--mcp-local", action="store_true", help="Bras C sur un serveur MCP local (stdio).")
     p.add_argument("--python", help="Interpréteur Python du serveur MCP local.")

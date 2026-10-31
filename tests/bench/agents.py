@@ -116,6 +116,9 @@ class Options:
     # Banc exploratoire seulement : accepte un flux natif muet sur le modèle
     # et garde le modèle demandé. La campagne ne l'active jamais.
     modele_non_atteste: bool = False
+    # Banc exploratoire seulement : Gemini CLI par GEMINI_API_KEY au lieu de
+    # l'OAuth personnel. La clé passe par l'environnement, jamais par argv.
+    gemini_cle_api: bool = False
 
 
 @dataclass

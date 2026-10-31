@@ -152,6 +152,31 @@ class CampagneTests(unittest.TestCase):
         self.assertEqual("ok", accepte.statut)
         self.assertEqual("", accepte.trace.modele)
 
+    def test_gemini_cle_api_passe_par_l_environnement_seul(self):
+        vu = {}
+
+        def lancer(cmd, **kwargs):
+            config = Path(kwargs["env"]["GEMINI_CLI_SYSTEM_SETTINGS_PATH"])
+            vu.update(cmd=cmd, env=kwargs["env"], settings=json.loads(config.read_text(encoding="utf-8")),
+                      fichiers=sorted(p.name for p in config.parent.iterdir()))
+            return subprocess.CompletedProcess(cmd, 0, stdout="", stderr="")
+
+        options = agents.Options(modele="gemini-exact", executable="gemini", gemini_cle_api=True)
+        with mock.patch.dict("os.environ", {"GEMINI_API_KEY": "cle-factice-123456"}), \
+                mock.patch("bench.native.subprocess.run", side_effect=lancer):
+            native.executer("gemini", prompt="q", bras="A", plafond=1, options=options)
+        self.assertEqual("gemini-api-key", vu["settings"]["security"]["auth"]["selectedType"])
+        self.assertEqual("cle-factice-123456", vu["env"]["GEMINI_API_KEY"])
+        self.assertNotIn("cle-factice-123456", " ".join(vu["cmd"]))
+        self.assertEqual(["settings.json"], vu["fichiers"])  # aucun cache OAuth copié
+
+        with mock.patch.dict("os.environ", {"GEMINI_API_KEY": ""}), \
+                mock.patch("bench.native.subprocess.run") as run:
+            absente = native.executer("gemini", prompt="q", bras="A", plafond=1, options=options)
+        run.assert_not_called()
+        self.assertEqual("infra_error", absente.statut)
+        self.assertIn("GEMINI_API_KEY absente", absente.motif_infra)
+
     def test_gemini_changement_modele_detecte_dans_stats(self):
         flux = '\n'.join(json.dumps(v) for v in [
             {"type": "init", "model": "gemini-demande"},
