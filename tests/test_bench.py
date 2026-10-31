@@ -32,7 +32,7 @@ sys.path.insert(0, str(TESTS))
 sys.path.insert(0, str(RACINE))
 
 import run_bench  # noqa: E402
-from bench import agents, cases, juge, verdicts  # noqa: E402
+from bench import agents, cases, juge, native, verdicts  # noqa: E402
 from bench.cadence import Cadence  # noqa: E402
 from bench.flux import Appel, Trace, analyser, identifiants  # noqa: E402
 from bench.journal import Journal, deja_faits  # noqa: E402
@@ -517,10 +517,16 @@ class Juge(unittest.TestCase):
     def test_plafond_franchi_avant_panne_reste_un_echec(self):
         ok = [_appel(i, "get_article") for i in range(9)]
         quota = _appel(9, "search", resultat="Quota individuel atteint", erreur=True)
-        self.assertTrue(run_bench.plafond_franchi_avant_panne(Trace(appels=ok + [quota]), 8))
+
+        def panne(appels, motif="quota ou indisponibilité côté outil"):
+            return agents.Execution(Trace(appels=appels), "", 0, statut="infra_error", motif_infra=motif)
+
+        self.assertTrue(run_bench.plafond_franchi_avant_panne(panne(ok + [quota]), 8))
         # Sous le plafond au moment de la panne : la panne reste une panne.
-        self.assertFalse(run_bench.plafond_franchi_avant_panne(Trace(appels=ok[:8] + [quota] + ok), 8))
-        self.assertFalse(run_bench.plafond_franchi_avant_panne(Trace(appels=ok + [quota]), 0))
+        self.assertFalse(run_bench.plafond_franchi_avant_panne(panne(ok[:8] + [quota] + ok), 8))
+        self.assertFalse(run_bench.plafond_franchi_avant_panne(panne(ok + [quota]), 0))
+        # Modèle non attesté (C/N-1 Codex, 31/10/2026) : run irrecevable, jamais compté.
+        self.assertFalse(run_bench.plafond_franchi_avant_panne(panne(ok, native.MOTIF_MODELE_NON_ATTESTE), 8))
 
     def test_juge_codex_sans_modele_est_refuse(self):
         with self.assertRaises(SystemExit):
