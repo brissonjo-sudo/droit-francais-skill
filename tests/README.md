@@ -144,6 +144,9 @@ python tests/run_bench.py --reprendre bench/runs/x.jsonl
 python tests/run_bench.py --agent codex --model gpt-exact --mcp-local --python /chemin/absolu/python --accepter-modele-non-atteste
 # Jugement croisé : Claude évalué, Codex juge.
 python tests/run_bench.py --model opus --bras A,C --juge-agent codex --juge-model gpt-exact --juge-executable /chemin/codex
+# Gemini CLI par clé API (GEMINI_API_KEY lue dans l'environnement, jamais en argument)
+# au lieu de l'OAuth personnel ; exploratoire, la campagne n'utilise pas ce mode.
+python tests/run_bench.py --agent gemini --model gemini-exact --mcp-local --python /chemin/absolu/python --gemini-cle-api
 python tests/bench/resume.py bench/runs/x.jsonl --baseline bench/baselines/…
 ```
 
