@@ -156,7 +156,8 @@ class CampagneTests(unittest.TestCase):
         vu = {}
 
         def lancer(cmd, **kwargs):
-            config = Path(kwargs["env"]["GEMINI_CLI_SYSTEM_SETTINGS_PATH"])
+            config = Path(kwargs["env"]["GEMINI_CLI_HOME"]) / ".gemini" / "settings.json"
+            self.assertFalse(Path(kwargs["env"]["GEMINI_CLI_SYSTEM_SETTINGS_PATH"]).exists())
             vu.update(cmd=cmd, env=kwargs["env"], settings=json.loads(config.read_text(encoding="utf-8")),
                       fichiers=sorted(p.name for p in config.parent.iterdir()))
             return subprocess.CompletedProcess(cmd, 0, stdout="", stderr="")
@@ -167,6 +168,7 @@ class CampagneTests(unittest.TestCase):
             native.executer("gemini", prompt="q", bras="A", plafond=1, options=options)
         self.assertEqual("gemini-api-key", vu["settings"]["security"]["auth"]["selectedType"])
         self.assertEqual("cle-factice-123456", vu["env"]["GEMINI_API_KEY"])
+        self.assertEqual("true", vu["env"]["GEMINI_CLI_TRUST_WORKSPACE"])
         self.assertNotIn("cle-factice-123456", " ".join(vu["cmd"]))
         self.assertEqual(["settings.json"], vu["fichiers"])  # aucun cache OAuth copié
 
