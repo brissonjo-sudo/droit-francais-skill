@@ -156,7 +156,8 @@ class CampagneTests(unittest.TestCase):
         vu = {}
 
         def lancer(cmd, **kwargs):
-            config = Path(kwargs["env"]["GEMINI_CLI_SYSTEM_SETTINGS_PATH"])
+            config = Path(kwargs["env"]["GEMINI_CLI_HOME"]) / ".gemini" / "settings.json"
+            self.assertFalse(Path(kwargs["env"]["GEMINI_CLI_SYSTEM_SETTINGS_PATH"]).exists())
             vu.update(cmd=cmd, env=kwargs["env"], settings=json.loads(config.read_text(encoding="utf-8")),
                       fichiers=sorted(p.name for p in config.parent.iterdir()))
             return subprocess.CompletedProcess(cmd, 0, stdout="", stderr="")
