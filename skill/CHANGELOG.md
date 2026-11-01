@@ -11,6 +11,17 @@ conservés tels quels pour ne pas casser les liens publiés.
 
 ---
 
+### [Non publié — licence EUPL 1.2] — 2026-11-01
+
+- Passage du dépôt à la licence publique de l'Union européenne (EUPL) 1.2 :
+  textes officiels de la Commission européenne, anglais dans `LICENSE` et
+  français dans `LICENCE.fr.txt`.
+- Champ `license` des manifestes (`.claude-plugin`, `.codex-plugin`) et de
+  `vibe_skill/SKILL.md` : `EUPL-1.2`. README, mentions de licence des
+  déclinaisons Grok et Vibe et conditions d'utilisation alignés.
+- Versions antérieures inchangées : elles restent sous CC-BY-SA-4.0.
+- Aucun changement de comportement.
+
 ### [Non publié — pont MCP, ADR 0001] — 2026-11-01
 
 - Mode pont opt-in (`MCP_PISTE_CREDENTIALS=caller`) : chaque appelant fournit

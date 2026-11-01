@@ -53,4 +53,4 @@ juridique ni recette réelle Vibe n'a été effectuée (pas de clés).
 - `scripts/legifrance.py` : source documentaire du noyau.
 - `CHANGELOG.md` : historique de cette déclinaison.
 
-Licence : [CC-BY-SA-4.0](../LICENSE). [Noyau source](../skill/SKILL.md).
+Licence : [EUPL-1.2](../LICENSE). [Noyau source](../skill/SKILL.md).

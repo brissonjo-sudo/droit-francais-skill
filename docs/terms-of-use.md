@@ -61,8 +61,8 @@ L'utilisateur s'engage à ne pas utiliser le service :
 
 ## 5. Données et licences
 
-Le code et le skill du dépôt sont distribués sous licence
-[CC BY-SA 4.0](../LICENSE). Les données récupérées restent soumises aux droits,
+Le code et le contenu du dépôt sont distribués sous licence
+[EUPL 1.2](../LICENSE). Les données récupérées restent soumises aux droits,
 licences et conditions de leurs producteurs, notamment la Licence Ouverte 2.0
 et les conditions de réutilisation de Légifrance et Judilibre.
 
