@@ -11,7 +11,7 @@ conservés tels quels pour ne pas casser les liens publiés.
 
 ---
 
-### [Non publié — licence EUPL 1.2] — 2026-11-01
+### [Non publié : licence EUPL 1.2] - 2026-11-01
 
 - Passage du dépôt à la licence publique de l'Union européenne (EUPL) 1.2 :
   textes officiels de la Commission européenne, anglais dans `LICENSE` et

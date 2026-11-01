@@ -164,7 +164,7 @@ reste vérifiable dans la source primaire par son identifiant et son URL.
 
 **Licences.** Les données récupérées restent soumises aux droits et licences de
 leurs producteurs, notamment la Licence Ouverte 2.0. Le code et le skill sont
-sous CC BY-SA 4.0. La conformité contractuelle Légifrance ne sera conclue
+sous EUPL 1.2 (versions antérieures : CC BY-SA 4.0). La conformité contractuelle Légifrance ne sera conclue
 qu'après récupération et contrôle de la CGU 2022 actuellement référencée par
 PISTE ; le PDF 2020 n'est conservé que comme archive.
 
