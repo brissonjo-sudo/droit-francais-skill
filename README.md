@@ -8,7 +8,7 @@
 
 [![CI](https://github.com/brissonjo-sudo/droit-francais-skill/actions/workflows/ci.yml/badge.svg)](https://github.com/brissonjo-sudo/droit-francais-skill/actions/workflows/ci.yml)
 [![Skill](https://img.shields.io/github/v/tag/brissonjo-sudo/droit-francais-skill?filter=skill-v*&label=skill)](https://github.com/brissonjo-sudo/droit-francais-skill/releases)
-[![License: CC BY-SA 4.0](https://img.shields.io/badge/license-CC%20BY--SA%204.0-blue)](LICENSE)
+[![License: EUPL 1.2](https://img.shields.io/badge/license-EUPL%201.2-blue)](LICENSE)
 
 Un assistant IA cite volontiers un article qui n'existe pas, un arrêt mal
 numéroté ou une version abrogée. Ce skill impose à l'assistant (Claude,
@@ -158,7 +158,7 @@ ou la relecture juridique d'un document. Des balises ajustent la réponse :
 
 ## Questions fréquentes
 
-**Est-ce gratuit ?** Le skill est libre (CC BY-SA 4.0) et la clé PISTE est
+**Est-ce gratuit ?** Le skill est libre (EUPL 1.2) et la clé PISTE est
 gratuite. Le service hébergé est ouvert après connexion, avec un quota par
 utilisateur.
 
@@ -199,8 +199,18 @@ résultat chiffré n'est encore publié. Le protocole est décrit dans
 
 ## Licence et contribution
 
-[Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)](LICENSE).
-© 2026 @brissonjo-sudo.
+Copyright (c) 2026 Jonathan BRISSON (@brissonjo-sudo)
+Licensed under the EUPL
+
+À compter de cette version, ce dépôt est diffusé sous licence publique de
+l'Union européenne (EUPL) 1.2 : texte anglais dans [`LICENSE`](LICENSE), texte
+français dans [`LICENCE.fr.txt`](LICENCE.fr.txt). Toutes les versions
+linguistiques de l'EUPL approuvées par la Commission européenne ont la même
+valeur (article 13 de la licence).
+
+Les versions antérieures restent sous licence Creative Commons
+Attribution-Partage dans les mêmes conditions 4.0 (CC-BY-SA-4.0), irrévocable
+pour les copies déjà diffusées.
 
 Questions, erreurs, propositions : ouvrir une
 [issue](https://github.com/brissonjo-sudo/droit-francais-skill/issues).

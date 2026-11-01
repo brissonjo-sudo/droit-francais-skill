@@ -39,7 +39,7 @@ droit-francais-skill/
 ├── Dockerfile                        ← image du serveur MCP
 ├── requirements-*.txt                ← dépendances serveur, banc, audit
 ├── README.md, README.en.md
-└── LICENSE
+└── LICENSE, LICENCE.fr.txt           ← EUPL 1.2 (anglais, français)
 ```
 
 Le fichier `profil.md`, copié depuis `skill/profils/` par l'utilisateur, est

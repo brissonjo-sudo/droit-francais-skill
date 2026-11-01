@@ -8,7 +8,7 @@
 
 [![CI](https://github.com/brissonjo-sudo/droit-francais-skill/actions/workflows/ci.yml/badge.svg)](https://github.com/brissonjo-sudo/droit-francais-skill/actions/workflows/ci.yml)
 [![Skill](https://img.shields.io/github/v/tag/brissonjo-sudo/droit-francais-skill?filter=skill-v*&label=skill)](https://github.com/brissonjo-sudo/droit-francais-skill/releases)
-[![License: CC BY-SA 4.0](https://img.shields.io/badge/license-CC%20BY--SA%204.0-blue)](LICENSE)
+[![License: EUPL 1.2](https://img.shields.io/badge/license-EUPL%201.2-blue)](LICENSE)
 
 AI assistants readily cite articles that do not exist, misnumbered rulings or
 repealed versions. This skill makes the assistant (Claude, ChatGPT, Codex,
@@ -158,7 +158,7 @@ or the legal review of a document. Tags adjust the answer:
 
 ## FAQ
 
-**Is it free?** The skill is open (CC BY-SA 4.0) and the PISTE key is free.
+**Is it free?** The skill is open (EUPL 1.2) and the PISTE key is free.
 The hosted service is open after sign-in, with a per-user quota.
 
 **Do I need an API key?** No. The PISTE key is optional; without it, research
@@ -199,8 +199,17 @@ All linked guides are in French.
 
 ## License and contributing
 
-[Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)](LICENSE).
-© 2026 @brissonjo-sudo.
+Copyright (c) 2026 Jonathan BRISSON (@brissonjo-sudo)
+Licensed under the EUPL
+
+As of this version, this repository is distributed under the European Union
+Public Licence (EUPL) 1.2: English text in [`LICENSE`](LICENSE), French text in
+[`LICENCE.fr.txt`](LICENCE.fr.txt). All the linguistic versions of the EUPL
+approved by the European Commission have the same value (article 13 of the
+licence).
+
+Earlier versions remain under the Creative Commons Attribution-ShareAlike 4.0
+licence (CC-BY-SA-4.0), irrevocable for copies already distributed.
 
 Questions, errors, suggestions: open an
 [issue](https://github.com/brissonjo-sudo/droit-francais-skill/issues).

@@ -10,7 +10,7 @@ description: Méthodologie rigoureuse de recherche en droit français (sources
   ou corrige juridiquement un document ou un corpus de documents ; prépare
   un écrit ou oral de concours avec références juridiques. Ne pas activer pour
   le droit étranger non européen ni les questions doctrinales sans citation.
-license: CC-BY-SA-4.0
+license: EUPL-1.2
 user-invocable: false
 allowed-tools:
   - web_search
