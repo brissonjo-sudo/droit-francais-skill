@@ -115,7 +115,7 @@ python mcp_server/server.py --check-config
 | `MCP_MAX_CONCURRENT_REQUESTS` | `8` | Nombre maximal d'appels d'outils simultanés par instance |
 | `MCP_TOOL_CALLS_PER_MINUTE` | `120` | Budget glissant d'appels d'outils par instance |
 | `MCP_USER_CALLS_PER_MINUTE` | `20` | Budget glissant d'appels d'outils par utilisateur authentifié |
-| `MCP_NEW_CALLERS_PER_MINUTE` | `30` | Mode pont sans OAuth : budget glissant, par instance, des paires PISTE que PISTE n'a pas encore validées |
+| `MCP_NEW_CALLERS_PER_MINUTE` | `30` | Mode pont sans OAuth : budget glissant, par instance, des paires PISTE que PISTE n'a pas encore validées ; ce budget a ses propres places simultanées (le quart de `MCP_MAX_CONCURRENT_REQUESTS`, au moins 1), donc la capacité totale en pont sans OAuth est la somme des deux budgets |
 | `MCP_QUEUE_TIMEOUT_SECONDS` | `2` | Attente maximale avant une erreur de surcharge explicite |
 | `MCP_MAX_REQUEST_BODY_BYTES` | `1048576` | Taille maximale d'une requête HTTP MCP |
 | `MCP_LOG_LEVEL` | `INFO` local, `WARNING` dans l'image | Niveau des journaux applicatifs et du SDK MCP |

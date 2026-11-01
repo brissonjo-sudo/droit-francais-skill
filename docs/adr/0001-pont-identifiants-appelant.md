@@ -41,13 +41,17 @@ Le serveur devient un **pont** quand `MCP_PISTE_CREDENTIALS=caller` :
    Sans OAuth, n'importe qui peut présenter une paire inventée. Une paire à
    laquelle PISTE n'a pas encore délivré de jeton puise donc dans un budget à
    part (`MCP_NEW_CALLERS_PER_MINUTE`, 30 par défaut) : des paires inventées
-   ne bloquent que les nouveaux venus, pas les appelants déjà servis. Le
-   nombre d'appelants suivis par le quota individuel est plafonné (4 096).
+   ne bloquent que les nouveaux venus, pas les appelants déjà servis. Une
+   paire inconnue n'entre dans le quota individuel qu'après admission par ce
+   budget : des paires inventées ne créent pas plus de compteurs qu'il n'en
+   admet.
    Limite assumée : pendant une attaque, un nouvel appelant légitime peut
    attendre ; un appelant sorti du cache de jetons (256) repasse par ce budget.
 6. Les valeurs reçues sont validées (jeu de caractères restreint, 8 à 256
    caractères), jamais recopiées dans une réponse, et masquées dans le journal,
    y compris sous leurs formes encodées (formulaire, URL, échappement JSON).
+   En mode pont, le détail amont (fragment de corps de réponse) n'est plus
+   journalisé du tout.
 
 Côté Claude Code (à faire, hors de ce prototype), le plugin déclare un
 `userConfig` avec `"sensitive": true` : la valeur est saisie à l'installation

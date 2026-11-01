@@ -67,7 +67,8 @@ GOVERNOR = RequestGovernor(
 USER_LIMITER = PrincipalRateLimiter(SETTINGS.user_calls_per_minute)
 #: Pont sans OAuth : paires que PISTE n'a pas encore validées.
 NEW_CALLERS = RequestGovernor(
-    SETTINGS.max_concurrent_requests,
+    # Le quart des places : les deux budgets s'additionnent en pont sans OAuth.
+    max(1, SETTINGS.max_concurrent_requests // 4),
     SETTINGS.new_callers_per_minute,
     SETTINGS.queue_timeout_seconds,
 )
@@ -313,8 +314,14 @@ def _safe_call(operation: Callable[..., dict[str, Any]], *args: Any, **kwargs: A
             if not caller_token_known(*caller):
                 governor = NEW_CALLERS
     try:
-        USER_LIMITER.check(principal)
+        # Une paire inconnue n'obtient un seau qu'après admission par NEW_CALLERS :
+        # des paires inventées ne créent pas plus de seaux que ce budget n'en admet.
+        admit_first = governor is NEW_CALLERS
+        if not admit_first:
+            USER_LIMITER.check(principal)
         with governor.slot():
+            if admit_first:
+                USER_LIMITER.check(principal)
             if caller:
                 with caller_credentials(*caller):
                     result = operation(*args, **kwargs)
@@ -341,12 +348,27 @@ def _safe_call(operation: Callable[..., dict[str, Any]], *args: Any, **kwargs: A
             exc.exit_code,
             exc.http_status if exc.http_status is not None else "-",
             int((time.monotonic() - started) * 1000),
-            _mask_secrets(" ".join((exc.detail or str(exc)).split()), caller),
+            # Mode pont : le corps amont peut porter un secret encodé autrement.
+            "omis-mode-pont"
+            if caller
+            else _mask_secrets(" ".join((exc.detail or str(exc)).split()), caller),
         )
         raise ToolError(
             f"Source officielle non vérifiée (code {exc.exit_code}) : "
             f"{_mask_secrets(str(exc), caller)} [réf. {reference}]"
         ) from exc
+    except ToolError:
+        raise
+    except Exception as exc:
+        # Type seul : le message d'une exception inattendue peut porter un secret.
+        reference = uuid.uuid4().hex[:8]
+        LOGGER.warning(
+            "tool_call tool=%s outcome=internal_error ref=%s type=%s",
+            operation_name,
+            reference,
+            type(exc).__name__,
+        )
+        raise ToolError(f"Erreur interne du service [réf. {reference}]") from None
 
 
 if hasattr(server, "custom_route"):

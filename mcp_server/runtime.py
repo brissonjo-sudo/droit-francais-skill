@@ -335,16 +335,13 @@ class PrincipalRateLimiter:
     passage, ce qui borne l'empreinte mémoire sans tâche de fond.
     """
 
-    def __init__(
-        self, calls_per_minute: int, window_seconds: float = 60.0, max_principals: int = 4096
-    ) -> None:
+    def __init__(self, calls_per_minute: int, window_seconds: float = 60.0) -> None:
         if calls_per_minute <= 0:
             raise RuntimeConfigurationError(
                 "Le quota par utilisateur doit être strictement positif."
             )
         self._calls_per_minute = calls_per_minute
         self._window_seconds = window_seconds
-        self._max_principals = max_principals
         self._buckets: dict[str, deque[float]] = {}
         self._lock = threading.Lock()
 
@@ -355,10 +352,6 @@ class PrincipalRateLimiter:
         with self._lock:
             for key in [k for k, v in self._buckets.items() if not v or v[-1] <= horizon]:
                 del self._buckets[key]
-            # Plafond strict : une rotation d'identités inventées ne fait pas
-            # croître la mémoire ; les principaux déjà suivis restent servis.
-            if principal not in self._buckets and len(self._buckets) >= self._max_principals:
-                raise RuntimeCapacityError("Serveur temporairement saturé ; réessayer.")
             bucket = self._buckets.setdefault(principal, deque())
             while bucket and bucket[0] <= horizon:
                 bucket.popleft()

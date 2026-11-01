@@ -33,7 +33,6 @@ from droit_francais.errors import LegifranceError  # noqa: E402
 from mcp_server.runtime import (  # noqa: E402
     PrincipalRateLimiter,
     RequestGovernor,
-    RuntimeCapacityError,
     RuntimeConfigurationError,
     RuntimeSettings,
 )
@@ -113,14 +112,57 @@ class ProtectionsPontTests(unittest.TestCase):
     def setUp(self):
         legifrance_client.clear_token_cache()
 
-    def test_le_limiteur_plafonne_le_nombre_d_appelants_suivis(self):
-        limiter = PrincipalRateLimiter(calls_per_minute=5, max_principals=2)
-        limiter.check("piste:a")
-        limiter.check("piste:b")
-        with self.assertRaises(RuntimeCapacityError):
-            limiter.check("piste:invente")
-        limiter.check("piste:a")  # un appelant déjà suivi reste servi
-        self.assertEqual(2, limiter.tracked_principals)
+    def _pont(self, mcp_app):
+        """Force le mode pont sans OAuth, avec une paire fictive."""
+        import dataclasses
+
+        return (
+            mock.patch.object(mcp_app, "SETTINGS", dataclasses.replace(
+                mcp_app.SETTINGS, piste_credentials="caller", auth_mode="disabled")),
+            mock.patch.object(mcp_app, "_caller_pair", return_value=("appelant-a", "secret-aaaa")),
+        )
+
+    def test_une_exception_inattendue_ne_fuit_pas_son_message(self):
+        from mcp_server import server as mcp_app
+
+        def operation():
+            raise RuntimeError("valeur-sensible-fictive")
+
+        p1, p2 = self._pont(mcp_app)
+        with p1, p2, self.assertLogs("droit_francais.mcp", "WARNING") as logs:
+            with self.assertRaises(mcp_app.ToolError) as caught:
+                mcp_app._safe_call(operation)
+        self.assertNotIn("valeur-sensible-fictive", str(caught.exception))
+        self.assertNotIn("valeur-sensible-fictive", " ".join(logs.output))
+        self.assertIn("internal_error", " ".join(logs.output))
+
+    def test_le_detail_amont_n_est_pas_journalise_en_mode_pont(self):
+        from mcp_server import server as mcp_app
+
+        def operation():
+            raise LegifranceError("Accès refusé", exit_code=4, detail="marqueur-amont-fictif")
+
+        p1, p2 = self._pont(mcp_app)
+        with p1, p2, self.assertLogs("droit_francais.mcp", "WARNING") as logs:
+            with self.assertRaises(mcp_app.ToolError):
+                mcp_app._safe_call(operation)
+        self.assertNotIn("marqueur-amont-fictif", " ".join(logs.output))
+
+    def test_une_paire_inconnue_refusee_ne_cree_pas_de_seau_individuel(self):
+        from mcp_server import server as mcp_app
+
+        limiteur = PrincipalRateLimiter(calls_per_minute=5)
+        p1, p2 = self._pont(mcp_app)
+        with p1, p2, mock.patch.object(mcp_app, "USER_LIMITER", limiteur), \
+                mock.patch.object(mcp_app, "NEW_CALLERS", RequestGovernor(1, 1, 0.1)):
+            self.assertEqual({"ok": 1}, mcp_app._safe_call(lambda: {"ok": 1}))
+            self.assertEqual(1, limiteur.tracked_principals)  # admise : seau créé
+            limiteur = PrincipalRateLimiter(calls_per_minute=5)
+            with mock.patch.object(mcp_app, "USER_LIMITER", limiteur):
+                # Budget des inconnues épuisé : refus avant toute création de seau.
+                with self.assertRaises(mcp_app.ToolError):
+                    mcp_app._safe_call(lambda: {"ok": 2})
+            self.assertEqual(0, limiteur.tracked_principals)
 
     @mock.patch("droit_francais.legifrance.http_post_json", side_effect=_jeton_par_identifiant)
     def test_une_paire_n_est_connue_qu_apres_un_jeton_de_piste(self, _post):
