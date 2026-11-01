@@ -139,14 +139,25 @@ class ProtectionsPontTests(unittest.TestCase):
     def test_le_detail_amont_n_est_pas_journalise_en_mode_pont(self):
         from mcp_server import server as mcp_app
 
+        executee = []
+
         def operation():
+            executee.append(True)
             raise LegifranceError("Accès refusé", exit_code=4, detail="marqueur-amont-fictif")
 
         p1, p2 = self._pont(mcp_app)
-        with p1, p2, self.assertLogs("droit_francais.mcp", "WARNING") as logs:
+        # Budgets neufs : un refus de capacité ne doit pas faire passer le test à tort.
+        with p1, p2, mock.patch.object(mcp_app, "GOVERNOR", RequestGovernor(8, 100, 2.0)), \
+                mock.patch.object(mcp_app, "NEW_CALLERS", RequestGovernor(8, 100, 2.0)), \
+                mock.patch.object(mcp_app, "USER_LIMITER", PrincipalRateLimiter(100)), \
+                self.assertLogs("droit_francais.mcp", "WARNING") as logs:
             with self.assertRaises(mcp_app.ToolError):
                 mcp_app._safe_call(operation)
-        self.assertNotIn("marqueur-amont-fictif", " ".join(logs.output))
+        journal = " ".join(logs.output)
+        self.assertEqual([True], executee)
+        self.assertIn("outcome=upstream_error", journal)
+        self.assertIn("detail=omis-mode-pont", journal)
+        self.assertNotIn("marqueur-amont-fictif", journal)
 
     def test_une_paire_inconnue_refusee_ne_cree_pas_de_seau_individuel(self):
         from mcp_server import server as mcp_app

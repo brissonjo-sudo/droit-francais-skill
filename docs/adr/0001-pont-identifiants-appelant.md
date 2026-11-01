@@ -47,6 +47,8 @@ Le serveur devient un **pont** quand `MCP_PISTE_CREDENTIALS=caller` :
    admet.
    Limite assumée : pendant une attaque, un nouvel appelant légitime peut
    attendre ; un appelant sorti du cache de jetons (256) repasse par ce budget.
+   Un appel admis puis refusé par le quota individuel compte quand même dans
+   ce budget : une seule paire répétée suffit à le saturer.
 6. Les valeurs reçues sont validées (jeu de caractères restreint, 8 à 256
    caractères), jamais recopiées dans une réponse, et masquées dans le journal,
    y compris sous leurs formes encodées (formulaire, URL, échappement JSON).
@@ -84,7 +86,10 @@ reference* et *MCP*, consultées le 27/10/2026).
 - **Changement cassant** pour les utilisateurs actuels des plugins : version
   majeure et annonce requises.
 - **Codex** : la transmission d'en-têtes depuis un coffre n'est pas vérifiée.
-- Le mode `server` existant est inchangé.
+- Le mode `server` existant garde ses clés, ses quotas et ses messages, à une
+  exception près : une erreur inattendue d'un outil y rend désormais, comme en
+  mode pont, un message neutre avec une référence, et le journal n'en garde
+  que le type. Le diagnostic est moins détaillé ; il passe par la référence.
 
 ## Vérification
 
