@@ -38,8 +38,16 @@ Le serveur devient un **pont** quand `MCP_PISTE_CREDENTIALS=caller` :
    et PISTE refuse les identifiants invalides. Le quota individuel suit
    l'empreinte de la paire identifiant-secret : un faux secret accolé à
    l'identifiant d'autrui n'épuise pas le quota de ce dernier.
+   Sans OAuth, n'importe qui peut présenter une paire inventée. Une paire à
+   laquelle PISTE n'a pas encore délivré de jeton puise donc dans un budget à
+   part (`MCP_NEW_CALLERS_PER_MINUTE`, 30 par défaut) : des paires inventées
+   ne bloquent que les nouveaux venus, pas les appelants déjà servis. Le
+   nombre d'appelants suivis par le quota individuel est plafonné (4 096).
+   Limite assumée : pendant une attaque, un nouvel appelant légitime peut
+   attendre ; un appelant sorti du cache de jetons (256) repasse par ce budget.
 6. Les valeurs reçues sont validées (jeu de caractères restreint, 8 à 256
-   caractères), jamais recopiées dans une réponse, et masquées dans le journal.
+   caractères), jamais recopiées dans une réponse, et masquées dans le journal,
+   y compris sous leurs formes encodées (formulaire, URL, échappement JSON).
 
 Côté Claude Code (à faire, hors de ce prototype), le plugin déclare un
 `userConfig` avec `"sensitive": true` : la valeur est saisie à l'installation
@@ -79,3 +87,5 @@ reference* et *MCP*, consultées le 27/10/2026).
 `tests/test_pont_identifiants.py` : isolation du cache par appelant, absence
 de repli sur l'exploitant, refus de configuration, et chaîne HTTP réelle du SDK
 2.x (middleware, transport, outil, quota individuel), sans réseau.
+Après l'avis critique du 01/11/2026 : budget séparé des paires inconnues,
+plafond du quota individuel et masquage des formes encodées du secret.

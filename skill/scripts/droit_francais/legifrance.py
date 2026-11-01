@@ -66,6 +66,11 @@ def _fingerprint(client_id: str, client_secret: str) -> str:
     return hashlib.sha256(f"{client_id}\0{client_secret}".encode("utf-8")).hexdigest()
 
 
+def caller_token_known(client_id: str, client_secret: str) -> bool:
+    """Vrai si PISTE a déjà délivré à cette paire un jeton encore valide."""
+    return _cached_caller_token(_fingerprint(client_id, client_secret)) is not None
+
+
 def _cached_token() -> str | None:
     token = _TOKEN_CACHE.get("token")
     expires_at = _TOKEN_CACHE.get("expires_at")

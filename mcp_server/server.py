@@ -10,6 +10,7 @@ import os
 import re
 import sys
 import time
+import urllib.parse
 import uuid
 from contextvars import ContextVar
 from pathlib import Path
@@ -34,7 +35,7 @@ from mcp.types import ToolAnnotations
 
 from droit_francais.config import load_dotenv
 from droit_francais.errors import LegifranceError
-from droit_francais.legifrance import caller_credentials
+from droit_francais.legifrance import caller_credentials, caller_token_known
 from droit_francais import tools as legal_tools
 from mcp_server.runtime import (
     PrincipalRateLimiter,
@@ -64,6 +65,12 @@ GOVERNOR = RequestGovernor(
     SETTINGS.queue_timeout_seconds,
 )
 USER_LIMITER = PrincipalRateLimiter(SETTINGS.user_calls_per_minute)
+#: Pont sans OAuth : paires que PISTE n'a pas encore validées.
+NEW_CALLERS = RequestGovernor(
+    SETTINGS.max_concurrent_requests,
+    SETTINGS.new_callers_per_minute,
+    SETTINGS.queue_timeout_seconds,
+)
 
 SERVER_VERSION = "0.9.0"
 
@@ -266,8 +273,18 @@ SECRET_VARIABLES = (
 def _mask_secrets(text: str, extra: tuple[str, ...] = ()) -> str:
     secrets = [os.environ.get(key) for key in SECRET_VARIABLES] + list(extra)
     for secret in secrets:
-        if secret:
-            text = text.replace(secret, "[secret masqué]")
+        if not secret:
+            continue
+        # Un corps d'erreur amont peut renvoyer le secret tel que le formulaire
+        # OAuth l'a encodé, ou échappé en JSON : masquer aussi ces formes.
+        forms = {
+            secret,
+            urllib.parse.quote_plus(secret),
+            urllib.parse.quote(secret, safe=""),
+            secret.replace("/", "\\/"),
+        }
+        for form in sorted(forms, key=len, reverse=True):
+            text = text.replace(form, "[secret masqué]")
     return text
 
 
@@ -283,6 +300,7 @@ def _safe_call(operation: Callable[..., dict[str, Any]], *args: Any, **kwargs: A
     operation_name = getattr(operation, "__name__", "legal_operation")
     principal = _current_principal()
     caller: tuple[str, ...] = ()
+    governor = GOVERNOR
     if SETTINGS.caller_credentials:
         caller = _caller_pair()
         if not SETTINGS.auth_enabled:
@@ -290,9 +308,13 @@ def _safe_call(operation: Callable[..., dict[str, Any]], *args: Any, **kwargs: A
             # accolé à l'identifiant d'autrui n'épuise pas le quota de ce dernier.
             digest = hashlib.sha256("\0".join(caller).encode("utf-8")).hexdigest()
             principal = f"piste:{digest}"
+            # Une paire que PISTE n'a pas encore validée puise dans un budget à
+            # part : des paires inventées ne bloquent pas les appelants déjà servis.
+            if not caller_token_known(*caller):
+                governor = NEW_CALLERS
     try:
         USER_LIMITER.check(principal)
-        with GOVERNOR.slot():
+        with governor.slot():
             if caller:
                 with caller_credentials(*caller):
                     result = operation(*args, **kwargs)

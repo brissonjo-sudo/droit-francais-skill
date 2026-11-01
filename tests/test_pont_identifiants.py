@@ -29,7 +29,14 @@ sys.path.insert(0, str(ROOT))
 
 import droit_francais.judilibre as judilibre_client  # noqa: E402
 import droit_francais.legifrance as legifrance_client  # noqa: E402
-from mcp_server.runtime import RuntimeConfigurationError, RuntimeSettings  # noqa: E402
+from droit_francais.errors import LegifranceError  # noqa: E402
+from mcp_server.runtime import (  # noqa: E402
+    PrincipalRateLimiter,
+    RequestGovernor,
+    RuntimeCapacityError,
+    RuntimeConfigurationError,
+    RuntimeSettings,
+)
 
 OPERATEUR = {
     "LEGIFRANCE_CLIENT_ID": "operateur-id",
@@ -98,6 +105,43 @@ class ClientPisteAppelantTests(unittest.TestCase):
             self.assertEqual("KeyId", judilibre_client.auth_modes()[0][0])
             with legifrance_client.caller_credentials("appelant-a", "secret-a"):
                 self.assertEqual([("OAuth", None)], judilibre_client.auth_modes())
+
+
+class ProtectionsPontTests(unittest.TestCase):
+    """Correctifs de l'avis du 01/11/2026 : budget des paires inconnues, masquage."""
+
+    def setUp(self):
+        legifrance_client.clear_token_cache()
+
+    def test_le_limiteur_plafonne_le_nombre_d_appelants_suivis(self):
+        limiter = PrincipalRateLimiter(calls_per_minute=5, max_principals=2)
+        limiter.check("piste:a")
+        limiter.check("piste:b")
+        with self.assertRaises(RuntimeCapacityError):
+            limiter.check("piste:invente")
+        limiter.check("piste:a")  # un appelant déjà suivi reste servi
+        self.assertEqual(2, limiter.tracked_principals)
+
+    @mock.patch("droit_francais.legifrance.http_post_json", side_effect=_jeton_par_identifiant)
+    def test_une_paire_n_est_connue_qu_apres_un_jeton_de_piste(self, _post):
+        self.assertFalse(legifrance_client.caller_token_known("appelant-a", "secret-a"))
+        with legifrance_client.caller_credentials("appelant-a", "secret-a"):
+            legifrance_client.get_token()
+        self.assertTrue(legifrance_client.caller_token_known("appelant-a", "secret-a"))
+        self.assertFalse(legifrance_client.caller_token_known("appelant-a", "autre-secret"))
+
+    def test_le_secret_est_masque_sous_ses_formes_encodees(self):
+        from mcp_server import server as mcp_app
+
+        secret = "ab+cd/ef=gh"
+        corps = (
+            f"client_secret={urllib.parse.quote_plus(secret)} "
+            f"brut={secret} json={secret.replace('/', chr(92) + '/')} "
+            f"url={urllib.parse.quote(secret, safe='')}"
+        )
+        masque = mcp_app._mask_secrets(corps, ("appelant-a", secret))
+        self.assertNotIn("ab", masque)
+        self.assertEqual(4, masque.count("[secret masqué]"))
 
 
 class ConfigurationPontTests(unittest.TestCase):
@@ -242,6 +286,32 @@ class PontHttpTests(unittest.TestCase):
             # L'identifiant de A avec un autre secret n'hérite pas du quota épuisé de A.
             usurpe = dict(a, **{"X-Piste-Client-Secret": "faux-secret-quota"})
             self.assertFalse(self.en_erreur(self.call(usurpe)))
+
+    def test_des_paires_inventees_ne_bloquent_pas_un_appelant_deja_servi(self):
+        def emetteur(url, payload, headers):
+            form = urllib.parse.parse_qs(payload.decode("utf-8"))
+            if form["client_id"][0].startswith("invente"):
+                raise LegifranceError("identifiants refusés", exit_code=3)
+            return _jeton_par_identifiant(url, payload, headers)
+
+        servi = {"X-Piste-Client-Id": "appelant-servi", "X-Piste-Client-Secret": "secret-servi"}
+        inventees = [
+            {"X-Piste-Client-Id": f"invente-{n:04d}", "X-Piste-Client-Secret": f"secret-{n:04d}"}
+            for n in range(3)
+        ]
+        # Budgets réduits : 2 appels par minute pour les paires inconnues, 1 pour le commun.
+        with mock.patch("droit_francais.legifrance.http_post_json", side_effect=emetteur), \
+                mock.patch.object(self.app_module, "NEW_CALLERS", RequestGovernor(8, 2, 2.0)), \
+                mock.patch.object(self.app_module, "GOVERNOR", RequestGovernor(8, 1, 2.0)), \
+                self._outil_qui_lit_le_jeton():
+            self.assertFalse(self.en_erreur(self.call(servi)))  # budget des inconnues : 1/2
+            refus = [self.texte(self.call(h)) for h in inventees]
+            self.assertIn("identifiants refusés", refus[0])  # 2/2, refusée par PISTE
+            self.assertIn("Quota temporaire", refus[1])  # budget des inconnues épuisé
+            self.assertIn("Quota temporaire", refus[2])
+            # Le budget commun est intact : l'appelant déjà servi passe.
+            resultat = self.call(servi)
+            self.assertFalse(self.en_erreur(resultat), self.texte(resultat))
 
 
 if __name__ == "__main__":
