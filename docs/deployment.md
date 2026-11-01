@@ -79,6 +79,18 @@ une passerelle MCP publique anonyme consommerait les quotas Légifrance et
 Judilibre sous la seule responsabilité du titulaire des clés PISTE. La
 procédure de configuration de l'émetteur figure dans [`oauth.md`](oauth.md).
 
+### Mode pont (prototype, non déployé)
+
+| Variable | Défaut | Effet |
+|---|---|---|
+| `MCP_PISTE_CREDENTIALS` | `server` | `server` : le service utilise les clés PISTE ci-dessus. `caller` : mode pont, chaque appel porte les identifiants PISTE de l'appelant dans les en-têtes `X-Piste-Client-Id` et `X-Piste-Client-Secret` |
+
+En mode `caller`, la production refuse de démarrer si une clé PISTE
+d'exploitant est présente (`LEGIFRANCE_CLIENT_ID`, `LEGIFRANCE_CLIENT_SECRET`,
+`JUDILIBRE_KEY_ID`, `PISTE_KEY_ID`), et n'exige plus `MCP_AUTH_MODE=oauth`.
+Ce mode exige le SDK MCP 2.x et le transport `streamable-http`. Décision et
+réserves : [ADR 0001](adr/0001-pont-identifiants-appelant.md).
+
 ### Facultatives — authentification
 
 | Variable | Défaut | Effet |
@@ -100,9 +112,10 @@ python mcp_server/server.py --check-config
 
 | Variable | Défaut | Effet |
 |---|---:|---|
-| `MCP_MAX_CONCURRENT_REQUESTS` | `8` | Nombre maximal d'appels d'outils simultanés par instance |
+| `MCP_MAX_CONCURRENT_REQUESTS` | `8` | Budget commun : nombre maximal d'appels d'outils simultanés par instance (en pont sans OAuth, s'y ajoutent les places de `MCP_NEW_CALLERS_PER_MINUTE`) |
 | `MCP_TOOL_CALLS_PER_MINUTE` | `120` | Budget glissant d'appels d'outils par instance |
 | `MCP_USER_CALLS_PER_MINUTE` | `20` | Budget glissant d'appels d'outils par utilisateur authentifié |
+| `MCP_NEW_CALLERS_PER_MINUTE` | `30` | Mode pont sans OAuth : budget glissant, par instance, des paires PISTE que PISTE n'a pas encore validées ; ce budget a ses propres places simultanées (le quart de `MCP_MAX_CONCURRENT_REQUESTS`, au moins 1), donc la capacité totale en pont sans OAuth est la somme des deux budgets |
 | `MCP_QUEUE_TIMEOUT_SECONDS` | `2` | Attente maximale avant une erreur de surcharge explicite |
 | `MCP_MAX_REQUEST_BODY_BYTES` | `1048576` | Taille maximale d'une requête HTTP MCP |
 | `MCP_LOG_LEVEL` | `INFO` local, `WARNING` dans l'image | Niveau des journaux applicatifs et du SDK MCP |

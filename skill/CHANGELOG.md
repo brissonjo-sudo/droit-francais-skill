@@ -11,6 +11,20 @@ conservés tels quels pour ne pas casser les liens publiés.
 
 ---
 
+### [Non publié — pont MCP, ADR 0001] — 2026-11-01
+
+- Mode pont opt-in (`MCP_PISTE_CREDENTIALS=caller`) : chaque appelant fournit
+  ses identifiants PISTE par les en-têtes `X-Piste-Client-Id` et
+  `X-Piste-Client-Secret`. Cache de jetons par appelant, borné à 256 entrées.
+- Budget séparé `MCP_NEW_CALLERS_PER_MINUTE` pour les paires que PISTE n'a pas
+  encore validées. Masquage du secret sous ses formes encodées ; détail amont
+  non journalisé en pont.
+- Changement visible en mode `server` : une erreur inattendue d'un outil rend
+  un message neutre avec référence ; le journal n'en garde que le type.
+- ADR 0001 adoptée le 01/11/2026 sous condition d'une réponse écrite du support
+  PISTE. Mode désactivé par défaut, non déployé.
+- Tests : `tests/test_pont_identifiants.py`.
+
 ### [3.6.0-manus] — 2026-10-25
 
 Alignement de la déclinaison Manus sur le noyau 3.6.0, sans recette réelle.

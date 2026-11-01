@@ -16,6 +16,18 @@ DEFAULT_SCOPES: tuple[str, ...] = ("legal:read",)
 #: Modes d'authentification acceptés à l'entrée du transport HTTP.
 AUTH_MODES: frozenset[str] = frozenset({"disabled", "oauth"})
 
+#: Origine des identifiants PISTE : ceux de l'exploitant (``server``) ou ceux
+#: que chaque appelant transmet avec sa requête (``caller``, mode pont).
+PISTE_CREDENTIAL_MODES: frozenset[str] = frozenset({"server", "caller"})
+
+#: Variables portant les clés PISTE de l'exploitant.
+OPERATOR_PISTE_VARIABLES: tuple[str, ...] = (
+    "LEGIFRANCE_CLIENT_ID",
+    "LEGIFRANCE_CLIENT_SECRET",
+    "JUDILIBRE_KEY_ID",
+    "PISTE_KEY_ID",
+)
+
 
 class RuntimeConfigurationError(ValueError):
     """Configuration invalide, formulée sans recopier les secrets."""
@@ -110,10 +122,18 @@ class RuntimeSettings:
     oauth_audience: str = ""
     oauth_required_scopes: tuple[str, ...] = field(default_factory=lambda: DEFAULT_SCOPES)
     user_calls_per_minute: int = 20
+    piste_credentials: str = "server"
+    #: Mode pont sans OAuth : budget à part des paires PISTE pas encore validées
+    #: par PISTE, pour que des paires inventées n'épuisent pas le budget commun.
+    new_callers_per_minute: int = 30
 
     @property
     def auth_enabled(self) -> bool:
         return self.auth_mode == "oauth"
+
+    @property
+    def caller_credentials(self) -> bool:
+        return self.piste_credentials == "caller"
 
     @property
     def resource_url(self) -> str:
@@ -152,6 +172,12 @@ class RuntimeSettings:
         if auth_mode not in AUTH_MODES:
             raise RuntimeConfigurationError(
                 "MCP_AUTH_MODE doit valoir disabled ou oauth."
+            )
+
+        piste_credentials = values.get("MCP_PISTE_CREDENTIALS", "server").strip().lower()
+        if piste_credentials not in PISTE_CREDENTIAL_MODES:
+            raise RuntimeConfigurationError(
+                "MCP_PISTE_CREDENTIALS doit valoir server ou caller."
             )
 
         public_url = ""
@@ -201,12 +227,20 @@ class RuntimeSettings:
             user_calls_per_minute=_positive_int(
                 values, "MCP_USER_CALLS_PER_MINUTE", 20
             ),
+            piste_credentials=piste_credentials,
+            new_callers_per_minute=_positive_int(
+                values, "MCP_NEW_CALLERS_PER_MINUTE", 30
+            ),
         )
 
     def validate_public(self, env: Mapping[str, str] | None = None) -> None:
         """Refuse un démarrage public mal configuré sans afficher de valeur."""
         values = os.environ if env is None else env
         if self.environment != "production":
+            return
+
+        if self.caller_credentials:
+            self._validate_bridge(values)
             return
 
         missing = [
@@ -238,6 +272,23 @@ class RuntimeSettings:
                 "MCP_AUTH_MODE doit valoir oauth en production : une passerelle "
                 "MCP publique anonyme engage les identifiants PISTE du titulaire."
             )
+
+    @staticmethod
+    def _validate_bridge(values: Mapping[str, str]) -> None:
+        """Mode pont : aucune clé d'exploitant ne doit pouvoir servir de repli.
+
+        Chaque appelant consomme son propre quota PISTE ; l'authentification
+        OAuth n'est donc plus exigée pour protéger les clés de l'exploitant.
+        """
+        present = [name for name in OPERATOR_PISTE_VARIABLES if values.get(name, "").strip()]
+        if present:
+            raise RuntimeConfigurationError(
+                "MCP_PISTE_CREDENTIALS=caller interdit toute clé PISTE côté serveur ; "
+                "retirer : " + ", ".join(present)
+            )
+        for name in ("LEGIFRANCE_ENV", "JUDILIBRE_ENV"):
+            if values.get(name, "prod").lower() != "prod":
+                raise RuntimeConfigurationError(f"{name} doit valoir prod en production.")
 
 
 class RequestGovernor:

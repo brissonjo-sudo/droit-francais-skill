@@ -7,7 +7,12 @@ import urllib.parse
 
 from .config import judilibre_base
 from .errors import LegifranceError
-from .legifrance import _TOKEN_CACHE, clear_token_cache, get_token  # noqa: F401
+from .legifrance import (  # noqa: F401
+    _TOKEN_CACHE,
+    caller_credentials_active,
+    clear_token_cache,
+    get_token,
+)
 from .transport import http_get_json
 
 
@@ -23,6 +28,9 @@ def _bearer(token: str) -> dict:
 def auth_modes() -> list:
     """Construit les modes d'authentification à essayer, dans l'ordre."""
     modes = []
+    # La clé KeyId de l'environnement est celle de l'exploitant : jamais pour un appelant.
+    if caller_credentials_active():
+        return [("OAuth", None)]
     key_id = os.environ.get("JUDILIBRE_KEY_ID") or os.environ.get("PISTE_KEY_ID")
     if key_id:
         modes.append(("KeyId", {"KeyId": key_id, "Accept": "application/json"}))
