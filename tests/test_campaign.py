@@ -2,6 +2,7 @@
 from __future__ import annotations
 import copy
 import json
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -134,6 +135,59 @@ class CampagneTests(unittest.TestCase):
         self.assertEqual(trace.texte_final, "réponse")
         self.assertEqual(trace.modele, "")
         self.assertFalse(trace.is_error)
+
+    def test_codex_modele_absent_refuse_sauf_banc_exploratoire(self):
+        flux = '\n'.join(json.dumps(v) for v in [
+            {"type": "item.completed", "item": {"type": "agent_message", "text": "réponse"}},
+            {"type": "turn.completed", "usage": {"input_tokens": 4}}])
+        fini = subprocess.CompletedProcess([], 0, stdout=flux, stderr="")
+        with mock.patch("bench.native.subprocess.run", return_value=fini):
+            refuse = native.executer("codex", prompt="q", bras="A", plafond=1,
+                                     options=agents.Options(modele="gpt-exact", executable="codex"))
+            accepte = native.executer("codex", prompt="q", bras="A", plafond=1,
+                                      options=agents.Options(modele="gpt-exact", executable="codex",
+                                                             modele_non_atteste=True))
+        self.assertEqual("infra_error", refuse.statut)
+        self.assertIn("modèle effectif absent", refuse.motif_infra)
+        self.assertEqual("ok", accepte.statut)
+        self.assertEqual("", accepte.trace.modele)
+
+    def test_gemini_cle_api_passe_par_l_environnement_seul(self):
+        vu = {}
+
+        def lancer(cmd, **kwargs):
+            config = Path(kwargs["env"]["GEMINI_CLI_HOME"]) / ".gemini" / "settings.json"
+            self.assertFalse(Path(kwargs["env"]["GEMINI_CLI_SYSTEM_SETTINGS_PATH"]).exists())
+            vu.update(cmd=cmd, env=kwargs["env"], settings=json.loads(config.read_text(encoding="utf-8")),
+                      fichiers=sorted(p.name for p in config.parent.iterdir()))
+            return subprocess.CompletedProcess(cmd, 0, stdout="", stderr="")
+
+        options = agents.Options(modele="gemini-exact", executable="gemini", gemini_cle_api=True)
+        with mock.patch.dict("os.environ", {"GEMINI_API_KEY": "cle-factice-123456"}), \
+                mock.patch("bench.native.subprocess.run", side_effect=lancer):
+            native.executer("gemini", prompt="q", bras="A", plafond=1, options=options)
+        self.assertEqual("gemini-api-key", vu["settings"]["security"]["auth"]["selectedType"])
+        self.assertEqual("cle-factice-123456", vu["env"]["GEMINI_API_KEY"])
+        self.assertEqual("true", vu["env"]["GEMINI_CLI_TRUST_WORKSPACE"])
+        self.assertNotIn("cle-factice-123456", " ".join(vu["cmd"]))
+        self.assertEqual(["settings.json"], vu["fichiers"])  # aucun cache OAuth copié
+        self.assertEqual([], vu["settings"]["tools"]["core"])
+        self.assertFalse(vu["settings"]["privacy"]["usageStatisticsEnabled"])
+
+        # Bras C : l'allowlist core doit laisser passer le seul serveur MCP du banc.
+        options_c = agents.Options(modele="gemini-exact", executable="gemini", gemini_cle_api=True, mcp_local=True)
+        with mock.patch.dict("os.environ", {"GEMINI_API_KEY": "cle-factice-123456"}), \
+                mock.patch("bench.native.subprocess.run", side_effect=lancer):
+            native.executer("gemini", prompt="q", bras="C", plafond=1, options=options_c)
+        self.assertEqual(["mcp_droit-francais_*"], vu["settings"]["tools"]["core"])
+        self.assertIn("droit-francais", vu["settings"]["mcpServers"])
+
+        with mock.patch.dict("os.environ", {"GEMINI_API_KEY": ""}), \
+                mock.patch("bench.native.subprocess.run") as run:
+            absente = native.executer("gemini", prompt="q", bras="A", plafond=1, options=options)
+        run.assert_not_called()
+        self.assertEqual("infra_error", absente.statut)
+        self.assertIn("GEMINI_API_KEY absente", absente.motif_infra)
 
     def test_gemini_changement_modele_detecte_dans_stats(self):
         flux = '\n'.join(json.dumps(v) for v in [

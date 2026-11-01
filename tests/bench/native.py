@@ -22,6 +22,7 @@ API_ENV = (
     "GOOGLE_GENAI_USE_VERTEXAI", "CLAUDE_CODE_USE_BEDROCK",
     "CLAUDE_CODE_USE_VERTEX", "CLAUDE_CODE_USE_FOUNDRY",
 )
+MOTIF_MODELE_NON_ATTESTE = "modèle effectif absent du flux natif : qualification manquante"
 
 
 def environnement_abonnement() -> dict[str, str]:
@@ -163,19 +164,30 @@ def executer(famille: str, *, prompt: str, bras: str, plafond: int, options):
         if famille == "codex":
             cmd = commande_codex(exe, options.modele, systeme, bras, options)
         else:
-            # Ne copier que les caches d'authentification, jamais les réglages,
-            # extensions, skills ou mémoire du compte. Ils ne quittent pas le poste.
-            source = Path(os.environ.get("GEMINI_CLI_HOME", str(Path.home()))) / ".gemini"
             isolated = root / ".gemini"
             isolated.mkdir()
-            for nom in ("oauth_creds.json", "google_accounts.json"):
-                if (source / nom).is_file():
-                    shutil.copyfile(source / nom, isolated / nom)
+            if options.gemini_cle_api:
+                cle = os.environ.get("GEMINI_API_KEY", "")
+                if not cle:
+                    return Execution(Trace(), "", -1, statut="infra_error",
+                                     motif_infra="GEMINI_API_KEY absente de l'environnement")
+                env["GEMINI_API_KEY"] = cle
+            else:
+                # Ne copier que les caches d'authentification, jamais les réglages,
+                # extensions, skills ou mémoire du compte. Ils ne quittent pas le poste.
+                source = Path(os.environ.get("GEMINI_CLI_HOME", str(Path.home()))) / ".gemini"
+                for nom in ("oauth_creds.json", "google_accounts.json"):
+                    if (source / nom).is_file():
+                        shutil.copyfile(source / nom, isolated / nom)
+            # tools.core ajoute une règle « * → refus » qui prime sur mcp.allowed et trust (CLI 0.66) :
+            # sans l'entrée MCP, le bras C ne déclare aucune fonction au modèle.
             settings = {
-                "tools": {"core": []}, "skills": {"enabled": False},
+                "tools": {"core": ["mcp_droit-francais_*"] if bras in ("C", "D") else []},
+                "skills": {"enabled": False}, "privacy": {"usageStatisticsEnabled": False},
                 "hooksConfig": {"enabled": False}, "useWriteTodos": False,
                 "context": {"fileName": [], "includeDirectoryTree": False},
-                "security": {"auth": {"selectedType": "oauth-personal"}},
+                "security": {"auth": {"selectedType":
+                                      "gemini-api-key" if options.gemini_cle_api else "oauth-personal"}},
                 "mcp": {"allowed": ["droit-francais"] if bras in ("C", "D") else []},
                 "mcpServers": {},
             }
@@ -186,8 +198,12 @@ def executer(famille: str, *, prompt: str, bras: str, plafond: int, options):
                 }
             config = isolated / "settings.json"
             config.write_text(json.dumps(settings), encoding="utf-8")
-            env.update(GEMINI_CLI_HOME=dossier, GEMINI_SYSTEM_MD=str(systeme),
-                       GEMINI_CLI_SYSTEM_SETTINGS_PATH=str(config), GEMINI_CLI_SYSTEM_DEFAULTS_PATH=str(config))
+            # Sans approbation, la CLI headless (0.66) refuse le dossier temporaire (code 55).
+            # Réglages système : un fichier absent neutralise ceux du poste sans contrôle d'ACL
+            # (un dossier utilisateur y échoue toujours) ; config s'applique comme réglages utilisateur.
+            absent = str(root / "aucun-reglage-systeme.json")
+            env.update(GEMINI_CLI_HOME=dossier, GEMINI_SYSTEM_MD=str(systeme), GEMINI_CLI_TRUST_WORKSPACE="true",
+                       GEMINI_CLI_SYSTEM_SETTINGS_PATH=absent, GEMINI_CLI_SYSTEM_DEFAULTS_PATH=absent)
             cmd = [exe, "--model", options.modele, "--output-format", "stream-json"]
         try:
             started = time.perf_counter()
@@ -205,8 +221,8 @@ def executer(famille: str, *, prompt: str, bras: str, plafond: int, options):
     motif = ""
     if result.returncode or trace.is_error or trace.lignes_illisibles or not trace.texte_final:
         motif = "flux incomplet, erreur CLI ou réponse absente"
-    elif not trace.modele:
-        motif = "modèle effectif absent du flux natif : qualification manquante"
+    elif not trace.modele and not options.modele_non_atteste:
+        motif = MOTIF_MODELE_NON_ATTESTE
     execution = Execution(trace, result.stdout if options.garder_flux else "", result.returncode,
                           "", "infra_error" if motif else "ok", motif)
     if not motif:
