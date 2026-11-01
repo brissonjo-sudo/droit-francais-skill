@@ -1,7 +1,7 @@
 # ADR 0001 — Pont MCP : chaque appelant fournit ses identifiants PISTE
 
 - Date : 27/10/2026
-- Statut : **proposée** (prototype sur branche, non déployé)
+- Statut : **adoptée** le 01/11/2026 par Jo, sous condition : aucune mise en production sans réponse écrite du support PISTE (code fusionnable, mode pont désactivé par défaut)
 - Décideur : Jo (mainteneur)
 
 ## Contexte
@@ -19,7 +19,7 @@ Servir des tiers avec les clés du mainteneur est une question ouverte (P2).
 Objectif du mainteneur : garder un MCP distant utilisable par tous, sans que
 le serveur consomme ses propres clés.
 
-## Décision proposée
+## Décision
 
 Le serveur devient un **pont** quand `MCP_PISTE_CREDENTIALS=caller` :
 
@@ -90,6 +90,21 @@ reference* et *MCP*, consultées le 27/10/2026).
   exception près : une erreur inattendue d'un outil y rend désormais, comme en
   mode pont, un message neutre avec une référence, et le journal n'en garde
   que le type. Le diagnostic est moins détaillé ; il passe par la référence.
+- **Limites assumées (relecture du 01/11/2026).**
+  (a) Un jeton connu au moment du choix du budget peut expirer avant son
+  usage ; le renouvellement part alors du budget commun. Seule une paire déjà
+  validée par PISTE est concernée, pas une paire inventée.
+  (b) En mode OAuth, le quota individuel n'a pas de plafond du nombre de
+  principaux suivis, comme avant le pont. Cela suppose des identités OAuth
+  acceptées.
+  (c) Les renouvellements simultanés d'un même jeton ne sont pas coordonnés
+  et les jetons expirés ne sont pas purgés activement ; le cache reste borné
+  à 256 entrées.
+  (d) `MCP_NEW_CALLERS_PER_MINUTE` est lue dans tous les modes : une valeur
+  invalide empêche le démarrage, volontairement.
+  (e) La clause qui neutralise les erreurs inattendues capture aussi
+  `concurrent.futures.CancelledError`. Aucun exécuteur n'est utilisé
+  aujourd'hui ; à revoir si l'on en ajoute un.
 
 ## Vérification
 
@@ -97,4 +112,6 @@ reference* et *MCP*, consultées le 27/10/2026).
 de repli sur l'exploitant, refus de configuration, et chaîne HTTP réelle du SDK
 2.x (middleware, transport, outil, quota individuel), sans réseau.
 Après l'avis critique du 01/11/2026 : budget séparé des paires inconnues,
-plafond du quota individuel et masquage des formes encodées du secret.
+admission avant quota individuel (place libérée après un refus individuel),
+masquage des formes encodées, détail amont non journalisé en pont, message
+neutre des erreurs inattendues y compris en mode `server`.

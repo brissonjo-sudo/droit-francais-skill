@@ -107,7 +107,7 @@ class ClientPisteAppelantTests(unittest.TestCase):
 
 
 class ProtectionsPontTests(unittest.TestCase):
-    """Correctifs de l'avis du 01/11/2026 : budget des paires inconnues, masquage."""
+    """Correctifs de l'avis du 01/11/2026 : budgets, admission, masquage, erreurs neutres."""
 
     def setUp(self):
         legifrance_client.clear_token_cache()
@@ -158,6 +158,46 @@ class ProtectionsPontTests(unittest.TestCase):
         self.assertIn("outcome=upstream_error", journal)
         self.assertIn("detail=omis-mode-pont", journal)
         self.assertNotIn("marqueur-amont-fictif", journal)
+
+    def test_un_refus_individuel_apres_admission_libere_la_place(self):
+        from mcp_server import server as mcp_app
+
+        executee = []
+        nouveaux = RequestGovernor(1, 10, 2.0)  # une seule place
+        p1, p2 = self._pont(mcp_app)
+        with p1, p2, mock.patch.object(mcp_app, "GOVERNOR", RequestGovernor(8, 100, 2.0)), \
+                mock.patch.object(mcp_app, "NEW_CALLERS", nouveaux), \
+                mock.patch.object(mcp_app, "USER_LIMITER", PrincipalRateLimiter(1)):
+            self.assertEqual({"ok": 1}, mcp_app._safe_call(lambda: {"ok": 1}))
+            with self.assertRaises(mcp_app.ToolError) as caught:
+                mcp_app._safe_call(lambda: executee.append(True))
+        self.assertIn("Quota individuel atteint", str(caught.exception))
+        self.assertNotIn("occupé", str(caught.exception))
+        self.assertEqual([], executee)
+        # La place d'admission est rendue : un refus individuel ne la retient pas.
+        self.assertTrue(nouveaux._semaphore.acquire(blocking=False))
+        nouveaux._semaphore.release()
+
+    def test_le_mode_server_rend_aussi_une_erreur_neutre(self):
+        import dataclasses
+
+        from mcp_server import server as mcp_app
+
+        def operation():
+            raise RuntimeError("valeur-sensible-fictive")
+
+        reglages = dataclasses.replace(
+            mcp_app.SETTINGS, piste_credentials="server", auth_mode="disabled")
+        with mock.patch.object(mcp_app, "SETTINGS", reglages), \
+                mock.patch.object(mcp_app, "GOVERNOR", RequestGovernor(8, 100, 2.0)), \
+                mock.patch.object(mcp_app, "NEW_CALLERS", RequestGovernor(8, 100, 2.0)), \
+                mock.patch.object(mcp_app, "USER_LIMITER", PrincipalRateLimiter(100)), \
+                self.assertLogs("droit_francais.mcp", "WARNING") as logs:
+            with self.assertRaises(mcp_app.ToolError) as caught:
+                mcp_app._safe_call(operation)
+        self.assertNotIn("valeur-sensible-fictive", str(caught.exception))
+        self.assertNotIn("valeur-sensible-fictive", " ".join(logs.output))
+        self.assertIn("internal_error", " ".join(logs.output))
 
     def test_une_paire_inconnue_refusee_ne_cree_pas_de_seau_individuel(self):
         from mcp_server import server as mcp_app
