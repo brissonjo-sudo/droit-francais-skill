@@ -18,7 +18,7 @@ from bench.identite_gemini import modele_exact, numero_projet
 from bench.journal import Journal
 from bench.verrous_gemini import verrou, ErreurVerrou, transition
 
-TZDATA_VERSION = "2026.5"
+TZDATA_VERSION = "2026.6"
 
 
 @lru_cache(maxsize=1)
