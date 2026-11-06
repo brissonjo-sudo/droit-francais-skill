@@ -59,6 +59,9 @@ LOGGER = logging.getLogger("droit_francais.mcp")
 if LOGGER.level in (logging.NOTSET,) or LOGGER.getEffectiveLevel() > logging.INFO:
     LOGGER.setLevel(logging.INFO)
 logging.getLogger("droit_francais.mcp.auth").setLevel(logging.INFO)
+# Sans cela, les réessais du transport (retry host=… delay_s=…) sont muets en
+# production : on ne saurait pas qu'un 429 a été absorbé ni combien d'essais ont eu lieu.
+logging.getLogger("droit_francais.transport").setLevel(logging.INFO)
 GOVERNOR = RequestGovernor(
     SETTINGS.max_concurrent_requests,
     SETTINGS.tool_calls_per_minute,
@@ -271,6 +274,21 @@ SECRET_VARIABLES = (
 )
 
 
+def _upstream_fields(exc: LegifranceError) -> str:
+    """Champs de diagnostic d'un refus amont : hôte et chemin, jamais de requête."""
+    info = exc.upstream
+    if not info:
+        return ""
+    limits = ";".join(f"{k}:{v}" for k, v in info["rate_limit_headers"].items()) or "-"
+    retry_after = info["retry_after_s"]
+    return (
+        f"host={info['host']} path={info['path'] or '/'} "
+        f"retry_after_s={'-' if retry_after is None else retry_after} "
+        f"attempts={info['attempts']} waited_s={info['waited_s']} "
+        f"local_backoff={str(info['local_backoff']).lower()} rate_limit={limits} "
+    )
+
+
 def _mask_secrets(text: str, extra: tuple[str, ...] = ()) -> str:
     secrets = [os.environ.get(key) for key in SECRET_VARIABLES] + list(extra)
     for secret in secrets:
@@ -313,14 +331,18 @@ def _safe_call(operation: Callable[..., dict[str, Any]], *args: Any, **kwargs: A
             # part : des paires inventées ne bloquent pas les appelants déjà servis.
             if not caller_token_known(*caller):
                 governor = NEW_CALLERS
+    #: Limiteur en cause si un refus de capacité survient : instance, user ou new_callers.
+    limiter = "user"
     try:
         # Une paire inconnue n'obtient un seau qu'après admission par NEW_CALLERS :
         # des paires inventées ne créent pas plus de seaux que ce budget n'en admet.
         admit_first = governor is NEW_CALLERS
         if not admit_first:
             USER_LIMITER.check(principal)
+        limiter = "new_callers" if admit_first else "instance"
         with governor.slot():
             if admit_first:
+                limiter = "user"
                 USER_LIMITER.check(principal)
             if caller:
                 with caller_credentials(*caller):
@@ -336,22 +358,39 @@ def _safe_call(operation: Callable[..., dict[str, Any]], *args: Any, **kwargs: A
         )
         return result
     except RuntimeCapacityError as exc:
-        LOGGER.warning("tool_call tool=%s outcome=throttled", operation_name)
+        LOGGER.warning(
+            "tool_call tool=%s principal=%s outcome=throttled limiter=%s",
+            operation_name,
+            _pseudonym(principal),
+            limiter,
+        )
         raise ToolError(str(exc)) from exc
     except LegifranceError as exc:
         reference = uuid.uuid4().hex[:8]
         LOGGER.warning(
             "tool_call tool=%s outcome=upstream_error ref=%s code=%d status=%s "
-            "duration_ms=%d detail=%s",
+            "duration_ms=%d %sdetail=%s",
             operation_name,
             reference,
             exc.exit_code,
             exc.http_status if exc.http_status is not None else "-",
             int((time.monotonic() - started) * 1000),
+            _upstream_fields(exc),
             # Mode pont : le corps amont peut porter un secret encodé autrement.
+            # Avec un diagnostic structuré, l'URL (donc sa requête) n'est pas relue.
             "omis-mode-pont"
             if caller
-            else _mask_secrets(" ".join((exc.detail or str(exc)).split()), caller),
+            else _mask_secrets(
+                " ".join(
+                    (
+                        f"HTTP {exc.upstream['status']} sur {exc.upstream['host']}"
+                        f"{exc.upstream['path']} {exc.upstream['body_excerpt']}"
+                        if exc.upstream
+                        else exc.detail or str(exc)
+                    ).split()
+                ),
+                caller,
+            ),
         )
         raise ToolError(
             f"Source officielle non vérifiée (code {exc.exit_code}) : "

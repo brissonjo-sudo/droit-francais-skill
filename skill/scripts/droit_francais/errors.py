@@ -17,6 +17,7 @@ class LegifranceError(Exception):
         http_status: int | None = None,
         *,
         detail: str | None = None,
+        upstream: dict | None = None,
     ):
         super().__init__(message)
         self.exit_code = exit_code
@@ -25,3 +26,8 @@ class LegifranceError(Exception):
         #: Réservé au journal du serveur et à la sortie d'erreur du CLI ; ne
         #: figure jamais dans le message rendu à un client MCP.
         self.detail = detail
+        #: Diagnostic structuré d'un refus HTTP amont (statut, hôte, chemin sans
+        #: paramètres, ``Retry-After``, en-têtes de limitation, tentatives,
+        #: attente cumulée, extrait de corps). Aucune donnée personnelle :
+        #: journalisable tel quel, contrairement à ``detail``.
+        self.upstream = upstream
