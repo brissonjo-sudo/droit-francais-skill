@@ -739,17 +739,18 @@ class LegalToolsTests(unittest.TestCase):
                     mcp_app._safe_call(fail)
         self.assertNotIn("super-secret", str(caught.exception))
         self.assertIn("secret masqué", str(caught.exception))
-        # Le détail journalisé est masqué de la même façon que la réponse.
+        # Le journal garde l'hôte, jamais la requête qui portait le secret.
         rendu = " | ".join(journal.output)
         self.assertNotIn("super-secret", rendu)
-        self.assertIn("client_secret=[secret masqué]", rendu)
+        self.assertNotIn("client_secret", rendu)
+        self.assertIn("detail=HTTP 401 sur https://x", rendu)
 
     def test_upstream_detail_stays_in_the_journal_not_in_the_reply(self):
-        """Le client reçoit code, phrase et référence ; le journal a le reste.
+        """Le client reçoit code, phrase et référence ; le journal, hôte et chemin.
 
         La check-list de soumission OpenAI demande que les réponses finales ne
-        portent pas de charge de débogage. L'URL amont avec ses paramètres et
-        le fragment de corps remontaient jusqu'au modèle.
+        portent pas de charge de débogage. La politique de confidentialité
+        exclut du journal les arguments : ni paramètres d'URL, ni corps amont.
         """
         def fail():
             raise LegifranceError(
@@ -770,9 +771,31 @@ class LegalToolsTests(unittest.TestCase):
         reference = reply.rsplit("[réf. ", 1)[1].rstrip("]")
         self.assertEqual(8, len(reference))
         rendu = " | ".join(journal.output)
-        self.assertIn("stack-interne-42", rendu)
+        self.assertNotIn("stack-interne-42", rendu)
+        self.assertNotIn("q=1", rendu)
+        self.assertIn("detail=HTTP 503 sur https://api.piste.gouv.fr/x", rendu)
         self.assertIn(f"ref={reference}", rendu)
         self.assertIn("status=503", rendu)
+
+
+    def test_journal_omits_query_body_and_arguments(self):
+        """Politique de confidentialité : aucun argument ni résultat au journal."""
+        for detail, expected, forbidden in (
+            ("Réponse non-JSON de https://api.example.test/search?query=Dupont : <p>Dupont</p>",
+             "detail=Réponse non-JSON de https://api.example.test/search", "Dupont"),
+            ("Délai de 30 s dépassé vers https://api.example.test/decision?id=Martin",
+             "detail=Délai de 30 s dépassé vers https://api.example.test/decision", "Martin"),
+            ('{"article": "LEGIARTI000006389", "role": "parent"}', "detail=omis", "LEGIARTI"),
+        ):
+            def fail():
+                raise LegifranceError("Refus", exit_code=4, detail=detail)
+
+            with self.assertLogs("droit_francais.mcp", level="WARNING") as journal:
+                with self.assertRaises(mcp_app.ToolError):
+                    mcp_app._safe_call(fail)
+            rendu = " | ".join(journal.output)
+            self.assertIn(expected, rendu)
+            self.assertNotIn(forbidden, rendu)
 
 
 class RuntimeSafetyTests(unittest.TestCase):

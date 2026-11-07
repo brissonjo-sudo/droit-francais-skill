@@ -11,6 +11,25 @@ conservés tels quels pour ne pas casser les liens publiés.
 
 ---
 
+### [Non publié : diagnostic des 429 amont] - 2026-11-07
+
+- Transport : `LegifranceError.upstream` conserve statut, hôte, chemin sans
+  requête, `Retry-After` brut et en secondes, en-têtes de limitation,
+  tentatives, attente cumulée et extrait de corps (200 caractères).
+- `Retry-After` au format date HTTP désormais pris en compte.
+- Message public du `429` : « réessayer dans N s » quand le délai est connu.
+- Échéance mémorisée par (hôte, chemin) quand `Retry-After` dépasse le budget
+  de 8 s : les appels suivants échouent localement, sans toucher PISTE, jusqu'à
+  l'échéance (64 entrées au plus, une heure au plus). Budgets de reprise inchangés.
+- Serveur MCP : le logger `droit_francais.transport` reste à `INFO` en
+  production ; la ligne `upstream_error` porte `retry_after_s`, `attempts`,
+  `waited_s`, `local_backoff` et `rate_limit` ; la ligne `throttled` porte
+  `principal` et `limiter`. La requête n'est jamais journalisée.
+- Journal conforme à la politique de confidentialité (audit S2-02) : le champ
+  `detail` d'une erreur amont ne garde que l'opération de transport, l'hôte et
+  le chemin. Paramètres d'URL, corps amont et diagnostics portant des
+  arguments ne sont plus journalisés (`detail=omis`).
+
 ### [Non publié : licence EUPL 1.2] - 2026-11-01
 
 - Passage du dépôt à la licence publique de l'Union européenne (EUPL) 1.2 :

@@ -18,14 +18,18 @@ Deux règles, issues de l'audit du 1er septembre 2026 :
 
 from __future__ import annotations
 
+import email.utils
 import json
 import logging
+import math
 import random
 import socket
+import threading
 import time
 import urllib.error
 import urllib.parse
 import urllib.request
+from datetime import datetime, timezone
 
 from .errors import LegifranceError
 
@@ -45,6 +49,47 @@ LOGGER = logging.getLogger("droit_francais.transport")
 
 #: Indirection pour les tests : la suite ne doit jamais dormir réellement.
 _sleep = time.sleep
+#: Horloge de l'échéance mémorisée, remplaçable par les tests.
+_now = time.monotonic
+
+#: Mémoire d'échéance : (hôte, chemin) -> instant monotone avant lequel on ne
+#: rappelle pas PISTE. Bornée, purgée à chaque accès, protégée par un verrou.
+_BACKOFF_MAX_ENTRIES = 64
+#: Plafond d'une échéance mémorisée : un ``Retry-After`` aberrant ne doit pas
+#: couper un chemin pour des jours.
+_BACKOFF_MAX_SECONDS = 3600.0
+_backoff: dict[tuple[str, str], float] = {}
+_backoff_lock = threading.Lock()
+
+
+def reset_backoff() -> None:
+    """Vide la mémoire d'échéance (tests)."""
+    with _backoff_lock:
+        _backoff.clear()
+
+
+def _purge(now: float) -> None:
+    """Retire les échéances passées ; le verrou doit être tenu."""
+    for key in [k for k, deadline in _backoff.items() if deadline <= now]:
+        del _backoff[key]
+
+
+def _remember_backoff(host: str, path: str, seconds: float) -> None:
+    now = _now()
+    with _backoff_lock:
+        _purge(now)
+        if (host, path) not in _backoff and len(_backoff) >= _BACKOFF_MAX_ENTRIES:
+            del _backoff[min(_backoff, key=_backoff.get)]
+        _backoff[(host, path)] = now + min(seconds, _BACKOFF_MAX_SECONDS)
+
+
+def _backoff_remaining(host: str, path: str) -> int | None:
+    """Secondes restantes avant l'échéance mémorisée, ou ``None`` si libre."""
+    now = _now()
+    with _backoff_lock:
+        _purge(now)
+        deadline = _backoff.get((host, path))
+    return None if deadline is None else max(1, math.ceil(deadline - now))
 
 
 def http_post_json(
@@ -73,8 +118,10 @@ def _host(url: str) -> str:
     return urllib.parse.urlsplit(url).hostname or "source amont"
 
 
-def _public_message(code: int, host: str) -> str:
+def _public_message(code: int, host: str, retry_after_s: int | None = None) -> str:
     """Phrase stable et actionnable, sans charge de débogage."""
+    if code == 429 and retry_after_s is not None:
+        return f"Source amont saturée ({host}, HTTP 429) : réessayer dans {retry_after_s} s."
     if code == 429:
         return f"Source amont saturée ({host}, HTTP 429) : réessayer dans quelques instants."
     if code >= 500:
@@ -90,15 +137,33 @@ def _public_message(code: int, host: str) -> str:
 
 
 def _retry_after_seconds(headers) -> float | None:
-    """Lit ``Retry-After`` en secondes ; une date HTTP est ignorée."""
+    """Lit ``Retry-After`` en secondes : entier, ou date HTTP (RFC 9110)."""
     raw = headers.get("Retry-After") if headers is not None else None
     if raw is None:
         return None
+    text = str(raw).strip()
     try:
-        seconds = float(str(raw).strip())
+        seconds = float(text)
     except ValueError:
-        return None
-    return seconds if seconds >= 0 else None
+        try:
+            when = email.utils.parsedate_to_datetime(text)
+        except (TypeError, ValueError):
+            return None
+        if when.tzinfo is None:
+            when = when.replace(tzinfo=timezone.utc)
+        return max(0.0, (when - datetime.now(timezone.utc)).total_seconds())
+    return seconds if math.isfinite(seconds) and seconds >= 0 else None
+
+
+def _rate_limit_headers(headers) -> dict[str, str]:
+    """En-têtes de limitation, noms en minuscules : jamais de donnée personnelle."""
+    if headers is None:
+        return {}
+    return {
+        name.lower(): " ".join(str(value).split())[:100]
+        for name, value in headers.items()
+        if any(word in name.lower() for word in ("limit", "quota", "retry"))
+    }
 
 
 def _retry_delay(
@@ -124,6 +189,25 @@ def _retry_delay(
     return delay if delay <= remaining else None
 
 
+def _upstream(
+    status, host, path, retry_after_raw, retry_after_s, rate_limit_headers,
+    attempts, waited_s, body, local_backoff,
+) -> dict:
+    """Diagnostic structuré d'un refus amont : ni requête, ni corps intégral."""
+    return {
+        "status": status,
+        "host": host,
+        "path": path,
+        "retry_after_raw": retry_after_raw,
+        "retry_after_s": retry_after_s,
+        "rate_limit_headers": rate_limit_headers,
+        "attempts": attempts,
+        "waited_s": round(waited_s, 2),
+        "body_excerpt": " ".join(body.split())[:200],
+        "local_backoff": local_backoff,
+    }
+
+
 def _is_timeout(exc: urllib.error.URLError) -> bool:
     return isinstance(exc.reason, (socket.timeout, TimeoutError))
 
@@ -131,8 +215,20 @@ def _is_timeout(exc: urllib.error.URLError) -> bool:
 def _perform(request: urllib.request.Request, timeout: int, *, not_found_exit_code: int) -> dict:
     url = request.full_url
     host = _host(url)
+    path = urllib.parse.urlsplit(url).path
     started = time.monotonic()
     attempt = 0
+    waited = 0.0
+    remaining_wait = _backoff_remaining(host, path)
+    if remaining_wait is not None:
+        # Limitation déjà annoncée par PISTE : ne pas la retester à chaque appel.
+        raise LegifranceError(
+            _public_message(429, host, remaining_wait),
+            exit_code=4,
+            http_status=429,
+            detail=f"Échéance 429 mémorisée pour {host}{path} : appel amont évité",
+            upstream=_upstream(429, host, path, None, remaining_wait, {}, 0, 0.0, "", True),
+        )
     while True:
         attempt += 1
         try:
@@ -144,11 +240,20 @@ def _perform(request: urllib.request.Request, timeout: int, *, not_found_exit_co
             detail = f"HTTP {exc.code} sur {url}\n{body}"
             delay = _retry_delay(exc.code, exc.headers, attempt, started)
             if delay is None:
+                seconds = _retry_after_seconds(exc.headers)
+                announced = None if seconds is None else math.ceil(seconds)
+                budget_left = RETRY_BUDGET_SECONDS - (time.monotonic() - started)
+                if exc.code == 429 and seconds and seconds > budget_left:
+                    _remember_backoff(host, path, seconds)
                 raise LegifranceError(
-                    _public_message(exc.code, host),
+                    _public_message(exc.code, host, announced if exc.code == 429 else None),
                     exit_code=not_found_exit_code if exc.code == 404 else 4,
                     http_status=exc.code,
                     detail=detail,
+                    upstream=_upstream(
+                        exc.code, host, path, (exc.headers or {}).get("Retry-After"), announced,
+                        _rate_limit_headers(exc.headers), attempt, waited, body, False,
+                    ),
                 ) from exc
             cause = f"HTTP {exc.code}"
         except urllib.error.URLError as exc:
@@ -172,6 +277,7 @@ def _perform(request: urllib.request.Request, timeout: int, *, not_found_exit_co
         LOGGER.info(
             "retry host=%s cause=%s attempt=%d delay_s=%.2f", host, cause, attempt, delay
         )
+        waited += delay
         _sleep(delay)
 
 
