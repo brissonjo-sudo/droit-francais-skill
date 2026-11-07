@@ -191,6 +191,7 @@ class JournalTests(unittest.TestCase):
             self.assertIn(expected, line)
         self.assertNotIn("secret-param", line)
         self.assertNotIn("q=", line)
+        self.assertNotIn("slow", line)  # corps amont jamais journalisé
         self.assertIn("réessayer dans 30 s", reply)
         self.assertNotIn("x-ratelimit", reply.lower())
 

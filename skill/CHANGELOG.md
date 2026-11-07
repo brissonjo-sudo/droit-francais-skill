@@ -25,6 +25,10 @@ conservés tels quels pour ne pas casser les liens publiés.
   production ; la ligne `upstream_error` porte `retry_after_s`, `attempts`,
   `waited_s`, `local_backoff` et `rate_limit` ; la ligne `throttled` porte
   `principal` et `limiter`. La requête n'est jamais journalisée.
+- Journal conforme à la politique de confidentialité (audit S2-02) : le champ
+  `detail` d'une erreur amont ne garde que l'opération de transport, l'hôte et
+  le chemin. Paramètres d'URL, corps amont et diagnostics portant des
+  arguments ne sont plus journalisés (`detail=omis`).
 
 ### [Non publié : licence EUPL 1.2] - 2026-11-01
 
