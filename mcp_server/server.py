@@ -289,6 +289,26 @@ def _upstream_fields(exc: LegifranceError) -> str:
     )
 
 
+#: Débuts des détails produits par le transport ; tout autre texte libre peut
+#: porter des arguments et n'est pas journalisé.
+TRANSPORT_DETAILS = ("HTTP ", "Échec réseau vers ", "Délai de ", "Réponse non-JSON de ",
+                     "Réponse du serveur de jetons", "Échéance 429 ")
+#: Diagnostics JSON construits sans titre ni texte (compteurs, dates, chemins validés).
+SAFE_DIAGNOSTICS = ('{"kind": "consultation_limit"', '{"kind": "structured_consultation_refusal"')
+
+
+def _journal_detail(exc: LegifranceError) -> str:
+    """Détail journalisable : ni requête, ni corps amont, ni argument (politique de confidentialité)."""
+    if exc.upstream:
+        return f"HTTP {exc.upstream['status']} sur {exc.upstream['host']}{exc.upstream['path']}"
+    if (exc.detail or "").startswith(SAFE_DIAGNOSTICS):
+        return exc.detail
+    head = " ".join((exc.detail or "").split("\n", 1)[0].split(" : ", 1)[0].split())
+    if not head.startswith(TRANSPORT_DETAILS):
+        return "omis"
+    return re.sub(r"(https?://[^\s?#]+)[?#]\S*", r"\1", head)
+
+
 def _mask_secrets(text: str, extra: tuple[str, ...] = ()) -> str:
     secrets = [os.environ.get(key) for key in SECRET_VARIABLES] + list(extra)
     for secret in secrets:
@@ -377,20 +397,7 @@ def _safe_call(operation: Callable[..., dict[str, Any]], *args: Any, **kwargs: A
             int((time.monotonic() - started) * 1000),
             _upstream_fields(exc),
             # Mode pont : le corps amont peut porter un secret encodé autrement.
-            # Avec un diagnostic structuré, l'URL (donc sa requête) n'est pas relue.
-            "omis-mode-pont"
-            if caller
-            else _mask_secrets(
-                " ".join(
-                    (
-                        f"HTTP {exc.upstream['status']} sur {exc.upstream['host']}"
-                        f"{exc.upstream['path']} {exc.upstream['body_excerpt']}"
-                        if exc.upstream
-                        else exc.detail or str(exc)
-                    ).split()
-                ),
-                caller,
-            ),
+            "omis-mode-pont" if caller else _mask_secrets(_journal_detail(exc), caller),
         )
         raise ToolError(
             f"Source officielle non vérifiée (code {exc.exit_code}) : "

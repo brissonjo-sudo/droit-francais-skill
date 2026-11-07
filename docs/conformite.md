@@ -25,7 +25,7 @@ ci-dessous existe pour que cette responsabilité reste tenable.
 | Secrets absents du manifeste MCP | ✅ | Contrôlé en CI par `check_plugin.py`, qui échoue si `.mcp.json` nomme une variable sensible |
 | Secrets masqués dans les erreurs | ✅ | `_safe_call()` remplace les valeurs de `LEGIFRANCE_CLIENT_ID`, `LEGIFRANCE_CLIENT_SECRET`, `JUDILIBRE_KEY_ID` et `PISTE_KEY_ID` par `[secret masqué]` avant de propager une erreur au client |
 | Secrets absents des journaux | ✅ | Aucun jeton ni charge utile n'est journalisé ; un refus est tracé sous forme de nom de classe d'erreur ; le détail d'une erreur amont est journalisé après le même masquage que la réponse |
-| Détail amont réservé au journal | ✅ | Depuis le 1er septembre 2026, le client reçoit un message public stable (code, phrase actionnable, hôte amont) et un identifiant de corrélation ; l'URL amont complète et le fragment de corps de réponse vont dans le journal sous cet identifiant |
+| Détail amont réservé au journal | ✅ | Depuis le 1er septembre 2026, le client reçoit un message public stable (code, phrase actionnable, hôte amont) et un identifiant de corrélation. Depuis le 8 novembre 2026, le journal ne garde sous cet identifiant que l'opération de transport, l'hôte et le chemin : ni paramètres d'URL, ni corps de réponse, ni argument, conformément à la [politique de confidentialité](privacy-policy.md) |
 
 En production, les secrets vivent exclusivement dans les variables
 d'environnement de l'hébergeur. Le démarrage échoue si les identifiants
