@@ -359,6 +359,7 @@ def _ligne_resultat(
                     "raison": avis.raison,
                     "axe_defaillant": avis.axe_defaillant,
                     "extrait": avis.extrait,
+                    "abstention": avis.abstention,
                     "modele": avis.modele,
                 }
                 if avis

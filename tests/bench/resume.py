@@ -57,6 +57,23 @@ def centile(valeurs: list[float], fraction: float) -> float:
     return ordonnees[bas] * (1 - poids) + ordonnees[haut] * poids
 
 
+CATEGORIES = ("reponse_juste", "abstention_correcte", "erreur", "abstention_fautive", "indeterminee")
+
+
+def categorie(ligne: dict[str, Any]) -> str:
+    """Croise le succès du run et l'abstention constatée par le juge.
+
+    Un « je ne sais pas » et une réponse fausse ne valent pas la même chose :
+    les confondre dans un seul échec pousserait à inventer plutôt qu'à se taire.
+    """
+    abstention = (ligne.get("juge") or {}).get("abstention")
+    if not isinstance(abstention, bool):
+        return "indeterminee"  # sans juge, ou journal antérieur au champ
+    if ligne.get("pass"):
+        return "abstention_correcte" if abstention else "reponse_juste"
+    return "abstention_fautive" if abstention else "erreur"
+
+
 def agreger(lignes: list[dict[str, Any]]) -> dict[str, Any]:
     """Calcule les agrégats d'un run, par bras et par mode."""
     exploitables = [l for l in lignes if l.get("statut") != "infra_error"]
@@ -68,11 +85,13 @@ def agreger(lignes: list[dict[str, Any]]) -> dict[str, Any]:
     durees: dict[str, list[float]] = defaultdict(list)
     couts: dict[str, float] = defaultdict(float)
     abstentions: dict[str, list[bool]] = defaultdict(list)
+    categories: dict[str, dict[str, int]] = defaultdict(lambda: dict.fromkeys(CATEGORIES, 0))
 
     for ligne in exploitables:
         bras = str(ligne.get("bras", "?"))
         mode = str(ligne.get("mode", "?"))
         reussi = bool(ligne.get("pass"))
+        categories[bras][categorie(ligne)] += 1
         par_bras_mode[(bras, mode)].append(reussi)
         par_bras[bras].append(reussi)
         for nom, statut in (ligne.get("verdicts") or {}).items():
@@ -101,6 +120,7 @@ def agreger(lignes: list[dict[str, Any]]) -> dict[str, Any]:
         "duree_p95_ms": {b: centile(v, 0.95) for b, v in sorted(durees.items())},
         "cout_usd": dict(sorted(couts.items())),
         "abstention_correcte": {b: _taux(v) for b, v in sorted(abstentions.items())},
+        "categories": {b: c for b, c in sorted(categories.items())},
         "modeles": sorted({str(l.get("modele", "")) for l in lignes if l.get("modele")}),
         "skill_sha256": sorted({str(l.get("skill_sha256", "")) for l in lignes if l.get("skill_sha256")}),
     }
@@ -169,6 +189,19 @@ def rendre(agregats: dict[str, Any], deltas: list[dict[str, Any]] | None = None)
         lignes += ["## Abstention correcte (bras sans outil)", ""]
         for bras, taux in agregats["abstention_correcte"].items():
             lignes.append(f"- Bras {bras} : {taux:.0%} des réponses ne citent aucun identifiant non tracé")
+        lignes.append("")
+
+    if agregats["categories"]:
+        lignes += [
+            "## Résultat par catégorie",
+            "",
+            "Abstention et erreur sont comptées à part : « je ne sais pas » ne vaut pas une réponse fausse.",
+            "",
+            "| Bras | Réponse juste | Abstention correcte | Erreur | Abstention fautive | Indéterminée |",
+            "|---|---|---|---|---|---|",
+        ]
+        for bras, compte in agregats["categories"].items():
+            lignes.append(f"| {bras} | " + " | ".join(str(compte[c]) for c in CATEGORIES) + " |")
         lignes.append("")
 
     lignes += ["## Verdicts déterministes", "", "| Contrôle | PASS | FAIL | Sans objet |", "|---|---|---|---|"]

@@ -564,6 +564,15 @@ class Juge(unittest.TestCase):
         self.assertFalse(avis.passe)
         self.assertEqual(avis.axe_defaillant, "source")
 
+    def test_l_abstention_constatee_par_le_juge_est_lue(self):
+        avis = juge.extraire_avis(json.dumps({"structured_output": {
+            "verdict": "PASS", "raison": "Absence signalée.", "axe_defaillant": "aucun", "abstention": True}}))
+        self.assertIs(avis.abstention, True)
+        # Absente ou mal typée : inconnue, jamais devinée.
+        self.assertIsNone(juge.extraire_avis('{"verdict":"PASS","raison":"…","axe_defaillant":"aucun"}').abstention)
+        self.assertIsNone(juge.extraire_avis(
+            '{"verdict":"PASS","raison":"…","axe_defaillant":"aucun","abstention":"oui"}').abstention)
+
     def test_sortie_illisible_ne_passe_pas_par_defaut(self):
         """Un juge muet ne doit jamais valider un cas."""
         avis = juge.extraire_avis("le modèle n'a rien renvoyé d'exploitable")
@@ -670,6 +679,22 @@ class Resume(unittest.TestCase):
         agregats = agreger(self._runs("A", "1", [True, False]) + self._runs("C", "1", [True]))
         self.assertIn("A", agregats["abstention_correcte"])
         self.assertNotIn("C", agregats["abstention_correcte"])
+
+    def test_abstention_et_erreur_sont_comptees_a_part(self):
+        def run(reussi, abstention, juge_present=True):
+            return {"bras": "C", "mode": "1", "pass": reussi, "statut": "ok",
+                    "juge": {"abstention": abstention} if juge_present else None}
+
+        lignes = [
+            run(True, False), run(True, True), run(False, False), run(False, True),
+            run(True, None), run(True, None, juge_present=False),
+        ]
+        self.assertEqual(
+            agreger(lignes)["categories"]["C"],
+            {"reponse_juste": 1, "abstention_correcte": 1, "erreur": 1,
+             "abstention_fautive": 1, "indeterminee": 2},
+        )
+        self.assertIn("Abstention fautive", rendre(agreger(lignes)))
 
     def test_le_rendu_markdown_mentionne_l_empreinte_du_skill(self):
         rendu = rendre(agreger(self._runs("C", "1", [True])))

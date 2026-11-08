@@ -126,6 +126,12 @@ L-1, un 8° abrogé en 2014. Le juge est Claude par défaut ; `--juge-agent code
 --juge-model <modèle>` le confie à Codex, pour qu'une famille ne soit pas
 jugée par un modèle qui partage sa mémoire.
 
+Le juge dit aussi si la réponse **s'abstient** (champ `abstention`). Croisé
+avec le succès du run, le résumé classe chaque run en *réponse juste*,
+*abstention correcte*, *erreur* ou *abstention fautive* : un « je ne sais
+pas » ne compte pas comme une réponse fausse. Sans juge, ou sur un journal
+antérieur à ce champ, le run est *indéterminé*.
+
 Trois précautions rendent le contrôle de provenance juste : un identifiant
 déjà présent dans la question n'est pas une invention ; un identifiant marqué
 « non vérifié » est toléré (le noyau autorise ce marquage) ; un identifiant
@@ -190,7 +196,8 @@ dans le pipeline standard.
   mode est traitée comme de la variance, pas comme une régression.
 - **Le juge est un modèle.** Son champ `extrait` cite la phrase qui fonde son
   verdict, précisément pour qu'un relecteur humain puisse le contredire. Un
-  échantillon des verdicts doit être relu à chaque baseline.
+  échantillon des verdicts doit être relu à chaque baseline. Le champ
+  `abstention` relève du même jugement : la catégorie en hérite l'incertitude.
 - **La métrique de falsification est un proxy.** Elle constate qu'une
   recherche distincte a suivi la première lecture aboutie — donc *la recherche
   de réfutation*, pas sa pertinence. Le juge apprécie le reste.
