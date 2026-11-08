@@ -61,15 +61,20 @@ CATEGORIES = ("reponse_juste", "abstention_correcte", "erreur", "abstention_faut
 
 
 def categorie(ligne: dict[str, Any]) -> str:
-    """Croise le succès du run et l'abstention constatée par le juge.
+    """Croise le verdict du juge et l'abstention qu'il constate.
 
     Un « je ne sais pas » et une réponse fausse ne valent pas la même chose :
     les confondre dans un seul échec pousserait à inventer plutôt qu'à se taire.
+
+    Seul le juge apprécie le fond : un contrôle déterministe en échec (plafond,
+    date…) ne rend pas une abstention fautive. Le `pass` global reste le seul
+    verdict bloquant, compté dans les taux de réussite.
     """
-    abstention = (ligne.get("juge") or {}).get("abstention")
+    juge = ligne.get("juge") or {}
+    abstention = juge.get("abstention")
     if not isinstance(abstention, bool):
         return "indeterminee"  # sans juge, ou journal antérieur au champ
-    if ligne.get("pass"):
+    if juge.get("verdict") == "PASS":
         return "abstention_correcte" if abstention else "reponse_juste"
     return "abstention_fautive" if abstention else "erreur"
 
@@ -193,9 +198,11 @@ def rendre(agregats: dict[str, Any], deltas: list[dict[str, Any]] | None = None)
 
     if agregats["categories"]:
         lignes += [
-            "## Résultat par catégorie",
+            "## Appréciation du juge par catégorie",
             "",
-            "Abstention et erreur sont comptées à part : « je ne sais pas » ne vaut pas une réponse fausse.",
+            "Abstention et erreur sont comptées à part : « je ne sais pas » ne vaut pas une réponse fausse. "
+            "Ce tableau ne retient que le verdict du juge ; les contrôles déterministes pèsent sur le taux "
+            "de réussite ci-dessus, pas ici.",
             "",
             "| Bras | Réponse juste | Abstention correcte | Erreur | Abstention fautive | Indéterminée |",
             "|---|---|---|---|---|---|",

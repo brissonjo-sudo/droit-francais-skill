@@ -682,8 +682,9 @@ class Resume(unittest.TestCase):
 
     def test_abstention_et_erreur_sont_comptees_a_part(self):
         def run(reussi, abstention, juge_present=True):
+            juge_avis = {"verdict": "PASS" if reussi else "FAIL", "abstention": abstention}
             return {"bras": "C", "mode": "1", "pass": reussi, "statut": "ok",
-                    "juge": {"abstention": abstention} if juge_present else None}
+                    "juge": juge_avis if juge_present else None}
 
         lignes = [
             run(True, False), run(True, True), run(False, False), run(False, True),
@@ -695,6 +696,16 @@ class Resume(unittest.TestCase):
              "abstention_fautive": 1, "indeterminee": 2},
         )
         self.assertIn("Abstention fautive", rendre(agreger(lignes)))
+
+    def test_un_controle_deterministe_en_echec_ne_rend_pas_l_abstention_fautive(self):
+        """F1-a, revue PR 167 : absence bien signalée, mais 7 appels pour un plafond de 6."""
+        ligne = {"bras": "C", "mode": "1", "pass": False, "statut": "ok",
+                 "verdicts": {"plafond": "FAIL"}, "juge": {"verdict": "PASS", "abstention": True}}
+        agregats = agreger([ligne])
+        self.assertEqual(agregats["categories"]["C"]["abstention_correcte"], 1)
+        self.assertEqual(agregats["categories"]["C"]["abstention_fautive"], 0)
+        # Le verdict global reste bloquant.
+        self.assertEqual(agregats["taux_bras"]["C"], 0.0)
 
     def test_le_rendu_markdown_mentionne_l_empreinte_du_skill(self):
         rendu = rendre(agreger(self._runs("C", "1", [True])))

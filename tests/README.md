@@ -127,10 +127,12 @@ L-1, un 8° abrogé en 2014. Le juge est Claude par défaut ; `--juge-agent code
 jugée par un modèle qui partage sa mémoire.
 
 Le juge dit aussi si la réponse **s'abstient** (champ `abstention`). Croisé
-avec le succès du run, le résumé classe chaque run en *réponse juste*,
+avec son verdict, le résumé classe chaque run en *réponse juste*,
 *abstention correcte*, *erreur* ou *abstention fautive* : un « je ne sais
-pas » ne compte pas comme une réponse fausse. Sans juge, ou sur un journal
-antérieur à ce champ, le run est *indéterminé*.
+pas » ne compte pas comme une réponse fausse. Ce classement ne retient que le
+juge : un contrôle déterministe en échec (plafond, date…) fait échouer le run
+dans le taux de réussite, sans rendre l'abstention fautive. Sans juge, ou sur
+un journal antérieur à ce champ, le run est *indéterminé*.
 
 Trois précautions rendent le contrôle de provenance juste : un identifiant
 déjà présent dans la question n'est pas une invention ; un identifiant marqué
