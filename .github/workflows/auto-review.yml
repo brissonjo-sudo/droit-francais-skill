@@ -8,7 +8,7 @@ jobs:
   review:
     # Workflow et script figés au même commit de ci-tooling : une modification
     # de ci-tooling ne s'applique ici qu'après mise à jour explicite des deux SHA.
-    uses: brissonjo-sudo/ci-tooling/.github/workflows/auto-review.yml@4a114581d3b2a5eb4b369da4dc86de1c6b02eeb7
+    uses: brissonjo-sudo/ci-tooling/.github/workflows/auto-review.yml@9aea2535b175be30203c39ce03b67f781f63638e
     # Un workflow appele ne peut pas elargir les droits de l appelant : c est
     # ici qu ils sont accordes, et le workflow central ne fait que les reduire.
     permissions:
@@ -19,4 +19,4 @@ jobs:
       GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
       MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
     with:
-      tooling-ref: 4a114581d3b2a5eb4b369da4dc86de1c6b02eeb7
+      tooling-ref: 9aea2535b175be30203c39ce03b67f781f63638e
