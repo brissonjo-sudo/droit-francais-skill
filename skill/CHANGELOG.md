@@ -20,6 +20,8 @@ conservés tels quels pour ne pas casser les liens publiés.
 - `search_case_law` et `get_decision` transmettent `numbers`, la liste des
   pourvois joints fournie par Judilibre. Jusqu'ici seul `number` (le premier
   pourvoi) était rendu : le numéro cherché pouvait n'apparaître nulle part.
+- Script `legifrance.py` (noyau, Grok, Vibe) : `juri` et `decision` affichent
+  une ligne « Pourvois joints » quand la décision en joint plusieurs.
 - Origine : sonde F1-b du banc (11/11/2026, bras C, Sonnet, 4 passes sur 4 en
   échec, dont 2 avec une première version de la règle). La recherche renvoyait
   Soc. 13 juillet 2010, affiché « n° 09-42.839 », qui joint 43 pourvois dont

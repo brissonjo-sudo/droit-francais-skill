@@ -609,6 +609,9 @@ def cmd_juri(args) -> int:
         pub = r.get("publication") or []
         pub_lbl = ", ".join(PUBLICATIONS.get(p, p) for p in pub) if pub else ""
         print(f"• {jur} {chambre}, {date}, n° {num}".rstrip())
+        joints = _pourvois_joints(r)
+        if joints:
+            print(f"  Pourvois joints: {joints}")
         if ecli:
             print(f"  ECLI      : {ecli}")
         if sol:
@@ -663,6 +666,9 @@ def cmd_decision(args) -> int:
     print(f"Juridiction        : {jur} {chambre}".rstrip())
     print(f"Date               : {date}")
     print(f"Numéro             : {num}")
+    joints = _pourvois_joints(data)
+    if joints:
+        print(f"Pourvois joints    : {joints}")
     print(f"ECLI               : {data.get('ecli') or '?'}")
     print(f"Formation          : {data.get('formation') or '?'}")
     print(f"Solution           : {data.get('solution') or '?'}")
@@ -794,6 +800,12 @@ def _epoch_ms(iso_date: str) -> int:
             exit_code=2,
         ) from exc
     return int(jour.replace(tzinfo=datetime.timezone.utc).timestamp() * 1000)
+
+
+def _pourvois_joints(decision: dict) -> str:
+    """Autres numéros d'une jonction : le numéro cherché peut ne figurer qu'ici."""
+    principal = decision.get("number")
+    return ", ".join(n for n in decision.get("numbers") or [] if n != principal)
 
 
 def _fmt_date(value) -> str:
