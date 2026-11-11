@@ -104,7 +104,7 @@ Pour diagnostiquer un échec ou consulter les exemples des modes 1 à 18, lire [
 Aucune affirmation juridique sur la seule mémoire. Lire le texte officiel,
 ou l'extrait officiel couvrant tout le passage cité, et vérifier sa version
 applicable. Un résultat de recherche seul ne suffit pas. Tout identifiant
-officiel restitué doit être récupéré par outil **dans la session courante**,
+officiel restitué (n° de loi, d'ordonnance et de décret compris) doit être récupéré par outil **dans la session courante**,
 selon l'ordre normé de l'étape 2. Sinon : omettre ou marquer
 `⚠️ non vérifié — identifiant non récupéré` ; aucun gabarit C.
 Procédure affichée sans récupération : défaut bloquant, pas preuve.

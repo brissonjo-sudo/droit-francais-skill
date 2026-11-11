@@ -14,6 +14,10 @@ CORRESPONDANCE = ROOT / "tests/fixtures/rj-correspondance.csv"
 SOURCE_DIGEST = "ac774ea9df1fb9b28abb77b5076dde8e3b05f6085eecfdd342cdf04ac17ea57d"
 OLD_P1 = "`scripts/legifrance.py` **en premier**, à défaut\n`web_fetch`/`web_search` sur un domaine officiel — ordre normé à\nl'**étape 2**, *échelle de récupération*"
 NEW_P1 = "selon l'ordre normé de l'**étape 2**, *échelle de récupération* :\nconnecteur MCP officiel disponible, sinon `scripts/legifrance.py`,\nà défaut `web_fetch`/`web_search` sur un domaine officiel"
+# A4f (2026-11-11, décision de Jo) : les numéros de loi, d'ordonnance et de décret
+# entrent dans la liste des identifiants officiels de la règle de provenance P1.
+OLD_P1_LISTE = "n° de requête, n° de décision"
+NEW_P1_LISTE = "n° de requête, n° de décision, n° de loi, d'ordonnance ou de décret"
 
 
 # A4e : chaque renvoi historique est vérifié dans son routage existant du noyau.
@@ -34,11 +38,12 @@ def normalize(text: str) -> str:
 
 
 def expected_text(row: dict[str, str]) -> str:
-    """Applique exclusivement les arbitrages A4b/A4c/A4d/A4e et le rebasing des liens."""
+    """Applique exclusivement les arbitrages A4b/A4c/A4d/A4e/A4f et le rebasing des liens."""
     if row["identifiant"] in CORE_ROUTES:
         return CORE_ROUTES[row["identifiant"]]
     text = row["texte_source"].replace("\r\n", "\n")
     text = text.replace(OLD_P1, NEW_P1)
+    text = text.replace(OLD_P1_LISTE, NEW_P1_LISTE)
     text = text.replace("module PÉNAL §6", "module PÉNAL §5")
     text = text.replace("module PÉNAL §5 ci-dessous", "module PÉNAL (§5 du noyau)")
     text = text.replace("(voir §6).", "(voir §5).")

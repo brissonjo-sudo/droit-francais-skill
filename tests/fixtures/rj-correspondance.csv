@@ -331,7 +331,7 @@ le cérémonial sans la récupération est une **simulation de procédure**,
 traitée comme un défaut bloquant à l'étape 6. Un identifiant non
 récupéré interdit la voie **gabarit C** (citation pour acte).",skill/references/sources-autorisees.md,skill/references/sources-autorisees.md:150-163,150,163,"**Règle de provenance (impérative, v2.3.0).** Tout **identifiant
 officiel** figurant dans une sortie — `LEGIARTI…`, `JORFTEXT…`,
-`NOR`, n° de pourvoi, n° de requête, n° de décision — doit provenir
+`NOR`, n° de pourvoi, n° de requête, n° de décision, n° de loi, d'ordonnance ou de décret — doit provenir
 d'un **appel d'outil effectué dans la session courante** (récupération
 en source primaire : selon l'ordre normé de l'**étape 2**, *échelle de récupération* :
 connecteur MCP officiel disponible, sinon `scripts/legifrance.py`,
@@ -927,7 +927,7 @@ appel d'outil dans la session**. Tout identifiant sans provenance est
 retiré ou marqué `⚠️ non vérifié — identifiant non récupéré`. Aucun
 gabarit C n'est produit sur un identifiant non récupéré.",skill/references/procedure-detaillee.md,skill/references/procedure-detaillee.md:362-367,362,367,"**Contrôle de provenance (P1)** : avant livraison, vérifier que chaque
 identifiant officiel cité (`LEGIARTI`, `JORFTEXT`, `NOR`, n° de
-pourvoi, n° de requête, n° de décision) a bien été **récupéré par un
+pourvoi, n° de requête, n° de décision, n° de loi, d'ordonnance ou de décret) a bien été **récupéré par un
 appel d'outil dans la session**. Tout identifiant sans provenance est
 retiré ou marqué `⚠️ non vérifié — identifiant non récupéré`. Aucun
 gabarit C n'est produit sur un identifiant non récupéré."

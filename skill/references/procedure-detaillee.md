@@ -361,7 +361,7 @@ jamais, à elle seule, la phrase qui la porte.
 
 **Contrôle de provenance (P1)** : avant livraison, vérifier que chaque
 identifiant officiel cité (`LEGIARTI`, `JORFTEXT`, `NOR`, n° de
-pourvoi, n° de requête, n° de décision) a bien été **récupéré par un
+pourvoi, n° de requête, n° de décision, n° de loi, d'ordonnance ou de décret) a bien été **récupéré par un
 appel d'outil dans la session**. Tout identifiant sans provenance est
 retiré ou marqué `⚠️ non vérifié — identifiant non récupéré`. Aucun
 gabarit C n'est produit sur un identifiant non récupéré.
