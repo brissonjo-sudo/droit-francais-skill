@@ -7,3 +7,7 @@ Historique du noyau : dépôt amont, skill/CHANGELOG.md.
 
 Retiré le 2026-10-25 : le wrapper `tools/legifrance_vibe.py`, jamais branché,
 qui fabriquait un identifiant de forme LEGIARTI et présumait la vigueur.
+
+Ajouté le 2026-11-11 : déclencheur d'abstention 3 aligné sur le noyau —
+ouvrir tout résultat d'une recherche sur le numéro exact avant de déclarer
+une décision introuvable (noyau, PR 170). Non rejoué sur la plateforme.
