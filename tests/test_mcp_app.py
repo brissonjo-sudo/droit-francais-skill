@@ -250,6 +250,7 @@ class LegalToolsTests(unittest.TestCase):
                         "jurisdiction": "cc",
                         "decision_date": "2025-01-15",
                         "number": "24-10.001",
+                        "numbers": ["24-10.001", "24-10.002"],
                         "summary": "<p>Responsabilité administrative</p>",
                     }
                 ],
@@ -268,6 +269,9 @@ class LegalToolsTests(unittest.TestCase):
         decision = legal_tools.get_decision(results["results"][0]["id"])
 
         self.assertEqual("abc123", results["results"][0]["id"])
+        # Un pourvoi joint reste visible même s'il n'est pas le numéro principal.
+        self.assertEqual(["24-10.001", "24-10.002"], results["results"][0]["numbers"])
+        self.assertEqual([], decision["metadata"]["numbers"])
         self.assertEqual("Texte intégral", decision["text"])
         self.assertTrue(decision["metadata"]["verified"])
         self.assertEqual(

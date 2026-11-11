@@ -11,6 +11,21 @@ conservés tels quels pour ne pas casser les liens publiés.
 
 ---
 
+### [Non publié : décision écartée sur la date] - 2026-11-11
+
+- Déclencheur d'abstention 3 (§7) : avant de déclarer une décision
+  introuvable, ouvrir tout résultat d'une recherche sur le numéro exact, même
+  si le numéro affiché, la date ou la formation diffère. Une jonction ou une
+  date erronée ne se voit que dans la décision.
+- `search_case_law` et `get_decision` transmettent `numbers`, la liste des
+  pourvois joints fournie par Judilibre. Jusqu'ici seul `number` (le premier
+  pourvoi) était rendu : le numéro cherché pouvait n'apparaître nulle part.
+- Origine : sonde F1-b du banc (11/11/2026, bras C, Sonnet, 4 passes sur 4 en
+  échec, dont 2 avec une première version de la règle). La recherche renvoyait
+  Soc. 13 juillet 2010, affiché « n° 09-42.839 », qui joint 43 pourvois dont
+  le n° 09-42.873. L'assistant l'a écarté sans l'ouvrir, puis s'est abstenu.
+- Déclinaisons Grok et Vibe non modifiées : à porter à part.
+
 ### [Non publié : diagnostic des 429 amont] - 2026-11-07
 
 - Transport : `LegifranceError.upstream` conserve statut, hôte, chemin sans
