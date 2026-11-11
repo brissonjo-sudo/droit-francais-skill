@@ -11,6 +11,22 @@ conservés tels quels pour ne pas casser les liens publiés.
 
 ---
 
+### [Non publié : numéros de texte dans P1] - 2026-11-11
+
+- P1 (règle de provenance) : les n° de loi, d'ordonnance et de décret entrent
+  dans la liste des identifiants officiels. Non récupérés par outil, ils sont
+  omis ou marqués `⚠️ non vérifié — identifiant non récupéré`, comme un
+  `LEGIARTI` ou un n° de pourvoi. Ajouté au noyau (`SKILL.md`, seul texte lu
+  sans outil) et aux trois références qui portent la liste.
+- Origine : sondes F2-a et F2-b du banc, bras B (11/11/2026, Sonnet). Sans
+  outil, l'assistant citait de mémoire « décret n° 2019-140 » ou
+  « ordonnance n° 2012-351 » sous une réserve générale : la liste de P1 ne
+  couvrait pas ces numéros.
+- Correspondance A4 : arbitrage A4f déclaré dans `check_skill_structure.py`
+  pour les unités RJ-L0244 et RJ-L0741 ; textes source inchangés.
+- Déclinaisons Grok et Vibe alignées. Gemini, Manus et l'agent Gemini ont
+  leurs propres listes : non modifiés.
+
 ### [Non publié : décision écartée sur la date] - 2026-11-11
 
 - Déclencheur d'abstention 3 (§7) : avant de déclarer une décision
