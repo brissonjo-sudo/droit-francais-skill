@@ -26,7 +26,7 @@ conservés tels quels pour ne pas casser les liens publiés.
   échec, dont 2 avec une première version de la règle). La recherche renvoyait
   Soc. 13 juillet 2010, affiché « n° 09-42.839 », qui joint 43 pourvois dont
   le n° 09-42.873. L'assistant l'a écarté sans l'ouvrir, puis s'est abstenu.
-- Déclinaisons Grok et Vibe non modifiées : à porter à part.
+- Déclinaisons Grok et Vibe : même règle portée à part, le même jour.
 
 ### [Non publié : diagnostic des 429 amont] - 2026-11-07
 
