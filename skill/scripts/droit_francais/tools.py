@@ -581,6 +581,41 @@ def search_articles(
     }
 
 
+def _parent_text(article: dict[str, Any]) -> dict[str, Any] | None:
+    """Texte parent d'un article d'après ``textTitles``, ou None si absent.
+
+    Pour un texte non codifié, ``textTitles`` porte deux entrées : la version
+    JORF (``etat`` vide, dates sentinelles) puis la version consolidée LEGITEXT.
+    Pour un code, une seule entrée LEGITEXT. N'y figurent que des champs lus
+    dans les réponses réelles de ``/consult/getArticle``.
+    """
+    titles = [t for t in article.get("textTitles") or [] if isinstance(t, dict)]
+    if not titles:
+        return None
+    legi = next((t for t in titles if str(t.get("id") or "").startswith("LEGITEXT")), titles[0])
+    jorf = next(
+        (
+            t.get("cid") or t.get("id")
+            for t in titles
+            if str(t.get("cid") or t.get("id") or "").startswith("JORFTEXT")
+        ),
+        None,
+    )
+    published = _date_value(legi.get("datePubli"))
+    parent = {
+        "id": legi.get("id"),
+        "jorftext_id": jorf,
+        "nature": legi.get("nature"),
+        "number": legi.get("num"),
+        "nor": legi.get("nor"),
+        "title": _clean_text(legi.get("titreLong") or legi.get("titre")),
+        "legal_status": legi.get("etat"),
+        # Année 2999 : sentinelle « sans date » de Légifrance (codes).
+        "publication_date": published.isoformat() if published and published.year < 2999 else None,
+    }
+    return {key: value for key, value in parent.items() if value not in (None, "")} or None
+
+
 def get_article(article_id: str, date: str | None = None) -> dict[str, Any]:
     """Récupère une version d'article et évalue sa validité à la date visée."""
     article_id = article_id.strip().upper()
@@ -602,7 +637,7 @@ def get_article(article_id: str, date: str | None = None) -> dict[str, Any]:
     text = _clean_text(article.get("texte") or article.get("texteHtml"))
     start_date = article.get("dateDebut")
     end_date = article.get("dateFin")
-    return {
+    result: dict[str, Any] = {
         "id": canonical_id,
         "title": f"Article {number}",
         "text": text,
@@ -618,6 +653,13 @@ def get_article(article_id: str, date: str | None = None) -> dict[str, Any]:
             **_article_dating(start_date, end_date, date),
         },
     }
+    parent = _parent_text(article)
+    if parent:
+        result["parent_text"] = parent
+    section_title = _clean_text(article.get("sectionParentTitre"))
+    if section_title:
+        result["section"] = {"id": article.get("sectionParentId"), "title": section_title}
+    return result
 
 
 def _chrono_modifiers(text_cid: str, article_cid: str) -> dict[str, list[dict[str, Any]]] | None:

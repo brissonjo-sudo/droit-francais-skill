@@ -11,6 +11,17 @@ conservés tels quels pour ne pas casser les liens publiés.
 
 ---
 
+### [Non publié : texte parent dans get_article] - 2026-11-24
+
+- `get_article` (et `fetch` sur un `LEGIARTI`) ajoute `parent_text` : identifiant
+  LEGITEXT, identifiant JORFTEXT, nature, numéro, NOR, titre complet, état et
+  date de publication du texte qui porte l'article ; et `section` (identifiant
+  et titre de la section parente) quand la réponse en fournit une. Champs lus
+  dans `textTitles` et `sectionParentId`/`sectionParentTitre` de
+  `/consult/getArticle` (décret 88-547 et arrêté du 14 novembre 2001) ;
+  la date sentinelle 2999 des codes est écartée. Clés existantes inchangées ;
+  sans `textTitles`, les deux blocs sont simplement absents.
+
 ### [Non publié : numéros de texte dans P1] - 2026-11-11
 
 - P1 (règle de provenance) : les n° de loi, d'ordonnance et de décret entrent
