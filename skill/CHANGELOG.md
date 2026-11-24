@@ -11,6 +11,25 @@ conservés tels quels pour ne pas casser les liens publiés.
 
 ---
 
+### [Non publié : search_texts, texte non codifié par numéro ou NOR] - 2026-11-24
+
+- Nouvel outil MCP `search_texts(number, nor, date, limit)`, en lecture seule :
+  retrouve un décret, une loi, une ordonnance ou un arrêté non codifié dans le
+  fonds `LODA_DATE`, une ligne par LEGITEXT (LEGITEXT, JORFTEXT, nature,
+  numéro, NOR, titre, état, date de publication, lien Légifrance). Jusqu'ici
+  `search_articles` ne couvrait que les codes et `search` partait vers
+  Judilibre : un décret non codifié restait introuvable par outil.
+- Garde-fous : les résultats sont filtrés exactement côté serveur (un champ
+  ignoré en silence renvoie tout le fonds) ; les versions datées sont
+  dédoublonnées et le suffixe de date retiré ; `date` s'appuie sur le filtre
+  `DATE_VERSION`, vérifié sur ce fonds. Pas de recherche par titre : `TITLE`
+  répond mais mêle les textes modificateurs, sans ordre fiable.
+- `references/modes-erreur.md` (noyau, Grok, Vibe) : limite de la voie outillée
+  pour un texte non codifié et parade (`search_texts`, sinon URL Légifrance
+  demandée à l'utilisateur puis confirmée par `fetch`).
+- Catalogue, soumission ChatGPT, sonde live, CI et listes d'outils des
+  déclinaisons Gemini et Manus (une ligne d'outil chacune) mis à jour.
+
 ### [Non publié : texte parent dans get_article] - 2026-11-24
 
 - `get_article` (et `fetch` sur un `LEGIARTI`) ajoute `parent_text` : identifiant

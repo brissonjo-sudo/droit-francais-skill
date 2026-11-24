@@ -121,6 +121,18 @@
         "destructive_justification": "La lecture de l'historique d'un article n'entraîne aucune action irréversible."
       }
     },
+    "search_texts": {
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": false,
+        "destructiveHint": false
+      },
+      "justifications": {
+        "read_only_justification": "Recherche un texte publié par Légifrance à partir de son numéro ou de son NOR, sans rien modifier.",
+        "open_world_justification": "Ne peut modifier aucun état publiquement visible d'internet : l'outil lit la source officielle Légifrance et n'écrit nulle part.",
+        "destructive_justification": "La recherche d'un texte n'entraîne aucune action irréversible."
+      }
+    },
     "search_constitutional_decisions": {
       "annotations": {
         "readOnlyHint": true,

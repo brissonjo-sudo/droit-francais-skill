@@ -564,6 +564,31 @@ def get_article_history(id: str, date: str | None = None) -> dict[str, Any]:
 
 
 @server.tool(
+    name="search_texts",
+    title="Retrouver un texte par numéro ou NOR",
+    description=(
+        "Retrouve un texte non codifié (décret, loi, ordonnance, arrêté) à partir "
+        "de son numéro (ex. 88-547) et/ou de son NOR (ex. MCLB8800149D) : une "
+        "ligne par texte avec identifiant LEGITEXT, JORFTEXT, nature, titre, "
+        "état et lien Légifrance. Au moins un des deux critères est obligatoire ; "
+        "la recherche par titre n'existe pas. Les résultats sont contrôlés "
+        "exactement côté serveur. Un résultat vide ne prouve pas que le texte "
+        "n'existe pas : demander alors l'URL Légifrance. Ne renseigner date QUE "
+        "si une date précise est demandée. Lire ensuite le texte avec get_text."
+    ),
+    annotations=READ_ONLY,
+)
+def search_texts(
+    number: str | None = None,
+    nor: str | None = None,
+    date: str | None = None,
+    limit: int = 10,
+) -> dict[str, Any]:
+    """Find a LEGI text by exact number and/or NOR."""
+    return _safe_call(legal_tools.search_texts, number, nor, date, limit)
+
+
+@server.tool(
     name="search_case_law",
     title="Rechercher une décision judiciaire",
     description=(

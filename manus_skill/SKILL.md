@@ -69,7 +69,7 @@ Avant toute recherche, recenser les informations nécessaires qui manquent. Si l
 
 Suivre les voies ci-dessous dans l'ordre ; n'utiliser que les outils effectivement exposés dans la session.
 
-**1. Connecteur MCP dédié de ce dépôt — s'il est exposé dans la session.** Ses douze outils et paramètres sont ceux vérifiés dans `mcp_server/server.py` (catalogue `mcp_server/catalog.py`) :
+**1. Connecteur MCP dédié de ce dépôt — s'il est exposé dans la session.** Ses treize outils et paramètres sont ceux vérifiés dans `mcp_server/server.py` (catalogue `mcp_server/catalog.py`) :
 
 | Outil MCP | Paramètres | Usage |
 |---|---|---|
@@ -80,6 +80,7 @@ Suivre les voies ci-dessous dans l'ordre ; n'utiliser que les outils effectiveme
 | `get_article_history` | `id`, `date` | Toutes les versions datées d'un article, leurs textes modificateurs et la version applicable ; `modifications_available: false` ne prouve pas l'absence de modification |
 | `get_section` | `id`, `text_id`, `date`, `cid` | Lit une section de code (`LEGISCTA`) dans son texte parent explicite |
 | `get_text` | `id`, `date` | Lit un texte consolidé (`LEGITEXT`) |
+| `search_texts` | `number`, `nor`, `date`, `limit` | Retrouve un texte non codifié (décret, loi, arrêté) par numéro ou NOR exacts ; pas de recherche par titre ; vide : demander l'URL Légifrance |
 | `search_case_law` | `query`, `jurisdiction`, `date_start`, `date_end`, `limit`, `sort` | Jurisprudence de l'ordre judiciaire seulement (Judilibre : `cc`, `ca`, `tj`, `tcom`) |
 | `get_decision` | `id` | Lit une décision Judilibre désignée par son identifiant |
 | `search_admin_case_law` | `query`, `jurisdiction`, `date_start`, `date_end`, `limit`, `sort` | Jurisprudence administrative (`ce`, `caa`, `ta`, `tc`) ; tribunaux administratifs seulement en sélection antérieure à 2010 |

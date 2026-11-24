@@ -1154,3 +1154,14 @@ def get_text(text_id: str, date: str | None = None) -> dict[str, Any]:
     """Consulte un texte consolidé LEGI."""
     from .texts import get_text as consult_text
     return consult_text(text_id, date)
+
+
+def search_texts(
+    number: str | None = None,
+    nor: str | None = None,
+    date: str | None = None,
+    limit: int = 10,
+) -> dict[str, Any]:
+    """Retrouve un texte (décret, loi, arrêté) par numéro ou NOR."""
+    from .text_search import search_texts as find_texts
+    return find_texts(number, nor, date, limit)

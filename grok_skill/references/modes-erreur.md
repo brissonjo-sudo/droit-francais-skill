@@ -101,3 +101,15 @@ chaque étape indiquent les modes qu'ils neutralisent (« → Bloque modes… »
 en amont, elle empêche de déclencher les modes 10 et 14 (mauvais régime /
 mauvais champ sur une hypothèse décisionnelle non levée). Elle prolonge P2
 et P7 au stade de l'entrée.
+
+## Limite de la voie outillée : texte non codifié
+
+`search_articles` ne cherche que dans les codes (`CODE_DATE`) et `search`
+route vers Judilibre : aucun des deux ne retrouve un décret, une loi ou un
+arrêté non codifié. Cette absence de résultat n'est pas une preuve
+d'inexistence du texte (mode 1, hallucination de référence).
+
+**Parade.** Chercher le texte avec `search_texts` par numéro (`88-547`) ou par
+NOR (`MCLB8800149D`) : l'outil renvoie un `LEGITEXT` par texte, à lire ensuite
+avec `get_text`. Il ne cherche pas par titre. S'il ne donne rien, demander à l'utilisateur l'URL
+Légifrance du texte, puis la confirmer par `fetch` avant de citer.
