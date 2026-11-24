@@ -106,10 +106,12 @@ et P7 au stade de l'entrée.
 
 `search_articles` ne cherche que dans les codes (`CODE_DATE`) et `search`
 route vers Judilibre : aucun des deux ne retrouve un décret, une loi ou un
-arrêté non codifié. Cette absence de résultat n'est pas une preuve
-d'inexistence du texte (mode 1, hallucination de référence).
+arrêté non codifié. Cette absence de résultat ne prouve pas que le texte
+n'existe pas : en conclure ainsi expose au mode 9 (décret d'application
+oublié), et le citer alors de mémoire au mode 1.
 
 **Parade.** Chercher le texte avec `search_texts` par numéro (`88-547`) ou par
 NOR (`MCLB8800149D`) : l'outil renvoie un `LEGITEXT` par texte, à lire ensuite
-avec `get_text`. Il ne cherche pas par titre. S'il ne donne rien, demander à l'utilisateur l'URL
-Légifrance du texte, puis la confirmer par `fetch` avant de citer.
+avec `get_text`. Il ne cherche pas par titre. S'il ne donne rien, demander à
+l'utilisateur l'URL Légifrance du texte, puis la confirmer par `fetch` avant
+de citer.
