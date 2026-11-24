@@ -11,6 +11,30 @@ conservés tels quels pour ne pas casser les liens publiés.
 
 ---
 
+### [3.7.0] — 2026-11-24
+
+Préparation locale de la méthodologie ; aucune publication ni mesure modèle.
+Regroupe pour le skill les entrées « Non publié » du 2026-11-11 (numéros de
+texte dans P1) et du 2026-11-24 ci-dessous. Publication, README et étiquette
+`skill-v3.7.0` : PR `release(skill)` après fusion, comme pour 3.6.0.
+
+#### Ajouté
+- `references/sources-autorisees.md` : rubrique « Document fourni par
+  l'utilisateur ». Capture ou PDF d'un site officiel : piste de localisation,
+  la preuve reste l'extrait récupéré par outil. Extrait d'un site privé : fait
+  déclaré, hypothèse signalée, jamais fondement ; demander l'URL officielle.
+  Pièce du dossier : fait de l'espèce. Un identifiant lu sur un document
+  fourni relève de P1.
+- Noyau P1 : une ligne de renvoi vers cette rubrique (noyau et Grok). Le noyau
+  Vibe, à 6 caractères de son plafond de 21 000, ne la porte pas ; sa
+  référence est identique.
+- Outils `search_texts` et `parent_text` de `get_article` (voir les deux
+  entrées suivantes), et parade « texte non codifié » de `modes-erreur.md`.
+
+Origine : cas fictif d'un agent de maîtrise détaché en police municipale
+(co-activation drh-fpt). Le décret d'échelonnement n'avait pu être retrouvé
+par outil, et aucune règle ne fixait la valeur d'une capture fournie.
+
 ### [Non publié : search_texts, texte non codifié par numéro ou NOR] - 2026-11-24
 
 - Nouvel outil MCP `search_texts(number, nor, date, limit)`, en lecture seule :
