@@ -11,7 +11,7 @@ from unittest import mock
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "skill" / "scripts"))
 
-from droit_francais import tools as legal_tools  # noqa: E402
+from droit_francais import text_search, tools as legal_tools  # noqa: E402
 from droit_francais.errors import LegifranceError  # noqa: E402
 
 TITRE = (
@@ -60,7 +60,9 @@ class SearchTextsTests(unittest.TestCase):
         champs = body["recherche"]["champs"]
         self.assertEqual([("NUM", "88-547")],
                          [(c["typeChamp"], c["criteres"][0]["valeur"]) for c in champs])
-        self.assertEqual([], body["recherche"]["filtres"])
+        # Sans date : version du jour d'abord, une seule requête si elle répond.
+        self.assertEqual(1, api_call.call_count)
+        self.assertEqual("DATE_VERSION", body["recherche"]["filtres"][0]["facette"])
 
     def test_filtre_serveur_ecarte_ce_qui_ne_correspond_pas_exactement(self, api_call, _token):
         modificateur = resultat(
@@ -94,9 +96,56 @@ class SearchTextsTests(unittest.TestCase):
         self.assertEqual([], legal_tools.search_texts(number="99-999999")["results"])
         api_call.return_value = {"totalResultNumber": 250, "results": [decret("01-01-2022")]}
         self.assertTrue(legal_tools.search_texts(number="88-547")["truncated"])
+        # Total absent mais page pleine.
+        api_call.return_value = {"results": [decret("01-01-2022")] * 100}
+        self.assertTrue(legal_tools.search_texts(number="88-547")["truncated"])
+        # Coupe à limit.
+        autre = resultat("LEGITEXT000000000002_01-01-2020", "Décret n° 88-547 du 1 mai 2020",
+                         "JORFTEXT000000000002", "AAAA0000001D")
+        api_call.return_value = {"totalResultNumber": 2, "results": [decret("01-01-2022"), autre]}
+        found = legal_tools.search_texts(number="88-547", limit=1)
+        self.assertEqual(1, len(found["results"]))
+        self.assertTrue(found["truncated"])
+
+    def test_sans_date_repli_sur_toutes_les_versions_si_la_date_du_jour_est_vide(self, api_call, _token):
+        # Texte dont toutes les versions sont à venir : repli et indicateur explicite.
+        api_call.side_effect = [
+            {"totalResultNumber": 0, "results": []},
+            {"totalResultNumber": 1, "results": [decret("01-01-2999")]},
+        ]
+        found = legal_tools.search_texts(number="88-547")
+        self.assertEqual(2, api_call.call_count)
+        self.assertEqual([], api_call.call_args.args[1]["recherche"]["filtres"])
+        self.assertTrue(found["results"][0]["future_version"])
+        api_call.side_effect = None
+        api_call.return_value = {"totalResultNumber": 1, "results": [decret("01-01-2022")]}
+        self.assertNotIn("future_version", legal_tools.search_texts(number="88-547")["results"][0])
+
+    def test_un_texte_cite_dans_le_titre_n_est_pas_le_numero_du_texte(self, api_call, _token):
+        cite = resultat("LEGITEXT000000000003_01-01-2020",
+                        "Arrêté du 14 novembre 2001 pris pour l'application du décret n° 2001-1062",
+                        "JORFTEXT000000000003", "AAAA0000002A", nature="ARRETE")
+        api_call.return_value = {"totalResultNumber": 1, "results": [cite]}
+        found = legal_tools.search_texts(number="2001-1062")
+        self.assertEqual([], found["results"])
+        self.assertEqual(1, found["rejected_results"])
+        par_nor = legal_tools.search_texts(nor="AAAA0000002A")
+        self.assertNotIn("number", par_nor["results"][0])
+        # Numéro suivi d'une parenthèse : seule la partie numérique est lue.
+        self.assertEqual("88-547", text_search._title_number("Décret n° 88-547) du 6 mai"))
+
+    def test_normalise_tirets_et_numero_typographiques(self, api_call, _token):
+        typo = resultat("LEGITEXT000006066665_01-01-2022", "Décret nº 88–547 du 6 mai 1988",
+                        "JORFTEXT000000866458", "MCLB8800149D")
+        api_call.return_value = {"totalResultNumber": 1, "results": [typo]}
+        found = legal_tools.search_texts(number="nº 88‑547", date="2026-11-24")
+        self.assertEqual("88-547", found["query"]["number"])
+        self.assertEqual("88-547", found["results"][0]["number"])
+        self.assertEqual("2026-11-24", found["query"]["date"])
 
     def test_refuse_un_appel_sans_critere_ou_malforme(self, api_call, _token):
         for kwargs in ({}, {"number": "  "}, {"number": "88 547"}, {"nor": "court"},
+                       {"number": "8" * 41}, {"nor": "A" * 41},
                        {"number": "88-547", "date": "hier"}):
             with self.subTest(kwargs=kwargs), self.assertRaises(LegifranceError) as caught:
                 legal_tools.search_texts(**kwargs)

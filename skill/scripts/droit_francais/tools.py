@@ -354,17 +354,21 @@ def _dating(requested: str | None) -> dict[str, Any]:
     return info
 
 
+# Pas de fromtimestamp : il échoue sous Windows avant 1970 (époque négative).
+_EPOCH = dt.date(1970, 1, 1)
+
+
 def _date_value(value: Any) -> dt.date | None:
     """Normalise une date Légifrance (ISO ou époque en millisecondes)."""
     if value in (None, ""):
         return None
     if isinstance(value, (int, float)):
-        return dt.datetime.fromtimestamp(value / 1000, tz=dt.timezone.utc).date()
+        return _EPOCH + dt.timedelta(milliseconds=value)
     text = str(value).strip()
     if not text:
         return None
     if text.isdigit():
-        return dt.datetime.fromtimestamp(int(text) / 1000, tz=dt.timezone.utc).date()
+        return _EPOCH + dt.timedelta(milliseconds=int(text))
     try:
         return dt.date.fromisoformat(text[:10])
     except ValueError:
@@ -592,7 +596,8 @@ def _parent_text(article: dict[str, Any]) -> dict[str, Any] | None:
     titles = [t for t in article.get("textTitles") or [] if isinstance(t, dict)]
     if not titles:
         return None
-    legi = next((t for t in titles if str(t.get("id") or "").startswith("LEGITEXT")), titles[0])
+    legi = next((t for t in titles if str(t.get("id") or "").startswith("LEGITEXT")), None)
+    source = legi or titles[0]
     jorf = next(
         (
             t.get("cid") or t.get("id")
@@ -601,15 +606,16 @@ def _parent_text(article: dict[str, Any]) -> dict[str, Any] | None:
         ),
         None,
     )
-    published = _date_value(legi.get("datePubli"))
+    published = _date_value(source.get("datePubli"))
     parent = {
-        "id": legi.get("id"),
+        # get_text et fetch exigent un LEGITEXT : sans lui, pas d'id.
+        "id": legi.get("id") if legi else None,
         "jorftext_id": jorf,
-        "nature": legi.get("nature"),
-        "number": legi.get("num"),
-        "nor": legi.get("nor"),
-        "title": _clean_text(legi.get("titreLong") or legi.get("titre")),
-        "legal_status": legi.get("etat"),
+        "nature": source.get("nature"),
+        "number": source.get("num"),
+        "nor": source.get("nor"),
+        "title": _clean_text(source.get("titreLong") or source.get("titre")),
+        "legal_status": source.get("etat"),
         # Année 2999 : sentinelle « sans date » de Légifrance (codes).
         "publication_date": published.isoformat() if published and published.year < 2999 else None,
     }

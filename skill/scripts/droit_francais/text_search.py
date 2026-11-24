@@ -23,11 +23,19 @@ from .legifrance import api_call, get_token
 from .tools import UNTRUSTED_CONTENT, _clean_text, _dating, _epoch_ms, _iso_date
 
 _PAGE_SIZE = 100
+_MAX_INPUT = 40
 _NUMBER = re.compile(r"[\w-]+\Z")
 _NOR = re.compile(r"[A-Z0-9]{8,14}\Z")
-_NUMBER_PREFIX = re.compile(r"^(?:n\s*°|n°|no\b\.?)\s*", flags=re.IGNORECASE)
-_TITLE_NUMBER = re.compile(r"\bn\s*°\s*(\S+)", flags=re.IGNORECASE)
+_NUMBER_PREFIX = re.compile(r"^(?:n\s*°|no\b\.?)\s*", flags=re.IGNORECASE)
+_TITLE_NUMBER = re.compile(r"\bn\s*°\s*([0-9][\w-]*)", flags=re.IGNORECASE)
+_BEFORE_DATE = re.compile(r"\s+du\s+", flags=re.IGNORECASE)
 _VERSION_SUFFIX = re.compile(r"_(\d{2})-(\d{2})-(\d{4})\Z")
+#: Tirets typographiques, « nº » (U+00BA) et espaces insécables, en entrée comme
+#: dans les titres.
+_TYPO = str.maketrans(
+    {c: "-" for c in "‐‑‒–—−"}
+    | {"º": "°", " ": " ", " ": " "}
+)
 TEXT_URL = "https://www.legifrance.gouv.fr/loda/id/{id}/"
 
 
@@ -40,8 +48,10 @@ def _field(champ: str, value: str) -> dict[str, Any]:
 
 
 def _title_number(title: str) -> str | None:
-    found = _TITLE_NUMBER.search(title)
-    return found[1].rstrip(",.;").lower() if found else None
+    """Numéro du texte lui-même : segment avant « du », jamais celui d'un texte cité."""
+    head = _BEFORE_DATE.split(title.translate(_TYPO), 1)[0]
+    found = _TITLE_NUMBER.search(head)
+    return found[1].lower() if found else None
 
 
 def _entry(result: dict[str, Any]) -> dict[str, Any] | None:
@@ -55,7 +65,8 @@ def _entry(result: dict[str, Any]) -> dict[str, Any] | None:
         return None
     title = _clean_text(head.get("title"))
     cid = str(head.get("cid") or "")
-    entry = {
+    return {
+        "_key": text_id,
         "legitext_id": text_id if text_id.startswith("LEGITEXT") else None,
         "jorftext_id": cid if cid.startswith("JORFTEXT") else None,
         "nature": result.get("nature"),
@@ -67,29 +78,10 @@ def _entry(result: dict[str, Any]) -> dict[str, Any] | None:
         "version_date": f"{suffix[3]}-{suffix[2]}-{suffix[1]}" if suffix else None,
         "url": TEXT_URL.format(id=text_id) if text_id.startswith("LEGITEXT") else None,
     }
-    entry["_key"] = text_id
-    return entry
 
 
-def search_texts(
-    number: str | None = None,
-    nor: str | None = None,
-    date: str | None = None,
-    limit: int = 10,
-) -> dict[str, Any]:
-    """Retrouve un texte LEGI par numéro et/ou NOR exacts, une ligne par texte."""
-    number = _NUMBER_PREFIX.sub("", (number or "").strip()).strip()
-    nor = (nor or "").strip().upper()
-    if not number and not nor:
-        raise LegifranceError("Indiquer un numéro de texte ou un NOR.", exit_code=2)
-    if number and not _NUMBER.match(number):
-        raise LegifranceError(f"Numéro de texte invalide : {number!r}.", exit_code=2)
-    if nor and not _NOR.match(nor):
-        raise LegifranceError(f"NOR invalide : {nor!r}.", exit_code=2)
-    filters: list[dict[str, Any]] = []
-    if date:
-        filters.append({"facette": "DATE_VERSION", "singleDate": _epoch_ms(_iso_date(date))})
-    fields = [f for f in (number and _field("NUM", number), nor and _field("NOR", nor)) if f]
+def _query(fields: list[dict[str, Any]], day: str | None) -> dict[str, Any]:
+    filters = [{"facette": "DATE_VERSION", "singleDate": _epoch_ms(day)}] if day else []
     body = {
         "fond": "LODA_DATE",
         "recherche": {
@@ -102,7 +94,32 @@ def search_texts(
             "typePagination": "DEFAUT",
         },
     }
-    payload = api_call("/search", body, get_token())
+    return api_call("/search", body, get_token())
+
+
+def search_texts(
+    number: str | None = None,
+    nor: str | None = None,
+    date: str | None = None,
+    limit: int = 10,
+) -> dict[str, Any]:
+    """Retrouve un texte LEGI par numéro et/ou NOR exacts, une ligne par texte."""
+    number = _NUMBER_PREFIX.sub("", (number or "").translate(_TYPO).strip()).strip()
+    nor = (nor or "").translate(_TYPO).strip().upper()
+    if not number and not nor:
+        raise LegifranceError("Indiquer un numéro de texte ou un NOR.", exit_code=2)
+    if number and (len(number) > _MAX_INPUT or not _NUMBER.match(number)):
+        raise LegifranceError(f"Numéro de texte invalide : {number[:_MAX_INPUT]!r}.", exit_code=2)
+    if nor and (len(nor) > _MAX_INPUT or not _NOR.match(nor)):
+        raise LegifranceError(f"NOR invalide : {nor[:_MAX_INPUT]!r}.", exit_code=2)
+    as_of = _iso_date(date)
+    fields = [f for f in (number and _field("NUM", number), nor and _field("NOR", nor)) if f]
+    # Sans date : version du jour d'abord (une ligne par texte) ; la lecture de
+    # toutes les versions, plafonnée à une page, ne sert que si cette date ne
+    # donne rien (texte abrogé, ou dont la première version est à venir).
+    payload = _query(fields, as_of)
+    if not date and not payload.get("results"):
+        payload = _query(fields, None)
     raw = [r for r in payload.get("results") or [] if isinstance(r, dict)]
     versions: dict[str, list[dict[str, Any]]] = {}
     rejected = 0
@@ -117,32 +134,35 @@ def search_texts(
             rejected += 1
             continue
         versions.setdefault(entry["_key"], []).append(entry)
-    # Versions futures (entrées en vigueur programmées) : on retient la dernière
-    # version non postérieure à la date visée, à défaut la plus proche.
-    as_of = _iso_date(date)
 
     def pick(group: list[dict[str, Any]]) -> dict[str, Any]:
+        """Dernière version non postérieure à la date visée, à défaut la plus proche."""
         dated = [e for e in group if e["version_date"]]
         past = [e for e in dated if e["version_date"] <= as_of]
         if past:
             return max(past, key=lambda e: e["version_date"])
-        return min(dated, key=lambda e: e["version_date"]) if dated else group[0]
+        if dated:
+            return {**min(dated, key=lambda e: e["version_date"]), "future_version": True}
+        return group[0]
 
-    texts = [pick(group) for group in versions.values()]
-    results = [{k: v for k, v in e.items() if k != "_key" and v is not None} for e in texts]
+    texts = [
+        {k: v for k, v in pick(group).items() if k != "_key" and v is not None}
+        for group in versions.values()
+    ]
+    safe_limit = max(1, min(int(limit), 50))
     total = payload.get("totalResultNumber")
-    out: dict[str, Any] = {
-        "results": results[: max(1, min(int(limit), 50))],
-        "query": {"number": number or None, "nor": nor or None, "date": date},
+    return {
+        "results": texts[:safe_limit],
+        "query": {"number": number or None, "nor": nor or None, "date": as_of if date else None},
         "rejected_results": rejected,
-        # Plus de versions que la page lue : un texte peut manquer.
-        "truncated": isinstance(total, int) and total > len(raw),
+        # Page pleine ou plus de versions que lues, ou coupe à limit : un texte peut manquer.
+        "truncated": len(texts) > safe_limit
+        or len(raw) >= _PAGE_SIZE
+        or (isinstance(total, int) and total > len(raw)),
         "provenance": {
             "source": "Légifrance API",
             "verified": True,
             "content_trust": UNTRUSTED_CONTENT,
         },
+        **({"dating": _dating(date)} if date else {}),
     }
-    if date:
-        out["dating"] = _dating(date)
-    return out

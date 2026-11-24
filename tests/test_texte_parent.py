@@ -97,6 +97,21 @@ class TexteParentTests(unittest.TestCase):
         result = self._lire(api_call, {**article, "textTitles": [None, "x"]})
         self.assertNotIn("parent_text", result)
 
+    def test_texte_d_avant_1970_et_sans_legitext(self, api_call, _token):
+        """Époque négative réelle (loi du 29 juillet 1881) ; JORFTEXT seul : pas d'id."""
+        article = {"id": "LEGIARTI000006419293", "num": "1", "texte": "…", "textTitles": [
+            {"id": "JORFTEXT000000877119", "cid": "JORFTEXT000000877119", "etat": "VIGUEUR",
+             "titre": "Loi du 29 juillet 1881", "nature": "LOI", "datePubli": -2790374400000}]}
+        parent = self._lire(api_call, article)["parent_text"]
+        self.assertEqual("1881-07-30", parent["publication_date"])
+        self.assertNotIn("id", parent)
+        self.assertEqual("JORFTEXT000000877119", parent["jorftext_id"])
+
+    def test_date_value_epoque_negative_en_utc(self, api_call, _token):
+        self.assertEqual("1881-07-30", legal_tools._date_value(-2790374400000).isoformat())
+        self.assertEqual("1970-01-01", legal_tools._date_value("0").isoformat())
+        self.assertEqual("2008-12-21", legal_tools._date_value(1229817600000).isoformat())
+
 
 if __name__ == "__main__":
     unittest.main()
