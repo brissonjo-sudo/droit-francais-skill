@@ -114,26 +114,31 @@ def search_texts(
         raise LegifranceError(f"NOR invalide : {nor[:_MAX_INPUT]!r}.", exit_code=2)
     as_of = _iso_date(date)
     fields = [f for f in (number and _field("NUM", number), nor and _field("NOR", nor)) if f]
+    def matching(payload: dict[str, Any]) -> tuple[list, dict[str, list[dict[str, Any]]], int]:
+        raw = [r for r in payload.get("results") or [] if isinstance(r, dict)]
+        versions: dict[str, list[dict[str, Any]]] = {}
+        rejected = 0
+        for item in raw:
+            entry = _entry(item)
+            # Un champ ignoré en silence renverrait tout le fonds : contrôle exact côté serveur.
+            if (
+                entry is None
+                or (number and entry["number"] != number.lower())
+                or (nor and str(entry["nor"] or "").upper() != nor)
+            ):
+                rejected += 1
+                continue
+            versions.setdefault(entry["_key"], []).append(entry)
+        return raw, versions, rejected
+
     # Sans date : version du jour d'abord (une ligne par texte) ; la lecture de
-    # toutes les versions, plafonnée à une page, ne sert que si cette date ne
-    # donne rien (texte abrogé, ou dont la première version est à venir).
+    # toutes les versions, plafonnée à une page, ne sert que si aucun texte
+    # correspondant n'en sort (texte dont la première version est à venir).
     payload = _query(fields, as_of)
-    if not date and not payload.get("results"):
+    raw, versions, rejected = matching(payload)
+    if not date and not versions:
         payload = _query(fields, None)
-    raw = [r for r in payload.get("results") or [] if isinstance(r, dict)]
-    versions: dict[str, list[dict[str, Any]]] = {}
-    rejected = 0
-    for item in raw:
-        entry = _entry(item)
-        # Un champ ignoré en silence renverrait tout le fonds : contrôle exact côté serveur.
-        if (
-            entry is None
-            or (number and entry["number"] != number.lower())
-            or (nor and str(entry["nor"] or "").upper() != nor)
-        ):
-            rejected += 1
-            continue
-        versions.setdefault(entry["_key"], []).append(entry)
+        raw, versions, rejected = matching(payload)
 
     def pick(group: list[dict[str, Any]]) -> dict[str, Any]:
         """Dernière version non postérieure à la date visée, à défaut la plus proche."""

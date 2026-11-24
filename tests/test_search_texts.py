@@ -121,6 +121,19 @@ class SearchTextsTests(unittest.TestCase):
         api_call.return_value = {"totalResultNumber": 1, "results": [decret("01-01-2022")]}
         self.assertNotIn("future_version", legal_tools.search_texts(number="88-547")["results"][0])
 
+    def test_repli_decide_apres_le_filtre_exact(self, api_call, _token):
+        # La date du jour ne renvoie qu'un homonyme rejeté : le repli doit jouer.
+        homonyme = resultat("LEGITEXT000000000004_01-01-2020", "Décret n° 88-5470 du 1 mai 2020",
+                            "JORFTEXT000000000004", "AAAA0000003D")
+        api_call.side_effect = [
+            {"totalResultNumber": 1, "results": [homonyme]},
+            {"totalResultNumber": 1, "results": [decret("01-01-2999")]},
+        ]
+        found = legal_tools.search_texts(number="88-547")
+        self.assertEqual(2, api_call.call_count)
+        self.assertEqual(["LEGITEXT000006066665"], [t["legitext_id"] for t in found["results"]])
+        self.assertEqual(0, found["rejected_results"])
+
     def test_un_texte_cite_dans_le_titre_n_est_pas_le_numero_du_texte(self, api_call, _token):
         cite = resultat("LEGITEXT000000000003_01-01-2020",
                         "Arrêté du 14 novembre 2001 pris pour l'application du décret n° 2001-1062",
