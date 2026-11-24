@@ -123,8 +123,8 @@ pas une récupération par outil. Son statut dépend de son origine :
 
 | Document fourni | Statut | Conduite à tenir |
 |-----------------|--------|------------------|
-| Capture ou PDF d'un site **officiel** (Légifrance, JORF, juridiction, ministère) | Piste de localisation | Relever la référence, puis récupérer le texte par outil : seul l'extrait récupéré prouve. Récupération impossible : demander l'URL officielle et la confirmer par `fetch` ; à défaut, abstention informée (P7) |
-| Capture, PDF ou extrait d'un site **privé** (éditeur, blog, forum, site syndical) | Fait déclaré par l'utilisateur | Hypothèse chiffrée, signalée comme telle (« selon le document fourni, non vérifié ») ; jamais fondement d'une règle, d'un montant ou d'une grille. Demander l'URL officielle |
+| Capture ou PDF d'un site **officiel** (Légifrance, JORF, juridiction, ministère) | Piste de localisation | Relever la référence, puis récupérer le texte par outil : seul l'extrait récupéré prouve. Récupération impossible : demander l'URL officielle, puis lire par outil le texte qu'elle désigne ; à défaut, abstention informée (P7) |
+| Capture, PDF ou extrait d'un site **privé** (éditeur, blog, forum, site syndical) | Fait déclaré par l'utilisateur | Hypothèse signalée comme telle : un montant ou une grille n'est repris qu'avec la mention « selon le document fourni, non vérifié », jamais comme fondement d'une règle. Demander l'URL officielle |
 | Pièce du dossier (acte de la collectivité, décision individuelle, bulletin de paie) | Fait de l'espèce | Établit les faits déclarés ; sa régularité s'apprécie au regard des textes récupérés par outil |
 
 Un identifiant lu sur un document fourni (LEGIARTI, n° de décret, n° de

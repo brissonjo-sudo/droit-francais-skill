@@ -16,7 +16,9 @@ conservés tels quels pour ne pas casser les liens publiés.
 Préparation locale de la méthodologie ; aucune publication ni mesure modèle.
 Regroupe pour le skill les entrées « Non publié » du 2026-11-11 (numéros de
 texte dans P1) et du 2026-11-24 ci-dessous. Publication, README et étiquette
-`skill-v3.7.0` : PR `release(skill)` après fusion, comme pour 3.6.0.
+`skill-v3.7.0` : PR `release(skill)` après fusion. Le frontmatter du noyau
+reste à `version: 3.6.0` : le monter impose d'aligner les quatre déclinaisons
+(test de dérive), à faire avec la publication.
 
 #### Ajouté
 - `references/sources-autorisees.md` : rubrique « Document fourni par

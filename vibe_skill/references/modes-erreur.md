@@ -113,5 +113,7 @@ oublié), et le citer alors de mémoire au mode 1.
 **Parade.** Chercher le texte avec `search_texts` par numéro (`88-547`) ou par
 NOR (`MCLB8800149D`) : l'outil renvoie un `LEGITEXT` par texte, à lire ensuite
 avec `get_text`. Il ne cherche pas par titre. S'il ne donne rien, demander à
-l'utilisateur l'URL Légifrance du texte, puis la confirmer par `fetch` avant
-de citer.
+l'utilisateur l'URL Légifrance du texte et lire l'identifiant qu'elle porte :
+`LEGITEXT` par `get_text`, `LEGIARTI` par `fetch`. Une URL qui ne porte qu'un
+`JORFTEXT` oblige à relancer `search_texts` par NOR ou numéro. `fetch` ne
+prend pas d'URL. À défaut, abstention informée (P7).
