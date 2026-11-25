@@ -86,8 +86,21 @@ class ChiffrementTests(unittest.TestCase):
             with self.assertRaises(CredentialStoreError):
                 coffre.decrypt(sujet, valeur)
 
+    def test_cle_maitresse_standard_ou_url_meme_valeur_sans_avertissement(self):
+        import warnings
+
+        brut = bytes([0xFB, 0xFF] * 16)  # base64 riche en « + » et « / »
+        standard = base64.b64encode(brut).decode()
+        self.assertTrue("+" in standard and "/" in standard)
+        url = base64.urlsafe_b64encode(brut).decode()
+        with warnings.catch_warnings():
+            warnings.simplefilter("error")  # un FutureWarning ferait échouer le test
+            for variante in (standard, url, url.rstrip("="), f'"{standard}"', standard + "\n"):
+                self.assertEqual(brut, decode_master_key(variante), variante)
+
     def test_cle_maitresse_invalide(self):
-        for brute in ("", "court", base64.b64encode(b"x" * 31).decode()):
+        for brute in ("", "court", base64.b64encode(b"x" * 31).decode(),
+                      base64.b64encode(bytes(32)).decode()[:-2] + "!="):
             with self.assertRaises(ValueError):
                 decode_master_key(brute)
         self.assertEqual(32, len(decode_master_key(CLE)))
