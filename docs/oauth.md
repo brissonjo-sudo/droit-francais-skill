@@ -340,15 +340,23 @@ Auth0 :
    - *Allow Offline Access* activé.
 2. **Applications → client Claude prédéfini** (et le client ChatGPT s'il sert) :
    autoriser cette nouvelle API, comme au § 4 pour l'API historique.
-3. **Applications → Create Application → Machine to Machine** :
+3. **Actions → post-login « Accès réservé au mainteneur »**, à filtrer par API
+   via `event.resource_server.identifier` :
+   - l'API historique reste réservée au mainteneur ;
+   - l'API du pont accepte en plus les e-mails vérifiés du secret d'Action
+     `CONTACTS_PONT` ;
+   - toute autre API est refusée par défaut.
+
+   À déployer après la création de l'API.
+4. **Applications → Create Application → Machine to Machine** :
    - autoriser *Auth0 Management API* avec les seules portées `read:users` et
      `update:users_app_metadata` ;
    - relever le *Client ID* et le *Client Secret*.
-4. **Clé de chiffrement**, à générer une fois et à conserver dans un
+5. **Clé de chiffrement**, à générer une fois et à conserver dans un
    gestionnaire de mots de passe, car sa perte rend les clés stockées
    illisibles :
    `python -c "import base64,secrets;print(base64.b64encode(secrets.token_bytes(32)).decode())"`
-5. **Render, service `droit-francais-pont`**, seulement **après** le déploiement
+6. **Render, service `droit-francais-pont`**, seulement **après** le déploiement
    du code qui connaît le mode `account` (sinon le service refuse de démarrer).
    Variables à poser :
    - `MCP_PISTE_CREDENTIALS=account` ;
@@ -362,10 +370,10 @@ Auth0 :
 `resource` (§ 3) devrait fixer l'`aud` du jeton à l'identifiant de la nouvelle
 API. Si le pont répond `401` avec `auth_rejected reason=InvalidAudienceError`,
 c'est que le client envoie aussi une `audience`. Il faut alors comparer avec
-le service historique avant toute autre modification. Poser `MCP_OAUTH_AUDIENCE`
-sur l'identifiant de l'API historique ferait accepter au pont les jetons du
-service historique, et inversement : avec la liste blanche de sujets, ce
-croisement reste borné, mais il est à décider.
+le service historique avant toute autre modification. **Ne pas** se replier
+sur l'identifiant de l'API historique (`MCP_OAUTH_AUDIENCE`) : l'Action de
+l'étape 3 traiterait alors les connexions au pont comme des connexions au
+service historique, et refuserait les contacts.
 
 Le lien de saisie porte un jeton signé, valable 10 minutes et à usage unique,
 dans sa requête. Quiconque lit les journaux de requêtes pendant ces 10 minutes
