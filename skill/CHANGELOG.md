@@ -67,6 +67,18 @@ par outil, et aucune règle ne fixait la valeur d'une capture fournie.
   la date sentinelle 2999 des codes est écartée. Clés existantes inchangées ;
   sans `textTitles`, les deux blocs sont simplement absents.
 
+### [Non publié : article d'un décret non codifié] - 2026-11-18
+
+- `gabarits-requetes.md`, nouvelle section 4 bis : `search_articles` ne
+  retrouve pas l'article d'un décret non codifié. Démarche qui a abouti :
+  relever le `LEGIARTI` sur la page LODA du texte, récupérer l'article par
+  `fetch` ou `get_article`, puis contrôler `applicable_at_as_of_date` (un
+  identifiant relevé sur la page peut désigner une version abrogée). Une
+  erreur PISTE HTTP 400 ponctuelle a disparu à la relance du même appel.
+- Origine : cas réel du 17/11/2026 (décret n° 87-602, art. 33, 34 et 41),
+  en co-activation avec drh-fpt.
+- Copies `grok_skill/` et `vibe_skill/` alignées à l'identique.
+
 ### [Non publié : numéros de texte dans P1] - 2026-11-11
 
 - P1 (règle de provenance) : les n° de loi, d'ordonnance et de décret entrent
