@@ -260,3 +260,31 @@ jobs:
 
       - name: Préparation de la campagne des 18 modes (sans appel LLM)
         run: python tests/run_campaign.py verifier
+
+  # Le job « checks » tourne en 3.12, version minimale des scripts du skill
+  # lancés chez les utilisateurs. La production tourne, elle, sur la version
+  # du FROM du Dockerfile : un défaut propre à cette version (FutureWarning
+  # de b64decode en 3.15, #179) passait donc inaperçu. Ce job rejoue la suite
+  # sur cette version, avertissements FutureWarning traités en erreurs.
+  # tests/test_version_python_prod.py exige l'égalité avec le Dockerfile.
+  tests-version-prod:
+    runs-on: ubuntu-latest
+    env:
+      PYTHON_PROD_VERSION: "3.15"
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Set up Python (version de l'image de production)
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
+        with:
+          python-version: ${{ env.PYTHON_PROD_VERSION }}
+
+      - name: Installer les dépendances figées
+        run: |
+          python -m pip install --require-hashes --no-deps -r requirements-mcp-wheels.txt
+          python -m pip install -r requirements-mcp.txt
+          python -m pip install --require-hashes -r requirements-bench.txt
+          python -m pip check
+
+      - name: Tester sous la version de production, FutureWarning en erreur
+        run: python -W error::FutureWarning -m unittest discover -s tests
