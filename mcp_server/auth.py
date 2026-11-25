@@ -157,8 +157,11 @@ class JwksTokenVerifier:
         *,
         leeway_seconds: int = 30,
         clock: Callable[[], float] = time.monotonic,
+        allowed_subjects: Iterable[str] = (),
     ) -> None:
         self._issuer = issuer
+        #: Vide : aucun filtrage par sujet (comportement historique).
+        self._allowed_subjects = frozenset(allowed_subjects)
         self._audience = audience
         self._leeway_seconds = leeway_seconds
         self._algorithms = ALLOWED_ALGORITHMS
@@ -321,6 +324,9 @@ class JwksTokenVerifier:
         subject = str(payload.get("sub", ""))
         if not subject:
             LOGGER.info("auth_rejected reason=MissingSubject")
+            return None
+        if self._allowed_subjects and subject not in self._allowed_subjects:
+            LOGGER.info("auth_rejected reason=SubjectNotAllowed")
             return None
 
         expires_at = payload.get("exp")

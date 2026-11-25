@@ -116,7 +116,10 @@ def _build_auth_options() -> dict[str, Any]:
         issuer=SETTINGS.oauth_issuer,
         jwks_url=SETTINGS.oauth_jwks_url,
         audience=SETTINGS.oauth_audience,
+        allowed_subjects=SETTINGS.oauth_allowed_subjects,
     )
+    if not SETTINGS.oauth_allowed_subjects:
+        LOGGER.warning("auth_subject_allowlist disabled — tout sujet valide accepté")
     if not SETTINGS.oauth_required_scopes:
         LOGGER.warning(
             "auth_scope_gate disabled — jeton valide exigé, aucune portée requise"

@@ -121,6 +121,9 @@ class RuntimeSettings:
     oauth_jwks_url: str = ""
     oauth_audience: str = ""
     oauth_required_scopes: tuple[str, ...] = field(default_factory=lambda: DEFAULT_SCOPES)
+    #: Sujets (``sub``) autorisés. Vide : tout jeton valide est accepté.
+    #: Défense en profondeur derrière la liste blanche de l'émetteur.
+    oauth_allowed_subjects: frozenset[str] = frozenset()
     user_calls_per_minute: int = 20
     piste_credentials: str = "server"
     #: Mode pont sans OAuth : budget à part des paires PISTE pas encore validées
@@ -185,7 +188,11 @@ class RuntimeSettings:
         jwks_url = ""
         audience = ""
         scopes = _split_scopes(values.get("MCP_OAUTH_REQUIRED_SCOPES"), DEFAULT_SCOPES)
+        allowed_subjects: frozenset[str] = frozenset()
         if auth_mode == "oauth":
+            allowed_subjects = frozenset(
+                values.get("MCP_OAUTH_ALLOWED_SUBJECTS", "").replace(",", " ").split()
+            )
             public_url = _https_url(values, "MCP_PUBLIC_URL")
             issuer = _https_url(
                 values, "MCP_OAUTH_ISSUER", strip_trailing_slash=False
@@ -224,6 +231,7 @@ class RuntimeSettings:
             oauth_jwks_url=jwks_url,
             oauth_audience=audience,
             oauth_required_scopes=scopes,
+            oauth_allowed_subjects=allowed_subjects,
             user_calls_per_minute=_positive_int(
                 values, "MCP_USER_CALLS_PER_MINUTE", 20
             ),

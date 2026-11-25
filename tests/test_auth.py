@@ -64,6 +64,14 @@ class AuthSettingsTests(unittest.TestCase):
         self.assertEqual(settings.oauth_jwks_url, f"{ISSUER}/.well-known/jwks.json")
         self.assertEqual(settings.oauth_required_scopes, ("legal:read",))
 
+    def test_allowed_subjects_default_empty_and_accept_commas_and_spaces(self):
+        self.assertEqual(RuntimeSettings.from_env(BASE_ENV).oauth_allowed_subjects, frozenset())
+        env = dict(BASE_ENV, MCP_OAUTH_ALLOWED_SUBJECTS=" google-oauth2|1, auth0|2  auth0|3 ")
+        self.assertEqual(
+            RuntimeSettings.from_env(env).oauth_allowed_subjects,
+            frozenset({"google-oauth2|1", "auth0|2", "auth0|3"}),
+        )
+
     def test_trailing_slash_never_produces_a_double_separator(self):
         env = dict(BASE_ENV, MCP_PUBLIC_URL="https://droit-francais-skill.onrender.com/")
         self.assertEqual(RuntimeSettings.from_env(env).resource_url, RESOURCE)
@@ -429,6 +437,16 @@ class JwksTokenVerifierTests(unittest.TestCase):
         }
         payload.update(overrides)
         return payload
+
+    def test_subject_allowlist_accepts_listed_and_rejects_others(self):
+        verifier = self._verifier()
+        verifier._allowed_subjects = frozenset({"auth0|utilisateur-1"})
+        self.assertIsNotNone(self._verify_with(verifier, _sign(self._payload(), self.key)))
+        intrus = _sign(self._payload(sub="google-oauth2|inconnu"), self.key)
+        with self.assertLogs("droit_francais.mcp.auth", level="INFO") as logs:
+            self.assertIsNone(self._verify_with(verifier, intrus))
+        self.assertIn("reason=SubjectNotAllowed", logs.output[0])
+        self.assertNotIn("inconnu", logs.output[0])
 
     def test_valid_token_yields_subject_scopes_and_resource(self):
         access = self._verify(_sign(self._payload(), self.key))

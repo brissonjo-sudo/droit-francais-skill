@@ -326,6 +326,23 @@ la disponibilité de l'émetteur pour démarrer.
 
 En production, `MCP_AUTH_MODE=disabled` fait échouer le démarrage.
 
+### Restreindre l'accès à des contacts de confiance (25/11/2026)
+
+Deux verrous, l'un derrière l'autre :
+
+1. **Auth0, Post-Login Action** : refuse la connexion de toute adresse
+   vérifiée absente du secret `ALLOWED_EMAILS` (`api.access.deny`).
+2. **Serveur, `MCP_OAUTH_ALLOWED_SUBJECTS`** : liste de `sub` séparés par
+   des virgules ou des espaces (ex. `google-oauth2|1234,auth0|abcd`). Un jeton
+   valide dont le sujet n'y figure pas est refusé (401,
+   `auth_rejected reason=SubjectNotAllowed`). Vide ou absente : aucun
+   filtrage, et le démarrage journalise `auth_subject_allowlist disabled`.
+
+Le `sub` d'un contact se lit dans Auth0, *User Management → Users*, champ
+`user_id`, après sa première connexion. Révoquer : retirer le sujet de la
+variable sur Render (redéploiement) ; l'effet est immédiat, sans attendre
+l'expiration du jeton.
+
 ## Vérification après déploiement
 
 ```bash
