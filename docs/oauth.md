@@ -326,6 +326,52 @@ la disponibilité de l'émetteur pour démarrer.
 
 En production, `MCP_AUTH_MODE=disabled` fait échouer le démarrage.
 
+## Comptes à clés PISTE personnelles (service `droit-francais-pont`)
+
+Mode `MCP_PISTE_CREDENTIALS=account` ([ADR 0002](adr/0002-comptes-cles-piste.md)).
+Chaque utilisateur se connecte par OAuth et le serveur utilise **ses** clés
+PISTE, chiffrées dans son `app_metadata` Auth0. Étapes dans le tableau de bord
+Auth0 :
+
+1. **APIs → Create API** :
+   - identifiant `https://droit-francais-pont.onrender.com/mcp` ;
+   - signature RS256 ;
+   - permission `legal:read` ;
+   - *Allow Offline Access* activé.
+2. **Applications → client Claude prédéfini** (et le client ChatGPT s'il sert) :
+   autoriser cette nouvelle API, comme au § 4 pour l'API historique.
+3. **Applications → Create Application → Machine to Machine** :
+   - autoriser *Auth0 Management API* avec les seules portées `read:users` et
+     `update:users_app_metadata` ;
+   - relever le *Client ID* et le *Client Secret*.
+4. **Clé de chiffrement**, à générer une fois et à conserver dans un
+   gestionnaire de mots de passe, car sa perte rend les clés stockées
+   illisibles :
+   `python -c "import base64,secrets;print(base64.b64encode(secrets.token_bytes(32)).decode())"`
+5. **Render, service `droit-francais-pont`**, seulement **après** le déploiement
+   du code qui connaît le mode `account` (sinon le service refuse de démarrer).
+   Variables à poser :
+   - `MCP_PISTE_CREDENTIALS=account` ;
+   - `MCP_AUTH_MODE=oauth` ;
+   - `MCP_PUBLIC_URL=https://droit-francais-pont.onrender.com` ;
+   - `MCP_OAUTH_ISSUER`, identique au service historique ;
+   - `MCP_OAUTH_REQUIRED_SCOPES`, identique au service historique ;
+   - `MCP_CREDENTIALS_KEY`, `AUTH0_MGMT_CLIENT_ID` et `AUTH0_MGMT_CLIENT_SECRET`.
+
+**Audience (à vérifier au premier essai).** Le profil de compatibilité
+`resource` (§ 3) devrait fixer l'`aud` du jeton à l'identifiant de la nouvelle
+API. Si le pont répond `401` avec `auth_rejected reason=InvalidAudienceError`,
+c'est que le client envoie aussi une `audience`. Il faut alors comparer avec
+le service historique avant toute autre modification. Poser `MCP_OAUTH_AUDIENCE`
+sur l'identifiant de l'API historique ferait accepter au pont les jetons du
+service historique, et inversement : avec la liste blanche de sujets, ce
+croisement reste borné, mais il est à décider.
+
+Le lien de saisie porte un jeton signé, valable 10 minutes et à usage unique,
+dans sa requête. Quiconque lit les journaux de requêtes pendant ces 10 minutes
+pourrait l'utiliser avant l'utilisateur. Le risque est limité à l'accès aux
+journaux Render.
+
 ## Vérification après déploiement
 
 ```bash

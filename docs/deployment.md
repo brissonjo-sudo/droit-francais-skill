@@ -79,17 +79,35 @@ une passerelle MCP publique anonyme consommerait les quotas Légifrance et
 Judilibre sous la seule responsabilité du titulaire des clés PISTE. La
 procédure de configuration de l'émetteur figure dans [`oauth.md`](oauth.md).
 
-### Mode pont (prototype, non déployé)
+### Clés PISTE des appelants : modes `caller` et `account`
 
 | Variable | Défaut | Effet |
 |---|---|---|
-| `MCP_PISTE_CREDENTIALS` | `server` | `server` : le service utilise les clés PISTE ci-dessus. `caller` : mode pont, chaque appel porte les identifiants PISTE de l'appelant dans les en-têtes `X-Piste-Client-Id` et `X-Piste-Client-Secret` |
+| `MCP_PISTE_CREDENTIALS` | `server` | `server` : clés PISTE de l'exploitant ci-dessus. `caller` : pont, chaque appel porte les identifiants de l'appelant dans les en-têtes `X-Piste-Client-Id` et `X-Piste-Client-Secret`. `account` : l'utilisateur se connecte par OAuth et le serveur utilise les clés PISTE enregistrées dans **son** compte |
+| `MCP_CREDENTIALS_KEY` | — | Mode `account` : clé AES-256 (32 octets en base64) qui chiffre les clés PISTE stockées. La perdre rend toutes les clés stockées illisibles |
+| `AUTH0_MGMT_CLIENT_ID` / `AUTH0_MGMT_CLIENT_SECRET` | — | Mode `account` : application M2M Auth0 autorisée sur l'API Management (`read:users`, `update:users_app_metadata`) |
+| `AUTH0_MGMT_DOMAIN` | hôte de `MCP_OAUTH_ISSUER` | Mode `account` : domaine canonique du tenant, si l'émetteur est un domaine personnalisé |
 
-En mode `caller`, la production refuse de démarrer si une clé PISTE
-d'exploitant est présente (`LEGIFRANCE_CLIENT_ID`, `LEGIFRANCE_CLIENT_SECRET`,
-`JUDILIBRE_KEY_ID`, `PISTE_KEY_ID`), et n'exige plus `MCP_AUTH_MODE=oauth`.
-Ce mode exige le SDK MCP 2.x et le transport `streamable-http`. Décision et
-réserves : [ADR 0001](adr/0001-pont-identifiants-appelant.md).
+En modes `caller` et `account`, la production refuse de démarrer si une clé
+PISTE d'exploitant est présente (`LEGIFRANCE_CLIENT_ID`,
+`LEGIFRANCE_CLIENT_SECRET`, `JUDILIBRE_KEY_ID`, `PISTE_KEY_ID`). Le mode
+`account` exige en plus `MCP_AUTH_MODE=oauth` et les trois variables
+ci-dessus. Les deux modes exigent le SDK MCP 2.x et le transport
+`streamable-http`. Décisions : [ADR 0001](adr/0001-pont-identifiants-appelant.md),
+[ADR 0002](adr/0002-comptes-cles-piste.md).
+
+**Service Render `droit-francais-pont`** (plan free, Francfort, branche `main`,
+auto-déploiement), cible : mode `account`. Procédure Auth0 :
+[oauth.md](oauth.md) § « Comptes à clés PISTE personnelles ». Côté
+utilisateur, sur n'importe quel client, smartphone compris :
+
+1. ajouter le connecteur `https://droit-francais-pont.onrender.com/mcp` et se
+   connecter ;
+2. demander « configure mes clés PISTE » : l'outil `configurer_cles_piste`
+   renvoie un lien valable 10 minutes, à usage unique ;
+3. ouvrir le lien et saisir l'identifiant et le secret de son application
+   PISTE. Ils sont vérifiés auprès de PISTE, puis chiffrés dans le compte.
+   `oublier_cles_piste` les supprime.
 
 ### Facultatives — authentification
 
