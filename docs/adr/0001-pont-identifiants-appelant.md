@@ -2,6 +2,13 @@
 
 - Date : 27/10/2026
 - Statut : **adoptée** le 01/11/2026 par Jo, sous condition : aucune mise en production sans réponse écrite du support PISTE (code fusionnable, mode pont désactivé par défaut)
+- Mise à jour du 25/11/2026 : Jo **lève la condition** sans attendre la
+  réponse PISTE. Un second service Render, `droit-francais-pont`, sans clé
+  d'exploitant, accueille les clés des utilisateurs : d'abord en mode
+  `caller` (en-têtes), puis en mode `account` (OAuth et clés stockées, voir
+  l'[ADR 0002](0002-comptes-cles-piste.md)), parce que les connecteurs claude.ai
+  n'envoient pas d'en-têtes. Le service historique reste en mode `server`. La
+  question CGU § 3.1.2 reste ouverte et est signalée aux utilisateurs.
 - Décideur : Jo (mainteneur)
 
 ## Contexte

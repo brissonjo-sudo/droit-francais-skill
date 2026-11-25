@@ -191,7 +191,19 @@ async def _capture_caller_headers(ctx: Any, call_next: Any) -> Any:
         _CALLER_HEADERS.reset(marker)
 
 
-if SETTINGS.caller_credentials:
+#: Coffre des clés PISTE par compte (mode ``account``), sinon ``None``.
+CREDENTIAL_STORE = None
+if SETTINGS.account_credentials:
+    if not MCP_V2:
+        raise RuntimeConfigurationError("MCP_PISTE_CREDENTIALS=account exige le SDK MCP 2.x.")
+    from mcp_server.credential_store import CredentialStore, CredentialStoreError
+
+    try:
+        CREDENTIAL_STORE = CredentialStore.from_env(os.environ, SETTINGS.oauth_issuer)
+    except ValueError as exc:
+        raise RuntimeConfigurationError(str(exc)) from None
+
+if SETTINGS.caller_credentials and not SETTINGS.account_credentials:
     if not MCP_V2:
         raise RuntimeConfigurationError(
             "MCP_PISTE_CREDENTIALS=caller exige le SDK MCP 2.x (middleware de requête)."
@@ -199,9 +211,29 @@ if SETTINGS.caller_credentials:
     server.middleware.append(_capture_caller_headers)
 
 
+def _account_pair() -> tuple[str | None, str | None]:
+    """Clés PISTE enregistrées dans le compte de l'utilisateur authentifié."""
+    subject = _current_principal()
+    try:
+        pair = CREDENTIAL_STORE.load(subject) if subject != "anonyme" else None
+    except CredentialStoreError as exc:
+        LOGGER.warning("piste_credentials_unavailable reason=%s", exc)
+        raise ToolError(f"Clés PISTE indisponibles : {exc}") from None
+    if pair is None:
+        raise ToolError(
+            "Aucune clé PISTE enregistrée pour votre compte : appelez l'outil "
+            "configurer_cles_piste, ouvrez le lien qu'il renvoie et saisissez "
+            "l'identifiant et le secret de votre application PISTE."
+        )
+    return pair
+
+
 def _caller_pair() -> tuple[str, str]:
     """Identifiants PISTE de l'appelant, validés sans jamais être recopiés."""
-    client_id, client_secret = _CALLER_HEADERS.get() or (None, None)
+    if SETTINGS.account_credentials:
+        client_id, client_secret = _account_pair()
+    else:
+        client_id, client_secret = _CALLER_HEADERS.get() or (None, None)
     if not client_id or not client_secret:
         raise ToolError(
             "Identifiants PISTE absents : ce serveur est un pont et n'utilise que "
@@ -271,6 +303,8 @@ SECRET_VARIABLES = (
     "LEGIFRANCE_CLIENT_SECRET",
     "JUDILIBRE_KEY_ID",
     "PISTE_KEY_ID",
+    "MCP_CREDENTIALS_KEY",
+    "AUTH0_MGMT_CLIENT_SECRET",
 )
 
 
@@ -780,6 +814,12 @@ def get_text(id: str, date: str | None = None) -> dict[str, Any]:
     return _safe_call(legal_tools.get_text, id, date)
 
 
+if CREDENTIAL_STORE is not None:
+    from mcp_server import compte
+
+    compte.register(server, CREDENTIAL_STORE, SETTINGS.public_url, _current_principal)
+
+
 def check_issuer() -> None:
     """Compare l'émetteur configuré à celui que publie le serveur d'autorisation.
 
@@ -846,7 +886,9 @@ def main() -> None:
         print(f"Retrait d'urgence Judilibre : {suppressed} identifiant(s) chargé(s).")
         return
     if SETTINGS.caller_credentials and args.transport == "stdio":
-        parser.error("MCP_PISTE_CREDENTIALS=caller n'a de sens qu'en streamable-http.")
+        parser.error(
+            f"MCP_PISTE_CREDENTIALS={SETTINGS.piste_credentials} n'a de sens qu'en streamable-http."
+        )
     if args.transport == "streamable-http" and MCP_V2:
         server.run(
             transport=args.transport,

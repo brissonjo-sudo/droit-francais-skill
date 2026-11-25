@@ -140,6 +140,26 @@ cassation et peuvent être adressées à
 rectification portant sur le traitement Judilibre relèvent du SDER de la Cour
 de cassation.
 
+## Service à clés personnelles (`droit-francais-pont.onrender.com`)
+
+Ce second service n'utilise aucune clé PISTE du mainteneur. Chaque utilisateur
+se connecte par OAuth, puis saisit **une fois**, sur la page `/compte` du
+service, l'identifiant et le secret de sa propre application PISTE.
+
+- Les clés sont vérifiées auprès de PISTE, puis **chiffrées** (AES-256-GCM) par
+  le serveur.
+- Elles sont rangées dans le profil Auth0 de l'utilisateur, que celui-ci ne peut
+  pas modifier.
+- Pendant l'usage, elles sont déchiffrées **en mémoire seulement**, gardées en
+  cache 5 minutes au plus, et jamais journalisées.
+- Pour les supprimer, utiliser l'outil `oublier_cles_piste`.
+
+**Le mainteneur détient la clé de chiffrement et pourrait techniquement lire ces
+clés.** Ne confiez au service que les identifiants d'une application PISTE
+dédiée, que vous pouvez révoquer sur piste.gouv.fr. Leur usage via ce service
+se fait sous votre responsabilité au regard des CGU PISTE (§ 3.1.2, portée non
+tranchée).
+
 ## Sécurité et limites
 
 Les échanges utilisent HTTPS. Le conteneur s'exécute sans privilège, les
