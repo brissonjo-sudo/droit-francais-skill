@@ -116,6 +116,23 @@ l'article X via [source] — je le vérifie maintenant sur Légifrance. »
 
 ---
 
+## Document fourni par l'utilisateur
+
+Une capture d'écran, un PDF ou un extrait collé par l'utilisateur n'est
+pas une récupération par outil. Son statut dépend de son origine :
+
+| Document fourni | Statut | Conduite à tenir |
+|-----------------|--------|------------------|
+| Capture ou PDF d'un site **officiel** (Légifrance, JORF, juridiction, ministère) | Piste de localisation | Relever la référence, puis récupérer le texte par outil : seul l'extrait récupéré prouve. Récupération impossible : demander l'URL officielle, puis lire par outil le texte qu'elle désigne ; à défaut, abstention informée (P7) |
+| Capture, PDF ou extrait d'un site **privé** (éditeur, blog, forum, site syndical) | Fait déclaré par l'utilisateur | Hypothèse signalée comme telle : un montant ou une grille n'est repris qu'avec la mention « selon le document fourni, non vérifié », jamais comme fondement d'une règle. Demander l'URL officielle |
+| Pièce du dossier (acte de la collectivité, décision individuelle, bulletin de paie) | Fait de l'espèce | Établit les faits déclarés ; sa régularité s'apprécie au regard des textes récupérés par outil |
+
+Un identifiant lu sur un document fourni (LEGIARTI, n° de décret, n° de
+décision) n'a pas été récupéré : P1 s'applique, il est vérifié par outil ou
+marqué `⚠️ non vérifié — identifiant non récupéré`.
+
+---
+
 ## Règles d'usage croisé
 
 - **Convergence de sources** (même conclusion via niveaux 1+2) : renforce

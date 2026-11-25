@@ -11,6 +11,62 @@ conservés tels quels pour ne pas casser les liens publiés.
 
 ---
 
+### [3.7.0] — 2026-11-24
+
+Préparation locale de la méthodologie ; aucune publication ni mesure modèle.
+Regroupe pour le skill les entrées « Non publié » du 2026-11-11 (numéros de
+texte dans P1) et du 2026-11-24 ci-dessous. Publication, README et étiquette
+`skill-v3.7.0` : PR `release(skill)` après fusion. Le frontmatter du noyau
+reste à `version: 3.6.0` : le monter impose d'aligner les quatre déclinaisons
+(test de dérive), à faire avec la publication.
+
+#### Ajouté
+- `references/sources-autorisees.md` : rubrique « Document fourni par
+  l'utilisateur ». Capture ou PDF d'un site officiel : piste de localisation,
+  la preuve reste l'extrait récupéré par outil. Extrait d'un site privé : fait
+  déclaré, hypothèse signalée, jamais fondement ; demander l'URL officielle.
+  Pièce du dossier : fait de l'espèce. Un identifiant lu sur un document
+  fourni relève de P1.
+- Noyau P1 : une ligne de renvoi vers cette rubrique (noyau et Grok). Le noyau
+  Vibe, à 6 caractères de son plafond de 21 000, ne la porte pas ; sa
+  référence est identique.
+- Outils `search_texts` et `parent_text` de `get_article` (voir les deux
+  entrées suivantes), et parade « texte non codifié » de `modes-erreur.md`.
+
+Origine : cas fictif d'un agent de maîtrise détaché en police municipale
+(co-activation drh-fpt). Le décret d'échelonnement n'avait pu être retrouvé
+par outil, et aucune règle ne fixait la valeur d'une capture fournie.
+
+### [Non publié : search_texts, texte non codifié par numéro ou NOR] - 2026-11-24
+
+- Nouvel outil MCP `search_texts(number, nor, date, limit)`, en lecture seule :
+  retrouve un décret, une loi, une ordonnance ou un arrêté non codifié dans le
+  fonds `LODA_DATE`, une ligne par LEGITEXT (LEGITEXT, JORFTEXT, nature,
+  numéro, NOR, titre, état, date de publication, lien Légifrance). Jusqu'ici
+  `search_articles` ne couvrait que les codes et `search` partait vers
+  Judilibre : un décret non codifié restait introuvable par outil.
+- Garde-fous : les résultats sont filtrés exactement côté serveur (un champ
+  ignoré en silence renvoie tout le fonds) ; les versions datées sont
+  dédoublonnées et le suffixe de date retiré ; `date` s'appuie sur le filtre
+  `DATE_VERSION`, vérifié sur ce fonds. Pas de recherche par titre : `TITLE`
+  répond mais mêle les textes modificateurs, sans ordre fiable.
+- `references/modes-erreur.md` (noyau, Grok, Vibe) : limite de la voie outillée
+  pour un texte non codifié et parade (`search_texts`, sinon URL Légifrance
+  demandée à l'utilisateur puis confirmée par `fetch`).
+- Catalogue, soumission ChatGPT, sonde live, CI et listes d'outils des
+  déclinaisons Gemini et Manus (une ligne d'outil chacune) mis à jour.
+
+### [Non publié : texte parent dans get_article] - 2026-11-24
+
+- `get_article` (et `fetch` sur un `LEGIARTI`) ajoute `parent_text` : identifiant
+  LEGITEXT, identifiant JORFTEXT, nature, numéro, NOR, titre complet, état et
+  date de publication du texte qui porte l'article ; et `section` (identifiant
+  et titre de la section parente) quand la réponse en fournit une. Champs lus
+  dans `textTitles` et `sectionParentId`/`sectionParentTitre` de
+  `/consult/getArticle` (décret 88-547 et arrêté du 14 novembre 2001) ;
+  la date sentinelle 2999 des codes est écartée. Clés existantes inchangées ;
+  sans `textTitles`, les deux blocs sont simplement absents.
+
 ### [Non publié : article d'un décret non codifié] - 2026-11-18
 
 - `gabarits-requetes.md`, nouvelle section 4 bis : `search_articles` ne

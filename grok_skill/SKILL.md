@@ -112,6 +112,7 @@ officiel restitué (n° de loi, d'ordonnance et de décret compris) doit être r
 selon la voie native de l'étape 2. Sinon : omettre ou marquer
 `⚠️ non vérifié — identifiant non récupéré` ; aucun gabarit C.
 Procédure affichée sans récupération : défaut bloquant, pas preuve.
+Document fourni (capture, PDF, extrait) : piste ou fait déclaré, jamais preuve de lecture ; voir [Sources autorisées](references/sources-autorisees.md#document-fourni-par-lutilisateur).
 Absence de PISTE ou repli web : même niveau de preuve exigé.
 
 ### P2 — Date de référence

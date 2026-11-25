@@ -28,13 +28,14 @@ capacités et aux outils de l'écosystème Google / Gemini :
 ## Échelle d'outils à 4 voies
 
 1. **Connecteur MCP dédié (Priorité 1)** :  
-   Dans un environnement supportant le protocole MCP (Google Antigravity, Gemini CLI, Claude Code), le serveur du dépôt expose 12 outils officiels vérifiés dans [`mcp_server/server.py`](../mcp_server/server.py) :
+   Dans un environnement supportant le protocole MCP (Google Antigravity, Gemini CLI, Claude Code), le serveur du dépôt expose 13 outils officiels vérifiés dans [`mcp_server/server.py`](../mcp_server/server.py) :
    - `search(query)` : recherche générale (article, sinon jurisprudence judiciaire) ;
    - `fetch(id)` : lecture intégrale du document identifié (`LEGIARTI`, `LEGITEXT`, `CETATEXT`, `CONSTEXT`, `JUFITEXT`, décision Judilibre) ;
    - `search_articles(number, code, date, limit)` : article de code avec filtre de date ;
    - `get_article(id, date)` : lecture certifiée avec évaluation de `applicable_at_as_of_date` ;
    - `get_article_history(id, date)` : versions datées d'un article, textes modificateurs, version applicable ;
    - `get_section(id, text_id, date, cid)` et `get_text(id, date)` : section de code et texte consolidé ;
+   - `search_texts(number, nor, date, limit)` : texte non codifié retrouvé par numéro ou NOR ;
    - `search_case_law(query, jurisdiction, date_start, date_end, limit, sort)` et `get_decision(id)` : ordre judiciaire (Judilibre) ;
    - `search_admin_case_law(...)`, `search_constitutional_decisions(...)` et `search_financial_case_law(...)` : ordres administratif, constitutionnel et financier (Légifrance).
 

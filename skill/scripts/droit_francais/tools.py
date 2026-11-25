@@ -354,17 +354,21 @@ def _dating(requested: str | None) -> dict[str, Any]:
     return info
 
 
+# Pas de fromtimestamp : il échoue sous Windows avant 1970 (époque négative).
+_EPOCH = dt.date(1970, 1, 1)
+
+
 def _date_value(value: Any) -> dt.date | None:
     """Normalise une date Légifrance (ISO ou époque en millisecondes)."""
     if value in (None, ""):
         return None
     if isinstance(value, (int, float)):
-        return dt.datetime.fromtimestamp(value / 1000, tz=dt.timezone.utc).date()
+        return _EPOCH + dt.timedelta(milliseconds=value)
     text = str(value).strip()
     if not text:
         return None
     if text.isdigit():
-        return dt.datetime.fromtimestamp(int(text) / 1000, tz=dt.timezone.utc).date()
+        return _EPOCH + dt.timedelta(milliseconds=int(text))
     try:
         return dt.date.fromisoformat(text[:10])
     except ValueError:
@@ -581,6 +585,43 @@ def search_articles(
     }
 
 
+def _parent_text(article: dict[str, Any]) -> dict[str, Any] | None:
+    """Texte parent d'un article d'après ``textTitles``, ou None si absent.
+
+    Pour un texte non codifié, ``textTitles`` porte deux entrées : la version
+    JORF (``etat`` vide, dates sentinelles) puis la version consolidée LEGITEXT.
+    Pour un code, une seule entrée LEGITEXT. N'y figurent que des champs lus
+    dans les réponses réelles de ``/consult/getArticle``.
+    """
+    titles = [t for t in article.get("textTitles") or [] if isinstance(t, dict)]
+    if not titles:
+        return None
+    legi = next((t for t in titles if str(t.get("id") or "").startswith("LEGITEXT")), None)
+    source = legi or titles[0]
+    jorf = next(
+        (
+            t.get("cid") or t.get("id")
+            for t in titles
+            if str(t.get("cid") or t.get("id") or "").startswith("JORFTEXT")
+        ),
+        None,
+    )
+    published = _date_value(source.get("datePubli"))
+    parent = {
+        # get_text et fetch exigent un LEGITEXT : sans lui, pas d'id.
+        "id": legi.get("id") if legi else None,
+        "jorftext_id": jorf,
+        "nature": source.get("nature"),
+        "number": source.get("num"),
+        "nor": source.get("nor"),
+        "title": _clean_text(source.get("titreLong") or source.get("titre")),
+        "legal_status": source.get("etat"),
+        # Année 2999 : sentinelle « sans date » de Légifrance (codes).
+        "publication_date": published.isoformat() if published and published.year < 2999 else None,
+    }
+    return {key: value for key, value in parent.items() if value not in (None, "")} or None
+
+
 def get_article(article_id: str, date: str | None = None) -> dict[str, Any]:
     """Récupère une version d'article et évalue sa validité à la date visée."""
     article_id = article_id.strip().upper()
@@ -602,7 +643,7 @@ def get_article(article_id: str, date: str | None = None) -> dict[str, Any]:
     text = _clean_text(article.get("texte") or article.get("texteHtml"))
     start_date = article.get("dateDebut")
     end_date = article.get("dateFin")
-    return {
+    result: dict[str, Any] = {
         "id": canonical_id,
         "title": f"Article {number}",
         "text": text,
@@ -618,6 +659,13 @@ def get_article(article_id: str, date: str | None = None) -> dict[str, Any]:
             **_article_dating(start_date, end_date, date),
         },
     }
+    parent = _parent_text(article)
+    if parent:
+        result["parent_text"] = parent
+    section_title = _clean_text(article.get("sectionParentTitre"))
+    if section_title:
+        result["section"] = {"id": article.get("sectionParentId"), "title": section_title}
+    return result
 
 
 def _chrono_modifiers(text_cid: str, article_cid: str) -> dict[str, list[dict[str, Any]]] | None:
@@ -1112,3 +1160,14 @@ def get_text(text_id: str, date: str | None = None) -> dict[str, Any]:
     """Consulte un texte consolidé LEGI."""
     from .texts import get_text as consult_text
     return consult_text(text_id, date)
+
+
+def search_texts(
+    number: str | None = None,
+    nor: str | None = None,
+    date: str | None = None,
+    limit: int = 10,
+) -> dict[str, Any]:
+    """Retrouve un texte (décret, loi, arrêté) par numéro ou NOR."""
+    from .text_search import search_texts as find_texts
+    return find_texts(number, nor, date, limit)

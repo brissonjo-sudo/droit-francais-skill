@@ -101,3 +101,19 @@ chaque étape indiquent les modes qu'ils neutralisent (« → Bloque modes… »
 en amont, elle empêche de déclencher les modes 10 et 14 (mauvais régime /
 mauvais champ sur une hypothèse décisionnelle non levée). Elle prolonge P2
 et P7 au stade de l'entrée.
+
+## Limite de la voie outillée : texte non codifié
+
+`search_articles` ne cherche que dans les codes (`CODE_DATE`) et `search`
+route vers Judilibre : aucun des deux ne retrouve un décret, une loi ou un
+arrêté non codifié. Cette absence de résultat ne prouve pas que le texte
+n'existe pas : en conclure ainsi expose au mode 9 (décret d'application
+oublié), et le citer alors de mémoire au mode 1.
+
+**Parade.** Chercher le texte avec `search_texts` par numéro (`88-547`) ou par
+NOR (`MCLB8800149D`) : l'outil renvoie un `LEGITEXT` par texte, à lire ensuite
+avec `get_text`. Il ne cherche pas par titre. S'il ne donne rien, demander à
+l'utilisateur l'URL Légifrance du texte et lire l'identifiant qu'elle porte :
+`LEGITEXT` par `get_text`, `LEGIARTI` par `fetch`. Une URL qui ne porte qu'un
+`JORFTEXT` oblige à relancer `search_texts` par NOR ou numéro. `fetch` ne
+prend pas d'URL. À défaut, abstention informée (P7).
