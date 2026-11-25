@@ -69,6 +69,7 @@ jobs:
           python -m py_compile skill/scripts/droit_francais/judilibre.py
           python -m py_compile skill/scripts/droit_francais/tools.py
           python -m py_compile skill/scripts/droit_francais/texts.py
+          python -m py_compile skill/scripts/droit_francais/text_search.py
           python -m py_compile mcp_server/runtime.py
           python -m py_compile mcp_server/auth.py
           python -m py_compile mcp_server/skills.py

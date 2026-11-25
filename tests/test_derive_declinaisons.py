@@ -2,7 +2,7 @@
 
 Chaque déclinaison doit suivre la même version MAJEUR.MINEUR que le noyau et
 garder ses invariants : marqueur de provenance, cinq balises, neuf étapes et,
-pour les déclinaisons branchées sur le serveur MCP, les douze outils publiés.
+pour les déclinaisons branchées sur le serveur MCP, les treize outils publiés.
 
 Une déclinaison pas encore alignée porte `@unittest.expectedFailure`. Une fois
 alignée, unittest signale un succès inattendu et l'exécution échoue tant que le
@@ -75,7 +75,7 @@ class NoyauTests(unittest.TestCase):
         for balise in BALISES:
             self.assertIn(balise, texte)
         self.assertEqual(9, len(etapes(texte)))
-        self.assertEqual(12, len(outils_publies()))
+        self.assertEqual(13, len(outils_publies()))
 
 
 class DeriveDeclinaisonsTests(unittest.TestCase):

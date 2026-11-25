@@ -82,7 +82,7 @@ Avant toute recherche, recenser les informations nécessaires qui manquent. Si l
 Mobiliser les outils dans l'ordre suivant ; n'utiliser que ceux effectivement exposés dans la session.
 
 1. **Voie 1 : Connecteur MCP officiel (Priorité absolue)**
-   Si le serveur MCP du dépôt (`droit-francais-skill`) est connecté (Google Antigravity, Gemini CLI ou autre intégration MCP), utiliser ses douze outils, dont les noms et paramètres sont ceux de `mcp_server/server.py` (catalogue `mcp_server/catalog.py`) :
+   Si le serveur MCP du dépôt (`droit-francais-skill`) est connecté (Google Antigravity, Gemini CLI ou autre intégration MCP), utiliser ses treize outils, dont les noms et paramètres sont ceux de `mcp_server/server.py` (catalogue `mcp_server/catalog.py`) :
 
    | Outil MCP | Paramètres | Usage |
    |---|---|---|
@@ -93,6 +93,7 @@ Mobiliser les outils dans l'ordre suivant ; n'utiliser que ceux effectivement ex
    | `get_article_history` | `id`, `date` | Toutes les versions datées d'un article, leurs textes modificateurs et la version applicable |
    | `get_section` | `id`, `text_id`, `date`, `cid` | Section de code (`LEGISCTA`) dans son texte parent explicite |
    | `get_text` | `id`, `date` | Texte consolidé (`LEGITEXT`) |
+   | `search_texts` | `number`, `nor`, `date`, `limit` | Retrouve un texte non codifié (décret, loi, arrêté) par numéro ou NOR exacts ; pas de recherche par titre ; vide : demander l'URL Légifrance, en extraire le LEGITEXT ou le LEGIARTI (`get_text` ou `fetch`), ou, si elle ne porte qu'un JORFTEXT, relancer par NOR ou numéro ; sinon abstention |
    | `search_case_law` | `query`, `jurisdiction`, `date_start`, `date_end`, `limit`, `sort` | Jurisprudence de l'**ordre judiciaire** seulement (Judilibre : `cc`, `ca`, `tj`, `tcom`) |
    | `get_decision` | `id` | Lecture intégrale d'une décision Judilibre |
    | `search_admin_case_law` | `query`, `jurisdiction`, `date_start`, `date_end`, `limit`, `sort` | Jurisprudence administrative (`ce`, `caa`, `ta`, `tc`) ; tribunaux administratifs seulement en sélection antérieure à 2010 |

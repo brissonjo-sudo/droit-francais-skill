@@ -278,6 +278,17 @@ async def sonder(url: str, token: str) -> None:
                     raise SondeError("get_article_history ne désigne aucune version applicable")
                 print(f"✅ Historique : {len(versions)} version(s) datée(s).")
 
+                # ---- 3 ter. Texte non codifié retrouvé par son numéro ------
+                resultat, _ = await appeler("search_texts", {"number": "88-547"})
+                charge = _exiger_succes(resultat, "search_texts")
+                _verifier_absence_de_secrets(_texte(resultat), "search_texts")
+                _exiger_provenance(charge, "Légifrance API", "search_texts")
+                if [t.get("legitext_id") for t in charge.get("results") or []] != [
+                    "LEGITEXT000006066665"
+                ]:
+                    raise SondeError("search_texts ne retrouve pas le décret 88-547")
+                print("✅ search_texts : décret 88-547 retrouvé par son numéro.")
+
                 # ---- 4. Appel Judilibre réel ------------------------------
                 resultat, latence_judilibre = await appeler(
                     "search_case_law",
