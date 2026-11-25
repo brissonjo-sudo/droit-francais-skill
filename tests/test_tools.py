@@ -147,6 +147,11 @@ class TransportRetryTests(unittest.TestCase):
 
     URL = "https://api.example.test/dila/search?q=secret-param"
 
+    def setUp(self):
+        # L'échéance 429 mémorisée est globale : elle ne doit pas fuir entre tests.
+        transport.reset_backoff()
+        self.addCleanup(transport.reset_backoff)
+
     def test_429_is_retried_after_the_announced_delay(self, urlopen, sleep):
         urlopen.side_effect = [
             _http_error(429, b"slow down", {"Retry-After": "1"}),

@@ -92,6 +92,7 @@ jobs:
           python -m py_compile tests/test_deployment.py
           python -m py_compile tests/test_tools.py
           python -m py_compile tests/test_mcp_app.py
+          python -m py_compile tests/test_upstream_429.py
           python -m py_compile tests/test_text_consultation.py
           python -m py_compile tests/test_affirmations.py
           python -m py_compile tests/test_auth.py

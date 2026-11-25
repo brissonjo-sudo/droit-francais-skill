@@ -196,6 +196,7 @@ def _request_token(client_id: str, client_secret: str) -> tuple[str, object]:
             exit_code=3,
             http_status=exc.http_status,
             detail=exc.detail,
+            upstream=exc.upstream,
         ) from exc
     token = data.get("access_token")
     if not token:

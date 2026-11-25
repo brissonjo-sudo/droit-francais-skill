@@ -753,6 +753,8 @@ def search_case_law(
                 "jurisdiction": jurisdiction_name,
                 "decision_date": decision.get("decision_date"),
                 "number": decision.get("number"),
+                # Pourvois joints : le numéro cherché peut ne figurer qu'ici.
+                "numbers": decision.get("numbers") or [],
                 "ecli": decision.get("ecli"),
                 "formation": decision.get("formation"),
                 "seat": decision.get("seat") or decision.get("location"),
@@ -803,6 +805,7 @@ def get_decision(decision_id: str) -> dict[str, Any]:
             "chamber": decision.get("chamber"),
             "decision_date": decision.get("decision_date"),
             "number": decision.get("number"),
+            "numbers": decision.get("numbers") or [],
             "ecli": decision.get("ecli"),
             "formation": decision.get("formation"),
             "seat": decision.get("seat") or decision.get("location"),

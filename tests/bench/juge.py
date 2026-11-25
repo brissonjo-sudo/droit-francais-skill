@@ -48,6 +48,8 @@ SCHEMA = {
             "enum": ["source", "temporalite", "interpretation", "faits", "forme", "aucun"],
         },
         "extrait": {"type": "string"},
+        # Croisé avec le verdict, sépare l'abstention correcte de l'erreur (resume.categorie).
+        "abstention": {"type": "boolean"},
     },
     "required": ["verdict", "raison", "axe_defaillant"],
     "additionalProperties": False,
@@ -69,6 +71,7 @@ class Avis:
     extrait: str = ""
     modele: str = ""
     erreur: str = ""
+    abstention: bool | None = None  # None : le juge ne l'a pas dit
 
     @property
     def passe(self) -> bool:
@@ -172,6 +175,7 @@ def extraire_avis(sortie: str) -> Avis:
         raison=str(charge.get("raison", "")),
         axe_defaillant=str(charge.get("axe_defaillant", "aucun")),
         extrait=str(charge.get("extrait", "")),
+        abstention=charge["abstention"] if isinstance(charge.get("abstention"), bool) else None,
     )
 
 

@@ -24,7 +24,7 @@ Un texte de compétence ne peut être cité comme texte de sanction, et inversem
 ## Règle de provenance (P1, impérative)
 
 Tout **identifiant officiel** d'une citation — `LEGIARTI`, `JORFTEXT`,
-`NOR`, n° de pourvoi, n° de requête, n° de décision — doit provenir
+`NOR`, n° de pourvoi, n° de requête, n° de décision, n° de loi, d'ordonnance ou de décret — doit provenir
 d'un **appel d'outil effectué dans la session** (`scripts/legifrance.py`
 ou `web_fetch`/`web_search` sur domaine officiel). Un identifiant jamais
 récupéré **ne se reconstitue pas de mémoire** : il est omis ou marqué

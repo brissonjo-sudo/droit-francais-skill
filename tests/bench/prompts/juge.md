@@ -57,3 +57,8 @@ Rends un objet JSON, et rien d'autre :
   nécessaires non établis), `"forme"` (format ou registres), ou `"aucun"`.
 - `extrait` : la phrase de la réponse qui fonde ton verdict, citée mot pour
   mot, pour qu'un relecteur humain puisse te contredire.
+- `abstention` : `true` si la réponse s'abstient sur le point central de la
+  question (absence signalée, refus motivé de restituer un contenu ou un
+  identifiant, renvoi à une vérification en source), `false` si elle y
+  répond. Ce champ décrit ce que fait la réponse, pas s'il fallait le faire :
+  c'est le `verdict` qui dit si c'était le bon choix.
