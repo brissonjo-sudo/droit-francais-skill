@@ -149,7 +149,7 @@ conseil-constitutionnel.fr, JORF).
 
 **Règle de provenance (impérative, v2.3.0).** Tout **identifiant
 officiel** figurant dans une sortie — `LEGIARTI…`, `JORFTEXT…`,
-`NOR`, n° de pourvoi, n° de requête, n° de décision — doit provenir
+`NOR`, n° de pourvoi, n° de requête, n° de décision, n° de loi, d'ordonnance ou de décret — doit provenir
 d'un **appel d'outil effectué dans la session courante** (récupération
 en source primaire : selon l'ordre normé de l'**étape 2**, *échelle de récupération* :
 connecteur MCP officiel disponible, sinon `scripts/legifrance.py`,

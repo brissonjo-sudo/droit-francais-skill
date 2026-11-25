@@ -11,6 +11,51 @@ conservés tels quels pour ne pas casser les liens publiés.
 
 ---
 
+### [Non publié : article d'un décret non codifié] - 2026-11-18
+
+- `gabarits-requetes.md`, nouvelle section 4 bis : `search_articles` ne
+  retrouve pas l'article d'un décret non codifié. Démarche qui a abouti :
+  relever le `LEGIARTI` sur la page LODA du texte, récupérer l'article par
+  `fetch` ou `get_article`, puis contrôler `applicable_at_as_of_date` (un
+  identifiant relevé sur la page peut désigner une version abrogée). Une
+  erreur PISTE HTTP 400 ponctuelle a disparu à la relance du même appel.
+- Origine : cas réel du 17/11/2026 (décret n° 87-602, art. 33, 34 et 41),
+  en co-activation avec drh-fpt.
+- Copies `grok_skill/` et `vibe_skill/` alignées à l'identique.
+
+### [Non publié : numéros de texte dans P1] - 2026-11-11
+
+- P1 (règle de provenance) : les n° de loi, d'ordonnance et de décret entrent
+  dans la liste des identifiants officiels. Non récupérés par outil, ils sont
+  omis ou marqués `⚠️ non vérifié — identifiant non récupéré`, comme un
+  `LEGIARTI` ou un n° de pourvoi. Ajouté au noyau (`SKILL.md`, seul texte lu
+  sans outil) et aux trois références qui portent la liste.
+- Origine : sondes F2-a et F2-b du banc, bras B (11/11/2026, Sonnet). Sans
+  outil, l'assistant citait de mémoire « décret n° 2019-140 » ou
+  « ordonnance n° 2012-351 » sous une réserve générale : la liste de P1 ne
+  couvrait pas ces numéros.
+- Correspondance A4 : arbitrage A4f déclaré dans `check_skill_structure.py`
+  pour les unités RJ-L0244 et RJ-L0741 ; textes source inchangés.
+- Déclinaisons Grok et Vibe alignées. Gemini, Manus et l'agent Gemini ont
+  leurs propres listes : non modifiés.
+
+### [Non publié : décision écartée sur la date] - 2026-11-11
+
+- Déclencheur d'abstention 3 (§7) : avant de déclarer une décision
+  introuvable, ouvrir tout résultat d'une recherche sur le numéro exact, même
+  si le numéro affiché, la date ou la formation diffère. Une jonction ou une
+  date erronée ne se voit que dans la décision.
+- `search_case_law` et `get_decision` transmettent `numbers`, la liste des
+  pourvois joints fournie par Judilibre. Jusqu'ici seul `number` (le premier
+  pourvoi) était rendu : le numéro cherché pouvait n'apparaître nulle part.
+- Script `legifrance.py` (noyau, Grok, Vibe) : `juri` et `decision` affichent
+  une ligne « Pourvois joints » quand la décision en joint plusieurs.
+- Origine : sonde F1-b du banc (11/11/2026, bras C, Sonnet, 4 passes sur 4 en
+  échec, dont 2 avec une première version de la règle). La recherche renvoyait
+  Soc. 13 juillet 2010, affiché « n° 09-42.839 », qui joint 43 pourvois dont
+  le n° 09-42.873. L'assistant l'a écarté sans l'ouvrir, puis s'est abstenu.
+- Déclinaisons Grok et Vibe : même règle portée à part, le même jour.
+
 ### [Non publié : diagnostic des 429 amont] - 2026-11-07
 
 - Transport : `LegifranceError.upstream` conserve statut, hôte, chemin sans

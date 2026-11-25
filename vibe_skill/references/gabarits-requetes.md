@@ -112,6 +112,33 @@ web_search("site:legifrance.gouv.fr JORF NOR INTB2300001C")
 
 ---
 
+## 4 bis. Article d'un décret non codifié — récupérer son identifiant
+
+Constat du 17/11/2026 (décret n° 87-602, outils MCP `search_articles` et
+`fetch`) : `search_articles` ne retrouve pas l'article d'un décret non
+codifié, que l'on passe le numéro de l'article seul ou le numéro du décret
+(résultat vide, ou articles homonymes d'autres codes). Démarche qui a abouti :
+
+1. Ouvrir la page consolidée du texte (LODA) pour y relever l'identifiant
+   `LEGIARTI` de l'article visé ; une page longue se lit par tranches
+   (`offset` de `WebFetch`) :
+   ```
+   web_fetch("https://www.legifrance.gouv.fr/loda/id/JORFTEXT000000XXXXXX")
+   ```
+2. Récupérer l'article par cet identifiant avec l'outil officiel (`fetch`
+   ou `get_article`). Seul ce texte reçu prouve le contenu : le résumé de
+   la page renvoyé par `WebFetch` ne vaut pas source primaire.
+3. Contrôler `applicable_at_as_of_date` et les dates de version : un
+   identifiant relevé sur la page peut désigner une version **abrogée**
+   (cas de l'article 33 du décret n° 87-602 le 17/11/2026). Dans ce cas,
+   ne pas citer cette version comme en vigueur.
+
+Une erreur PISTE ponctuelle (« Authentification PISTE échouée », HTTP 400)
+a disparu en relançant une fois le même appel ; elle ne prouve ni
+l'absence ni l'abrogation du texte. Échec répété : abstention ciblée.
+
+---
+
 ## 5. Jurisprudence Cour de cassation
 
 ### Par numéro de pourvoi

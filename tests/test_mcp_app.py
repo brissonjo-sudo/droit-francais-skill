@@ -250,6 +250,7 @@ class LegalToolsTests(unittest.TestCase):
                         "jurisdiction": "cc",
                         "decision_date": "2025-01-15",
                         "number": "24-10.001",
+                        "numbers": ["24-10.001", "24-10.002"],
                         "summary": "<p>Responsabilité administrative</p>",
                     }
                 ],
@@ -259,6 +260,7 @@ class LegalToolsTests(unittest.TestCase):
                 "jurisdiction": "cc",
                 "decision_date": "2025-01-15",
                 "number": "24-10.001",
+                "numbers": ["24-10.001", "24-10.002"],
                 "text": "<p>Texte intégral</p>",
                 "publication": ["b"],
             },
@@ -268,6 +270,9 @@ class LegalToolsTests(unittest.TestCase):
         decision = legal_tools.get_decision(results["results"][0]["id"])
 
         self.assertEqual("abc123", results["results"][0]["id"])
+        # Un pourvoi joint reste visible même s'il n'est pas le numéro principal.
+        self.assertEqual(["24-10.001", "24-10.002"], results["results"][0]["numbers"])
+        self.assertEqual(["24-10.001", "24-10.002"], decision["metadata"]["numbers"])
         self.assertEqual("Texte intégral", decision["text"])
         self.assertTrue(decision["metadata"]["verified"])
         self.assertEqual(
@@ -276,6 +281,19 @@ class LegalToolsTests(unittest.TestCase):
         )
         self.assertEqual("untrusted_source_data", decision["metadata"]["content_trust"])
         self.assertEqual("https://www.courdecassation.fr/decision/abc123", decision["url"])
+
+    @mock.patch("droit_francais.tools.judilibre_get")
+    def test_case_law_without_joined_appeals_returns_an_empty_list(self, judilibre_get):
+        judilibre_get.side_effect = [
+            {"results": [{"id": "abc123", "number": "24-10.001", "numbers": None}]},
+            {"id": "abc123", "number": "24-10.001"},
+        ]
+
+        results = legal_tools.search_case_law("responsabilité")
+        decision = legal_tools.get_decision("abc123")
+
+        self.assertEqual([], results["results"][0]["numbers"])
+        self.assertEqual([], decision["metadata"]["numbers"])
 
     @mock.patch("droit_francais.tools.get_token", return_value="token")
     @mock.patch("droit_francais.tools.api_call")
