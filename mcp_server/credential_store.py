@@ -56,9 +56,16 @@ def _unb64(text: str) -> bytes:
 
 
 def decode_master_key(raw: str | None) -> bytes:
-    """Clé maîtresse : 32 octets en base64 (standard ou URL)."""
+    """Clé maîtresse : 32 octets en base64 (standard ou URL).
+
+    Décodage strict après conversion de l'alphabet URL vers le standard :
+    ``altchars`` avec ``validate=False`` jetterait en silence les ``+`` et
+    ``/`` d'une clé standard dans les Python à venir (FutureWarning vu en
+    production sous 3.15), et la même clé changerait alors de valeur.
+    """
+    text = (raw or "").strip().strip("\"'").translate(str.maketrans("-_", "+/")).rstrip("=")
     try:
-        key = base64.b64decode((raw or "").strip() + "==", altchars=b"-_")
+        key = base64.b64decode(text + "=" * (-len(text) % 4), validate=True)
     except ValueError as exc:
         raise ValueError("MCP_CREDENTIALS_KEY n'est pas du base64.") from exc
     if len(key) != 32:
