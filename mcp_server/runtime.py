@@ -17,8 +17,9 @@ DEFAULT_SCOPES: tuple[str, ...] = ("legal:read",)
 AUTH_MODES: frozenset[str] = frozenset({"disabled", "oauth"})
 
 #: Origine des identifiants PISTE : ceux de l'exploitant (``server``) ou ceux
-#: que chaque appelant transmet avec sa requête (``caller``, mode pont).
-PISTE_CREDENTIAL_MODES: frozenset[str] = frozenset({"server", "caller"})
+#: que chaque appelant transmet avec sa requête (``caller``, mode pont), ou ceux
+#: que l'utilisateur authentifié a enregistrés dans son compte (``account``).
+PISTE_CREDENTIAL_MODES: frozenset[str] = frozenset({"server", "caller", "account"})
 
 #: Variables portant les clés PISTE de l'exploitant.
 OPERATOR_PISTE_VARIABLES: tuple[str, ...] = (
@@ -133,7 +134,12 @@ class RuntimeSettings:
 
     @property
     def caller_credentials(self) -> bool:
-        return self.piste_credentials == "caller"
+        """Clés de l'appelant (en-têtes ou compte), jamais celles de l'exploitant."""
+        return self.piste_credentials in {"caller", "account"}
+
+    @property
+    def account_credentials(self) -> bool:
+        return self.piste_credentials == "account"
 
     @property
     def resource_url(self) -> str:
@@ -177,7 +183,12 @@ class RuntimeSettings:
         piste_credentials = values.get("MCP_PISTE_CREDENTIALS", "server").strip().lower()
         if piste_credentials not in PISTE_CREDENTIAL_MODES:
             raise RuntimeConfigurationError(
-                "MCP_PISTE_CREDENTIALS doit valoir server ou caller."
+                "MCP_PISTE_CREDENTIALS doit valoir server, caller ou account."
+            )
+        if piste_credentials == "account" and auth_mode != "oauth":
+            # Sans sujet authentifié, aucun compte auquel rattacher des clés.
+            raise RuntimeConfigurationError(
+                "MCP_PISTE_CREDENTIALS=account exige MCP_AUTH_MODE=oauth."
             )
 
         public_url = ""
@@ -241,6 +252,8 @@ class RuntimeSettings:
 
         if self.caller_credentials:
             self._validate_bridge(values)
+            if self.account_credentials:
+                self._validate_account_store(values)
             return
 
         missing = [
@@ -289,6 +302,25 @@ class RuntimeSettings:
         for name in ("LEGIFRANCE_ENV", "JUDILIBRE_ENV"):
             if values.get(name, "prod").lower() != "prod":
                 raise RuntimeConfigurationError(f"{name} doit valoir prod en production.")
+
+    @staticmethod
+    def _validate_account_store(values: Mapping[str, str]) -> None:
+        """Mode compte : coffre Auth0 et clé de chiffrement obligatoires."""
+        from mcp_server.credential_store import decode_master_key
+
+        missing = [
+            name
+            for name in ("AUTH0_MGMT_CLIENT_ID", "AUTH0_MGMT_CLIENT_SECRET")
+            if not values.get(name, "").strip()
+        ]
+        if missing:
+            raise RuntimeConfigurationError(
+                "Variables obligatoires absentes en mode account : " + ", ".join(missing)
+            )
+        try:
+            decode_master_key(values.get("MCP_CREDENTIALS_KEY"))
+        except ValueError as exc:
+            raise RuntimeConfigurationError(str(exc)) from None
 
 
 class RequestGovernor:
