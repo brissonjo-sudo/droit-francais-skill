@@ -52,8 +52,8 @@ class GeminiSkillIntegrityTests(unittest.TestCase):
         frontmatter = parties[1]
 
         self.assertIn("name: recherche-juridique", frontmatter)
-        self.assertIn("version: 3.6.0-gemini", frontmatter)
-        self.assertIn("base_version: 3.6.0", frontmatter)
+        self.assertIn("version: 3.7.0-gemini", frontmatter)
+        self.assertIn("base_version: 3.7.0", frontmatter)
         self.assertIn("adapted_for: Gemini", frontmatter)
 
     def test_presence_sept_principes_invariants(self):

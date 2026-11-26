@@ -2,13 +2,13 @@
 name: recherche-juridique
 description: Aide à la recherche juridique en droit français.
 metadata:
-  version: 3.6.0-gemini
-  base_version: 3.6.0
+  version: 3.7.0-gemini
+  base_version: 3.7.0
   langue: français
   adapted_for: Gemini
 ---
 
-# Recherche juridique — déclinaison Gemini (v3.6.0-gemini)
+# Recherche juridique — déclinaison Gemini (v3.7.0-gemini)
 
 ## Objet et règle cardinale
 

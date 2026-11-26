@@ -13,12 +13,10 @@ conservés tels quels pour ne pas casser les liens publiés.
 
 ### [3.7.0] — 2026-11-24
 
-Préparation locale de la méthodologie ; aucune publication ni mesure modèle.
+Publiée le 2026-11-26 (étiquette `skill-v3.7.0`) ; aucune mesure modèle.
 Regroupe pour le skill les entrées « Non publié » du 2026-11-11 (numéros de
-texte dans P1) et du 2026-11-24 ci-dessous. Publication, README et étiquette
-`skill-v3.7.0` : PR `release(skill)` après fusion. Le frontmatter du noyau
-reste à `version: 3.6.0` : le monter impose d'aligner les quatre déclinaisons
-(test de dérive), à faire avec la publication.
+texte dans P1) et du 2026-11-24 ci-dessous. Le noyau et les quatre
+déclinaisons (Gemini, Grok, Manus, Vibe) passent en 3.7.0.
 
 #### Ajouté
 - `references/sources-autorisees.md` : rubrique « Document fourni par
@@ -32,6 +30,10 @@ reste à `version: 3.6.0` : le monter impose d'aligner les quatre déclinaisons
   référence est identique.
 - Outils `search_texts` et `parent_text` de `get_article` (voir les deux
   entrées suivantes), et parade « texte non codifié » de `modes-erreur.md`.
+- `references/gabarits-requetes.md` §4 bis (noyau, Grok, Vibe) : en tête de la
+  démarche, tenter d'abord `search_texts(number=…)` ou `search_texts(nor=…)`,
+  puis `get_text` ou `get_article`, avant le contournement manuel par la page
+  LODA.
 
 Origine : cas fictif d'un agent de maîtrise détaché en police municipale
 (co-activation drh-fpt). Le décret d'échelonnement n'avait pu être retrouvé

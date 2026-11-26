@@ -8,13 +8,13 @@ description: >-
   auditer un acte, une note ou un document. Ne pas utiliser pour le droit
   étranger hors UE ni pour une question doctrinale sans enjeu normatif.
 metadata:
-  version: 3.6.0-manus
-  base_version: 3.6.0
+  version: 3.7.0-manus
+  base_version: 3.7.0
   langue: français
   adapted_for: Manus
 ---
 
-# Recherche juridique — adaptation Manus de la base 3.6.0
+# Recherche juridique — adaptation Manus de la base 3.7.0
 
 ## Objet et règle cardinale
 

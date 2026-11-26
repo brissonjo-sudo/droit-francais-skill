@@ -11,15 +11,15 @@ description: Méthodologie rigoureuse de recherche en droit français (sources
   un écrit ou oral de concours avec références juridiques. Ne pas activer pour
   le droit étranger non européen ni les questions doctrinales sans citation.
 metadata:
-  version: 3.6.0-grok
+  version: 3.7.0-grok
   date_derniere_revue_methodologique: 2026-10-21
   date_derniere_verification_sources: 2026-10-21
   langue: français
-  base_version: 3.6.0
+  base_version: 3.7.0
   adapted_for: grok
 ---
 
-# Skill : recherche-juridique (v3.6.0-grok)
+# Skill : recherche-juridique (v3.7.0-grok)
 
 Rigueur et abstention informée avant spéculation ; profil métier sans certitude.
 Résoudre les ressources depuis la racine du paquet installé. Référence requise illisible :

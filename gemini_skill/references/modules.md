@@ -1,4 +1,4 @@
-# Modules activables (v3.6.0-gemini)
+# Modules activables (v3.7.0-gemini)
 
 Référencé depuis `SKILL.md`. Activer un module dès qu'un déclencheur est présent ; en cas de doute, l'activer. `[complet]` active tous les modules. **PÉNAL** et **DOC-AUDIT** ne peuvent pas être neutralisés par `[express]`.
 

@@ -18,15 +18,15 @@ allowed-tools:
   - read_file
   - ask_user_question
 metadata:
-  version: 3.6.0-vibe
+  version: 3.7.0-vibe
   date_derniere_revue_methodologique: 2026-10-21
   date_derniere_verification_sources: 2026-10-21
   langue: français
-  base_version: 3.6.0
+  base_version: 3.7.0
   adapted_for: vibe
 ---
 
-# Skill : recherche-juridique (v3.6.0-vibe)
+# Skill : recherche-juridique (v3.7.0-vibe)
 
 Rigueur et abstention informée avant spéculation ; profil métier sans certitude.
 Résoudre les ressources depuis la racine du paquet installé. Référence requise illisible :
@@ -349,7 +349,7 @@ Version sémantique et deux dates de métadonnées distinctes : revue et vérifi
 Veille annuelle selon domaines du profil ; revue de la déclinaison par son mainteneur.
 Historique complet : [CHANGELOG](CHANGELOG.md).
 
-Source de vérité pour la maintenance : [noyau 3.6.0](../skill/SKILL.md),
+Source de vérité pour la maintenance : [noyau 3.7.0](../skill/SKILL.md),
 [sources](../skill/references/sources-autorisees.md) et
 [modules](../skill/references/modules.md). Ces liens concernent le dépôt ;
 le paquet installé utilise ses références locales et ne requiert pas de dossier voisin.

@@ -25,8 +25,8 @@ class VibeSkillTests(unittest.TestCase):
         }
 
     def test_version_is_3_6_0_vibe(self):
-        self.assertIn("version: 3.6.0-vibe", self.skill)
-        self.assertIn("# Skill : recherche-juridique (v3.6.0-vibe)", self.skill)
+        self.assertIn("version: 3.7.0-vibe", self.skill)
+        self.assertIn("# Skill : recherche-juridique (v3.7.0-vibe)", self.skill)
 
     def test_doc_audit_3_5_0_controls_are_present(self):
         for name, text in (("SKILL.md", self.skill), ("modules.md", self.modules),
