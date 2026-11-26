@@ -46,4 +46,5 @@ juridique embarquées ne sont pas actualisées par la refonte.
 
 - [[index-recherche-juridique]] — navigation principale
 - [[recherche-juridique v3.5.1]] — version précédente
+- [[recherche-juridique v3.7.0]] — version suivante
 - [[procedure-compacte]] — étapes et critères de sortie

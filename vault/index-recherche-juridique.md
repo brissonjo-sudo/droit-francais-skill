@@ -1,6 +1,6 @@
 ---
 tags: [skill/recherche-juridique, index]
-version: 3.6.0
+version: 3.7.0
 ---
 
 # Index — skill recherche-juridique
@@ -21,7 +21,9 @@ version: 3.6.0
 | Profils configurables (métier de l'utilisateur) | `../skill/profils/` |
 | Récupération en source primaire (API PISTE, articles + jurisprudence) | `../skill/scripts/README.md` |
 | Détail des 18 modes d'erreur | `../skill/references/modes-erreur.md` |
-| Changelog v3.6.0 (dernier) | `recherche-juridique v3.6.0.md` |
+| Changelog v3.7.0 (dernier) | `recherche-juridique v3.7.0.md` |
+| `search_texts`, `parent_text`, document fourni par l'utilisateur | `recherche-juridique v3.7.0.md` |
+| Changelog v3.6.0 | `recherche-juridique v3.6.0.md` |
 | Noyau court, développements en références, ordre normé de l'étape 2 | `recherche-juridique v3.6.0.md` |
 | Changelog v3.5.1 | `recherche-juridique v3.5.1.md` |
 | Historique d'article outillé, états de version (étape 3, T3) | `recherche-juridique v3.5.1.md` |
@@ -79,6 +81,7 @@ toute note du vault y est reliée, et chaque note renvoie ici.
 
 **Chaîne des versions** (de la plus récente à la plus ancienne)
 
+- [[recherche-juridique v3.7.0]] — texte non codifié par outil, texte parent, document fourni
 - [[recherche-juridique v3.6.0]] — noyau court, développements en références
 - [[recherche-juridique v3.5.1]] — historique d'article outillé, citations internes
 - [[recherche-juridique v3.5.0]] — exécution forcée d'office, montants répressifs

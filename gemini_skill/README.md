@@ -4,7 +4,7 @@ Déclinaison **Gemini** (Google Antigravity et Gemini CLI) de la
 méthodologie de recherche juridique en droit français portée par ce dépôt.
 
 Cette déclinaison porte au standard **Agent Skills** l'ensemble des principes
-invariants de la version **3.6.0** du noyau (`skill/`), en adaptant l'échelle
+invariants de la version **3.7.0** du noyau (`skill/`), en adaptant l'échelle
 d'outils aux capacités de l'écosystème Gemini.
 
 ---
@@ -134,4 +134,4 @@ print(response.text)
 
 ## Versionnement
 
-Le frontmatter porte `version: 3.6.0-gemini` et `base_version: 3.6.0`. Le numéro suit fidèlement le noyau de méthodologie juridique du dépôt.
+Le frontmatter porte `version: 3.7.0-gemini` et `base_version: 3.7.0`. Le numéro suit fidèlement le noyau de méthodologie juridique du dépôt.

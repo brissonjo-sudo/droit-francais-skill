@@ -117,7 +117,13 @@ web_search("site:legifrance.gouv.fr JORF NOR INTB2300001C")
 Constat du 17/11/2026 (décret n° 87-602, outils MCP `search_articles` et
 `fetch`) : `search_articles` ne retrouve pas l'article d'un décret non
 codifié, que l'on passe le numéro de l'article seul ou le numéro du décret
-(résultat vide, ou articles homonymes d'autres codes). Démarche qui a abouti :
+(résultat vide, ou articles homonymes d'autres codes).
+
+Avant le contournement manuel : `search_texts(number=…)` ou
+`search_texts(nor=…)` (fonds LODA, depuis 3.7.0) ; il renvoie le `LEGITEXT`,
+puis `get_text` ou `get_article` lisent le texte.
+
+Contournement manuel qui a abouti :
 
 1. Ouvrir la page consolidée du texte (LODA) pour y relever l'identifiant
    `LEGIARTI` de l'article visé ; une page longue se lit par tranches

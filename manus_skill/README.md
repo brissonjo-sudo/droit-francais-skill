@@ -1,6 +1,6 @@
 # Skill juridique — déclinaison Manus
 
-Déclinaison Manus de la méthodologie de recherche juridique du dépôt, actualisée sur la base 3.6.0. Elle conserve les garde-fous de provenance et d'applicabilité du portage Manus, sans supposer la présence d'un connecteur ou d'un outil qui ne serait pas exposé dans la session.
+Déclinaison Manus de la méthodologie de recherche juridique du dépôt, actualisée sur la base 3.7.0. Elle conserve les garde-fous de provenance et d'applicabilité du portage Manus, sans supposer la présence d'un connecteur ou d'un outil qui ne serait pas exposé dans la session.
 
 ## Échelle de récupération en trois voies
 
@@ -34,4 +34,4 @@ L'installation du skill et la connexion du serveur MCP sont distinctes. Pour con
 
 ## Versionnement
 
-Le frontmatter de `SKILL.md` porte `version: 3.6.0-manus` et `base_version: 3.6.0`. Le portage Manus est maintenu séparément du noyau `skill/` ; les changements du noyau ne se propagent pas automatiquement, mais `tests/test_derive_declinaisons.py` échoue si cette déclinaison prend du retard.
+Le frontmatter de `SKILL.md` porte `version: 3.7.0-manus` et `base_version: 3.7.0`. Le portage Manus est maintenu séparément du noyau `skill/` ; les changements du noyau ne se propagent pas automatiquement, mais `tests/test_derive_declinaisons.py` échoue si cette déclinaison prend du retard.

@@ -1,6 +1,6 @@
 # Recherche juridique — Grok
 
-Version **3.6.0-grok**, base méthodologique **3.6.0**.
+Version **3.7.0-grok**, base méthodologique **3.7.0**.
 
 Le noyau court reprend les sept principes, neuf étapes (0, 0 bis, 1 à 7),
 dix-huit modes d'erreur, six modules et quatre techniques du noyau.
@@ -52,7 +52,7 @@ La maintenance du CLI skills (3.4.x) est sans objet ici : aucune copie de
 sa référence maintenance.md, aucun updater annoncé ou livré. Utiliser le
 mécanisme de la plateforme ou une copie manuelle autorisée du paquet complet.
 Les développements juridiques 3.4.x, DOC-AUDIT 3.5.0, fraîcheur 3.5.1,
-routage court 3.6.0 et citations par nom et section sont conservés.
+routage court 3.7.0 et citations par nom et section sont conservés.
 Les dates embarquées restent celles du noyau ; aucune nouvelle vérification
 juridique ni recette réelle Grok n'a été effectuée (pas de clés).
 

@@ -1,5 +1,14 @@
 # Historique — recherche-juridique (grok)
 
+## 3.7.0-grok — 2026-11-26
+
+Port local du noyau 3.7.0 ; aucune recette réelle de la plateforme.
+Historique du noyau : dépôt amont, skill/CHANGELOG.md.
+
+Ajouté : `gabarits-requetes.md` §4 bis aligné sur le noyau — tenter d'abord
+`search_texts` (numéro ou NOR) avant le contournement manuel d'un décret non
+codifié. Non rejoué sur la plateforme.
+
 ## 3.6.0-grok — 2026-10-24
 
 Port local du noyau 3.6.0 ; aucune recette réelle de la plateforme.
